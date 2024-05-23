@@ -1,0 +1,163 @@
+version: '3.8'
+
+services:
+  ibltermocasa-blazor:
+    image: mycompanyname/ibltermocasa-blazor:latest
+    container_name: ibltermocasa-blazor
+    build:
+      context: ../../
+      dockerfile: src/IBLTermocasa.Blazor/Dockerfile.local
+    ports:
+      - "44307:80"
+    depends_on:
+      - ibltermocasa-api
+    restart: on-failure
+    volumes:
+      - ./appsettings.json:/usr/share/nginx/html/appsettings.json
+    networks:
+      - abp-network
+
+  ibltermocasa-api:
+    image: mycompanyname/ibltermocasa-api:latest
+    container_name: ibltermocasa-api
+    hostname: ibltermocasa-api
+    build:
+      context: ../../
+      dockerfile: src/IBLTermocasa.HttpApi.Host/Dockerfile.local
+    environment:
+      - ASPNETCORE_URLS=https://+:443;http://+:80;
+      - Kestrel__Certificates__Default__Path=/root/certificate/localhost.pfx
+      - Kestrel__Certificates__Default__Password=c2461192-cc67-40b6-9f59-ce68a2da55f0
+      - App__SelfUrl=https://localhost:44354
+      - App__CorsOrigins=http://localhost:44307
+      - App__HealthCheckUrl=http://ibltermocasa-api/health-status
+      - AuthServer__RequireHttpsMetadata=false
+      - AuthServer__Authority=http://ibltermocasa-authserver
+      - AuthServer__MetaAddress=https://localhost:44334
+      - App__MVCPublicUrl=https://localhost:44306
+      - ConnectionStrings__Default=mongodb://mongodb/IBLTermocasa      
+      - Redis__Configuration=redis
+    ports:
+      - "44354:443"
+    depends_on:
+      mongo-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: on-failure    
+    volumes:
+      - ./certs:/root/certificate
+    networks:
+      - abp-network
+  
+  ibltermocasa-authserver:
+    image: mycompanyname/ibltermocasa-authserver:latest
+    container_name: ibltermocasa-authserver
+    build:
+      context: ../../
+      dockerfile: src/IBLTermocasa.AuthServer/Dockerfile.local
+    environment:
+      - ASPNETCORE_URLS=https://+:443;http://+:80;
+      - App__SelfUrl=https://localhost:44334
+      - App__CorsOrigins=http://localhost:44307,https://localhost:44354
+      - AuthServer__RequireHttpsMetadata=false
+      - AuthServer__Authority=https://localhost:44334
+      - Kestrel__Certificates__Default__Path=/root/certificate/localhost.pfx
+      - Kestrel__Certificates__Default__Password=c2461192-cc67-40b6-9f59-ce68a2da55f0
+      - ConnectionStrings__Default=mongodb://mongodb/IBLTermocasa
+      - Redis__Configuration=redis
+    ports:
+      - "44334:443"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: on-failure
+    volumes:
+      - ./certs:/root/certificate
+    networks:
+      - abp-network
+
+  ibltermocasa-web-public:
+    image: mycompanyname/ibltermocasa-web-public:latest
+    container_name: ibltermocasa-web-public
+    build:
+      context: ../../
+      dockerfile: src/IBLTermocasa.Web.Public/Dockerfile.local
+    environment:
+      - ASPNETCORE_URLS=https://+:443;http://+:80;
+      - Kestrel__Certificates__Default__Path=/root/certificate/localhost.pfx
+      - Kestrel__Certificates__Default__Password=c2461192-cc67-40b6-9f59-ce68a2da55f0
+      - App__SelfUrl=https://localhost:44306
+      - AuthServer__RequireHttpsMetadata=false
+      - AuthServer__IsContainerized=true
+      - AuthServer__Authority=https://localhost:44334/
+      - RemoteServices__Default__BaseUrl=http://ibltermocasa-api      
+      - AuthServer__MetaAddress=http://ibltermocasa-authserver
+      - RemoteServices__AbpAccountPublic__BaseUrl=http://ibltermocasa-authserver
+      - ConnectionStrings__Default=mongodb://mongodb/IBLTermocasa
+      - Redis__Configuration=redis
+    ports:
+      - "44306:443"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: on-failure
+    volumes:
+      - ./certs:/root/certificate
+    networks:
+      - abp-network  
+
+  db-migrator:
+    image: mycompanyname/ibltermocasa-db-migrator:latest
+    container_name: db-migrator
+    build:
+      context: ../../
+      dockerfile: src/IBLTermocasa.DbMigrator/Dockerfile.local
+    environment:
+      - OpenIddict__Applications__IBLTermocasa_Blazor__RootUrl=http://localhost:44307
+      - OpenIddict__Applications__IBLTermocasa_Swagger__RootUrl=https://localhost:44354
+      - OpenIddict__Applications__IBLTermocasa_Web_Public_Tiered__RootUrl=https://localhost:44306
+      - OpenIddict__Applications__IBLTermocasa_Web_Public__RootUrl=https://localhost:44306
+      - ConnectionStrings__Default=mongodb://mongodb/IBLTermocasa
+      - Redis__Configuration=redis
+    restart: on-failure
+    depends_on:
+      mongo-db:
+        condition: service_healthy
+    networks:
+      - abp-network    
+  
+  mongodb:
+    container_name: mongodb
+    image: mongo:4.2
+    ports:
+      - "27017:27017"
+    volumes:
+       - mongodb_data:/data/db
+    networks:
+      - abp-network
+    healthcheck:
+      test: echo 'db.stats().ok' | mongo localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 10    
+  redis:
+    container_name: redis
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - abp-network  
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]      
+volumes:
+  mongodb_data:
+    name: ibltermocasa_mongodb_data
+networks:
+  abp-network:
+    name: ibltermocasa-network
+    driver: bridge

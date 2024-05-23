@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net8.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <RootNamespace>IBLTermocasa</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IBLTermocasa.Application.Contracts\IBLTermocasa.Application.Contracts.csproj" />
+  	<PackageReference Include="Volo.Abp.LeptonTheme.Management.HttpApi.Client" Version="8.1.3" />
+</ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.PermissionManagement.HttpApi.Client" Version="8.1.3" />
+    <PackageReference Include="Volo.Abp.FeatureManagement.HttpApi.Client" Version="8.1.3" />
+    <PackageReference Include="Volo.Abp.SettingManagement.HttpApi.Client" Version="8.1.3" />
+    <PackageReference Include="Volo.Saas.Host.HttpApi.Client" Version="8.1.3" />
+    <PackageReference Include="Volo.Abp.AuditLogging.HttpApi.Client" Version="8.1.3" />
+    <PackageReference Include="Volo.Abp.Identity.Pro.HttpApi.Client" Version="8.1.3" />
+    <PackageReference Include="Volo.Abp.Account.Pro.Admin.HttpApi.Client" Version="8.1.3" />
+    <PackageReference Include="Volo.Abp.Account.Pro.Public.HttpApi.Client" Version="8.1.3" />
+    <PackageReference Include="Volo.Abp.OpenIddict.Pro.HttpApi.Client" Version="8.1.3" />
+    <PackageReference Include="Volo.Abp.LanguageManagement.HttpApi.Client" Version="8.1.3" />
+    <PackageReference Include="Volo.Abp.TextTemplateManagement.HttpApi.Client" Version="8.1.3" />
+    <PackageReference Include="Volo.Abp.Gdpr.HttpApi.Client" Version="8.1.3" />
+    <PackageReference Include="Volo.CmsKit.Pro.HttpApi.Client" Version="8.1.3" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="**\*generate-proxy.json" />
+		<Content Remove="**\*generate-proxy.json" />
+	</ItemGroup>
+
+</Project>
