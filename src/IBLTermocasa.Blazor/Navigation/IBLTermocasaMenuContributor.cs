@@ -155,6 +155,24 @@ public class IBLTermocasaMenuContributor : IMenuContributor
                 icon: "fa fa-industry",
                 requiredPermissionName: IBLTermocasaPermissions.Industries.Default)
         );
+
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                IBLTermocasaMenus.Contacts,
+                l["Menu:Contacts"],
+                url: "/contacts",
+                icon: "fa fa-id-card-alt",
+                requiredPermissionName: IBLTermocasaPermissions.Contacts.Default)
+        );
+
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                IBLTermocasaMenus.Organizations,
+                l["Menu:Organizations"],
+                url: "/organizations",
+                icon: "fa fa-building",
+                requiredPermissionName: IBLTermocasaPermissions.Organizations.Default)
+        );
         return Task.CompletedTask;
     }
 

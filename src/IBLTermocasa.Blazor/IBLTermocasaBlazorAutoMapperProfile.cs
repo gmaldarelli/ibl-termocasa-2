@@ -1,3 +1,5 @@
+using IBLTermocasa.Organizations;
+using IBLTermocasa.Contacts;
 using IBLTermocasa.Industries;
 using IBLTermocasa.Subproducts;
 using IBLTermocasa.Products;
@@ -26,5 +28,9 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<SubproductDto, SubproductUpdateDto>();
 
         CreateMap<IndustryDto, IndustryUpdateDto>();
+
+        CreateMap<ContactDto, ContactUpdateDto>();
+
+        CreateMap<OrganizationDto, OrganizationUpdateDto>();
     }
 }

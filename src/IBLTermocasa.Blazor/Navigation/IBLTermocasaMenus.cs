@@ -16,4 +16,8 @@ public class IBLTermocasaMenus
 
     public const string Industries = Prefix + ".Industries";
 
+    public const string Contacts = Prefix + ".Contacts";
+
+    public const string Organizations = Prefix + ".Organizations";
+
 }

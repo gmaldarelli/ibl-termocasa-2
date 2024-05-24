@@ -1,0 +1,582 @@
+
+
+@page "/organizations"
+
+@attribute [Authorize(IBLTermocasaPermissions.Organizations.Default)]
+@using IBLTermocasa.Organizations
+@using IBLTermocasa.Localization
+@using IBLTermocasa.Shared
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Components.Web
+@using Blazorise
+@using Blazorise.Components
+@using Blazorise.DataGrid
+@using Volo.Abp.BlazoriseUI
+@using Volo.Abp.BlazoriseUI.Components
+@using Volo.Abp.ObjectMapping
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+
+@using IBLTermocasa.Permissions
+@using Volo.Abp.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components
+@using Volo.Abp.Http.Client
+@inherits IBLTermocasaComponentBase
+@inject IOrganizationsAppService OrganizationsAppService
+
+@inject IUiMessageService UiMessageService
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+@using IBLTermocasa.Types
+
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["Organizations"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* SEARCH ************************* *@
+<Card>
+    <CardBody>
+
+        <Form id="OrganizationSearchForm" class="mb-3">
+            <Addons>
+                <Addon AddonType="AddonType.Body">
+                    <TextEdit @bind-Text="@Filter.FilterText"
+                              Autofocus="true"
+                              Placeholder="@L["Search"]">
+                    </TextEdit>
+                </Addon>
+                <Addon AddonType="AddonType.End">
+                    <SubmitButton Form="OrganizationSearchForm" Clicked="GetOrganizationsAsync">
+                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
+                    </SubmitButton>
+                </Addon>
+            </Addons>
+        </Form>
+        
+        <Row Class="mt-3 mb-3"> 
+            <div class="col-md-12">
+                <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
+            </div>
+        </Row>
+        
+        <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
+            <Row>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Code"]</FieldLabel>
+                        <TextEdit Text="@Filter.Code" TextChanged="@OnCodeChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Name"]</FieldLabel>
+                        <TextEdit Text="@Filter.Name" TextChanged="@OnNameChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["OrganizationType"]</FieldLabel>
+                        <Select TValue="OrganizationType?"
+		SelectedValue="@Filter.OrganizationType"
+		SelectedValueChanged="@OnOrganizationTypeChangedAsync">
+
+<SelectItem></SelectItem>
+
+@foreach(OrganizationType value in Enum.GetValues(typeof(OrganizationType)))
+{
+	<SelectItem Value="value">
+		@value
+	</SelectItem>
+}
+
+</Select>                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MailInfo"]</FieldLabel>
+                        <TextEdit Text="@Filter.MailInfo" TextChanged="@OnMailInfoChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["PhoneInfo"]</FieldLabel>
+                        <TextEdit Text="@Filter.PhoneInfo" TextChanged="@OnPhoneInfoChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Tags"]</FieldLabel>
+                        <TextEdit Text="@Filter.Tags" TextChanged="@OnTagsChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Industry"]</FieldLabel>
+                        <Select TValue="Guid?"
+		SelectedValue="@Filter.IndustryId"
+		SelectedValueChanged="@OnIndustryIdChangedAsync">
+
+<SelectItem></SelectItem>
+
+@foreach(var item in IndustriesCollection)
+{
+	<SelectItem TValue="Guid" Value="@item.Id">
+		@item.DisplayName
+	</SelectItem>
+}
+
+</Select>                       
+                    </Field>
+                </Column>
+            </Row>
+
+        </div>
+
+
+    </CardBody>
+</Card>
+
+@* ************************* DATA GRID ************************* *@
+<Card>
+    <CardBody>
+        <DataGrid TItem="OrganizationWithNavigationPropertiesDto"
+                  Data="OrganizationList"
+                  
+                  
+                  
+                  
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  Responsive="true"
+                  PageSize="PageSize"
+                  Class="datagrid-detail">
+            <DataGridColumns>
+                
+                
+                <DataGridEntityActionsColumn TItem="OrganizationWithNavigationPropertiesDto" @ref="@EntityActionsColumn">
+                    <DisplayTemplate>
+                        <EntityActions TItem="OrganizationWithNavigationPropertiesDto" EntityActionsColumn="@EntityActionsColumn">
+                            <EntityAction TItem="OrganizationWithNavigationPropertiesDto"
+                                          Visible="@CanEditOrganization"
+                                          Clicked="async () => await OpenEditOrganizationModalAsync(context)"
+                                          Text="@L["Edit"]"></EntityAction>
+                            <EntityAction TItem="OrganizationWithNavigationPropertiesDto"
+                                          Visible="@CanDeleteOrganization"
+                                          Clicked="() => DeleteOrganizationAsync(context)"
+                                          ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
+                                          Text="@L["Delete"]"></EntityAction>
+
+                        </EntityActions>
+                    </DisplayTemplate>
+                </DataGridEntityActionsColumn>
+               
+              <DataGridColumn TItem="OrganizationWithNavigationPropertiesDto"
+                      Field="Organization.Code"
+                      Caption="@L["Code"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="OrganizationWithNavigationPropertiesDto"
+                      Field="Organization.Name"
+                      Caption="@L["Name"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="OrganizationWithNavigationPropertiesDto"
+                      Field="Organization.OrganizationType"
+                      Caption="@L["OrganizationType"]">
+                    <DisplayTemplate>
+                        @L[$"Enum:OrganizationType.{(int)context.Organization.OrganizationType}"]
+                    </DisplayTemplate>
+              </DataGridColumn>
+
+
+              <DataGridColumn TItem="OrganizationWithNavigationPropertiesDto"
+                      Field="Organization.MailInfo"
+                      Caption="@L["MailInfo"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="OrganizationWithNavigationPropertiesDto"
+                      Field="Organization.PhoneInfo"
+                      Caption="@L["PhoneInfo"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="OrganizationWithNavigationPropertiesDto"
+                      Field="Organization.Tags"
+                      Caption="@L["Tags"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="OrganizationWithNavigationPropertiesDto"
+                      Field="Industry.Description"
+                      Caption="@L["Industry"]">
+              </DataGridColumn>
+
+            </DataGridColumns>
+            
+            
+        </DataGrid>
+    </CardBody>
+</Card>
+
+@* ************************* CREATE MODAL ************************* *@
+<Modal @ref="CreateOrganizationModal" Closing="@CreateOrganizationModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+
+        <Form id="CreateOrganizationForm">
+            <ModalHeader>
+                <ModalTitle>@L["NewOrganization"]</ModalTitle>
+                <CloseButton Clicked="CloseCreateOrganizationModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@NewOrganizationValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@NewOrganization"
+                            ValidateOnLoad="false">
+                     
+                    
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Code"] *</FieldLabel>
+                            <TextEdit @bind-Text="@NewOrganization.Code"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Name"] *</FieldLabel>
+                            <TextEdit @bind-Text="@NewOrganization.Name"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <FieldLabel>@L["OrganizationType"]</FieldLabel>
+                        <Select TValue="OrganizationType" @bind-SelectedValue="@NewOrganization.OrganizationType" >
+                            @foreach (var itemValue in Enum.GetValues(typeof(OrganizationType)))
+                            {
+                                <SelectItem TValue="OrganizationType" Value="@((OrganizationType) itemValue)">
+                                    @L[$"Enum:OrganizationType.{((OrganizationType) itemValue).ToString("d")}"]
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["MailInfo"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewOrganization.MailInfo"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["PhoneInfo"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewOrganization.PhoneInfo"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["SocialInfo"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewOrganization.SocialInfo"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["BillingAddress"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewOrganization.BillingAddress"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["ShippingAddress"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewOrganization.ShippingAddress"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Tags"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewOrganization.Tags"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Notes"]</FieldLabel>
+                            <MemoEdit @bind-Text="@NewOrganization.Notes"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </MemoEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["ImageId"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewOrganization.ImageId"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <FieldLabel>@L["Industry"]</FieldLabel>
+                        <Select TValue="Guid" @bind-SelectedValue="@NewOrganization.IndustryId">
+                            @foreach (var industry in IndustriesCollection)
+                            {
+                                <SelectItem TValue="Guid" Value="@(industry.Id)">
+                                    @(industry.DisplayName)
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    
+                    
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseCreateOrganizationModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="CreateOrganizationForm" Clicked="CreateOrganizationAsync" />
+
+            </ModalFooter>
+        </Form>
+
+    </ModalContent>
+</Modal>
+
+@* ************************* EDIT MODAL ************************* *@
+<Modal @ref="EditOrganizationModal" Closing="@EditOrganizationModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+
+        <Form id="EditOrganizationForm">
+            <ModalHeader>
+                <ModalTitle>@L["Update"]</ModalTitle>
+                <CloseButton Clicked="CloseEditOrganizationModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@EditingOrganizationValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@EditingOrganization"
+                            ValidateOnLoad="false">
+                     
+                    
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Code"] *</FieldLabel>
+                            <TextEdit @bind-Text="@EditingOrganization.Code"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Name"] *</FieldLabel>
+                            <TextEdit @bind-Text="@EditingOrganization.Name"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <FieldLabel>@L["OrganizationType"]</FieldLabel>
+                        <Select TValue="OrganizationType" @bind-SelectedValue="@EditingOrganization.OrganizationType" >
+                            @foreach (var itemValue in Enum.GetValues(typeof(OrganizationType)))
+                            {
+                                <SelectItem TValue="OrganizationType" Value="@((OrganizationType) itemValue)">
+                                    @L[$"Enum:OrganizationType.{((OrganizationType) itemValue).ToString("d")}"]
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["MailInfo"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingOrganization.MailInfo"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["PhoneInfo"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingOrganization.PhoneInfo"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["SocialInfo"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingOrganization.SocialInfo"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["BillingAddress"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingOrganization.BillingAddress"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["ShippingAddress"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingOrganization.ShippingAddress"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Tags"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingOrganization.Tags"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Notes"]</FieldLabel>
+                            <MemoEdit @bind-Text="@EditingOrganization.Notes"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </MemoEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["ImageId"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingOrganization.ImageId"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <FieldLabel>@L["Industry"]</FieldLabel>
+                        <Select TValue="Guid" @bind-SelectedValue="@EditingOrganization.IndustryId">
+                            @foreach (var industry in IndustriesCollection)
+                            {
+                                <SelectItem TValue="Guid" Value="@(industry.Id)">
+                                    @(industry.DisplayName)
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    
+                    
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseEditOrganizationModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="EditOrganizationForm" Clicked="UpdateOrganizationAsync" />
+
+            </ModalFooter>
+        </Form>
+
+    </ModalContent>
+</Modal>
+

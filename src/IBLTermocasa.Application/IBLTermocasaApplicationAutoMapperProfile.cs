@@ -1,3 +1,5 @@
+using IBLTermocasa.Organizations;
+using IBLTermocasa.Contacts;
 using IBLTermocasa.Industries;
 using IBLTermocasa.Subproducts;
 using IBLTermocasa.Products;
@@ -40,5 +42,13 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<Product, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
 
         CreateMap<Industry, IndustryDto>();
+
+        CreateMap<Contact, ContactDto>();
+        CreateMap<Contact, ContactExcelDto>();
+
+        CreateMap<Organization, OrganizationDto>();
+        CreateMap<Organization, OrganizationExcelDto>();
+        CreateMap<OrganizationWithNavigationProperties, OrganizationWithNavigationPropertiesDto>();
+        CreateMap<Industry, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Description));
     }
 }

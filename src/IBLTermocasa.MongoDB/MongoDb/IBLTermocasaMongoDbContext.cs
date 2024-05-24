@@ -1,3 +1,5 @@
+using IBLTermocasa.Organizations;
+using IBLTermocasa.Contacts;
 using IBLTermocasa.Industries;
 using IBLTermocasa.Subproducts;
 using IBLTermocasa.Products;
@@ -13,6 +15,8 @@ namespace IBLTermocasa.MongoDB;
 [ConnectionStringName("Default")]
 public class IBLTermocasaMongoDbContext : AbpMongoDbContext
 {
+    public IMongoCollection<Organization> Organizations => Collection<Organization>();
+    public IMongoCollection<Contact> Contacts => Collection<Contact>();
     public IMongoCollection<Industry> Industries => Collection<Industry>();
     public IMongoCollection<Subproduct> Subproducts => Collection<Subproduct>();
     public IMongoCollection<Product> Products => Collection<Product>();
@@ -44,5 +48,9 @@ public class IBLTermocasaMongoDbContext : AbpMongoDbContext
         modelBuilder.Entity<Subproduct>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "Subproducts"; });
 
         modelBuilder.Entity<Industry>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "Industries"; });
+
+        modelBuilder.Entity<Contact>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "Contacts"; });
+
+        modelBuilder.Entity<Organization>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "Organizations"; });
     }
 }
