@@ -1,3 +1,5 @@
+using Volo.Abp.Identity;
+using IBLTermocasa.Interactions;
 using IBLTermocasa.Organizations;
 using IBLTermocasa.Contacts;
 using IBLTermocasa.Industries;
@@ -50,5 +52,15 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<Organization, OrganizationExcelDto>();
         CreateMap<OrganizationWithNavigationProperties, OrganizationWithNavigationPropertiesDto>();
         CreateMap<Industry, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Description));
+
+        CreateMap<Interaction, InteractionDto>();
+        CreateMap<Interaction, InteractionExcelDto>();
+        CreateMap<InteractionWithNavigationProperties, InteractionWithNavigationPropertiesDto>();
+        CreateMap<IdentityUser, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.NormalizedUserName));
+        CreateMap<OrganizationUnit, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.DisplayName));
+        CreateMap<IdentityUser, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.NormalizedUserName));
+
+        CreateMap<IdentityUser, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.UserName));
+        CreateMap<IdentityUser, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.UserName));
     }
 }

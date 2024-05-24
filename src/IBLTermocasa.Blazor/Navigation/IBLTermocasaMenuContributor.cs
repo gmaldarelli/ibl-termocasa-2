@@ -173,6 +173,15 @@ public class IBLTermocasaMenuContributor : IMenuContributor
                 icon: "fa fa-building",
                 requiredPermissionName: IBLTermocasaPermissions.Organizations.Default)
         );
+
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                IBLTermocasaMenus.Interactions,
+                l["Menu:Interactions"],
+                url: "/interactions",
+                icon: "fa fa-walkie-talkie",
+                requiredPermissionName: IBLTermocasaPermissions.Interactions.Default)
+        );
         return Task.CompletedTask;
     }
 

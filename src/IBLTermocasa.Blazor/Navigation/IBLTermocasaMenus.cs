@@ -20,4 +20,6 @@ public class IBLTermocasaMenus
 
     public const string Organizations = Prefix + ".Organizations";
 
+    public const string Interactions = Prefix + ".Interactions";
+
 }

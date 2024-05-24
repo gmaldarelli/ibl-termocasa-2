@@ -1,3 +1,4 @@
+using IBLTermocasa.Interactions;
 using IBLTermocasa.Organizations;
 using IBLTermocasa.Contacts;
 using IBLTermocasa.Industries;
@@ -63,6 +64,8 @@ public class IBLTermocasaMongoDbModule : AbpModule
             options.AddRepository<Contact, Contacts.MongoContactRepository>();
 
             options.AddRepository<Organization, Organizations.MongoOrganizationRepository>();
+
+            options.AddRepository<Interaction, Interactions.MongoInteractionRepository>();
 
         });
 
