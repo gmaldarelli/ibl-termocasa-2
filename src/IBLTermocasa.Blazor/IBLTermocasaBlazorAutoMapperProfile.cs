@@ -1,3 +1,4 @@
+using IBLTermocasa.Industries;
 using IBLTermocasa.Subproducts;
 using IBLTermocasa.Products;
 using IBLTermocasa.ComponentItems;
@@ -15,7 +16,7 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         //Define your AutoMapper configuration here for the Blazor project.
 
         CreateMap<MaterialDto, MaterialUpdateDto>();
-        
+
         CreateMap<ComponentDto, ComponentUpdateDto>();
 
         CreateMap<ComponentItemDto, ComponentItemUpdateDto>();
@@ -23,5 +24,7 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<ProductDto, ProductUpdateDto>().Ignore(x => x.ComponentIds);
 
         CreateMap<SubproductDto, SubproductUpdateDto>();
+
+        CreateMap<IndustryDto, IndustryUpdateDto>();
     }
 }

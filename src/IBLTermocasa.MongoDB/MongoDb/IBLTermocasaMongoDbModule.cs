@@ -1,3 +1,4 @@
+using IBLTermocasa.Industries;
 using IBLTermocasa.Subproducts;
 using IBLTermocasa.Products;
 using IBLTermocasa.ComponentItems;
@@ -54,6 +55,8 @@ public class IBLTermocasaMongoDbModule : AbpModule
             options.AddRepository<Product, Products.MongoProductRepository>();
 
             options.AddRepository<Subproduct, Subproducts.MongoSubproductRepository>();
+
+            options.AddRepository<Industry, Industries.MongoIndustryRepository>();
 
         });
 

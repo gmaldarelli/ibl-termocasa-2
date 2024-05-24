@@ -28,7 +28,7 @@ namespace IBLTermocasa.Products
 
         Task<IRemoteStreamContent> GetListAsExcelFileAsync(ProductExcelDownloadDto input);
 
-        Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync(); Task DeleteByIdsAsync(List<Guid> productIds);
+        Task<DownloadTokenResultDto> GetDownloadTokenAsync(); Task DeleteByIdsAsync(List<Guid> productIds);
 
         Task DeleteAllAsync(GetProductsInput input);
     }

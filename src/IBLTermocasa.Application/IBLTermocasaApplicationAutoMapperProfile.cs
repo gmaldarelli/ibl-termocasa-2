@@ -1,3 +1,4 @@
+using IBLTermocasa.Industries;
 using IBLTermocasa.Subproducts;
 using IBLTermocasa.Products;
 using IBLTermocasa.ComponentItems;
@@ -37,5 +38,7 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<Subproduct, SubproductDto>();
         CreateMap<SubproductWithNavigationProperties, SubproductWithNavigationPropertiesDto>();
         CreateMap<Product, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
+
+        CreateMap<Industry, IndustryDto>();
     }
 }

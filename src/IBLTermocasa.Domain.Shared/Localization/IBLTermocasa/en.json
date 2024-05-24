@@ -115,6 +115,10 @@
     "NewSubproduct": "New Subproduct",
     "Product": "Product",
     "Permission:Subproducts": "Subproducts",
-    "SingleProduct": "Single product"
+    "SingleProduct": "Single product",
+    "Permission:Industries": "Industries",
+    "Industries": "Industries",
+    "NewIndustry": "New Industry",
+    "Menu:Industries": "Industries"
   }
 }

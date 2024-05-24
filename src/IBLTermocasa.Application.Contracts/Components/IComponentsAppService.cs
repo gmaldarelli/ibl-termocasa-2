@@ -23,7 +23,7 @@ namespace IBLTermocasa.Components
 
         Task<IRemoteStreamContent> GetListAsExcelFileAsync(ComponentExcelDownloadDto input);
 
-        Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync(); Task DeleteByIdsAsync(List<Guid> componentIds);
+        Task<DownloadTokenResultDto> GetDownloadTokenAsync(); Task DeleteByIdsAsync(List<Guid> componentIds);
 
         Task DeleteAllAsync(GetComponentsInput input);
     }

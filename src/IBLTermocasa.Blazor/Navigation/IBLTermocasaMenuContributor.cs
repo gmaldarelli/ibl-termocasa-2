@@ -146,6 +146,15 @@ public class IBLTermocasaMenuContributor : IMenuContributor
                 icon: "fa fa-file-alt",
                 requiredPermissionName: IBLTermocasaPermissions.Products.Default)
         );
+
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                IBLTermocasaMenus.Industries,
+                l["Menu:Industries"],
+                url: "/industries",
+                icon: "fa fa-industry",
+                requiredPermissionName: IBLTermocasaPermissions.Industries.Default)
+        );
         return Task.CompletedTask;
     }
 
