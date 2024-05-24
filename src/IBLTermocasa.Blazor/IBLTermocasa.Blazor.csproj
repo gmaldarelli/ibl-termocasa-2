@@ -15,6 +15,8 @@
     <PackageReference Include="Blazorise.Components" Version="1.4.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.0" />
+    <PackageReference Include="Volo.Chat.Blazor" Version="8.1.3" />
+    <PackageReference Include="Volo.Chat.Blazor.WebAssembly" Version="8.1.3" />
   </ItemGroup>
 
   <ItemGroup>

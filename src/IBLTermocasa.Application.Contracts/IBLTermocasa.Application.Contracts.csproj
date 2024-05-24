@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Volo.Chat.Application.Contracts" Version="8.1.3" />
     <ProjectReference Include="..\IBLTermocasa.Domain.Shared\IBLTermocasa.Domain.Shared.csproj" />
   	<PackageReference Include="Volo.Abp.LeptonTheme.Management.Application.Contracts" Version="8.1.3" />
 </ItemGroup>

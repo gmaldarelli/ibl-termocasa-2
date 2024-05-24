@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
@@ -29,6 +29,8 @@ using Volo.Saas.Host.Blazor.WebAssembly;
 using Volo.CmsKit.Pro.Admin.Blazor.WebAssembly;
 
 using Volo.Abp.LeptonTheme.Management.Blazor.WebAssembly;
+using Volo.Chat.Blazor;
+using Volo.Chat.Blazor.WebAssembly;
 
 namespace IBLTermocasa.Blazor;
 
@@ -48,7 +50,9 @@ namespace IBLTermocasa.Blazor;
     typeof(TextTemplateManagementBlazorWebAssemblyModule),
 	typeof(LeptonThemeManagementBlazorWebAssemblyModule)
 )]
-public class IBLTermocasaBlazorModule : AbpModule
+[DependsOn(typeof(ChatBlazorModule))]
+    [DependsOn(typeof(ChatBlazorWebAssemblyModule))]
+    public class IBLTermocasaBlazorModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {

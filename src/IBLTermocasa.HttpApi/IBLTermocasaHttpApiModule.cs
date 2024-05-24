@@ -1,4 +1,4 @@
-﻿using Localization.Resources.AbpUi;
+using Localization.Resources.AbpUi;
 using IBLTermocasa.Localization;
 using Volo.Abp.Account;
 using Volo.Abp.AuditLogging;
@@ -15,6 +15,7 @@ using Volo.Abp.Gdpr;
 using Volo.Abp.OpenIddict;
 using Volo.CmsKit;
 using Volo.Abp.LeptonTheme;
+using Volo.Chat;
 
 namespace IBLTermocasa;
 
@@ -34,7 +35,8 @@ namespace IBLTermocasa;
     typeof(TextTemplateManagementHttpApiModule),
 	typeof(LeptonThemeManagementHttpApiModule)
     )]
-public class IBLTermocasaHttpApiModule : AbpModule
+[DependsOn(typeof(ChatHttpApiModule))]
+    public class IBLTermocasaHttpApiModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {

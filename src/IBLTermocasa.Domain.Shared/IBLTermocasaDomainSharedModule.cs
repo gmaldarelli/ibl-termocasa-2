@@ -18,6 +18,7 @@ using Volo.Abp.BlobStoring.Database;
 using Volo.Abp.Gdpr;
 using Volo.CmsKit;
 using Volo.Abp.LeptonTheme.Management;
+using Volo.Chat;
 
 namespace IBLTermocasa;
 
@@ -37,7 +38,8 @@ namespace IBLTermocasa;
     typeof(BlobStoringDatabaseDomainSharedModule),
 	typeof(LeptonThemeManagementDomainSharedModule)
     )]
-public class IBLTermocasaDomainSharedModule : AbpModule
+[DependsOn(typeof(ChatDomainSharedModule))]
+    public class IBLTermocasaDomainSharedModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {

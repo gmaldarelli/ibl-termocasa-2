@@ -1,4 +1,4 @@
-﻿using Volo.Abp.Account;
+using Volo.Abp.Account;
 using Volo.Abp.AuditLogging;
 using Volo.Abp.AutoMapper;
 using Volo.Abp.FeatureManagement;
@@ -13,6 +13,7 @@ using Volo.Abp.TextTemplateManagement;
 using Volo.Saas.Host;
 using Volo.CmsKit;
 using Volo.Abp.LeptonTheme.Management;
+using Volo.Chat;
 
 namespace IBLTermocasa;
 
@@ -34,7 +35,8 @@ namespace IBLTermocasa;
     typeof(TextTemplateManagementApplicationModule),
 	typeof(LeptonThemeManagementApplicationModule)
     )]
-public class IBLTermocasaApplicationModule : AbpModule
+[DependsOn(typeof(ChatApplicationModule))]
+    public class IBLTermocasaApplicationModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {

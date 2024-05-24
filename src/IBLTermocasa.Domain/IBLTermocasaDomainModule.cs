@@ -25,6 +25,7 @@ using Volo.CmsKit;
 using Volo.CmsKit.Contact;
 using Volo.CmsKit.Newsletters;
 using Volo.Abp.LeptonTheme.Management;
+using Volo.Chat;
 
 namespace IBLTermocasa;
 
@@ -49,7 +50,8 @@ namespace IBLTermocasa;
     typeof(BlobStoringDatabaseDomainModule),
 	typeof(LeptonThemeManagementDomainModule)
     )]
-public class IBLTermocasaDomainModule : AbpModule
+[DependsOn(typeof(ChatDomainModule))]
+    public class IBLTermocasaDomainModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {

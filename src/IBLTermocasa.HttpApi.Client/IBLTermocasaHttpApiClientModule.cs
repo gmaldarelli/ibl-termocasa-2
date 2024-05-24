@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.Account;
 using Volo.Abp.AuditLogging;
 using Volo.Abp.FeatureManagement;
@@ -14,6 +14,7 @@ using Volo.Abp.VirtualFileSystem;
 using Volo.Abp.Gdpr;
 using Volo.CmsKit;
 using Volo.Abp.LeptonTheme.Management;
+using Volo.Chat;
 
 namespace IBLTermocasa;
 
@@ -34,7 +35,8 @@ namespace IBLTermocasa;
     typeof(TextTemplateManagementHttpApiClientModule),
 	typeof(LeptonThemeManagementHttpApiClientModule)
 )]
-public class IBLTermocasaHttpApiClientModule : AbpModule
+[DependsOn(typeof(ChatHttpApiClientModule))]
+    public class IBLTermocasaHttpApiClientModule : AbpModule
 {
     public const string RemoteServiceName = "Default";
 
