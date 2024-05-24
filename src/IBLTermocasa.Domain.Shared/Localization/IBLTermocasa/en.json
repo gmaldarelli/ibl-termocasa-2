@@ -176,6 +176,20 @@
     "MaxInteractionDate": "Max Interaction Date",
     "NewInteraction": "New Interaction",
     "Menu:Interactions": "Interactions",
-    "IdentityUser": "Identity user"
+    "IdentityUser": "Identity user",
+    "Enum:AnswerType.0": "TEXT",
+    "Enum:AnswerType.1": "NUMBER",
+    "Enum:AnswerType.2": "DATE",
+    "Enum:AnswerType.3": "BOOLEAN",
+    "Enum:AnswerType.4": "LARGE_TEXT",
+    "Enum:AnswerType.6": "CHOICE",
+    "Permission:QuestionTemplates": "Question Templates",
+    "QuestionText": "Question Text",
+    "AnswerType": "Answer Type",
+    "ChoiceValue": "Choice Value",
+    "QuestionTemplates": "Question Templates",
+    "NewQuestionTemplate": "New Question Template",
+    "Menu:QuestionTemplates": "Question Templates",
+    "Enum:AnswerType.5": "CHOICE"
   }
 }

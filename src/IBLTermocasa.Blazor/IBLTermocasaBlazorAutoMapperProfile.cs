@@ -1,3 +1,4 @@
+using IBLTermocasa.QuestionTemplates;
 using IBLTermocasa.Interactions;
 using IBLTermocasa.Organizations;
 using IBLTermocasa.Contacts;
@@ -35,5 +36,7 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<OrganizationDto, OrganizationUpdateDto>();
 
         CreateMap<InteractionDto, InteractionUpdateDto>();
+
+        CreateMap<QuestionTemplateDto, QuestionTemplateUpdateDto>();
     }
 }

@@ -61,6 +61,11 @@ public class IBLTermocasaPermissionDefinitionProvider : PermissionDefinitionProv
         interactionPermission.AddChild(IBLTermocasaPermissions.Interactions.Create, L("Permission:Create"));
         interactionPermission.AddChild(IBLTermocasaPermissions.Interactions.Edit, L("Permission:Edit"));
         interactionPermission.AddChild(IBLTermocasaPermissions.Interactions.Delete, L("Permission:Delete"));
+
+        var questionTemplatePermission = myGroup.AddPermission(IBLTermocasaPermissions.QuestionTemplates.Default, L("Permission:QuestionTemplates"));
+        questionTemplatePermission.AddChild(IBLTermocasaPermissions.QuestionTemplates.Create, L("Permission:Create"));
+        questionTemplatePermission.AddChild(IBLTermocasaPermissions.QuestionTemplates.Edit, L("Permission:Edit"));
+        questionTemplatePermission.AddChild(IBLTermocasaPermissions.QuestionTemplates.Delete, L("Permission:Delete"));
     }
 
     private static LocalizableString L(string name)

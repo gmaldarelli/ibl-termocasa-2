@@ -13,7 +13,7 @@ namespace IBLTermocasa.Types
         INTERNAL_MESSAGE,
         INTERNAL_EMAIL,
         INTERNAL_PHONE,
-        INTERNAL,_MEETING,
+        INTERNAL_MEETING,
         OTHER
     }
 }

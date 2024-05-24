@@ -1,0 +1,337 @@
+
+
+@page "/question-templates"
+
+@attribute [Authorize(IBLTermocasaPermissions.QuestionTemplates.Default)]
+@using IBLTermocasa.QuestionTemplates
+@using IBLTermocasa.Localization
+@using IBLTermocasa.Shared
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Components.Web
+@using Blazorise
+@using Blazorise.Components
+@using Blazorise.DataGrid
+@using Volo.Abp.BlazoriseUI
+@using Volo.Abp.BlazoriseUI.Components
+@using Volo.Abp.ObjectMapping
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+
+@using IBLTermocasa.Permissions
+@using Volo.Abp.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components
+@using Volo.Abp.Http.Client
+@inherits IBLTermocasaComponentBase
+@inject IQuestionTemplatesAppService QuestionTemplatesAppService
+
+@inject IUiMessageService UiMessageService
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+@using IBLTermocasa.Types
+
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["QuestionTemplates"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* SEARCH ************************* *@
+<Card>
+    <CardBody>
+
+        <Form id="QuestionTemplateSearchForm" class="mb-3">
+            <Addons>
+                <Addon AddonType="AddonType.Body">
+                    <TextEdit @bind-Text="@Filter.FilterText"
+                              Autofocus="true"
+                              Placeholder="@L["Search"]">
+                    </TextEdit>
+                </Addon>
+                <Addon AddonType="AddonType.End">
+                    <SubmitButton Form="QuestionTemplateSearchForm" Clicked="GetQuestionTemplatesAsync">
+                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
+                    </SubmitButton>
+                </Addon>
+            </Addons>
+        </Form>
+        
+        <Row Class="mt-3 mb-3"> 
+            <div class="col-md-12">
+                <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
+            </div>
+        </Row>
+        
+        <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
+            <Row>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Code"]</FieldLabel>
+                        <TextEdit Text="@Filter.Code" TextChanged="@OnCodeChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["QuestionText"]</FieldLabel>
+                        <TextEdit Text="@Filter.QuestionText" TextChanged="@OnQuestionTextChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["AnswerType"]</FieldLabel>
+                        <Select TValue="AnswerType?"
+		SelectedValue="@Filter.AnswerType"
+		SelectedValueChanged="@OnAnswerTypeChangedAsync">
+
+<SelectItem></SelectItem>
+
+@foreach(AnswerType value in Enum.GetValues(typeof(AnswerType)))
+{
+	<SelectItem Value="value">
+		@value
+	</SelectItem>
+}
+
+</Select>                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["ChoiceValue"]</FieldLabel>
+                        <TextEdit Text="@Filter.ChoiceValue" TextChanged="@OnChoiceValueChangedAsync" />                       
+                    </Field>
+                </Column>
+            </Row>
+
+        </div>
+
+
+    </CardBody>
+</Card>
+
+@* ************************* DATA GRID ************************* *@
+<Card>
+    <CardBody>
+        <DataGrid TItem="QuestionTemplateDto"
+                  Data="QuestionTemplateList"
+                  
+                  
+                  
+                  
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  Responsive="true"
+                  PageSize="PageSize"
+                  Class="datagrid-detail">
+            <DataGridColumns>
+                
+                
+                <DataGridEntityActionsColumn TItem="QuestionTemplateDto" @ref="@EntityActionsColumn">
+                    <DisplayTemplate>
+                        <EntityActions TItem="QuestionTemplateDto" EntityActionsColumn="@EntityActionsColumn">
+                            <EntityAction TItem="QuestionTemplateDto"
+                                          Visible="@CanEditQuestionTemplate"
+                                          Clicked="async () => await OpenEditQuestionTemplateModalAsync(context)"
+                                          Text="@L["Edit"]"></EntityAction>
+                            <EntityAction TItem="QuestionTemplateDto"
+                                          Visible="@CanDeleteQuestionTemplate"
+                                          Clicked="() => DeleteQuestionTemplateAsync(context)"
+                                          ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
+                                          Text="@L["Delete"]"></EntityAction>
+
+                        </EntityActions>
+                    </DisplayTemplate>
+                </DataGridEntityActionsColumn>
+               
+              <DataGridColumn TItem="QuestionTemplateDto"
+                      Field="Code"
+                      Caption="@L["Code"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="QuestionTemplateDto"
+                      Field="QuestionText"
+                      Caption="@L["QuestionText"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="QuestionTemplateDto"
+                      Field="AnswerType"
+                      Caption="@L["AnswerType"]">
+                    <DisplayTemplate>
+                        @L[$"Enum:AnswerType.{(int)context.AnswerType}"]
+                    </DisplayTemplate>
+              </DataGridColumn>
+
+
+            </DataGridColumns>
+            
+            
+        </DataGrid>
+    </CardBody>
+</Card>
+
+@* ************************* CREATE MODAL ************************* *@
+<Modal @ref="CreateQuestionTemplateModal" Closing="@CreateQuestionTemplateModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+
+        <Form id="CreateQuestionTemplateForm">
+            <ModalHeader>
+                <ModalTitle>@L["NewQuestionTemplate"]</ModalTitle>
+                <CloseButton Clicked="CloseCreateQuestionTemplateModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@NewQuestionTemplateValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@NewQuestionTemplate"
+                            ValidateOnLoad="false">
+                     
+                    
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Code"] *</FieldLabel>
+                            <TextEdit @bind-Text="@NewQuestionTemplate.Code"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["QuestionText"] *</FieldLabel>
+                            <MemoEdit @bind-Text="@NewQuestionTemplate.QuestionText"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </MemoEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <FieldLabel>@L["AnswerType"]</FieldLabel>
+                        <Select TValue="AnswerType" @bind-SelectedValue="@NewQuestionTemplate.AnswerType" >
+                            @foreach (var itemValue in Enum.GetValues(typeof(AnswerType)))
+                            {
+                                <SelectItem TValue="AnswerType" Value="@((AnswerType) itemValue)">
+                                    @L[$"Enum:AnswerType.{((AnswerType) itemValue).ToString("d")}"]
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["ChoiceValue"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewQuestionTemplate.ChoiceValue"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    
+                    
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseCreateQuestionTemplateModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="CreateQuestionTemplateForm" Clicked="CreateQuestionTemplateAsync" />
+
+            </ModalFooter>
+        </Form>
+
+    </ModalContent>
+</Modal>
+
+@* ************************* EDIT MODAL ************************* *@
+<Modal @ref="EditQuestionTemplateModal" Closing="@EditQuestionTemplateModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+
+        <Form id="EditQuestionTemplateForm">
+            <ModalHeader>
+                <ModalTitle>@L["Update"]</ModalTitle>
+                <CloseButton Clicked="CloseEditQuestionTemplateModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@EditingQuestionTemplateValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@EditingQuestionTemplate"
+                            ValidateOnLoad="false">
+                     
+                    
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Code"] *</FieldLabel>
+                            <TextEdit @bind-Text="@EditingQuestionTemplate.Code"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["QuestionText"] *</FieldLabel>
+                            <MemoEdit @bind-Text="@EditingQuestionTemplate.QuestionText"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </MemoEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <FieldLabel>@L["AnswerType"]</FieldLabel>
+                        <Select TValue="AnswerType" @bind-SelectedValue="@EditingQuestionTemplate.AnswerType" >
+                            @foreach (var itemValue in Enum.GetValues(typeof(AnswerType)))
+                            {
+                                <SelectItem TValue="AnswerType" Value="@((AnswerType) itemValue)">
+                                    @L[$"Enum:AnswerType.{((AnswerType) itemValue).ToString("d")}"]
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["ChoiceValue"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingQuestionTemplate.ChoiceValue"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    
+                    
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseEditQuestionTemplateModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="EditQuestionTemplateForm" Clicked="UpdateQuestionTemplateAsync" />
+
+            </ModalFooter>
+        </Form>
+
+    </ModalContent>
+</Modal>
+

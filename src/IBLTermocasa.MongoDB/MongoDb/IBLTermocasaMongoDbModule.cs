@@ -1,3 +1,4 @@
+using IBLTermocasa.QuestionTemplates;
 using IBLTermocasa.Interactions;
 using IBLTermocasa.Organizations;
 using IBLTermocasa.Contacts;
@@ -44,7 +45,7 @@ namespace IBLTermocasa.MongoDB;
     typeof(BlobStoringDatabaseMongoDbModule)
 )]
 [DependsOn(typeof(ChatMongoDbModule))]
-    public class IBLTermocasaMongoDbModule : AbpModule
+public class IBLTermocasaMongoDbModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
@@ -68,6 +69,8 @@ namespace IBLTermocasa.MongoDB;
             options.AddRepository<Organization, Organizations.MongoOrganizationRepository>();
 
             options.AddRepository<Interaction, Interactions.MongoInteractionRepository>();
+
+            options.AddRepository<QuestionTemplate, QuestionTemplates.MongoQuestionTemplateRepository>();
 
         });
 

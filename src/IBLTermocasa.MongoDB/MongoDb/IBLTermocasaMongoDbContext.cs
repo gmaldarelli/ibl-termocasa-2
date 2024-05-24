@@ -1,3 +1,4 @@
+using IBLTermocasa.QuestionTemplates;
 using IBLTermocasa.Interactions;
 using Volo.Abp.Identity;
 using Volo.Abp.Identity;
@@ -19,6 +20,7 @@ namespace IBLTermocasa.MongoDB;
 [ConnectionStringName("Default")]
 public class IBLTermocasaMongoDbContext : AbpMongoDbContext
 {
+    public IMongoCollection<QuestionTemplate> QuestionTemplates => Collection<QuestionTemplate>();
     public IMongoCollection<Interaction> Interactions => Collection<Interaction>();
     public IMongoCollection<Organization> Organizations => Collection<Organization>();
     public IMongoCollection<Contact> Contacts => Collection<Contact>();
@@ -59,5 +61,7 @@ public class IBLTermocasaMongoDbContext : AbpMongoDbContext
         modelBuilder.Entity<Organization>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "Organizations"; });
 
         modelBuilder.Entity<Interaction>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "Interactions"; });
+
+        modelBuilder.Entity<QuestionTemplate>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "QuestionTemplates"; });
     }
 }

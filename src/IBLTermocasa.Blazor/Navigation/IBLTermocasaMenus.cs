@@ -22,4 +22,6 @@ public class IBLTermocasaMenus
 
     public const string Interactions = Prefix + ".Interactions";
 
+    public const string QuestionTemplates = Prefix + ".QuestionTemplates";
+
 }

@@ -143,7 +143,7 @@ public class IBLTermocasaMenuContributor : IMenuContributor
                 IBLTermocasaMenus.Products,
                 l["Menu:Products"],
                 url: "/products",
-                icon: "fa fa-file-alt",
+                icon: "fa fa-dolly",
                 requiredPermissionName: IBLTermocasaPermissions.Products.Default)
         );
 
@@ -179,8 +179,17 @@ public class IBLTermocasaMenuContributor : IMenuContributor
                 IBLTermocasaMenus.Interactions,
                 l["Menu:Interactions"],
                 url: "/interactions",
-                icon: "fa fa-walkie-talkie",
+                icon: "fa fa-handshake",
                 requiredPermissionName: IBLTermocasaPermissions.Interactions.Default)
+        );
+
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                IBLTermocasaMenus.QuestionTemplates,
+                l["Menu:QuestionTemplates"],
+                url: "/question-templates",
+                icon: "fa fa-question-circle",
+                requiredPermissionName: IBLTermocasaPermissions.QuestionTemplates.Default)
         );
         return Task.CompletedTask;
     }

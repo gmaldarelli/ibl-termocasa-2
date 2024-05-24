@@ -1,3 +1,4 @@
+using IBLTermocasa.QuestionTemplates;
 using Volo.Abp.Identity;
 using IBLTermocasa.Interactions;
 using IBLTermocasa.Organizations;
@@ -62,5 +63,8 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
 
         CreateMap<IdentityUser, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.UserName));
         CreateMap<IdentityUser, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.UserName));
+
+        CreateMap<QuestionTemplate, QuestionTemplateDto>();
+        CreateMap<QuestionTemplate, QuestionTemplateExcelDto>();
     }
 }

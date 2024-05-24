@@ -7,6 +7,6 @@ public enum AnswerType
     DATE = 2,
     BOOLEAN = 3,
     LARGE_TEXT = 4,
-    CHOICE = 6
+    CHOICE = 5
 }
     
