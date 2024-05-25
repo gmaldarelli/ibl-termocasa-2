@@ -48,8 +48,10 @@ using Volo.Abp.VirtualFileSystem;
 using Volo.Saas.Host;
 using Volo.Abp.OpenIddict;
 using System.Security.Cryptography.X509Certificates;
+using IBLTermocasa.Domain;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using MongoDB.Bson.Serialization;
 using Volo.Abp.Account.Localization;
 using Volo.Abp.Security.Claims;
 
@@ -75,7 +77,7 @@ public class IBLTermocasaAuthServerModule : AbpModule
     {
         var hostingEnvironment = context.Services.GetHostingEnvironment();
         var configuration = context.Services.GetConfiguration();
-
+        BsonSerializer.RegisterSerializationProvider( new CustomGuidSerializationProvider());
         PreConfigure<OpenIddictBuilder>(builder =>
         {
             builder.AddValidation(options =>

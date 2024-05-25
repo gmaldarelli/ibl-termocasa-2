@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using IBLTermocasa.Data;
+using IBLTermocasa.Domain;
+using MongoDB.Bson.Serialization;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.MongoDB;
@@ -34,6 +36,7 @@ public class MongoDbIBLTermocasaDbSchemaMigrator : IIBLTermocasaDbSchemaMigrator
 
         foreach (var dbContext in dbContexts)
         {
+            BsonSerializer.RegisterSerializationProvider( new CustomGuidSerializationProvider());
             var connectionString =
                 await connectionStringResolver.ResolveAsync(
                     ConnectionStringNameAttribute.GetConnStringName(dbContext.GetType()));

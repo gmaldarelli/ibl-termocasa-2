@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
+using IBLTermocasa.Domain;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MongoDB.Bson.Serialization;
 using Serilog;
 using Serilog.Events;
 
@@ -33,6 +35,7 @@ public class Program
                 .AddAppSettingsSecretsJson()
                 .UseAutofac()
                 .UseSerilog();
+            BsonSerializer.RegisterSerializationProvider( new CustomGuidSerializationProvider());
             await builder.AddApplicationAsync<IBLTermocasaHttpApiHostModule>();
             var app = builder.Build();
             await app.InitializeApplicationAsync();
