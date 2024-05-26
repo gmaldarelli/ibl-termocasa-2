@@ -1,0 +1,718 @@
+
+
+@page "/request-for-quotations"
+
+@attribute [Authorize(IBLTermocasaPermissions.RequestForQuotations.Default)]
+@using IBLTermocasa.RequestForQuotations
+@using IBLTermocasa.Localization
+@using IBLTermocasa.Shared
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Components.Web
+@using Blazorise
+@using Blazorise.Components
+@using Blazorise.DataGrid
+@using Volo.Abp.BlazoriseUI
+@using Volo.Abp.BlazoriseUI.Components
+@using Volo.Abp.ObjectMapping
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+
+@using IBLTermocasa.Permissions
+@using Volo.Abp.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components
+@using Volo.Abp.Http.Client
+@inherits IBLTermocasaComponentBase
+@inject IRequestForQuotationsAppService RequestForQuotationsAppService
+
+@inject IUiMessageService UiMessageService
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+@using IBLTermocasa.RequestForQuotations
+
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["RequestForQuotations"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* SEARCH ************************* *@
+<Card>
+    <CardBody>
+
+        <Form id="RequestForQuotationSearchForm" class="mb-3">
+            <Addons>
+                <Addon AddonType="AddonType.Body">
+                    <TextEdit @bind-Text="@Filter.FilterText"
+                              Autofocus="true"
+                              Placeholder="@L["Search"]">
+                    </TextEdit>
+                </Addon>
+                <Addon AddonType="AddonType.End">
+                    <SubmitButton Form="RequestForQuotationSearchForm" Clicked="GetRequestForQuotationsAsync">
+                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
+                    </SubmitButton>
+                </Addon>
+            </Addons>
+        </Form>
+        
+        <Row Class="mt-3 mb-3"> 
+            <div class="col-md-12">
+                <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
+            </div>
+        </Row>
+        
+        <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
+            <Row>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["QuoteNumber"]</FieldLabel>
+                        <TextEdit Text="@Filter.QuoteNumber" TextChanged="@OnQuoteNumberChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["WorkSite"]</FieldLabel>
+                        <TextEdit Text="@Filter.WorkSite" TextChanged="@OnWorkSiteChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["City"]</FieldLabel>
+                        <TextEdit Text="@Filter.City" TextChanged="@OnCityChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["OrganizationProperty"]</FieldLabel>
+                        <TextEdit Text="@Filter.OrganizationProperty" TextChanged="@OnOrganizationPropertyChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["ContactProperty"]</FieldLabel>
+                        <TextEdit Text="@Filter.ContactProperty" TextChanged="@OnContactPropertyChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["PhoneInfo"]</FieldLabel>
+                        <TextEdit Text="@Filter.PhoneInfo" TextChanged="@OnPhoneInfoChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MailInfo"]</FieldLabel>
+                        <TextEdit Text="@Filter.MailInfo" TextChanged="@OnMailInfoChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MinDiscount"]</FieldLabel>
+                        <NumericEdit TValue="decimal?" 
+             Value="@Filter.DiscountMin"
+             ValueChanged="@OnDiscountMinChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MaxDiscount"]</FieldLabel>
+                        <NumericEdit TValue="decimal?" 
+             Value="@Filter.DiscountMax"
+             ValueChanged="@OnDiscountMaxChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Description"]</FieldLabel>
+                        <TextEdit Text="@Filter.Description" TextChanged="@OnDescriptionChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Status"]</FieldLabel>
+                        <Select TValue="Status?"
+		SelectedValue="@Filter.Status"
+		SelectedValueChanged="@OnStatusChangedAsync">
+
+<SelectItem></SelectItem>
+
+@foreach(Status value in Enum.GetValues(typeof(Status)))
+{
+	<SelectItem Value="value">
+		@value
+	</SelectItem>
+}
+
+</Select>                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["IdentityUser"]</FieldLabel>
+                        <Select TValue="Guid?"
+		SelectedValue="@Filter.AgentId"
+		SelectedValueChanged="@OnAgentIdChangedAsync">
+
+<SelectItem></SelectItem>
+
+@foreach(var item in IdentityUsersCollection)
+{
+	<SelectItem TValue="Guid?" Value="@item.Id">
+		@item.DisplayName
+	</SelectItem>
+}
+
+</Select>                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Contact"]</FieldLabel>
+                        <Select TValue="Guid?"
+		SelectedValue="@Filter.ContactId"
+		SelectedValueChanged="@OnContactIdChangedAsync">
+
+<SelectItem></SelectItem>
+
+@foreach(var item in ContactsCollection)
+{
+	<SelectItem TValue="Guid?" Value="@item.Id">
+		@item.DisplayName
+	</SelectItem>
+}
+
+</Select>                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Organization"]</FieldLabel>
+                        <Select TValue="Guid?"
+		SelectedValue="@Filter.OrganizationId"
+		SelectedValueChanged="@OnOrganizationIdChangedAsync">
+
+<SelectItem></SelectItem>
+
+@foreach(var item in OrganizationsCollection)
+{
+	<SelectItem TValue="Guid?" Value="@item.Id">
+		@item.DisplayName
+	</SelectItem>
+}
+
+</Select>                       
+                    </Field>
+                </Column>
+            </Row>
+
+        </div>
+
+
+    </CardBody>
+</Card>
+
+@* ************************* DATA GRID ************************* *@
+<Card>
+    <CardBody>
+        <DataGrid TItem="RequestForQuotationWithNavigationPropertiesDto"
+                  Data="RequestForQuotationList"
+                  
+                  
+                  
+                  
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  Responsive="true"
+                  PageSize="PageSize"
+                  Class="datagrid-detail">
+            <DataGridColumns>
+                
+                
+                <DataGridEntityActionsColumn TItem="RequestForQuotationWithNavigationPropertiesDto" @ref="@EntityActionsColumn">
+                    <DisplayTemplate>
+                        <EntityActions TItem="RequestForQuotationWithNavigationPropertiesDto" EntityActionsColumn="@EntityActionsColumn">
+                            <EntityAction TItem="RequestForQuotationWithNavigationPropertiesDto"
+                                          Visible="@CanEditRequestForQuotation"
+                                          Clicked="async () => await OpenEditRequestForQuotationModalAsync(context)"
+                                          Text="@L["Edit"]"></EntityAction>
+                            <EntityAction TItem="RequestForQuotationWithNavigationPropertiesDto"
+                                          Visible="@CanDeleteRequestForQuotation"
+                                          Clicked="() => DeleteRequestForQuotationAsync(context)"
+                                          ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
+                                          Text="@L["Delete"]"></EntityAction>
+
+                        </EntityActions>
+                    </DisplayTemplate>
+                </DataGridEntityActionsColumn>
+               
+              <DataGridColumn TItem="RequestForQuotationWithNavigationPropertiesDto"
+                      Field="RequestForQuotation.QuoteNumber"
+                      Caption="@L["QuoteNumber"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="RequestForQuotationWithNavigationPropertiesDto"
+                      Field="RequestForQuotation.WorkSite"
+                      Caption="@L["WorkSite"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="RequestForQuotationWithNavigationPropertiesDto"
+                      Field="RequestForQuotation.City"
+                      Caption="@L["City"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="RequestForQuotationWithNavigationPropertiesDto"
+                      Field="RequestForQuotation.OrganizationProperty"
+                      Caption="@L["OrganizationProperty"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="RequestForQuotationWithNavigationPropertiesDto"
+                      Field="RequestForQuotation.ContactProperty"
+                      Caption="@L["ContactProperty"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="RequestForQuotationWithNavigationPropertiesDto"
+                      Field="RequestForQuotation.PhoneInfo"
+                      Caption="@L["PhoneInfo"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="RequestForQuotationWithNavigationPropertiesDto"
+                      Field="RequestForQuotation.MailInfo"
+                      Caption="@L["MailInfo"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="RequestForQuotationWithNavigationPropertiesDto"
+                      Field="RequestForQuotation.Discount"
+                      Caption="@L["Discount"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="RequestForQuotationWithNavigationPropertiesDto"
+                      Field="RequestForQuotation.Description"
+                      Caption="@L["Description"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="RequestForQuotationWithNavigationPropertiesDto"
+                      Field="RequestForQuotation.Status"
+                      Caption="@L["Status"]">
+                    <DisplayTemplate>
+                        @L[$"Enum:Status.{(int)context.RequestForQuotation.Status}"]
+                    </DisplayTemplate>
+              </DataGridColumn>
+
+
+              <DataGridColumn TItem="RequestForQuotationWithNavigationPropertiesDto"
+                      Field="IdentityUser.UserName"
+                      Caption="@L["Agent"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="RequestForQuotationWithNavigationPropertiesDto"
+                      Field="Contact.Name"
+                      Caption="@L["Contact"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="RequestForQuotationWithNavigationPropertiesDto"
+                      Field="Organization.Name"
+                      Caption="@L["Organization"]">
+              </DataGridColumn>
+
+            </DataGridColumns>
+            
+            
+        </DataGrid>
+    </CardBody>
+</Card>
+
+@* ************************* CREATE MODAL ************************* *@
+<Modal @ref="CreateRequestForQuotationModal" Closing="@CreateRequestForQuotationModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+
+        <Form id="CreateRequestForQuotationForm">
+            <ModalHeader>
+                <ModalTitle>@L["NewRequestForQuotation"]</ModalTitle>
+                <CloseButton Clicked="CloseCreateRequestForQuotationModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@NewRequestForQuotationValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@NewRequestForQuotation"
+                            ValidateOnLoad="false">
+                     
+                    
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["QuoteNumber"] *</FieldLabel>
+                            <TextEdit @bind-Text="@NewRequestForQuotation.QuoteNumber"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["WorkSite"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewRequestForQuotation.WorkSite"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["City"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewRequestForQuotation.City"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["OrganizationProperty"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewRequestForQuotation.OrganizationProperty"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["ContactProperty"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewRequestForQuotation.ContactProperty"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["PhoneInfo"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewRequestForQuotation.PhoneInfo"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["MailInfo"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewRequestForQuotation.MailInfo"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Discount"]</FieldLabel>
+                            <NumericPicker TValue="decimal" @bind-Value="@NewRequestForQuotation.Discount"   >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                             </NumericPicker>
+                        </Field>
+                     </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Description"]</FieldLabel>
+                            <MemoEdit @bind-Text="@NewRequestForQuotation.Description"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </MemoEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <FieldLabel>@L["Status"]</FieldLabel>
+                        <Select TValue="Status" @bind-SelectedValue="@NewRequestForQuotation.Status" >
+                            @foreach (var itemValue in Enum.GetValues(typeof(Status)))
+                            {
+                                <SelectItem TValue="Status" Value="@((Status) itemValue)">
+                                    @L[$"Enum:Status.{((Status) itemValue).ToString("d")}"]
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Field>
+                        <FieldLabel>@L["IdentityUser"]</FieldLabel>
+                        <Select TValue="Guid?" @bind-SelectedValue="@NewRequestForQuotation.AgentId">
+                            <SelectItem TValue="Guid?" Value="null"></SelectItem>
+                            @foreach (var identityUser in IdentityUsersCollection)
+                            {
+                                <SelectItem TValue="Guid?" Value="@(identityUser.Id)">
+                                    @(identityUser.DisplayName)
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Field>
+                        <FieldLabel>@L["Contact"]</FieldLabel>
+                        <Select TValue="Guid?" @bind-SelectedValue="@NewRequestForQuotation.ContactId">
+                            <SelectItem TValue="Guid?" Value="null"></SelectItem>
+                            @foreach (var contact in ContactsCollection)
+                            {
+                                <SelectItem TValue="Guid?" Value="@(contact.Id)">
+                                    @(contact.DisplayName)
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Field>
+                        <FieldLabel>@L["Organization"]</FieldLabel>
+                        <Select TValue="Guid?" @bind-SelectedValue="@NewRequestForQuotation.OrganizationId">
+                            <SelectItem TValue="Guid?" Value="null"></SelectItem>
+                            @foreach (var organization in OrganizationsCollection)
+                            {
+                                <SelectItem TValue="Guid?" Value="@(organization.Id)">
+                                    @(organization.DisplayName)
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    
+                    
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseCreateRequestForQuotationModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="CreateRequestForQuotationForm" Clicked="CreateRequestForQuotationAsync" />
+
+            </ModalFooter>
+        </Form>
+
+    </ModalContent>
+</Modal>
+
+@* ************************* EDIT MODAL ************************* *@
+<Modal @ref="EditRequestForQuotationModal" Closing="@EditRequestForQuotationModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+
+        <Form id="EditRequestForQuotationForm">
+            <ModalHeader>
+                <ModalTitle>@L["Update"]</ModalTitle>
+                <CloseButton Clicked="CloseEditRequestForQuotationModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@EditingRequestForQuotationValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@EditingRequestForQuotation"
+                            ValidateOnLoad="false">
+                     
+                    
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["QuoteNumber"] *</FieldLabel>
+                            <TextEdit @bind-Text="@EditingRequestForQuotation.QuoteNumber"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["WorkSite"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingRequestForQuotation.WorkSite"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["City"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingRequestForQuotation.City"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["OrganizationProperty"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingRequestForQuotation.OrganizationProperty"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["ContactProperty"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingRequestForQuotation.ContactProperty"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["PhoneInfo"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingRequestForQuotation.PhoneInfo"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["MailInfo"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingRequestForQuotation.MailInfo"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Discount"]</FieldLabel>
+                            <NumericPicker TValue="decimal" @bind-Value="@EditingRequestForQuotation.Discount"   >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                             </NumericPicker>
+                        </Field>
+                     </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Description"]</FieldLabel>
+                            <MemoEdit @bind-Text="@EditingRequestForQuotation.Description"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </MemoEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <FieldLabel>@L["Status"]</FieldLabel>
+                        <Select TValue="Status" @bind-SelectedValue="@EditingRequestForQuotation.Status" >
+                            @foreach (var itemValue in Enum.GetValues(typeof(Status)))
+                            {
+                                <SelectItem TValue="Status" Value="@((Status) itemValue)">
+                                    @L[$"Enum:Status.{((Status) itemValue).ToString("d")}"]
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Field>
+                        <FieldLabel>@L["IdentityUser"]</FieldLabel>
+                        <Select TValue="Guid?" @bind-SelectedValue="@EditingRequestForQuotation.AgentId">
+                            <SelectItem TValue="Guid?" Value="null"></SelectItem>
+                            @foreach (var identityUser in IdentityUsersCollection)
+                            {
+                                <SelectItem TValue="Guid?" Value="@(identityUser.Id)">
+                                    @(identityUser.DisplayName)
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Field>
+                        <FieldLabel>@L["Contact"]</FieldLabel>
+                        <Select TValue="Guid?" @bind-SelectedValue="@EditingRequestForQuotation.ContactId">
+                            <SelectItem TValue="Guid?" Value="null"></SelectItem>
+                            @foreach (var contact in ContactsCollection)
+                            {
+                                <SelectItem TValue="Guid?" Value="@(contact.Id)">
+                                    @(contact.DisplayName)
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Field>
+                        <FieldLabel>@L["Organization"]</FieldLabel>
+                        <Select TValue="Guid?" @bind-SelectedValue="@EditingRequestForQuotation.OrganizationId">
+                            <SelectItem TValue="Guid?" Value="null"></SelectItem>
+                            @foreach (var organization in OrganizationsCollection)
+                            {
+                                <SelectItem TValue="Guid?" Value="@(organization.Id)">
+                                    @(organization.DisplayName)
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    
+                    
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseEditRequestForQuotationModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="EditRequestForQuotationForm" Clicked="UpdateRequestForQuotationAsync" />
+
+            </ModalFooter>
+        </Form>
+
+    </ModalContent>
+</Modal>
+

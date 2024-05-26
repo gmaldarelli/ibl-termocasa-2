@@ -24,4 +24,6 @@ public class IBLTermocasaMenus
 
     public const string QuestionTemplates = Prefix + ".QuestionTemplates";
 
+    public const string RequestForQuotations = Prefix + ".RequestForQuotations";
+
 }

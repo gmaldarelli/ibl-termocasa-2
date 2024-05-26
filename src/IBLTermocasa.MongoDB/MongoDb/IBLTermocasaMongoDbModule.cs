@@ -1,3 +1,4 @@
+using IBLTermocasa.RequestForQuotations;
 using IBLTermocasa.QuestionTemplates;
 using IBLTermocasa.Interactions;
 using IBLTermocasa.Organizations;
@@ -71,6 +72,8 @@ public class IBLTermocasaMongoDbModule : AbpModule
             options.AddRepository<Interaction, Interactions.MongoInteractionRepository>();
 
             options.AddRepository<QuestionTemplate, QuestionTemplates.MongoQuestionTemplateRepository>();
+
+            options.AddRepository<RequestForQuotation, RequestForQuotations.MongoRequestForQuotationRepository>();
 
         });
 

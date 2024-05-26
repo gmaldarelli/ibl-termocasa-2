@@ -1,3 +1,4 @@
+using IBLTermocasa.RequestForQuotations;
 using IBLTermocasa.QuestionTemplates;
 using IBLTermocasa.Interactions;
 using IBLTermocasa.Organizations;
@@ -38,5 +39,7 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<InteractionDto, InteractionUpdateDto>();
 
         CreateMap<QuestionTemplateDto, QuestionTemplateUpdateDto>();
+
+        CreateMap<RequestForQuotationDto, RequestForQuotationUpdateDto>();
     }
 }

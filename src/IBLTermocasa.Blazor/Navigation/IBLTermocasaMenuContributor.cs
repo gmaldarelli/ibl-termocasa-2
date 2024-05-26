@@ -191,6 +191,15 @@ public class IBLTermocasaMenuContributor : IMenuContributor
                 icon: "fa fa-question-circle",
                 requiredPermissionName: IBLTermocasaPermissions.QuestionTemplates.Default)
         );
+
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                IBLTermocasaMenus.RequestForQuotations,
+                l["Menu:RequestForQuotations"],
+                url: "/request-for-quotations",
+                icon: "fa fa-file-alt",
+                requiredPermissionName: IBLTermocasaPermissions.RequestForQuotations.Default)
+        );
         return Task.CompletedTask;
     }
 

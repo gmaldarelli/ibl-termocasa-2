@@ -66,6 +66,11 @@ public class IBLTermocasaPermissionDefinitionProvider : PermissionDefinitionProv
         questionTemplatePermission.AddChild(IBLTermocasaPermissions.QuestionTemplates.Create, L("Permission:Create"));
         questionTemplatePermission.AddChild(IBLTermocasaPermissions.QuestionTemplates.Edit, L("Permission:Edit"));
         questionTemplatePermission.AddChild(IBLTermocasaPermissions.QuestionTemplates.Delete, L("Permission:Delete"));
+
+        var requestForQuotationPermission = myGroup.AddPermission(IBLTermocasaPermissions.RequestForQuotations.Default, L("Permission:RequestForQuotations"));
+        requestForQuotationPermission.AddChild(IBLTermocasaPermissions.RequestForQuotations.Create, L("Permission:Create"));
+        requestForQuotationPermission.AddChild(IBLTermocasaPermissions.RequestForQuotations.Edit, L("Permission:Edit"));
+        requestForQuotationPermission.AddChild(IBLTermocasaPermissions.RequestForQuotations.Delete, L("Permission:Delete"));
     }
 
     private static LocalizableString L(string name)
