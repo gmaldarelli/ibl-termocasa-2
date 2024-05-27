@@ -1,0 +1,267 @@
+﻿@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@using IBLTermocasa.Localization
+@using Volo.Abp.AspNetCore.Components.Web
+@using IBLTermocasa.Common
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.Http.Client
+@using Volo.FileManagement.Files
+@inject IUiMessageService UiMessageService
+@inject NavigationManager NavigationManager
+@inject IFileDescriptorAppService FileDescriptorAppService
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inherits IBLTermocasaComponentBase
+
+<Row >
+    <Column Class="col d-flex align-items-baseline">
+         <h1>@Contact.Name @Contact.Surname</h1>
+    </Column>
+</Row>
+
+<Row >
+    <Column Class="col-md-4 col-lg-3">
+            <Card Class="card">
+                <CardBody class="card-body text-center">
+                    <Image Class="lpx-avatar-img-lg mb-3" Source="@_contactImageString"></Image>
+                    <div class="border-bottom pb-3 mb-3">
+                        <h3 class="card-title mb-0">@Contact.Name @Contact.Surname</h3>
+                        <h5 class="fw-normal mt-2 mb-0">@(Contact.JobRole ?? "Non definito")</h5>
+                        <small class="text-muted">
+                            <a href="https://www.google.com/maps/search/?api=1&query=@(Uri.EscapeDataString(Contact.AddressInfo.ResolveAddress()))" target="_blank">
+                                <i class="bi bi-geo-alt-fill"></i>
+                            </a>
+                            @(Contact.AddressInfo.ResolveAddress())
+                        </small>
+                        
+                        <div class="col-12">
+                            <Dropdown>
+                                <DropdownToggle Color="Color.Primary" Size="Size.Small">
+                                    @L["SendMail"]
+                                </DropdownToggle>
+                                <DropdownMenu>
+                                    <Repeater Items="@Contact.MailInfo.MailItems"
+                                              TItem="MailItemDto">
+                                        <DropdownItem Clicked="@(() => mailToAction(context))">@context.Email</DropdownItem>
+                                        <DropdownDivider/>
+                                    </Repeater>
+                                </DropdownMenu>
+                            </Dropdown>
+                        </div>
+                    </div>
+
+                    <div class="border-bottom pb-3 mb-3">
+                        <small class="text-muted">Website</small>
+                        <h5 class="mt-0 mb-1">
+                            @Contact.SocialInfo.ResolveSocialUrl(SocialType.WEBSITE)
+                        </h5>
+                        <small class="text-muted">Social Links</small>
+                        <div>
+                            <a href="@Contact.SocialInfo.ResolveSocialUrl(SocialType.FACEBOOK)" class="">
+                                <i class="bi bi-facebook fs-4 px-1 text-muted"></i>
+                            </a>
+                            <a href="@Contact.SocialInfo.ResolveSocialUrl(SocialType.LINKEDIN)" class="">
+                                <i class="bi bi-linkedin fs-4 px-1 text-muted"></i>
+                            </a>
+                            <a href="@Contact.SocialInfo.ResolveSocialUrl(SocialType.INSTAGRAM)" class="">
+                                <i class="bi bi-instagram fs-4 px-1 text-muted"></i>
+                            </a>
+                            <a href="@Contact.SocialInfo.ResolveSocialUrl(SocialType.TWITTER)" class="">
+                                <i class="bi bi-twitter fs-4 px-1 text-muted"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div>
+                        <small class="text-muted">Registration Date</small>
+                        <h5 class="mt-0">@Contact.CreationTime</h5>
+                    </div>
+                </CardBody>
+            </Card>
+    </Column>
+    <Column Class="col-md-8 col-lg-9">
+        <EditForm Model="@Contact">
+            
+            <Validations @ref="@ContactValidations"
+                         Mode="ValidationMode.Auto"
+                         Model="@InternalContact"
+                         ValidateOnLoad="false">
+                    <Fields>
+                        <Accordion>
+                    <Collapse Visible="@accordionItemMainInformationVisible">
+                        <CollapseHeader @onclick="ToggleMainInformation">
+                            <Heading Size="HeadingSize.Is5">
+                                <AccordionToggle>@L["MainInformation"]</AccordionToggle>
+                            </Heading>
+                        </CollapseHeader>
+                        <CollapseBody>
+                            <Fields >
+                                <Field ColumnSize="ColumnSize.IsHalf">
+                                    <FieldLabel>@L["Title"]</FieldLabel>
+                                    <TextEdit @bind-Text="@InternalContact.Title">
+                                        <Feedback>
+                                            <ValidationError/>
+                                        </Feedback>
+                                    </TextEdit>
+                                </Field>
+                                <Validation MessageLocalizer="@LH.Localize">
+                                    <Field ColumnSize="ColumnSize.IsHalf">
+                                        <FieldLabel RequiredIndicator="true" Class="form-label">@L["Name"]</FieldLabel>
+                                        <TextEdit @bind-Text="@InternalContact.Name">
+                                           <Feedback>
+                                               <ValidationError/>
+                                           </Feedback>
+                                       </TextEdit>
+                                    </Field>
+                                </Validation>
+                            </Fields>
+                            <Fields>
+                                <Validation MessageLocalizer="@LH.Localize">
+                                    <Field ColumnSize="ColumnSize.IsHalf">
+                                        <FieldLabel>@L["BirthDate"]</FieldLabel>
+                                        <DateEdit TValue="DateTime?" InputMode="DateInputMode.Date"  @bind-Date="@InternalContact.BirthDate" Pattern="dd/MM/yyyy">
+                                            <Feedback>
+                                                <ValidationError/>
+                                            </Feedback>
+                                        </DateEdit>
+                                    </Field>
+                                </Validation>
+                                <Validation MessageLocalizer="@LH.Localize">
+                                    <Field ColumnSize="ColumnSize.IsHalf">
+                                        <FieldLabel RequiredIndicator="true">@L["Surname"]</FieldLabel>
+                                        <TextEdit @bind-Text="@InternalContact.Surname">
+                                            <Feedback>
+                                                <ValidationError/>
+                                            </Feedback>
+                                        </TextEdit>
+                                    </Field>
+                                </Validation>
+                            </Fields>
+                            <Fields>
+                                <Validation MessageLocalizer="@LH.Localize">
+                                    <Field ColumnSize="ColumnSize.IsHalf">
+                                        <FieldLabel>@L["ConfidentialName"]</FieldLabel>
+                                        <TextEdit @bind-Text="@InternalContact.ConfidentialName">
+                                            <Feedback>
+                                                <ValidationError/>
+                                            </Feedback>
+                                        </TextEdit>
+                                    </Field>
+                                </Validation>
+                                <Validation MessageLocalizer="@LH.Localize">
+                                    <Field ColumnSize="ColumnSize.IsHalf">
+                                        <FieldLabel>@L["JobRole"]</FieldLabel>
+                                        <TextEdit @bind-Text="@InternalContact.JobRole">
+                                            <Feedback>
+                                                <ValidationError/>
+                                            </Feedback>
+                                        </TextEdit>
+                                    </Field>
+                                </Validation>
+                            </Fields>
+                            <Fields>
+                                <Field ColumnSize="ColumnSize.IsFull">
+                                    <FieldLabel>@L["Email"]</FieldLabel>
+                                    <MailInfoInput
+                                        MailInfo="@InternalContact.MailInfo"/>
+                                </Field>
+                            </Fields>
+                            <Fields>
+                                <Field>
+                                    <FieldLabel>@L["Phone"]</FieldLabel>
+                                    <PhoneInfoInput
+                                        PhoneInfo="@InternalContact.PhoneInfo"/>
+                                </Field>
+                            </Fields>
+                        </CollapseBody>
+                    </Collapse>
+                    <Collapse  Visible="@accordionItemAddressesInformationVisible">
+                        <CollapseHeader @onclick="ToggleAddressesInformation">
+                            <Heading Size="HeadingSize.Is5">
+                                <AccordionToggle>@L["AddressesInformation"]</AccordionToggle>
+                            </Heading>
+                        </CollapseHeader>
+                        <CollapseBody>
+                            <Field>
+                                <AddressInput @bind-Value="@InternalContact.AddressInfo"/>
+                            </Field>
+                        </CollapseBody>
+                    </Collapse>
+                            <Collapse  Visible="@accordionItemOtherInformationVisible">
+                                <CollapseHeader @onclick="ToggleOtherInformation">
+                                    <Heading Size="HeadingSize.Is5">
+                                        <AccordionToggle>@L["OtherInformation"]</AccordionToggle>
+                                    </Heading>
+                                </CollapseHeader>
+                                <CollapseBody>
+                                    <Fields>
+                                        <Field ColumnSize="ColumnSize.IsFull">
+                                            <FieldLabel>@L["SocialInfo"]</FieldLabel>
+                                            <SocialInfoInput
+                                                SocialInfo="@InternalContact.SocialInfo"/>
+                                        </Field>
+                                    </Fields>
+                                    <Fields>
+                                        <Field>
+                                            <FieldLabel>@L["Tag"]</FieldLabel>
+                                            <TagInput></TagInput>
+                                        </Field>
+                                    </Fields>
+                                </CollapseBody>
+                            </Collapse>
+                </Accordion>
+                </Fields>
+                    @* For images, logos, and other file types, assuming you have a file upload component 
+                                        <Field>
+                                            <FieldLabel>@L["Logo"]</FieldLabel>
+                                            <FileUpload @bind-Value="@InternalContact.Logo" />
+                                        </Field>
+                                    
+                                        <Field>
+                                            <FieldLabel>@L["Image"]</FieldLabel>
+                                            <FileUpload @bind-Value="@InternalContact.Image" />
+                                        </Field>
+                                    *@
+                    @* Notes as a larger text area *@
+            </Validations>
+            <Fields Class="mt-2">
+                <Field ColumnSize="ColumnSize.IsFull" Position="Position.Relative" Class="text-end">
+                    <Button Color="Color.Primary" Type="ButtonType.Submit" Size="Size.Default" Class="me-2" Clicked="HandleValidSubmit">@L["Save"]</Button>
+                    <Button Color="Color.Secondary" Clicked="HandleCancel" Size="Size.Default" Class="me-2">
+                        @L["Cancel"]
+                    </Button>
+                </Field>
+            </Fields>
+        </EditForm>
+    </Column>
+</Row>
+
+
+
+@code
+{
+    protected bool accordionItemMainInformationVisible {get; set;} = true;
+    protected bool accordionItemFinancialInformationVisible {get; set;} = false;
+    protected bool accordionItemAddressesInformationVisible {get; set;} = false;
+    protected bool accordionItemOtherInformationVisible {get; set;} = false;
+    public Button ChangeViewModeButton { get; set; }
+    
+    private void ToggleMainInformation()
+    {
+        accordionItemMainInformationVisible = !accordionItemMainInformationVisible;
+    }
+    private void ToggleFinancialformation()
+    {
+        accordionItemFinancialInformationVisible = !accordionItemFinancialInformationVisible;
+    }
+    private void ToggleAddressesInformation()
+    {
+        accordionItemAddressesInformationVisible = !accordionItemAddressesInformationVisible;
+    }
+    private void ToggleOtherInformation()
+    {
+        accordionItemOtherInformationVisible = !accordionItemOtherInformationVisible;
+    }
+    
+    private void mailToAction(MailItemDto mailItem)
+    {
+        NavigationManager.NavigateTo($"mailto:{mailItem.Email}?subject=[Termocasa] -  {CurrentUser.Name}");
+    }
+}

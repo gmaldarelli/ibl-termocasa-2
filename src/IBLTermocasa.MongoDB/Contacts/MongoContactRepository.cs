@@ -73,16 +73,23 @@ namespace IBLTermocasa.Contacts
             string? tag = null)
         {
             return query
-                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Title!.Contains(filterText!) || e.Name!.Contains(filterText!) || e.Surname!.Contains(filterText!) || e.ConfidentialName!.Contains(filterText!) || e.JobRole!.Contains(filterText!) || e.MailInfo!.Contains(filterText!) || e.PhoneInfo!.Contains(filterText!) || e.AddressInfo!.Contains(filterText!) || e.Tag!.Contains(filterText!))
+                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => 
+                    e.Title!.Contains(filterText!) 
+                    || e.Name!.Contains(filterText!) 
+                    || e.Surname!.Contains(filterText!) 
+                    || e.ConfidentialName!.Contains(filterText!) 
+                    || e.JobRole!.Contains(filterText!) 
+                    || e.MailInfo!.MailItems.Any(x => x.Email.Contains(filterText!)) 
+                    || e.PhoneInfo!.PhoneItems.Any(x => x.Number.Contains(filterText!))
+                    || e.Tags!.Contains(filterText!))
                     .WhereIf(!string.IsNullOrWhiteSpace(title), e => e.Title.Contains(title))
                     .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name))
                     .WhereIf(!string.IsNullOrWhiteSpace(surname), e => e.Surname.Contains(surname))
                     .WhereIf(!string.IsNullOrWhiteSpace(confidentialName), e => e.ConfidentialName.Contains(confidentialName))
                     .WhereIf(!string.IsNullOrWhiteSpace(jobRole), e => e.JobRole.Contains(jobRole))
-                    .WhereIf(!string.IsNullOrWhiteSpace(mailInfo), e => e.MailInfo.Contains(mailInfo))
-                    .WhereIf(!string.IsNullOrWhiteSpace(phoneInfo), e => e.PhoneInfo.Contains(phoneInfo))
-                    .WhereIf(!string.IsNullOrWhiteSpace(addressInfo), e => e.AddressInfo.Contains(addressInfo))
-                    .WhereIf(!string.IsNullOrWhiteSpace(tag), e => e.Tag.Contains(tag));
+                    .WhereIf(!string.IsNullOrWhiteSpace(mailInfo), e => e.MailInfo.MailItems.Any(x => x.Email.Contains(mailInfo)))
+                    .WhereIf(!string.IsNullOrWhiteSpace(phoneInfo), e => e.PhoneInfo.PhoneItems.Any(x => x.Number.Contains(phoneInfo)))
+                    .WhereIf(!string.IsNullOrWhiteSpace(tag), e => e.Tags.Contains(tag));
         }
     }
 }

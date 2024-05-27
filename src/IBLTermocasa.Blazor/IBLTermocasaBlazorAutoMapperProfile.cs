@@ -32,9 +32,9 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<SubproductDto, SubproductUpdateDto>();
 
         CreateMap<IndustryDto, IndustryUpdateDto>();
-
         CreateMap<ContactDto, ContactUpdateDto>();
 
+        CreateMap<ContactDto, ContactCreateDto>();
         CreateMap<OrganizationDto, OrganizationUpdateDto>();
         CreateMap<OrganizationDto, OrganizationCreateDto>();
 

@@ -19,9 +19,7 @@
             </Select>
         </Field>
         <Field ColumnSize="ColumnSize.IsQuarter">
-            <Validation MessageLocalizer="@LH.Localize">
-                <InternationalPrefixSelector @bind-SelectedPrefix="@phoneItem.Prefix" />
-            </Validation>
+            <InternationalPrefixSelector @bind-SelectedPrefix="@phoneItem.Prefix" />
         </Field>
         <Field>
                 <InputMask @bind-Value="phoneItem.Number" Mask="999-9999999" DebounceInterval="60000">

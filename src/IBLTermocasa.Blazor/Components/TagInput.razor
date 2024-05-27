@@ -1,0 +1,65 @@
+﻿@using Blazorise
+
+<Autocomplete @ref="_Autocomplete"
+              TItem="Country"
+              TValue="string"
+              Data="@Countries"
+              TextField="@((item) => item.Name)"
+              ValueField="@((item) => item.Iso)"
+              Placeholder="Search..."
+              SelectionMode="AutocompleteSelectionMode.Checkbox"
+              CloseOnSelection="false"
+              MaxMenuHeight="200"
+              @bind-SelectedValues="multipleSelectionData"
+              @bind-SelectedTexts="multipleSelectionTexts"
+              SearchChanged="@OnSearchChanged"
+>
+</Autocomplete>
+
+@if(showAddButton)
+{
+    <Button Clicked="@(() => AddItem(_Autocomplete.Search.ToUpper()))"
+            Type="ButtonType.Button"
+            Color="Color.Info">
+        Aggiungi: @_Autocomplete.Search.ToUpper()
+    </Button>
+}
+
+@code {
+    private Autocomplete<Country, string> _Autocomplete;
+    private List<Country> Countries = new List<Country>();
+    private List<string> multipleSelectionData = new List<string>();
+    private List<string> multipleSelectionTexts = new List<string>();
+    private bool showAddButton = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Countries = new List<Country>(){new Country{Iso = "ITA", Name = "Italy"},
+            new Country{Iso = "DEU", Name = "Germany"},
+            new Country{Iso = "FRA", Name = "France"},
+            new Country{Iso = "ESP", Name = "Spain"},
+            new Country{Iso = "GBR", Name = "United Kingdom"}};
+        multipleSelectionData = new List<string>() { Countries.ElementAt( 1 ).Iso, Countries.ElementAt( 3 ).Iso };
+        await base.OnInitializedAsync();
+    }
+    
+    
+    
+    
+    private void OnSearchChanged(string searchText)
+    {
+        var isMatch = Countries.Any(country => country.Name.Equals(searchText, StringComparison.OrdinalIgnoreCase));
+        showAddButton = !isMatch && !string.IsNullOrWhiteSpace(searchText);
+    }
+
+    private void AddItem(string newItem)
+    {
+        // Logica per aggiungere un nuovo elemento alla lista Countries o al database
+        showAddButton = false; // Nascondi il pulsante dopo l'aggiunta
+    }
+    public class Country    
+    {
+        public string Iso { get; set; }
+        public string Name { get; set; }
+    }
+}

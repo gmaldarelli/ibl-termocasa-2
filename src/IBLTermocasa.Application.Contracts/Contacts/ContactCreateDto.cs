@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
+using IBLTermocasa.Common;
 
 namespace IBLTermocasa.Contacts
 {
@@ -14,11 +15,13 @@ namespace IBLTermocasa.Contacts
         public string? ConfidentialName { get; set; }
         public string? JobRole { get; set; }
         public DateTime BirthDate { get; set; }
-        public string? MailInfo { get; set; }
-        public string? PhoneInfo { get; set; }
-        public string? SocialInfo { get; set; }
-        public string? AddressInfo { get; set; }
-        public string? Tag { get; set; }
+        public Guid? ImageId { get; set; }
+        public PhoneInfoDto PhoneInfo { get; set; } = new PhoneInfoDto();
+        public MailInfoDto MailInfo { get; set; } = new MailInfoDto();
+        public SocialInfoDto SocialInfo { get; set; } = new SocialInfoDto();
+        public AddressDto AddressInfo { get; set; } = new AddressDto();
+
+        public List<string> Tags { get; set; } = new List<string>();
         public string? Notes { get; set; }
     }
 }

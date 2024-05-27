@@ -1,10 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using IBLTermocasa.Shared;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Content;
-using IBLTermocasa.Shared;
 
 namespace IBLTermocasa.Contacts
 {
@@ -23,6 +22,6 @@ namespace IBLTermocasa.Contacts
 
         Task<IRemoteStreamContent> GetListAsExcelFileAsync(ContactExcelDownloadDto input);
 
-        Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync();
+        Task<DownloadTokenResultDto> GetDownloadTokenAsync();
     }
 }

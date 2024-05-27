@@ -1,0 +1,61 @@
+﻿@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@using IBLTermocasa.Common
+@using IBLTermocasa.Localization
+@using Volo.Abp.AspNetCore.Components.Web
+@inherits IBLTermocasaComponentBase
+@foreach (var socialItem in SocialInfo.SocialItems)
+{
+    <Validations @ref="@SocialInfoValidations"
+                 Mode="ValidationMode.Auto"
+                 Model="@socialItem"
+                 ValidateOnLoad="false">
+    <Fields>
+        <Field ColumnSize="ColumnSize.IsHalf">
+            <Validation MessageLocalizer="@LH.Localize">
+                <TextEdit @bind-Text="socialItem.Url" Placeholder="@L["SocialPlaceholder"]">
+                    <Feedback>
+                        <ValidationError/>
+                    </Feedback>
+                </TextEdit>
+            </Validation>
+        </Field>
+        <Field>
+           <Select TValue="SocialType" @bind-SelectedValue="@socialItem.SocialType">
+                @foreach (var type in Enum.GetValues<SocialType>())
+                {
+                    <SelectItem Value="@type">@L[$"Enum:SocialType.{type:d}"]</SelectItem>
+                }
+            </Select>
+        </Field>
+        <Field  ColumnSize="ColumnSize.Is1">
+            <Button Color="Color.Danger" Clicked="@(() => RemoveSocialItem(socialItem))">
+                <Icon IconSize="IconSize.ExtraSmall" Name="IconName.Delete"/>
+            </Button>
+        </Field>
+    </Fields>
+    </Validations>
+}
+<Button Color="Color.Primary"  Clicked="@(() => AddNewSocialItem())">
+    <Icon IconSize="IconSize.ExtraSmall" Name="IconName.Add"/>
+</Button>
+@code {
+    [Parameter] public SocialInfoDto SocialInfo { get; set; }
+    [Parameter] public EventCallback<SocialInfoDto> OnAddSocialItem { get; set; }
+    [Parameter] public EventCallback<SocialInfoDto> OnRemoveSocialItem { get; set; }
+    [Parameter] public Validations SocialInfoValidations { get; set; }
+    private void AddNewSocialItem()
+    {
+        var newItem = new SocialItemDto() { Url = "" }; 
+        SocialInfo.SocialItems.Add(newItem);
+        StateHasChanged();
+    }
+    private void RemoveSocialItem(SocialItemDto socialItem)
+    {
+        SocialInfo.SocialItems.Remove(socialItem);
+        StateHasChanged();
+    }
+    private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<SocialItemDto> e)
+    {
+        await Task.CompletedTask;
+    }
+}

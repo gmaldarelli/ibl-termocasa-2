@@ -51,6 +51,13 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
 
         CreateMap<Contact, ContactDto>();
         CreateMap<Contact, ContactExcelDto>();
+        CreateMap<ContactPropertyDto, ContactProperty>();
+        CreateMap<ContactProperty, ContactPropertyDto>();
+        CreateMap<ContactCreateDto, Contact>();
+        CreateMap<ContactUpdateDto, Contact>();
+        CreateMap<Contact, ContactCreateDto>();
+        CreateMap<Contact, ContactUpdateDto>();
+        CreateMap<Contact, ContactDto>();
 
         CreateMap<Organization, OrganizationDto>();
         CreateMap<Organization, OrganizationExcelDto>();

@@ -1,0 +1,191 @@
+@page "/contacts"
+
+@attribute [Authorize(IBLTermocasaPermissions.Contacts.Default)]
+@using IBLTermocasa.Contacts
+@using IBLTermocasa.Localization
+@using IBLTermocasa.Permissions
+@using IBLTermocasa.Blazor.Components.Contact
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using Volo.Abp.Http.Client
+@inherits IBLTermocasaComponentBase
+@inject IContactsAppService ContactsAppService
+
+@inject IUiMessageService UiMessageService
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+
+@{
+    string selectedTab;
+}
+
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["Contacts"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* SEARCH ************************* *@
+<Card>
+    <CardBody>
+@*//<suite-custom-code-block-1>*@
+@*//</suite-custom-code-block-1>*@
+        <Form id="ContactSearchForm" class="mb-3">
+            <Addons>
+                <Addon AddonType="AddonType.Body">
+                    <TextEdit @bind-Text="@Filter.FilterText"
+                              Autofocus="true"
+                              Placeholder="@L["Search"]">
+                    </TextEdit>
+                </Addon>
+                <Addon AddonType="AddonType.End">
+                    <SubmitButton Form="ContactSearchForm" Clicked="GetContactsAsync">
+                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
+                    </SubmitButton>
+                </Addon>
+            </Addons>
+        </Form>
+        
+        <Row Class="mt-3 mb-3"> 
+            <div class="col-md-12">
+                <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
+            </div>
+        </Row>
+        
+        <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
+            <Row>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Title"]</FieldLabel>
+                        <TextEdit Text="@Filter.Title" TextChanged="@OnTitleChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Name"]</FieldLabel>
+                        <TextEdit Text="@Filter.Name" TextChanged="@OnNameChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Surname"]</FieldLabel>
+                        <TextEdit Text="@Filter.Surname" TextChanged="@OnSurnameChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Phone"]</FieldLabel>
+                        <TextEdit Text="@Filter.PhoneInfo" TextChanged="@OnPhoneChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Mail"]</FieldLabel>
+                        <TextEdit Text="@Filter.MailInfo" TextChanged="@OnMailChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["ConfidentialName"]</FieldLabel>
+                        <TextEdit Text="@Filter.ConfidentialName" TextChanged="@OnConfidentialNameChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["JobRole"]</FieldLabel>
+                        <TextEdit Text="@Filter.JobRole" TextChanged="@OnJobRoleChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Tag"]</FieldLabel>
+                        <TextEdit Text="@Filter.Tag" TextChanged="@OnTagChangedAsync" />                       
+                    </Field>
+                </Column>
+            </Row>
+@*//<suite-custom-code-block-2>*@
+@*//</suite-custom-code-block-2>*@
+        </div>
+@*//<suite-custom-code-block-3>*@
+@*//</suite-custom-code-block-3>*@
+    </CardBody>
+</Card>
+
+@* ************************* DATA GRID ************************* *@
+<Card>
+    <CardBody>
+        <DataGrid TItem="ContactDto"
+                  Data="ContactList"
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  Responsive="true"
+                  PageSize="PageSize"
+                  Class="datagrid-detail">
+            <DataGridColumns>
+              <DataGridColumn TItem="ContactDto"
+                      Field="Title"
+                      Caption="@L["Title"]">
+              </DataGridColumn>
+                
+              <DataGridColumn TItem="ContactDto"
+                      Field="Name"
+                      Caption="@L["Name"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="ContactDto"
+                      Field="Surname"
+                      Caption="@L["Surname"]">
+              </DataGridColumn>
+                <DataGridColumn TItem="ContactDto"
+                                Field="ConfidentialName"
+                                Caption="@L["ConfidentialName"]">
+                </DataGridColumn>
+
+                <DataGridColumn TItem="ContactDto"
+                                Field="JobRole"
+                                Caption="@L["JobRole"]">
+                </DataGridColumn>
+              <DataGridColumn TItem="ContactDto"
+                      Field="Phones"
+                      Caption="@L["Phone"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="ContactDto"
+                      Field="Emails"
+                      Caption="@L["Mail"]">
+              </DataGridColumn>
+                <DataGridColumn TItem="ContactDto"
+
+                                Caption="@L["Tag"]">
+                    <DisplayTemplate>
+                        @foreach (var tag in context.Tags)
+                        {
+                            <span class="badge bg-primary me-1">@tag</span>
+                        }
+                    </DisplayTemplate>
+                </DataGridColumn>
+
+            </DataGridColumns>
+            
+            <RowOverlayTemplate>
+                            <Div id="@context.Item.Name" class="justify-content-start">
+                                <Button Color="Color.Primary" Size="Size.ExtraSmall"
+                                        Visibility="@((CanEditContact) ? Visibility.Visible : Visibility.Invisible)"
+                                        Clicked="() => OpenEditContactPageAsync(context.Item)">
+                                    <Icon Name="IconName.Edit" IconSize="IconSize.ExtraSmall"/>
+                                </Button>
+                                <Button Color="Color.Secondary" Size="Size.ExtraSmall"
+                                        Visibility="@((CanDeleteContact) ? Visibility.Visible : Visibility.Invisible)"
+                                        Clicked="async () => await DeleteContactAsync(context.Item)">
+                                    <Icon Name="IconName.Delete" IconSize="IconSize.ExtraSmall"/>
+                                </Button>
+                            </Div>
+            </RowOverlayTemplate>
+        </DataGrid>
+    </CardBody>
+</Card>
+
