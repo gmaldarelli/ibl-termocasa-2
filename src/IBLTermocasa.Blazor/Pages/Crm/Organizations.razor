@@ -37,6 +37,11 @@
                               Placeholder="@L["Search"]">
                     </TextEdit>
                 </Addon>
+                <Addon AddonType="AddonType.End">
+                    <SubmitButton Form="OrganizationSearchForm" Clicked="GetOrganizationsAsync">
+                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
+                    </SubmitButton>
+                </Addon>
             </Addons>
         </Form>
 
