@@ -1,0 +1,483 @@
+
+
+@page "/catalogs"
+
+@attribute [Authorize(IBLTermocasaPermissions.Catalogs.Default)]
+@using IBLTermocasa.Catalogs
+@using IBLTermocasa.Localization
+@using IBLTermocasa.Shared
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Components.Web
+@using Blazorise
+@using Blazorise.Components
+@using Blazorise.DataGrid
+@using Volo.Abp.BlazoriseUI
+@using Volo.Abp.BlazoriseUI.Components
+@using Volo.Abp.ObjectMapping
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+
+@using IBLTermocasa.Permissions
+@using Volo.Abp.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components
+@using Volo.Abp.Http.Client
+@inherits IBLTermocasaComponentBase
+@inject ICatalogsAppService CatalogsAppService
+
+@inject IUiMessageService UiMessageService
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["Catalogs"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* SEARCH ************************* *@
+<Card>
+    <CardBody>
+
+        <Form id="CatalogSearchForm" class="mb-3">
+            <Addons>
+                <Addon AddonType="AddonType.Body">
+                    <TextEdit @bind-Text="@Filter.FilterText"
+                              Autofocus="true"
+                              Placeholder="@L["Search"]">
+                    </TextEdit>
+                </Addon>
+                <Addon AddonType="AddonType.End">
+                    <SubmitButton Form="CatalogSearchForm" Clicked="GetCatalogsAsync">
+                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
+                    </SubmitButton>
+                </Addon>
+            </Addons>
+        </Form>
+        
+        <Row Class="mt-3 mb-3"> 
+            <div class="col-md-12">
+                <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
+            </div>
+        </Row>
+        
+        <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
+            <Row>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Name"]</FieldLabel>
+                        <TextEdit Text="@Filter.Name" TextChanged="@OnNameChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MinFrom"]</FieldLabel>
+                        <DatePicker TValue="DateTime?"
+            InputMode="DateInputMode.Date"
+            Date="@Filter.FromMin"
+            DateChanged="@OnFromMinChangedAsync"
+            Placeholder="@string.Empty" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MaxFrom"]</FieldLabel>
+                        <DatePicker TValue="DateTime?"
+            InputMode="DateInputMode.Date"
+            Date="@Filter.FromMax"
+            DateChanged="@OnFromMaxChangedAsync"
+            Placeholder="@string.Empty" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MinTo"]</FieldLabel>
+                        <DatePicker TValue="DateTime?"
+            InputMode="DateInputMode.Date"
+            Date="@Filter.ToMin"
+            DateChanged="@OnToMinChangedAsync"
+            Placeholder="@string.Empty" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MaxTo"]</FieldLabel>
+                        <DatePicker TValue="DateTime?"
+            InputMode="DateInputMode.Date"
+            Date="@Filter.ToMax"
+            DateChanged="@OnToMaxChangedAsync"
+            Placeholder="@string.Empty" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Description"]</FieldLabel>
+                        <TextEdit Text="@Filter.Description" TextChanged="@OnDescriptionChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Product"]</FieldLabel>
+                        <Select TValue="Guid?"
+		SelectedValue="@Filter.ProductId"
+		SelectedValueChanged="@OnProductIdChangedAsync">
+
+<SelectItem></SelectItem>
+
+@foreach(var item in Products)
+{
+	<SelectItem TValue="Guid?" Value="@item.Id">
+		@item.DisplayName
+	</SelectItem>
+}
+
+</Select>                       
+                    </Field>
+                </Column>
+            </Row>
+
+        </div>
+
+
+    </CardBody>
+</Card>
+
+@* ************************* DATA GRID ************************* *@
+<Card>
+    <CardBody>
+        <DataGrid TItem="CatalogWithNavigationPropertiesDto"
+                  Data="CatalogList"
+                  
+                  
+                  
+                  
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  Responsive="true"
+                  PageSize="PageSize"
+                  Class="datagrid-detail">
+            <DataGridColumns>
+                
+                
+                <DataGridEntityActionsColumn TItem="CatalogWithNavigationPropertiesDto" @ref="@EntityActionsColumn">
+                    <DisplayTemplate>
+                        <EntityActions TItem="CatalogWithNavigationPropertiesDto" EntityActionsColumn="@EntityActionsColumn">
+                            <EntityAction TItem="CatalogWithNavigationPropertiesDto"
+                                          Visible="@CanEditCatalog"
+                                          Clicked="async () => await OpenEditCatalogModalAsync(context)"
+                                          Text="@L["Edit"]"></EntityAction>
+                            <EntityAction TItem="CatalogWithNavigationPropertiesDto"
+                                          Visible="@CanDeleteCatalog"
+                                          Clicked="() => DeleteCatalogAsync(context)"
+                                          ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
+                                          Text="@L["Delete"]"></EntityAction>
+
+                        </EntityActions>
+                    </DisplayTemplate>
+                </DataGridEntityActionsColumn>
+               
+              <DataGridColumn TItem="CatalogWithNavigationPropertiesDto"
+                      Field="Catalog.Name"
+                      Caption="@L["Name"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="CatalogWithNavigationPropertiesDto"
+                      Field="Catalog.From"
+                      Caption="@L["From"]">
+                  <DisplayTemplate>
+                        @context.Catalog.From.ToShortDateString()
+                  </DisplayTemplate>
+              </DataGridColumn>
+
+              <DataGridColumn TItem="CatalogWithNavigationPropertiesDto"
+                      Field="Catalog.To"
+                      Caption="@L["To"]">
+                  <DisplayTemplate>
+                        @context.Catalog.To.ToShortDateString()
+                  </DisplayTemplate>
+              </DataGridColumn>
+
+              <DataGridColumn TItem="CatalogWithNavigationPropertiesDto"
+                      Field="Catalog.Description"
+                      Caption="@L["Description"]">
+              </DataGridColumn>
+
+            </DataGridColumns>
+            
+            
+        </DataGrid>
+    </CardBody>
+</Card>
+
+@* ************************* CREATE MODAL ************************* *@
+<Modal @ref="CreateCatalogModal" Closing="@CreateCatalogModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+
+        <Form id="CreateCatalogForm">
+            <ModalHeader>
+                <ModalTitle>@L["NewCatalog"]</ModalTitle>
+                <CloseButton Clicked="CloseCreateCatalogModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Tabs SelectedTab="@SelectedCreateTab" SelectedTabChanged="@OnSelectedCreateTabChanged">
+                    <Items>
+                        <Tab Name="catalog-create-tab">@L["Catalog"].Value</Tab> 
+                        <Tab Name="products-create-tab">@L["Products"].Value</Tab>
+                    </Items>
+                    <Content>
+                <Validations @ref="@NewCatalogValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@NewCatalog"
+                            ValidateOnLoad="false">
+                     <TabPanel Name="catalog-create-tab">
+                    
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Name"] *</FieldLabel>
+                            <TextEdit @bind-Text="@NewCatalog.Name"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["From"]</FieldLabel>
+                            <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@NewCatalog.From" >
+                               <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </DateEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["To"]</FieldLabel>
+                            <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@NewCatalog.To" >
+                               <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </DateEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Description"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewCatalog.Description"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    </TabPanel>
+                                                <TabPanel Name="products-create-tab">
+
+                                <Row>
+                                    <Column ColumnSize="ColumnSize.Is9">
+                                        <Field>
+
+                                            <Autocomplete Data="@Products"
+                                                          TItem="LookupDto<Guid>"
+                                                          TValue="string"
+                                                          TextField="@((item) => item.DisplayName)"
+                                                          ValueField="@((item) => item.Id.ToString())"
+                                                          SearchChanged="@GetProductLookupAsync"
+                                                          @bind-SelectedValue="@SelectedProductId"
+                                                          @bind-SelectedText="@SelectedProductText"
+                                                          Placeholder="&#8212;"/>
+                                        </Field>
+                                    </Column>
+
+                                    <Column ColumnSize="ColumnSize.Is3">
+                                        <Button Color="Color.Info" TextColor="TextColor.White" Size="Size.Medium" Clicked="AddProduct">
+                                            <Icon class="fa fa-plus"></Icon> @L["Add"]
+                                        </Button>
+                                    </Column>
+                                </Row>
+                                @if (SelectedProducts.Any())
+                                {
+                                    <Table striped-rows="true" responsive-sm="true" class="mt-2">
+                                        <TableHeader>
+                                            <TableHeaderCell><Span class="float-start">@L["Name"]</Span></TableHeaderCell>
+                                        </TableHeader>
+                                        <TableBody>
+                                            @foreach (var product in SelectedProducts)
+                                            {
+                                                <TableRow>
+                                                    <TableRowCell><Span class="float-start">@product.DisplayName</Span></TableRowCell>
+                                                    <TableRowCell>
+                                                        <span class="btn btn-danger btn-sm float-end"
+                                                              @onclick="() => SelectedProducts.RemoveAll(s => s.Id == product.Id)">
+                                                            <Icon Class="fa fa-trash"></Icon>
+                                                        </span>
+                                                    </TableRowCell>
+                                                </TableRow>
+                                            }
+                                        </TableBody>
+                                    </Table>
+                                }
+                            </TabPanel>
+                </Validations>
+                    </Content>
+                </Tabs>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseCreateCatalogModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="CreateCatalogForm" Clicked="CreateCatalogAsync" />
+
+            </ModalFooter>
+        </Form>
+
+    </ModalContent>
+</Modal>
+
+@* ************************* EDIT MODAL ************************* *@
+<Modal @ref="EditCatalogModal" Closing="@EditCatalogModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+
+        <Form id="EditCatalogForm">
+            <ModalHeader>
+                <ModalTitle>@L["Update"]</ModalTitle>
+                <CloseButton Clicked="CloseEditCatalogModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Tabs SelectedTab="@SelectedEditTab" SelectedTabChanged="@OnSelectedEditTabChanged">
+                    <Items>
+                        <Tab Name="catalog-edit-tab">@L["Catalog"].Value</Tab>
+                        
+                        <Tab Name="products-edit-tab">@L["Products"].Value</Tab>
+                    </Items>
+                    <Content>
+                <Validations @ref="@EditingCatalogValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@EditingCatalog"
+                            ValidateOnLoad="false">
+                     <TabPanel Name="catalog-edit-tab">
+                    
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Name"] *</FieldLabel>
+                            <TextEdit @bind-Text="@EditingCatalog.Name"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["From"]</FieldLabel>
+                            <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@EditingCatalog.From" >
+                               <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </DateEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["To"]</FieldLabel>
+                            <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@EditingCatalog.To" >
+                               <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </DateEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Description"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingCatalog.Description"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    </TabPanel>
+                                                <TabPanel Name="products-edit-tab">
+
+                                <Row>
+                                    <Column ColumnSize="ColumnSize.Is9">
+                                        <Field>
+
+                                            <Autocomplete Data="@Products"
+                                                          TItem="LookupDto<Guid>"
+                                                          TValue="string"
+                                                          TextField="@((item) => item.DisplayName)"
+                                                          ValueField="@((item) => item.Id.ToString())"
+                                                          SearchChanged="@GetProductLookupAsync"
+                                                          @bind-SelectedValue="@SelectedProductId"
+                                                          @bind-SelectedText="@SelectedProductText"
+                                                          Placeholder="&#8212;"/>
+                                        </Field>
+                                    </Column>
+
+                                    <Column ColumnSize="ColumnSize.Is3">
+                                        <Button Color="Color.Info" TextColor="TextColor.White" Size="Size.Medium" Clicked="AddProduct">
+                                            <Icon class="fa fa-plus"></Icon> @L["Add"]
+                                        </Button>
+                                    </Column>
+                                </Row>
+                                @if (SelectedProducts.Any())
+                                {
+                                    <Table striped-rows="true" responsive-sm="true" class="mt-2">
+                                        <TableHeader>
+                                            <TableHeaderCell><Span class="float-start">@L["Name"]</Span></TableHeaderCell>
+                                        </TableHeader>
+                                        <TableBody>
+                                            @foreach (var product in SelectedProducts)
+                                            {
+                                                <TableRow>
+                                                    <TableRowCell><Span class="float-start">@product.DisplayName</Span></TableRowCell>
+                                                    <TableRowCell>
+                                                        <span class="btn btn-danger btn-sm float-end"
+                                                              @onclick="() => SelectedProducts.RemoveAll(s => s.Id == product.Id)">
+                                                            <Icon Class="fa fa-trash"></Icon>
+                                                        </span>
+                                                    </TableRowCell>
+                                                </TableRow>
+                                            }
+                                        </TableBody>
+                                    </Table>
+                                }
+                            </TabPanel>
+                </Validations>
+                    </Content>
+                </Tabs>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseEditCatalogModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="EditCatalogForm" Clicked="UpdateCatalogAsync" />
+
+            </ModalFooter>
+        </Form>
+
+    </ModalContent>
+</Modal>
+

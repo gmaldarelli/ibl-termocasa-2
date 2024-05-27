@@ -1,3 +1,4 @@
+using IBLTermocasa.Catalogs;
 using IBLTermocasa.RequestForQuotations;
 using IBLTermocasa.QuestionTemplates;
 using IBLTermocasa.Interactions;
@@ -21,6 +22,7 @@ namespace IBLTermocasa.MongoDB;
 [ConnectionStringName("Default")]
 public class IBLTermocasaMongoDbContext : AbpMongoDbContext
 {
+    public IMongoCollection<Catalog> Catalogs => Collection<Catalog>();
     public IMongoCollection<RequestForQuotation> RequestForQuotations => Collection<RequestForQuotation>();
     public IMongoCollection<QuestionTemplate> QuestionTemplates => Collection<QuestionTemplate>();
     public IMongoCollection<Interaction> Interactions => Collection<Interaction>();
@@ -67,5 +69,7 @@ public class IBLTermocasaMongoDbContext : AbpMongoDbContext
         modelBuilder.Entity<QuestionTemplate>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "QuestionTemplates"; });
 
         modelBuilder.Entity<RequestForQuotation>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "RequestForQuotations"; });
+
+        modelBuilder.Entity<Catalog>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "Catalogs"; });
     }
 }

@@ -26,4 +26,6 @@ public class IBLTermocasaMenus
 
     public const string RequestForQuotations = Prefix + ".RequestForQuotations";
 
+    public const string Catalogs = Prefix + ".Catalogs";
+
 }

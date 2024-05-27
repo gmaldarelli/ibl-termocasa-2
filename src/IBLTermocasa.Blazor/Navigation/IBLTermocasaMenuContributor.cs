@@ -200,6 +200,15 @@ public class IBLTermocasaMenuContributor : IMenuContributor
                 icon: "fa fa-file-alt",
                 requiredPermissionName: IBLTermocasaPermissions.RequestForQuotations.Default)
         );
+
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                IBLTermocasaMenus.Catalogs,
+                l["Menu:Catalogs"],
+                url: "/catalogs",
+                icon: "fa fa-book",
+                requiredPermissionName: IBLTermocasaPermissions.Catalogs.Default)
+        );
         return Task.CompletedTask;
     }
 

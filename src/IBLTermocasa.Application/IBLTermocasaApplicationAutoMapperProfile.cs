@@ -1,3 +1,4 @@
+using IBLTermocasa.Catalogs;
 using IBLTermocasa.RequestForQuotations;
 using IBLTermocasa.QuestionTemplates;
 using Volo.Abp.Identity;
@@ -99,5 +100,9 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<QuestionTemplate, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.QuestionText));
 
         CreateMap<Component, ComponentDto>().Ignore(x => x.ComponentItems);
+
+        CreateMap<Catalog, CatalogDto>();
+        CreateMap<Catalog, CatalogExcelDto>();
+        CreateMap<CatalogWithNavigationProperties, CatalogWithNavigationPropertiesDto>();
     }
 }

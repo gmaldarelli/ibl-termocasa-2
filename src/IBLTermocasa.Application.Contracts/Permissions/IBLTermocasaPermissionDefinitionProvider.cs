@@ -71,6 +71,11 @@ public class IBLTermocasaPermissionDefinitionProvider : PermissionDefinitionProv
         requestForQuotationPermission.AddChild(IBLTermocasaPermissions.RequestForQuotations.Create, L("Permission:Create"));
         requestForQuotationPermission.AddChild(IBLTermocasaPermissions.RequestForQuotations.Edit, L("Permission:Edit"));
         requestForQuotationPermission.AddChild(IBLTermocasaPermissions.RequestForQuotations.Delete, L("Permission:Delete"));
+
+        var catalogPermission = myGroup.AddPermission(IBLTermocasaPermissions.Catalogs.Default, L("Permission:Catalogs"));
+        catalogPermission.AddChild(IBLTermocasaPermissions.Catalogs.Create, L("Permission:Create"));
+        catalogPermission.AddChild(IBLTermocasaPermissions.Catalogs.Edit, L("Permission:Edit"));
+        catalogPermission.AddChild(IBLTermocasaPermissions.Catalogs.Delete, L("Permission:Delete"));
     }
 
     private static LocalizableString L(string name)

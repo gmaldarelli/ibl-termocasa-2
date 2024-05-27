@@ -212,6 +212,16 @@
     "MinDiscount": "Min Discount",
     "MaxDiscount": "Max Discount",
     "NewRequestForQuotation": "New Request For Quotation",
-    "Menu:RequestForQuotations": "Request For Quotations"
+    "Menu:RequestForQuotations": "Request For Quotations",
+    "Permission:Catalogs": "Catalogs",
+    "From": "From",
+    "To": "To",
+    "Catalogs": "Catalogs",
+    "MinFrom": "Min From",
+    "MinTo": "Min To",
+    "MaxFrom": "Max From",
+    "MaxTo": "Max To",
+    "NewCatalog": "New Catalog",
+    "Menu:Catalogs": "Catalogs"
   }
 }

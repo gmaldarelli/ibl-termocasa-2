@@ -1,3 +1,4 @@
+using IBLTermocasa.Catalogs;
 using IBLTermocasa.RequestForQuotations;
 using IBLTermocasa.QuestionTemplates;
 using IBLTermocasa.Interactions;
@@ -44,5 +45,7 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<RequestForQuotationDto, RequestForQuotationUpdateDto>();
 
         CreateMap<ProductDto, ProductUpdateDto>().Ignore(x => x.ComponentIds).Ignore(x => x.QuestionTemplateIds);
+
+        CreateMap<CatalogDto, CatalogUpdateDto>().Ignore(x => x.ProductIds);
     }
 }
