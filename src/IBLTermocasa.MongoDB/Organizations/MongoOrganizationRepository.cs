@@ -45,12 +45,13 @@ namespace IBLTermocasa.Organizations
             string? phoneInfo = null,
             string? tags = null,
             Guid? industryId = null,
+            OrganizationType? organizationTypePreFiilter = null,
             string? sorting = null,
             int maxResultCount = int.MaxValue,
             int skipCount = 0,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, code, name, organizationType, mailInfo, phoneInfo, tags, industryId);
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, code, name, organizationType, mailInfo, phoneInfo, tags, industryId, organizationTypePreFiilter);
             var organizations = await query.OrderBy(string.IsNullOrWhiteSpace(sorting) ? OrganizationConsts.GetDefaultSorting(false) : sorting.Split('.').Last())
                 .As<IMongoQueryable<Organization>>()
                 .PageBy<Organization, IMongoQueryable<Organization>>(skipCount, maxResultCount)
@@ -73,12 +74,13 @@ namespace IBLTermocasa.Organizations
             string? mailInfo = null,
             string? phoneInfo = null,
             string? tags = null,
+            OrganizationType? organizationTypePreFiilter = null,
             string? sorting = null,
             int maxResultCount = int.MaxValue,
             int skipCount = 0,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, code, name, organizationType, mailInfo, phoneInfo, tags);
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, code, name, organizationType, mailInfo, phoneInfo, tags, null, organizationTypePreFiilter);
             query = query.OrderBy(string.IsNullOrWhiteSpace(sorting) ? OrganizationConsts.GetDefaultSorting(false) : sorting);
             return await query.As<IMongoQueryable<Organization>>()
                 .PageBy<Organization, IMongoQueryable<Organization>>(skipCount, maxResultCount)
@@ -94,9 +96,10 @@ namespace IBLTermocasa.Organizations
             string? phoneInfo = null,
             string? tags = null,
             Guid? industryId = null,
+            OrganizationType? organizationTypePreFiilter = null,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, code, name, organizationType, mailInfo, phoneInfo, tags, industryId);
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, code, name, organizationType, mailInfo, phoneInfo, tags, industryId, organizationTypePreFiilter);
             return await query.As<IMongoQueryable<Organization>>().LongCountAsync(GetCancellationToken(cancellationToken));
         }
 
@@ -109,17 +112,25 @@ namespace IBLTermocasa.Organizations
             string? mailInfo = null,
             string? phoneInfo = null,
             string? tags = null,
-            Guid? industryId = null)
+            Guid? industryId = null,
+            OrganizationType? organizationTypePreFiilter = null)
         {
             return query
-                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Code!.Contains(filterText!) || e.Name!.Contains(filterText!) || e.MailInfo!.Contains(filterText!) || e.PhoneInfo!.Contains(filterText!) || e.Tags!.Contains(filterText!))
-                    .WhereIf(!string.IsNullOrWhiteSpace(code), e => e.Code.Contains(code))
-                    .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name))
-                    .WhereIf(organizationType.HasValue, e => e.OrganizationType == organizationType)
-                    .WhereIf(!string.IsNullOrWhiteSpace(mailInfo), e => e.MailInfo.Contains(mailInfo))
-                    .WhereIf(!string.IsNullOrWhiteSpace(phoneInfo), e => e.PhoneInfo.Contains(phoneInfo))
-                    .WhereIf(!string.IsNullOrWhiteSpace(tags), e => e.Tags.Contains(tags))
-                    .WhereIf(industryId != null && industryId != Guid.Empty, e => e.IndustryId == industryId);
+                .WhereIf(!string.IsNullOrWhiteSpace(filterText),
+                    e => (
+                        e.Code!.Contains(filterText!) 
+                        ||  e.Name!.Contains(filterText!) 
+                        ||  e.Tags!.Contains(filterText!) 
+                        || e.PhoneInfo.PhoneItems.Any(x => x.Number.Contains(filterText!))
+                        || e.MailInfo.MailItems.Any(x => x.Email.Contains(filterText!))
+                        ))
+                .WhereIf(!string.IsNullOrWhiteSpace(code), e => e.Code.Contains(code))
+                .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name))
+                .WhereIf(organizationType.HasValue, e => e.OrganizationType == organizationType)
+                .WhereIf(!string.IsNullOrWhiteSpace(phoneInfo), e => e.PhoneInfo.PhoneItems.Any(x => x.Number.Contains(phoneInfo)))
+                .WhereIf(!string.IsNullOrWhiteSpace(mailInfo), e => e.MailInfo.MailItems.Any(x => x.Email.Contains(mailInfo)))
+                .WhereIf(!string.IsNullOrWhiteSpace(tags), e => e.Tags.Contains(tags))
+                .WhereIf(industryId != null && industryId != Guid.Empty, e => e.IndustryId == industryId);
         }
     }
 }

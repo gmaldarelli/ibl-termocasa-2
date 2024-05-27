@@ -14,6 +14,7 @@ using IBLTermocasa.Shared;
 using Volo.Abp.AutoMapper;
 using IBLTermocasa.Materials;
 using AutoMapper;
+using IBLTermocasa.Common;
 
 namespace IBLTermocasa;
 
@@ -54,7 +55,29 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<Organization, OrganizationExcelDto>();
         CreateMap<OrganizationWithNavigationProperties, OrganizationWithNavigationPropertiesDto>();
         CreateMap<Industry, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Description));
-
+        CreateMap<OrganizationPropertyDto, OrganizationProperty>();
+        CreateMap<OrganizationProperty, OrganizationPropertyDto>();
+        CreateMap<OrganizationUpdateDto, Organization>();
+        CreateMap<OrganizationCreateDto, Organization>();
+        CreateMap<Organization, OrganizationDto>();
+        CreateMap<Organization, OrganizationExcelDto>();
+        CreateMap<AddressDto, Address>();
+        CreateMap<Address, AddressDto>();
+        CreateMap<PhoneInfoDto, PhoneInfo>();
+        CreateMap<PhoneInfo, PhoneInfoDto>();
+        CreateMap<PhoneItemDto, PhoneItem>();
+        CreateMap<PhoneItem, PhoneItemDto>();
+        CreateMap<SocialInfoDto, SocialInfo>();
+        CreateMap<SocialInfo, SocialInfoDto>();
+        CreateMap<SocialItemDto, SocialItem>();
+        CreateMap<SocialItem, SocialItemDto>();
+        CreateMap<MailInfoDto, MailInfo>();
+        CreateMap<MailInfo, MailInfoDto>();
+        CreateMap<MailItemDto, MailItem>();
+        CreateMap<MailItem, MailItemDto>();
+        
+        
+        
         CreateMap<Interaction, InteractionDto>();
         CreateMap<Interaction, InteractionExcelDto>();
         CreateMap<InteractionWithNavigationProperties, InteractionWithNavigationPropertiesDto>();

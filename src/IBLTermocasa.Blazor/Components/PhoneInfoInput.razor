@@ -1,0 +1,64 @@
+﻿@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@using IBLTermocasa.Common
+@using IBLTermocasa.Localization
+@using Volo.Abp.AspNetCore.Components.Web
+@inherits IBLTermocasaComponentBase
+@foreach (var phoneItem in PhoneInfo.PhoneItems)
+{
+    <Validations @ref="@PhoneInfoValidations"
+                 Mode="ValidationMode.Auto"
+                 Model="@phoneItem"
+                 ValidateOnLoad="false">
+    <Fields>
+        <Field ColumnSize="ColumnSize.IsQuarter">
+            <Select TValue="PhoneType" @bind-SelectedValue="@phoneItem.Type">
+                @foreach (var type in Enum.GetValues<PhoneType>())
+                {
+                    <SelectItem Value="@type">@L[$"Enum:PhoneType.{type:d}"]</SelectItem>
+                }
+            </Select>
+        </Field>
+        <Field ColumnSize="ColumnSize.IsQuarter">
+            <Validation MessageLocalizer="@LH.Localize">
+                <InternationalPrefixSelector @bind-SelectedPrefix="@phoneItem.Prefix" />
+            </Validation>
+        </Field>
+        <Field>
+                <InputMask @bind-Value="phoneItem.Number" Mask="999-9999999" DebounceInterval="60000">
+                    <Feedback>
+                        <ValidationError/>
+                    </Feedback>
+                </InputMask>
+        </Field>
+        <Field ColumnSize="ColumnSize.Is1">
+            <Button Color="Color.Danger" Size="Size.ExtraSmall" Clicked="@(() => RemovePhoneItem(phoneItem))">
+                <Icon IconSize="IconSize.ExtraSmall" Name="IconName.Delete"/>
+            </Button>
+        </Field>
+    </Fields>
+    </Validations>
+}
+<Button Color="Color.Primary" Size="Size.ExtraSmall" Clicked="@(() => AddNewPhoneItem())">
+    <Icon IconSize="IconSize.ExtraSmall"  Name="IconName.Add"/>
+</Button>
+@code {
+    [Parameter] public PhoneInfoDto PhoneInfo { get; set; }
+    [Parameter] public EventCallback<PhoneItem> OnAddPhoneItem { get; set; }
+    [Parameter] public EventCallback<PhoneItem> OnRemovePhoneItem { get; set; }
+    [Parameter] public Validations PhoneInfoValidations { get; set; }
+    private void AddNewPhoneItem()
+    {
+        var newItem = new PhoneItemDto() {  }; 
+        PhoneInfo.PhoneItems.Add(newItem);
+        StateHasChanged();
+    }
+    private void RemovePhoneItem(PhoneItemDto phoneItem)
+    {
+        PhoneInfo.PhoneItems.Remove(phoneItem);
+        StateHasChanged();
+    }
+    private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<PhoneItem> e)
+    {
+        await Task.CompletedTask;
+    }
+}

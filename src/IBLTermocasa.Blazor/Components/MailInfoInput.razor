@@ -1,0 +1,61 @@
+﻿@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@using IBLTermocasa.Common
+@using IBLTermocasa.Localization
+@using Volo.Abp.AspNetCore.Components.Web
+@inherits IBLTermocasaComponentBase
+@foreach (var mailItem in MailInfo.MailItems)
+{
+    <Validations @ref="@MailInfoValidations"
+                 Mode="ValidationMode.Auto"
+                 Model="@mailItem"
+                 ValidateOnLoad="false">
+    <Fields>
+        <Field ColumnSize="ColumnSize.IsHalf">
+            <Validation MessageLocalizer="@LH.Localize">
+                <TextEdit @bind-Text="mailItem.Email" Placeholder="Email">
+                    <Feedback>
+                        <ValidationError/>
+                    </Feedback>
+                </TextEdit>
+            </Validation>
+        </Field>
+        <Field>
+           <Select TValue="MailType" @bind-SelectedValue="@mailItem.Type">
+                @foreach (var type in Enum.GetValues<MailType>())
+                {
+                    <SelectItem Value="@type">@L[$"Enum:EmailType.{type:d}"]</SelectItem>
+                }
+            </Select>
+        </Field>
+        <Field  ColumnSize="ColumnSize.Is1">
+            <Button Color="Color.Danger" Clicked="@(() => RemoveMailItem(mailItem))">
+                <Icon IconSize="IconSize.ExtraSmall" Name="IconName.Delete"/>
+            </Button>
+        </Field>
+    </Fields>
+    </Validations>
+}
+<Button Color="Color.Primary"  Clicked="@(() => AddNewMailItem())">
+    <Icon IconSize="IconSize.ExtraSmall" Name="IconName.Add"/>
+</Button>
+@code {
+    [Parameter] public MailInfoDto MailInfo { get; set; }
+    [Parameter] public EventCallback<AddressDto> OnAddMailItem { get; set; }
+    [Parameter] public EventCallback<AddressDto> OnRemoveMailItem { get; set; }
+    [Parameter] public Validations MailInfoValidations { get; set; }
+    private void AddNewMailItem()
+    {
+        var newItem = new MailItemDto() { Email = "" }; 
+        MailInfo.MailItems.Add(newItem);
+        StateHasChanged();
+    }
+    private void RemoveMailItem(MailItemDto mailItem)
+    {
+        MailInfo.MailItems.Remove(mailItem);
+        StateHasChanged();
+    }
+    private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<MailItemDto> e)
+    {
+        await Task.CompletedTask;
+    }
+}

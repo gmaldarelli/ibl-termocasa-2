@@ -1,0 +1,93 @@
+﻿@inject IJSRuntime JSRuntime
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@using IBLTermocasa.Localization
+@using Volo.Abp.AspNetCore.Components.Web
+@inherits IBLTermocasaComponentBase
+<Select TValue="string" @bind-Value="@SelectedPrefix">
+    <SelectItem Disabled>Seleziona un prefisso...</SelectItem>
+    @foreach (var prefix in InternationalPrefixes)
+    {
+        <SelectItem Value="@prefix.Key">@prefix.Value</SelectItem>
+    }
+</Select>
+
+@code {
+    [Parameter]
+    public string SelectedPrefix { get; set; }
+
+    [Parameter]
+    public EventCallback<string> SelectedPrefixChanged { get; set; }
+
+    private Dictionary<string, string> InternationalPrefixes = new Dictionary<string, string>
+    {
+        {"+1", "USA/Canada (+1)"},
+        {"+7", "Russia (+7)"},
+        {"+20", "Egitto (+20)"},
+        {"+27", "Sudafrica (+27)"},
+        {"+30", "Grecia (+30)"},
+        {"+31", "Paesi Bassi (+31)"},
+        {"+32", "Belgio (+32)"},
+        {"+33", "Francia (+33)"},
+        {"+34", "Spagna (+34)"},
+        {"+39", "Italia (+39)"},
+        {"+40", "Romania (+40)"},
+        {"+41", "Svizzera (+41)"},
+        {"+43", "Austria (+43)"},
+        {"+44", "Regno Unito (+44)"},
+        {"+45", "Danimarca (+45)"},
+        {"+46", "Svezia (+46)"},
+        {"+47", "Norvegia (+47)"},
+        {"+48", "Polonia (+48)"},
+        {"+49", "Germania (+49)"},
+        {"+52", "Messico (+52)"},
+        {"+53", "Cuba (+53)"},
+        {"+54", "Argentina (+54)"},
+        {"+55", "Brasile (+55)"},
+        {"+56", "Cile (+56)"},
+        {"+57", "Colombia (+57)"},
+        {"+58", "Venezuela (+58)"},
+        {"+60", "Malesia (+60)"},
+        {"+61", "Australia (+61)"},
+        {"+62", "Indonesia (+62)"},
+        {"+63", "Filippine (+63)"},
+        {"+64", "Nuova Zelanda (+64)"},
+        {"+65", "Singapore (+65)"},
+        {"+66", "Thailandia (+66)"},
+        {"+81", "Giappone (+81)"},
+        {"+82", "Corea del Sud (+82)"},
+        {"+84", "Vietnam (+84)"},
+        {"+86", "Cina (+86)"},
+        {"+90", "Turchia (+90)"},
+        {"+91", "India (+91)"},
+        {"+92", "Pakistan (+92)"},
+        {"+93", "Afghanistan (+93)"},
+        {"+94", "Sri Lanka (+94)"},
+        {"+95", "Myanmar (+95)"},
+        {"+98", "Iran (+98)"}
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        //var userLocale = await JSRuntime.InvokeAsync<string>("getBrowserLanguage");
+        
+        //SetDefaultPrefixBasedOnLocale(userLocale);
+    }
+
+    private void SetDefaultPrefixBasedOnLocale(string locale)
+    {
+        // Qui si potrebbe avere una logica più complessa per determinare il prefisso in base alla locale
+        var defaultPrefix = locale switch
+        {
+            "it-IT" => "+39",
+            "en-US" => "+1",
+            "en-GB" => "+44",
+            // Aggiungi altre corrispondenze locale-prefisso qui
+            _ => ""
+        };
+
+        if (InternationalPrefixes.ContainsKey(defaultPrefix))
+        {
+            SelectedPrefix = defaultPrefix;
+        }
+    }
+}

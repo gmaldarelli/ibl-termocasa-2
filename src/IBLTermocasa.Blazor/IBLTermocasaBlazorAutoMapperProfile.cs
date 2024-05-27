@@ -35,6 +35,7 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<ContactDto, ContactUpdateDto>();
 
         CreateMap<OrganizationDto, OrganizationUpdateDto>();
+        CreateMap<OrganizationDto, OrganizationCreateDto>();
 
         CreateMap<InteractionDto, InteractionUpdateDto>();
 

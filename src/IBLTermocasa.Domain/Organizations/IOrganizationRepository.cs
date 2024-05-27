@@ -23,6 +23,7 @@ namespace IBLTermocasa.Organizations
             string? phoneInfo = null,
             string? tags = null,
             Guid? industryId = null,
+            OrganizationType? organizationTypePreFiilter = null,
             string? sorting = null,
             int maxResultCount = int.MaxValue,
             int skipCount = 0,
@@ -37,6 +38,7 @@ namespace IBLTermocasa.Organizations
                     string? mailInfo = null,
                     string? phoneInfo = null,
                     string? tags = null,
+                    OrganizationType? organizationTypePreFiilter = null,
                     string? sorting = null,
                     int maxResultCount = int.MaxValue,
                     int skipCount = 0,
@@ -52,6 +54,8 @@ namespace IBLTermocasa.Organizations
             string? phoneInfo = null,
             string? tags = null,
             Guid? industryId = null,
+            OrganizationType? organizationTypePreFiilter = null,
             CancellationToken cancellationToken = default);
     }
+    
 }

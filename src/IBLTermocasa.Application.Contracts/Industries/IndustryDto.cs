@@ -12,6 +12,6 @@ namespace IBLTermocasa.Industries
         public string? Description { get; set; }
 
         public string ConcurrencyStamp { get; set; } = null!;
-
+        public string IndustryFullName => $"{Code} - {Description}";
     }
 }

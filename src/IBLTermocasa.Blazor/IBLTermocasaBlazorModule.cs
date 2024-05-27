@@ -1,7 +1,9 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
+using IBLTermocasa.Blazor.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -11,6 +13,7 @@ using IBLTermocasa.Blazor.Navigation;
 using OpenIddict.Abstractions;
 using Volo.Abp.Account.Pro.Admin.Blazor.WebAssembly;
 using Volo.Abp.AspNetCore.Components.Web.LeptonTheme.Components;
+using Volo.Abp.AspNetCore.Components.Web.Theming;
 using Volo.Abp.AspNetCore.Components.Web.Theming.Routing;
 using Volo.Abp.AspNetCore.Components.WebAssembly.LeptonTheme;
 using Volo.Abp.AuditLogging.Blazor.WebAssembly;
@@ -67,6 +70,7 @@ namespace IBLTermocasa.Blazor;
         ConfigureMenu(context);
         ConfigureAutoMapper(context);
         ConfigureCookieConsent(context);
+        ConfigureExtraBlazoriseService(context);
     }
     
     private void ConfigureCookieConsent(ServiceConfigurationContext context)
@@ -100,8 +104,11 @@ namespace IBLTermocasa.Blazor;
     {
         context.Services
             .AddBootstrap5Providers()
-            .AddFontAwesomeIcons();
+            .AddFontAwesomeIcons()
+            
+            ;
     }
+
 
     private static void ConfigureAuthentication(WebAssemblyHostBuilder builder)
     {
@@ -139,4 +146,14 @@ namespace IBLTermocasa.Blazor;
             options.AddMaps<IBLTermocasaBlazorModule>();
         });
     }
+
+    private void ConfigureExtraBlazoriseService(ServiceConfigurationContext context)
+    {
+        context.Services.AddScoped<SecureConfirmationService>();
+        Configure<AbpDynamicLayoutComponentOptions>(options =>
+        {
+            options.Components.Add(typeof(BlazoriseServiceProviders), new Dictionary<string, object>());
+        });
+    }
+
 }

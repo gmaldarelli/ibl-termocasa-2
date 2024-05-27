@@ -1,0 +1,163 @@
+﻿@page "/organization/{OrganizationId}"
+
+@attribute [Authorize(IBLTermocasaPermissions.Organizations.Default)]
+@using System.Linq.Dynamic.Core
+@using IBLTermocasa.Blazor.Components.Organization
+@using IBLTermocasa.Industries
+@using IBLTermocasa.Localization
+@using IBLTermocasa.Organizations
+@using IBLTermocasa.Permissions
+@using IBLTermocasa.Types
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars
+@using Volo.Abp.Http.Client
+@using BreadcrumbItem = Volo.Abp.BlazoriseUI.BreadcrumbItem
+@inherits IBLTermocasaComponentBase
+@inject IOrganizationsAppService OrganizationsAppService
+@inject NavigationManager NavigationManager
+@inject IIndustriesAppService IndustriesAppService
+@inject IUiMessageService UiMessageService
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+
+<PageHeader Title="@L["Organizations"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+<OrganizationInput @ref="OrganizationInputComponent" IsNew="@IsNew"
+                   Industries="@Industries"
+                   OrganizationTypes="@OrganizationTypes"
+                   Organization="@OrganizationInput"
+                   OnOrganizationSaved="HandleOrganizationSaved"
+                   OnOrganizationCancel="HandleOrganizationCancel">
+</OrganizationInput>
+
+@code {
+    public bool IsNew { get; set; } = false;
+    [Parameter] public string OrganizationId { get; set; }
+    protected List<BreadcrumbItem> BreadcrumbItems = [];
+    protected PageToolbar Toolbar { get; } = new PageToolbar();
+    private OrganizationInput OrganizationInputComponent { get; set; }
+    private OrganizationDto OrganizationInput { get; set; }
+    protected List<IndustryDto> Industries { get; set; } = new List<IndustryDto>();
+    protected List<OrganizationType> OrganizationTypes { get; set; } = new List<OrganizationType>();
+
+    private bool CanCreateOrganization { get; set; }
+    private bool CanEditOrganization { get; set; }
+    private bool CanDeleteOrganization { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Guid _tmpGuid = Guid.NewGuid();
+        await IndustriesAppService.GetListAsync(new GetIndustriesInput
+        {
+            MaxResultCount = 100,
+            SkipCount = (1 - 1) * 100,
+            Sorting = "Code"
+        }).ContinueWith(task => { Industries = task.Result.Items.ToList(); });
+        if (Guid.TryParse(OrganizationId, out _tmpGuid) && _tmpGuid != Guid.Empty)
+        {
+            Guid id = CheckOrganizationId(OrganizationId);
+            await tryToLoadOrganization(id);
+        }
+        else
+        {
+            IsNew = true;
+            OrganizationInput = new OrganizationDto();
+            OrganizationInput.IndustryId = Industries.Select(i => i.Id).FirstOrDefault();
+        }
+
+
+        OrganizationTypes = Enum.GetValuesAsUnderlyingType<OrganizationType>().ToDynamicList<OrganizationType>();
+        await SetBreadcrumbItemsAsync();
+        await SetPermissionsAsync();
+    }
+
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+    }
+
+    private async Task SetPermissionsAsync()
+    {
+        CanCreateOrganization = await AuthorizationService
+            .IsGrantedAsync(IBLTermocasaPermissions.Organizations.Create);
+        CanEditOrganization = await AuthorizationService
+            .IsGrantedAsync(IBLTermocasaPermissions.Organizations.Edit);
+        CanDeleteOrganization = await AuthorizationService
+            .IsGrantedAsync(IBLTermocasaPermissions.Organizations.Delete);
+    }
+
+    protected virtual ValueTask SetBreadcrumbItemsAsync()
+    {
+        BreadcrumbItems.Add(new BreadcrumbItem(L["Menu:Organizations"], "/organizations")
+        );
+        String organizationPrefix = "";
+
+        if (IsNew)
+        {
+            organizationPrefix = L["NewOrganization"];
+            BreadcrumbItems.Add(new BreadcrumbItem($"{organizationPrefix}  {OrganizationInput.Name}", $"/organization/{OrganizationInput.Id}"));
+        }
+        else
+        {
+            organizationPrefix = L[$"Enum:OrganizationType.{OrganizationInput.OrganizationType:d}"];
+            BreadcrumbItems.Add(new BreadcrumbItem($"{organizationPrefix}  {OrganizationInput.Name}", $"/organization/{OrganizationInput.Id}"));
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    private async Task tryToLoadOrganization(Guid id)
+    {
+        try
+        {
+            OrganizationInput = await OrganizationsAppService.GetAsync(id);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            NavigationManager.NavigateTo("/error");
+        }
+    }
+
+    private Guid CheckOrganizationId(string organizationId)
+    {
+        //check if the organizationId is a valid Guid
+        if (!Guid.TryParse(organizationId, out Guid id))
+        {
+            //redirect to the error page
+            NavigationManager.NavigateTo("/error");
+        }
+
+        return id;
+    }
+
+    private async Task HandleOrganizationSaved(OrganizationDto savedOrganization)
+    {
+        OrganizationInput = savedOrganization;
+        OrganizationId = savedOrganization.Id.ToString();
+        IsNew = false;
+        string organizationPrefix = L[$"Enum:OrganizationType.{OrganizationInput.OrganizationType:d}"];
+        BreadcrumbItems.Add(new BreadcrumbItem($"{organizationPrefix}  {OrganizationInput.Name}", $"/organization/{OrganizationInput.Id}"));
+        var message = L["OrganizationSavedMessage"];
+        if (!await UiMessageService.Confirm(message))
+        {
+            NavigationManager.NavigateTo($"/organization/{OrganizationInput.Id}");
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/organizations");
+        }
+    }
+
+    private async Task HandleOrganizationCancel()
+    {
+        NavigationManager.NavigateTo("/organizations");
+    }
+
+}

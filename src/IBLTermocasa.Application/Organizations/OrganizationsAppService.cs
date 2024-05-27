@@ -1,23 +1,21 @@
-using IBLTermocasa.Industries;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq.Dynamic.Core;
+using System.Threading.Tasks;
+using IBLTermocasa.Industries;
+using IBLTermocasa.Permissions;
+using IBLTermocasa.Shared;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Distributed;
+using MiniExcelLibs;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
-using Volo.Abp.Application.Services;
-using Volo.Abp.Domain.Repositories;
-using IBLTermocasa.Permissions;
-using IBLTermocasa.Organizations;
-using MiniExcelLibs;
-using Volo.Abp.Content;
 using Volo.Abp.Authorization;
 using Volo.Abp.Caching;
-using Microsoft.Extensions.Caching.Distributed;
-using IBLTermocasa.Shared;
+using Volo.Abp.Content;
+using Volo.Abp.Domain.Repositories;
 
 namespace IBLTermocasa.Organizations
 {
@@ -30,22 +28,32 @@ namespace IBLTermocasa.Organizations
         protected OrganizationManager _organizationManager;
         protected IRepository<Industry, Guid> _industryRepository;
 
-        public OrganizationsAppService(IOrganizationRepository organizationRepository, OrganizationManager organizationManager, IDistributedCache<OrganizationExcelDownloadTokenCacheItem, string> excelDownloadTokenCache, IRepository<Industry, Guid> industryRepository)
+        public OrganizationsAppService(IOrganizationRepository organizationRepository,
+            OrganizationManager organizationManager,
+            IDistributedCache<OrganizationExcelDownloadTokenCacheItem, string> excelDownloadTokenCache,
+            IRepository<Industry, Guid> industryRepository)
         {
             _excelDownloadTokenCache = excelDownloadTokenCache;
             _organizationRepository = organizationRepository;
-            _organizationManager = organizationManager; _industryRepository = industryRepository;
+            _organizationManager = organizationManager;
+            _industryRepository = industryRepository;
         }
 
-        public virtual async Task<PagedResultDto<OrganizationWithNavigationPropertiesDto>> GetListAsync(GetOrganizationsInput input)
+        public virtual async Task<PagedResultDto<OrganizationWithNavigationPropertiesDto>> GetListAsync(
+            GetOrganizationsInput input)
         {
-            var totalCount = await _organizationRepository.GetCountAsync(input.FilterText, input.Code, input.Name, input.OrganizationType, input.MailInfo, input.PhoneInfo, input.Tags, input.IndustryId);
-            var items = await _organizationRepository.GetListWithNavigationPropertiesAsync(input.FilterText, input.Code, input.Name, input.OrganizationType, input.MailInfo, input.PhoneInfo, input.Tags, input.IndustryId, input.Sorting, input.MaxResultCount, input.SkipCount);
+            var totalCount = await _organizationRepository.GetCountAsync(input.FilterText, input.Code, input.Name,
+                input.OrganizationType, input.MailInfo, input.PhoneInfo, input.Tags, input.IndustryId);
+            var items = await _organizationRepository.GetListWithNavigationPropertiesAsync(input.FilterText, input.Code,
+                input.Name, input.OrganizationType, input.MailInfo, input.PhoneInfo, input.Tags, input.IndustryId,
+                input.OrganizationTypePreFiilter, input.Sorting, input.MaxResultCount, input.SkipCount);
 
             return new PagedResultDto<OrganizationWithNavigationPropertiesDto>
             {
                 TotalCount = totalCount,
-                Items = ObjectMapper.Map<List<OrganizationWithNavigationProperties>, List<OrganizationWithNavigationPropertiesDto>>(items)
+                Items = ObjectMapper
+                    .Map<List<OrganizationWithNavigationProperties>, List<OrganizationWithNavigationPropertiesDto>>(
+                        items)
             };
         }
 
@@ -90,11 +98,9 @@ namespace IBLTermocasa.Organizations
                 throw new UserFriendlyException(L["The {0} field is required.", L["Industry"]]);
             }
 
-            var organization = await _organizationManager.CreateAsync(
-            input.IndustryId, input.Code, input.Name, input.OrganizationType, input.MailInfo, input.PhoneInfo, input.SocialInfo, input.BillingAddress, input.ShippingAddress, input.Tags, input.Notes, input.ImageId
-            );
-
-            return ObjectMapper.Map<Organization, OrganizationDto>(organization);
+            var organization = ObjectMapper.Map<OrganizationCreateDto, Organization>(input);
+            return ObjectMapper.Map<Organization, OrganizationDto>(
+                await _organizationManager.CreateAsync(organization));
         }
 
         [Authorize(IBLTermocasaPermissions.Organizations.Edit)]
@@ -105,12 +111,9 @@ namespace IBLTermocasa.Organizations
                 throw new UserFriendlyException(L["The {0} field is required.", L["Industry"]]);
             }
 
-            var organization = await _organizationManager.UpdateAsync(
-            id,
-            input.IndustryId, input.Code, input.Name, input.OrganizationType, input.MailInfo, input.PhoneInfo, input.SocialInfo, input.BillingAddress, input.ShippingAddress, input.Tags, input.Notes, input.ImageId, input.ConcurrencyStamp
-            );
-
-            return ObjectMapper.Map<Organization, OrganizationDto>(organization);
+            var organization = ObjectMapper.Map<OrganizationUpdateDto, Organization>(input);
+            return ObjectMapper.Map<Organization, OrganizationDto>(
+                await _organizationManager.UpdateAsync(id, organization));
         }
 
         [AllowAnonymous]
@@ -122,7 +125,9 @@ namespace IBLTermocasa.Organizations
                 throw new AbpAuthorizationException("Invalid download token: " + input.DownloadToken);
             }
 
-            var organizations = await _organizationRepository.GetListWithNavigationPropertiesAsync(input.FilterText, input.Code, input.Name, input.OrganizationType, input.MailInfo, input.PhoneInfo, input.Tags, input.IndustryId);
+            var organizations = await _organizationRepository.GetListWithNavigationPropertiesAsync(input.FilterText,
+                input.Code, input.Name, input.OrganizationType, input.MailInfo, input.PhoneInfo, input.Tags,
+                input.IndustryId);
             var items = organizations.Select(item => new
             {
                 Code = item.Organization.Code,
@@ -138,17 +143,17 @@ namespace IBLTermocasa.Organizations
                 ImageId = item.Organization.ImageId,
 
                 Industry = item.Industry?.Description,
-
             });
 
             var memoryStream = new MemoryStream();
             await memoryStream.SaveAsAsync(items);
             memoryStream.Seek(0, SeekOrigin.Begin);
 
-            return new RemoteStreamContent(memoryStream, "Organizations.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            return new RemoteStreamContent(memoryStream, "Organizations.xlsx",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
 
-        public virtual async Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync()
+        public virtual async Task<DownloadTokenResultDto> GetDownloadTokenAsync()
         {
             var token = Guid.NewGuid().ToString("N");
 
@@ -160,7 +165,7 @@ namespace IBLTermocasa.Organizations
                     AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30)
                 });
 
-            return new IBLTermocasa.Shared.DownloadTokenResultDto
+            return new DownloadTokenResultDto
             {
                 Token = token
             };

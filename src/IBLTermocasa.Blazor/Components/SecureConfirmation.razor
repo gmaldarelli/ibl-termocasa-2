@@ -1,0 +1,54 @@
+﻿@inherits IBLTermocasaComponentBase
+<h3>@Title</h3>
+<Field>
+    <FieldLabel>@Message</FieldLabel>
+    <TextEdit Text="@inputValue" TextChanged="@CheckInputedData" />
+</Field>
+<Field>
+    <Button Color="Color.Primary" Type="ButtonType.Button" Size="Size.Small" Class="me-2" Clicked="HandleOnConfirmCallback" Disabled="@ConfirmDisabled">@L["Save"]</Button>
+    <Button Color="Color.Secondary" Clicked="HandleOnCancelCallback" Size="Size.Small" Class="me-2">
+        @L["Cancel"]
+    </Button>
+</Field>
+@code {
+    [Inject] public IModalService ModalService { get; set; }
+    [Parameter]
+    public string Title { get; set; }
+    [Parameter]
+    public string Message { get; set; }
+    [Parameter]
+    public string MatchValue { get; set; }
+    [Parameter]
+    public Action OnConfirmCallback { get; set; }
+    [Parameter]
+    public Action OnCancelCallback { get; set; }
+    
+    public bool ConfirmDisabled { get; set; } = true;
+    private string? inputValue;
+
+    private void CheckInputedData(string data)
+    {
+        if(data != null && MatchValue.Equals(data))
+        {
+            ConfirmDisabled = false;
+        }
+        else
+        {
+            ConfirmDisabled = true;
+        }
+    }
+
+    private void HandleOnConfirmCallback(MouseEventArgs data)
+    {
+        OnConfirmCallback.Invoke();
+        ModalService.Hide();
+    }
+
+    private void HandleOnCancelCallback(MouseEventArgs obj)
+    { 
+        OnCancelCallback.Invoke();
+        ModalService.Hide();
+    }
+
+
+}

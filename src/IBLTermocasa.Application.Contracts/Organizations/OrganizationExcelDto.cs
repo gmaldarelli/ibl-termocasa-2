@@ -1,5 +1,7 @@
 using IBLTermocasa.Types;
 using System;
+using System.Collections.Generic;
+using IBLTermocasa.Common;
 
 namespace IBLTermocasa.Organizations
 {
@@ -8,8 +10,11 @@ namespace IBLTermocasa.Organizations
         public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;
         public OrganizationType OrganizationType { get; set; }
-        public string? MailInfo { get; set; }
-        public string? PhoneInfo { get; set; }
-        public string? Tags { get; set; }
+        public MailInfoDto? MailInfo { get; set; }
+        public PhoneInfoDto? PhoneInfo { get; set; }
+        public SocialInfoDto? SocialInfo { get; set; }
+        public AddressDto? BillingAddress { get; set; }
+        public AddressDto? ShippingAddress { get; set; }
+        public List<string> Tags { get; set; } = new List<string>();
     }
 }

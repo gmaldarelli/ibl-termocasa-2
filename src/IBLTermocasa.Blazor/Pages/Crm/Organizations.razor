@@ -1,0 +1,238 @@
+@page "/organizations"
+
+@attribute [Authorize(IBLTermocasaPermissions.Organizations.Default)]
+@using IBLTermocasa.Blazor.Components.Organization
+@using IBLTermocasa.Industries
+@using IBLTermocasa.Localization
+@using IBLTermocasa.Organizations
+@using IBLTermocasa.Permissions
+@using IBLTermocasa.Types
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using Volo.Abp.Http.Client
+@inherits IBLTermocasaComponentBase
+@inject IOrganizationsAppService OrganizationsAppService
+@inject IIndustriesAppService IndustriesAppService
+@inject IUiMessageService UiMessageService
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+@inject IModalService  ModalService
+
+<PageHeader Title="@L["Organizations"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* SEARCH ************************* *@
+<Card>
+    <CardBody>
+
+        <Form id="OrganizationSearchForm" class="mb-3">
+            <Addons>
+                <Addon AddonType="AddonType.Body">
+                    <TextEdit @bind-Text="@Filter.FilterText"
+                              Autofocus="true"
+                              Placeholder="@L["Search"]">
+                    </TextEdit>
+                </Addon>
+            </Addons>
+        </Form>
+
+        <Row Class="mt-3 mb-3">
+            <div class="col-md-12">
+                <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
+            </div>
+        </Row>
+
+        <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
+            <Row>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Code"]</FieldLabel>
+                        <TextEdit Text="@Filter.Code" TextChanged="@OnCodeChangedAsync" />
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Name"]</FieldLabel>
+                        <TextEdit Text="@Filter.Name" TextChanged="@OnNameChangedAsync" />
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["OrganizationType"]</FieldLabel>
+                        <Select TValue="OrganizationType?"
+                                SelectedValue="@Filter.OrganizationType"
+                                SelectedValueChanged="@OnOrganizationTypeChangedAsync">
+
+                            <SelectItem></SelectItem>
+
+                            @foreach(OrganizationType value in Enum.GetValues(typeof(OrganizationType)))
+                            {
+                            <SelectItem Value="value">
+                                @value
+                            </SelectItem>
+                            }
+
+                        </Select>
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MailInfo"]</FieldLabel>
+                        <TextEdit Text="@Filter.MailInfo" TextChanged="@OnMailInfoChangedAsync" />
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["PhoneInfo"]</FieldLabel>
+                        <TextEdit Text="@Filter.PhoneInfo" TextChanged="@OnPhoneInfoChangedAsync" />
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Tags"]</FieldLabel>
+                        <TextEdit Text="@Filter.Tags" TextChanged="@OnTagsChangedAsync" />
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Industry"]</FieldLabel>
+                        <Select TValue="Guid?"
+                                SelectedValue="@Filter.IndustryId"
+                                SelectedValueChanged="@OnIndustryIdChangedAsync">
+
+                            <SelectItem></SelectItem>
+
+                            @foreach(var item in IndustriesCollection)
+                            {
+                            <SelectItem TValue="Guid" Value="@item.Id">
+                                @item.DisplayName
+                            </SelectItem>
+                            }
+
+                        </Select>
+                    </Field>
+                </Column>
+            </Row>
+
+        </div>
+
+
+    </CardBody>
+</Card>
+
+
+<Card>
+    <CardBody>
+        <DataGrid TItem="OrganizationDto"
+                  Data="OrganizationList"
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  Responsive="true"
+                  PageSize="PageSize"
+                  Class="datagrid-detail">
+            <DataGridColumns>
+                <DataGridColumn TItem="OrganizationDto" Field="Code" Caption="@L["Code"]"/>
+                <DataGridColumn TItem="OrganizationDto" Field="Name" Caption="@L["Name"]"/>
+                <DataGridColumn TItem="OrganizationDto" Field="Emails" Caption="@L["Email"]"/>
+                <DataGridColumn TItem="OrganizationDto" Field="Phones" Caption="@L["Phone"]"/>
+                <DataGridColumn TItem="OrganizationDto" Caption="@L["Industry"]">
+                    <DisplayTemplate>
+                        @((context as OrganizationDto)?.IndustryId != null ? Industries.FirstOrDefault(ind => ind.Id == (context as OrganizationDto)?.IndustryId)?.Code : "N/A")
+                    </DisplayTemplate>
+                </DataGridColumn>
+
+                <DataGridColumn TItem="OrganizationDto" Field="OrganizationType" Caption="@L["OrganizationType"]">
+                    <DisplayTemplate Context="organization_context">
+                        @L[$"Enum:OrganizationType.{organization_context.OrganizationType.ToString("d")}"]
+                    </DisplayTemplate>
+                </DataGridColumn>
+
+            </DataGridColumns>
+            <EmptyTemplate>
+                <div class="box">
+                    Nesun dato trovato
+                </div>
+            </EmptyTemplate>
+            <LoadingTemplate>
+                <Progress @ref="progressRef" Color="Color.Primary" Max="100" Value="progress"/>
+            </LoadingTemplate>
+
+            <RowOverlayTemplate>
+                <Div id="@context.Item.Name" class="justify-content-start">
+                    @*<Button Color="Color.Primary" Size="Size.ExtraSmall"
+                            Visibility="@((CanEditOrganization) ? Visibility.Visible : Visibility.Invisible)"
+                            Clicked="async () => await OpenEditOrganizationModalAsync(context.Item, DisplayViewType.FULL_READONLY)">
+                        <Icon Name="IconName.Eye" IconSize="IconSize.ExtraSmall"/>
+                    </Button>*@
+                    <Button Color="Color.Primary" Size="Size.Default"
+                            Visibility="@((CanEditOrganization) ? Visibility.Visible : Visibility.Invisible)"
+                            Clicked="() => OpenEditContactPageAsync(context.Item)">
+                        <Icon Name="IconName.Edit" IconSize="IconSize.Default"/>
+                    </Button>
+                    <Button Color="Color.Secondary" Size="Size.Default"
+                            Visibility="@((CanDeleteOrganization) ? Visibility.Visible : Visibility.Invisible)"
+                            Clicked="async () => await DeleteOrganizationAsync(context.Item)">
+                        <Icon Name="IconName.Delete" IconSize="IconSize.Default"/>
+                    </Button>
+                </Div>
+            </RowOverlayTemplate>
+        </DataGrid>
+    </CardBody>
+</Card>
+<Offcanvas @ref="offcanvasRef" ShowBackdrop Closing="@OnOffcanvasClosing">
+    <OffcanvasHeader>
+        Offcanvas Start
+        <CloseButton Clicked="@HideOffcanvas"/>
+    </OffcanvasHeader>
+    <OffcanvasBody>
+        <Div Padding="Padding.Is3">
+            Offcanvas Content
+        </Div>
+        <Div Padding="Padding.Is3">
+            <Button Color="Color.Secondary" Clicked="@HideOffcanvas">This will close the offcanvas</Button>
+            <Button Color="Color.Primary" Clicked="@TryHideOffcanvas">This will not</Button>
+        </Div>
+    </OffcanvasBody>
+</Offcanvas>
+<Button Color="Color.Primary" Clicked="@ShowOffcanvas">Show Offcanvas</Button>
+
+
+@code {
+    private Offcanvas offcanvasRef;
+
+    private bool cancelClose;
+
+    private Task ShowOffcanvas()
+    {
+        return offcanvasRef.Show();
+    }
+
+    private Task HideOffcanvas()
+    {
+        cancelClose = false;
+
+        return offcanvasRef.Hide();
+    }
+
+    private Task TryHideOffcanvas()
+    {
+        cancelClose = true;
+
+        return offcanvasRef.Hide();
+    }
+
+    private Task OnOffcanvasClosing(OffcanvasClosingEventArgs e)
+    {
+        // just set Cancel to prevent offcanvas from closing
+        e.Cancel = cancelClose
+                   || e.CloseReason != CloseReason.UserClosing;
+
+        return Task.CompletedTask;
+    }
+
+}

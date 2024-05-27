@@ -1,0 +1,63 @@
+﻿@using AddressDto = IBLTermocasa.Common.AddressDto
+@inherits IBLTermocasaComponentBase
+<EditForm Model="@Value" OnValidSubmit="@(async () => await ValueChanged.InvokeAsync(Value))">
+    <Fields>
+        <Field>
+            <FieldLabel>@L["Street"]</FieldLabel>
+            <TextEdit Value="@(_internalValue?.Street)" @oninput="@(e => UpdateField(nameof(AddressDto.Street), e.Value.ToString()))" Disabled="@Disabled"/>
+        </Field>
+        <Field>
+            <FieldLabel>@L["City"]</FieldLabel>
+            <TextEdit Value="@Value.City" @oninput="@(e => UpdateField(nameof(AddressDto.City), e.Value.ToString()))" Disabled="@Disabled"/>
+        </Field>
+    </Fields>
+    <Fields>
+        <Field>
+            <FieldLabel>@L["PostalCode"]</FieldLabel>
+            <TextEdit Value="@Value.PostalCode" @oninput="@(e => UpdateField(nameof(AddressDto.PostalCode), e.Value.ToString()))" Disabled="@Disabled"/>
+        </Field>
+        <Field>
+            <FieldLabel>@L["Country"]</FieldLabel>
+            <TextEdit Value="@Value.Country" @oninput="@(e => UpdateField(nameof(AddressDto.Country), e.Value.ToString()))" Disabled="@Disabled"/>
+        </Field>
+        <Field>
+            <FieldLabel>@L["State"]</FieldLabel>
+            <TextEdit Value="@Value.State" @oninput="@(e => UpdateField(nameof(AddressDto.State), e.Value.ToString()))" Disabled="@Disabled"/>
+        </Field>
+    </Fields>
+</EditForm>
+
+@code {
+    private AddressDto _internalValue;
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter]
+    public AddressDto Value
+    {
+        get => _internalValue;
+        set
+        {
+            if (_internalValue != value)
+            {
+                _internalValue = value;
+                ValueChanged.InvokeAsync(value);
+            }
+        }
+    }
+
+    [Parameter]
+    public EventCallback<AddressDto> ValueChanged { get; set; }
+
+    private void UpdateField(string field, string value)
+    {
+        if (_internalValue == null)
+        {
+            _internalValue = new AddressDto();
+            ValueChanged.InvokeAsync(_internalValue);
+        }
+
+        var propertyInfo = _internalValue.GetType().GetProperty(field);
+        propertyInfo?.SetValue(_internalValue, value);
+
+        ValueChanged.InvokeAsync(_internalValue);
+    }
+}

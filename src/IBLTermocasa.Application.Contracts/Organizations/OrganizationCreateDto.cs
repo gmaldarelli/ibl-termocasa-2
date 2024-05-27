@@ -2,6 +2,7 @@ using IBLTermocasa.Types;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
+using IBLTermocasa.Common;
 
 namespace IBLTermocasa.Organizations
 {
@@ -12,14 +13,14 @@ namespace IBLTermocasa.Organizations
         [Required]
         public string Name { get; set; } = null!;
         public OrganizationType OrganizationType { get; set; } = ((OrganizationType[])Enum.GetValues(typeof(OrganizationType)))[0];
-        public string? MailInfo { get; set; }
-        public string? PhoneInfo { get; set; }
-        public string? SocialInfo { get; set; }
-        public string? BillingAddress { get; set; }
-        public string? ShippingAddress { get; set; }
-        public string? Tags { get; set; }
+        public MailInfoDto MailInfo { get; set; } = new MailInfoDto();
+        public PhoneInfoDto PhoneInfo { get; set; } = new PhoneInfoDto();
+        public SocialInfoDto SocialInfo { get; set; } = new SocialInfoDto();
+        public AddressDto BillingAddress { get; set; } = new AddressDto();
+        public AddressDto ShippingAddress { get; set; } = new AddressDto();
+        public List<string> Tags { get; set; } = new List<string>();
         public string? Notes { get; set; }
         public string? ImageId { get; set; }
-        public Guid IndustryId { get; set; }
+        public Guid? IndustryId { get; set; }
     }
 }

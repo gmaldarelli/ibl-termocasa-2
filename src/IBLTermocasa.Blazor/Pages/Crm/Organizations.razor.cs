@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Globalization;
-using System.Web;
+using System.Linq.Dynamic.Core;
 using Blazorise;
 using Blazorise.DataGrid;
+using IBLTermocasa.Blazor.Components;
+using IBLTermocasa.Industries;
 using Volo.Abp.BlazoriseUI.Components;
 using Microsoft.AspNetCore.Authorization;
 using Volo.Abp.Application.Dtos;
@@ -13,19 +15,19 @@ using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
 using IBLTermocasa.Organizations;
 using IBLTermocasa.Permissions;
 using IBLTermocasa.Shared;
-
 using IBLTermocasa.Types;
+using Microsoft.AspNetCore.Components;
+using NUglify.Helpers;
 
 
-
-namespace IBLTermocasa.Blazor.Pages
+namespace IBLTermocasa.Blazor.Pages.Crm
 {
     public partial class Organizations
     {
         protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems = new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
         protected PageToolbar Toolbar {get;} = new PageToolbar();
         protected bool ShowAdvancedFilters { get; set; }
-        private IReadOnlyList<OrganizationWithNavigationPropertiesDto> OrganizationList { get; set; }
+        private IReadOnlyList<OrganizationDto> OrganizationList { get; set; }
         private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
         private int CurrentPage { get; set; } = 1;
         private string CurrentSorting { get; set; } = string.Empty;
@@ -33,47 +35,43 @@ namespace IBLTermocasa.Blazor.Pages
         private bool CanCreateOrganization { get; set; }
         private bool CanEditOrganization { get; set; }
         private bool CanDeleteOrganization { get; set; }
-        private OrganizationCreateDto NewOrganization { get; set; }
-        private Validations NewOrganizationValidations { get; set; } = new();
-        private OrganizationUpdateDto EditingOrganization { get; set; }
-        private Validations EditingOrganizationValidations { get; set; } = new();
-        private Guid EditingOrganizationId { get; set; }
+        private OrganizationDto OrganizationInput { get; set; }
         private Modal CreateOrganizationModal { get; set; } = new();
         private Modal EditOrganizationModal { get; set; } = new();
         private GetOrganizationsInput Filter { get; set; }
-        private DataGridEntityActionsColumn<OrganizationWithNavigationPropertiesDto> EntityActionsColumn { get; set; } = new();
+        private DataGridEntityActionsColumn<OrganizationDto> EntityActionsColumn { get; set; } = new();
         protected string SelectedCreateTab = "organization-create-tab";
         protected string SelectedEditTab = "organization-edit-tab";
-        private OrganizationWithNavigationPropertiesDto? SelectedOrganization;
+        private OrganizationDto? SelectedOrganization;
+        protected Progress progressRef;
+        protected int progress;
         private IReadOnlyList<LookupDto<Guid>> IndustriesCollection { get; set; } = new List<LookupDto<Guid>>();
 
-        
-        
-        
-        
+        [Inject]
+        private IIndustriesAppService _industriesAppService { get; set; }
+        [Inject]
+        private SecureConfirmationService _SecureConfirmationService { get; set; }
+
+        protected List<IndustryDto> Industries { get; set; } = new List<IndustryDto>();
+        protected List<OrganizationType> OrganizationTypes {get; set;} = new List<OrganizationType>();
         
         public Organizations()
         {
-            NewOrganization = new OrganizationCreateDto();
-            EditingOrganization = new OrganizationUpdateDto();
+            OrganizationInput = new OrganizationDto();
             Filter = new GetOrganizationsInput
             {
                 MaxResultCount = PageSize,
                 SkipCount = (CurrentPage - 1) * PageSize,
                 Sorting = CurrentSorting
             };
-            OrganizationList = new List<OrganizationWithNavigationPropertiesDto>();
-            
-            
+            OrganizationList = new List<OrganizationDto>();
+            OrganizationTypes = Enum.GetValuesAsUnderlyingType<OrganizationType>().ToDynamicList<OrganizationType>();
         }
 
         protected override async Task OnInitializedAsync()
         {
             await SetPermissionsAsync();
             await GetIndustryCollectionLookupAsync();
-
-
-            
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -95,7 +93,6 @@ namespace IBLTermocasa.Blazor.Pages
         protected virtual ValueTask SetToolbarItemsAsync()
         {
             Toolbar.AddButton(L["ExportToExcel"], async () =>{ await DownloadAsExcelAsync(); }, IconName.Download);
-            
             Toolbar.AddButton(L["NewOrganization"], async () =>
             {
                 await OpenCreateOrganizationModalAsync();
@@ -123,10 +120,23 @@ namespace IBLTermocasa.Blazor.Pages
             Filter.Sorting = CurrentSorting;
 
             var result = await OrganizationsAppService.GetListAsync(Filter);
-            OrganizationList = result.Items;
+
+            var temp = new List<OrganizationDto>();
+            result.Items.ForEach(item =>
+            {
+                temp.Add(item.Organization);
+            });
+            OrganizationList = temp;
             TotalCount = (int)result.TotalCount;
-            
-            
+            await IndustriesAppService.GetListAsync(new GetIndustriesInput
+            {
+                MaxResultCount = 100,
+                SkipCount = (1 - 1) * 100,
+                Sorting = "Code"
+            }).ContinueWith(task =>
+            {
+                Industries = task.Result.Items.ToList();
+            });
         }
 
         protected virtual async Task SearchAsync()
@@ -146,67 +156,77 @@ namespace IBLTermocasa.Blazor.Pages
                 culture = "&culture=" + culture;
             }
             await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
-            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/organizations/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&Code={HttpUtility.UrlEncode(Filter.Code)}&Name={HttpUtility.UrlEncode(Filter.Name)}&OrganizationType={Filter.OrganizationType}&MailInfo={HttpUtility.UrlEncode(Filter.MailInfo)}&PhoneInfo={HttpUtility.UrlEncode(Filter.PhoneInfo)}&Tags={HttpUtility.UrlEncode(Filter.Tags)}&IndustryId={Filter.IndustryId}", forceLoad: true);
+            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/organizations/as-excel-file?DownloadToken={token}&FilterText={Filter.FilterText}{culture}&Name={Filter.Name}", forceLoad: true);
         }
 
-        private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<OrganizationWithNavigationPropertiesDto> e)
+        private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<OrganizationDto> e)
         {
+            progress = 25;
+            await InvokeAsync( StateHasChanged );
             CurrentSorting = e.Columns
                 .Where(c => c.SortDirection != SortDirection.Default)
                 .Select(c => c.Field + (c.SortDirection == SortDirection.Descending ? " DESC" : ""))
                 .JoinAsString(",");
             CurrentPage = e.Page;
+            progress = 50;
+            await InvokeAsync( StateHasChanged );
             await GetOrganizationsAsync();
+            progress = 75;
+            await InvokeAsync( StateHasChanged );
             await InvokeAsync(StateHasChanged);
+            progress = 100;
+            await InvokeAsync( StateHasChanged );
+            progress = 0;
         }
 
         private async Task OpenCreateOrganizationModalAsync()
         {
-            NewOrganization = new OrganizationCreateDto{
-                
-                IndustryId = IndustriesCollection.Select(i=>i.Id).FirstOrDefault(),
-
-            };
-            await NewOrganizationValidations.ClearAll();
-            await CreateOrganizationModal.Show();
+            OrganizationInput = new OrganizationDto(){};
+            SelectedOrganization = OrganizationInput;
+            NavigationManager.NavigateTo($"/organization/{Guid.Empty}");
+            //await CreateOrganizationModal.Show();
         }
 
         private async Task CloseCreateOrganizationModalAsync()
         {
-            NewOrganization = new OrganizationCreateDto{
-                
-                IndustryId = IndustriesCollection.Select(i=>i.Id).FirstOrDefault(),
-
-            };
+            
+            
+            OrganizationInput = new OrganizationDto();
             await CreateOrganizationModal.Hide();
         }
-
-        private async Task OpenEditOrganizationModalAsync(OrganizationWithNavigationPropertiesDto input)
+        private void OpenEditContactPageAsync(OrganizationDto input)
         {
-            var organization = await OrganizationsAppService.GetWithNavigationPropertiesAsync(input.Organization.Id);
-            
-            EditingOrganizationId = organization.Organization.Id;
-            EditingOrganization = ObjectMapper.Map<OrganizationDto, OrganizationUpdateDto>(organization.Organization);
-            await EditingOrganizationValidations.ClearAll();
-            await EditOrganizationModal.Show();
+            //navigate to the page ContactDetail
+            SelectedOrganization = input;
+            NavigationManager.NavigateTo($"/organization/{input.Id}");
         }
-
-        private async Task DeleteOrganizationAsync(OrganizationWithNavigationPropertiesDto input)
+        
+        private async Task DeleteOrganizationAsync(OrganizationDto input)
         {
-            await OrganizationsAppService.DeleteAsync(input.Organization.Id);
-            await GetOrganizationsAsync();
+            
+            bool result = await _SecureConfirmationService.ShowConfirmation(
+                "Sei sicuro di voler eliminare questa organizzazione?",
+                "Scrivi il nome dell'organizzazione {0} per confermare l'eliminazione",
+                input.Name
+            );
+            if (result)
+            {
+                // Procedi con la cancellazione
+                Console.WriteLine("Cancellazione in corso organization id: " + input.Id);
+                await OrganizationsAppService.DeleteAsync(input.Id);
+                await GetOrganizationsAsync();
+            }
+            else
+            {
+                // Cancellazione annullata
+                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>Cancellazione annullata...");
+            }
         }
 
         private async Task CreateOrganizationAsync()
         {
             try
             {
-                if (await NewOrganizationValidations.ValidateAll() == false)
-                {
-                    return;
-                }
-
-                await OrganizationsAppService.CreateAsync(NewOrganization);
                 await GetOrganizationsAsync();
                 await CloseCreateOrganizationModalAsync();
             }
@@ -225,16 +245,9 @@ namespace IBLTermocasa.Blazor.Pages
         {
             try
             {
-                if (await EditingOrganizationValidations.ValidateAll() == false)
-                {
-                    return;
-                }
-
-                await OrganizationsAppService.UpdateAsync(EditingOrganizationId, EditingOrganization);
                 await GetOrganizationsAsync();
                 await EditOrganizationModal.Hide();                
-            }
-            catch (Exception ex)
+            } catch (Exception ex)
             {
                 await HandleErrorAsync(ex);
             }
@@ -249,7 +262,7 @@ namespace IBLTermocasa.Blazor.Pages
         {
             SelectedEditTab = name;
         }
-
+        
         protected virtual async Task OnCodeChangedAsync(string? code)
         {
             Filter.Code = code;
@@ -291,12 +304,6 @@ namespace IBLTermocasa.Blazor.Pages
         {
             IndustriesCollection = (await OrganizationsAppService.GetIndustryLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
         }
-
-
-
-
-
-
-
+        
     }
 }

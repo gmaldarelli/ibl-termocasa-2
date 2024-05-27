@@ -1,0 +1,219 @@
+﻿@inject NavigationManager NavigationManager
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@inject IOrganizationsAppService OrganizationsAppService
+@using IBLTermocasa.Common
+@using IBLTermocasa.Localization
+@using IBLTermocasa.Organizations
+@using IBLTermocasa.Types
+@using Volo.Abp.AspNetCore.Components.Messages
+@inject IUiMessageService UiMessageService
+@using Volo.Abp.AspNetCore.Components.Web
+@inherits IBLTermocasaComponentBase
+<EditForm Model="@Organization" >
+<Row >
+    <Column Class="col d-flex align-items-baseline">
+        <h1>@Organization.Name</h1>
+    </Column>
+</Row>
+<Row>
+    <Column Class="col-md-4 col-lg-3">
+            <Card Class="card">
+                <CardBody class="card-body text-center">
+                    <Image Class="lpx-avatar-img-lg mb-3" Source="@_organizaionImageString"></Image>
+                    <div class="border-bottom pb-3 mb-3">
+                        <h3 class="card-title mb-0">@Organization.Name</h3>
+                        <h5 class="fw-normal mt-2 mb-0">@L[$"Enum:OrganizationType.{Organization.OrganizationType:d}"]</h5>
+                        <small class="text-muted">
+                            <a href="https://www.google.com/maps/search/?api=1&query=@(Uri.EscapeDataString(Organization.BillingAddress.ResolveAddress()))" target="_blank">
+                                <i class="bi bi-geo-alt-fill"></i>
+                            </a>
+                            @(Organization.BillingAddress.ResolveAddress())
+                        </small>
+                        
+                        <div class="col-12">
+                            <Dropdown>
+                                <DropdownToggle Color="Color.Primary" Size="Size.Small">
+                                    @L["SendMail"]
+                                </DropdownToggle>
+                                <DropdownMenu>
+                                    <Repeater Items="@Organization.MailInfo.MailItems"
+                                              TItem="MailItemDto" Context="mailItem">
+                                        <DropdownItem Clicked="@(() => mailToAction(mailItem))">@mailItem.Email</DropdownItem>
+                                        <DropdownDivider/>
+                                    </Repeater>
+                                </DropdownMenu>
+                            </Dropdown>
+                        </div>
+                    </div>
+
+                    <div class="border-bottom pb-3 mb-3">
+                        <small class="text-muted">Website</small>
+                        <h5 class="mt-0 mb-1">
+                            @Organization.SocialInfo.ResolveSocialUrl(SocialType.WEBSITE)
+                        </h5>
+                        <small class="text-muted">Social Links</small>
+                        <div>
+                            <a href="@Organization.SocialInfo.ResolveSocialUrl(SocialType.FACEBOOK)" class="">
+                                <i class="bi bi-facebook fs-4 px-1 text-muted"></i>
+                            </a>
+                            <a href="@Organization.SocialInfo.ResolveSocialUrl(SocialType.LINKEDIN)" class="">
+                                <i class="bi bi-linkedin fs-4 px-1 text-muted"></i>
+                            </a>
+                            <a href="@Organization.SocialInfo.ResolveSocialUrl(SocialType.INSTAGRAM)" class="">
+                                <i class="bi bi-instagram fs-4 px-1 text-muted"></i>
+                            </a>
+                            <a href="@Organization.SocialInfo.ResolveSocialUrl(SocialType.TWITTER)" class="">
+                                <i class="bi bi-twitter fs-4 px-1 text-muted"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div>
+                        <small class="text-muted">Registration Date</small>
+                        <h5 class="mt-0">@Organization.CreationTime</h5>
+                    </div>
+                </CardBody>
+            </Card>
+    </Column>
+    <Column Class="col-md-8 col-lg-9">
+
+            <Validations @ref="@OrganizationValidations"
+                         Mode="ValidationMode.Auto"
+                         Model="@InternalOrganization"
+                         ValidateOnLoad="false" >
+                <Fields>
+                    <Accordion>
+                        <Collapse Visible="@accordionItemMainInformationVisible">
+                            <CollapseHeader @onclick="ToggleMainInformation">
+                                <Heading Size="HeadingSize.Is5">
+                                    <AccordionToggle>@L["MainInformation"]</AccordionToggle>
+                                </Heading>
+                            </CollapseHeader>
+                            <CollapseBody>
+                                <Fields>
+                                        <Validation MessageLocalizer="@LH.Localize">
+                                            <Field>
+                                                <FieldLabel>@L["Code"] *</FieldLabel>
+                                                <TextEdit @bind-Text="@InternalOrganization.Code" >
+                                                    <Feedback>
+                                                        <ValidationError/>
+                                                    </Feedback>
+                                                </TextEdit>
+                                            </Field>
+                                        </Validation>
+                                        <Validation MessageLocalizer="@LH.Localize">
+                                            <Field>
+                                                <FieldLabel>@L["Name"] *</FieldLabel>
+                                                <TextEdit @bind-Text="@InternalOrganization.Name" >
+                                                    <Feedback>
+                                                        <ValidationError/>
+                                                    </Feedback>
+                                                </TextEdit>
+                                            </Field>
+                                        </Validation>
+                                        <Field>
+                                            <FieldLabel>@L["OrganizationType"]</FieldLabel>
+                                            <Select TValue="OrganizationType" @bind-SelectedValue="@InternalOrganization.OrganizationType" >
+                                                @foreach (var type in OrganizationTypes)
+                                                {
+                                                <SelectItem Value="@type" Text="@type">
+                                                    @L[$"Enum:OrganizationType.{type:d}"]
+                                                </SelectItem>
+                                                }
+                                            </Select>
+                                        </Field>
+                                    <Field>
+                                        <FieldLabel>@L["Industry"]</FieldLabel>
+                                        <Select TValue="Guid?" @bind-SelectedValue="@InternalOrganization.IndustryId">
+                                            @foreach (var industry in Industries)
+                                            {
+                                            <SelectItem Value="@industry.Id">
+                                                @industry.IndustryFullName
+                                            </SelectItem>
+                                            }
+                                        </Select>
+                                    </Field>
+                                </Fields>
+                                <Fields>
+                                    <Fields>
+                                        <Field ColumnSize="ColumnSize.IsFull">
+                                            <FieldLabel>@L["Email"]</FieldLabel>
+                                            <MailInfoInput
+                                                MailInfo="@InternalOrganization.MailInfo"/>
+                                        </Field>
+                                    </Fields>
+                                    <Fields>
+                                        <Field>
+                                            <FieldLabel>@L["Phone"]</FieldLabel>
+                                            <PhoneInfoInput
+                                                PhoneInfo="@InternalOrganization.PhoneInfo"/>
+                                        </Field>
+                                    </Fields>
+                                </Fields>
+                                <Fields>
+                                    <Field>
+                                        <FieldLabel>@L["Notes"]</FieldLabel>
+                                        <TextEdit @bind-Text="@InternalOrganization.Notes" Rows="3" MaxLength="1000"/>
+                                    </Field>
+                                </Fields>
+                            </CollapseBody>
+                        </Collapse>
+                        <Collapse  Visible="@accordionItemAddressesInformationVisible">
+                            <CollapseHeader @onclick="ToggleAddressesInformation">
+                                <Heading Size="HeadingSize.Is5">
+                                    <AccordionToggle>@L["AddressesInformation"]</AccordionToggle>
+                                </Heading>
+                            </CollapseHeader>
+                            <CollapseBody>
+                                @* Handling complex types: ShippingAddress & BillingAddress *@
+                                <Field>
+                                    <Divider DividerType="DividerType.TextContent" Text="@L["ShippingAddress"]" TextColor="TextColor.Info"/>
+                                    @* Assume AddressInput is a custom component for address input *@
+                                    <AddressInput @bind-Value="@InternalOrganization.ShippingAddress"/>
+                                </Field>
+
+                                <Field>
+                                    <Divider DividerType="DividerType.TextContent" Text="@L["BillingAddress"]" />
+                                    <AddressInput @bind-Value="@InternalOrganization.BillingAddress"/>
+                                </Field>
+                            </CollapseBody>
+                        </Collapse >
+                    </Accordion>
+                </Fields>
+
+            </Validations>
+            <Fields Class="mt-2">
+                <Field ColumnSize="ColumnSize.IsFull" Position="Position.Relative" Class="text-end">
+                    <Button Color="Color.Primary" Type="ButtonType.Submit" Size="Size.Small" Class="me-2" Clicked="HandleValidSubmit">@L["Save"]</Button>
+
+                    <Button Color="Color.Secondary" Clicked="HandleCancel" Size="Size.Small" Class="me-2">
+                        @L["Cancel"]
+                    </Button>
+                </Field>
+            </Fields>
+        </Column>
+</Row>
+</EditForm>
+
+@code
+{
+    protected bool accordionItemMainInformationVisible {get; set;} = true;
+    protected bool accordionItemFinancialInformationVisible {get; set;} = false;
+    protected bool accordionItemAddressesInformationVisible {get; set;} = false;
+    
+    private void ToggleMainInformation()
+    {
+        accordionItemMainInformationVisible = !accordionItemMainInformationVisible;
+    }
+    private void ToggleFinancialformation()
+    {
+        accordionItemFinancialInformationVisible = !accordionItemFinancialInformationVisible;
+    }
+    private void ToggleAddressesInformation()
+    {
+        accordionItemAddressesInformationVisible = !accordionItemAddressesInformationVisible;
+    }
+    private void mailToAction(MailItemDto mailItem)
+    {
+        NavigationManager.NavigateTo($"mailto:{mailItem.Email}?subject=[Termocasa] -  {CurrentUser.Name}");
+    }
+}

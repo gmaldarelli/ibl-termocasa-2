@@ -1,6 +1,8 @@
 using IBLTermocasa.Types;
 using Volo.Abp.Application.Dtos;
 using System;
+using System.Collections.Generic;
+using IBLTermocasa.Common;
 
 namespace IBLTermocasa.Organizations
 {
@@ -15,6 +17,9 @@ namespace IBLTermocasa.Organizations
         public OrganizationType? OrganizationType { get; set; }
         public string? MailInfo { get; set; }
         public string? PhoneInfo { get; set; }
+        public string? SocialInfo { get; set; }
+        public string? BillingAddress { get; set; }
+        public string? ShippingAddress { get; set; }
         public string? Tags { get; set; }
         public Guid? IndustryId { get; set; }
 
