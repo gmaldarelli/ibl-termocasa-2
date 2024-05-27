@@ -5,7 +5,7 @@ using Volo.Abp.Domain.Entities;
 
 namespace IBLTermocasa.Contacts
 {
-    public abstract class ContactUpdateDtoBase : IHasConcurrencyStamp
+    public class ContactUpdateDto : IHasConcurrencyStamp
     {
         public string? Title { get; set; }
         [Required]

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace IBLTermocasa.Contacts
 {
-    public abstract class ContactCreateDtoBase
+    public class ContactCreateDto
     {
         public string? Title { get; set; }
         [Required]

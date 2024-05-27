@@ -2,7 +2,8 @@ using System;
 
 namespace IBLTermocasa.Contacts;
 
-public abstract class ContactExcelDownloadTokenCacheItemBase
+[Serializable]
+public class ContactExcelDownloadTokenCacheItem
 {
     public string Token { get; set; } = null!;
 }

@@ -17,11 +17,11 @@ namespace IBLTermocasa.Controllers.Contacts
     [ControllerName("Contact")]
     [Route("api/app/contacts")]
 
-    public abstract class ContactControllerBase : AbpController
+    public class ContactController : AbpController, IContactsAppService
     {
         protected IContactsAppService _contactsAppService;
 
-        public ContactControllerBase(IContactsAppService contactsAppService)
+        public ContactController(IContactsAppService contactsAppService)
         {
             _contactsAppService = contactsAppService;
         }

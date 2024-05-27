@@ -29,36 +29,36 @@ namespace IBLTermocasa.Contacts
 
             await _contactRepository.InsertAsync(new Contact
             (
-                id: Guid.Parse("12fa922b-1f43-4071-b46f-804e04828c70"),
-                title: "99d536f9aac6419f90f10729efd0e748ef88d35fce1947db947bdaed201ea5d83608230",
-                name: "c11e0464d96b4dacabbec4543b7c67ff63399c2832a54fc8a84f75b160591",
-                surname: "b044772ce0f14c06920248b51d8d9de0e61985754d854794bb4c1a53482b1150744d616469044722a5b4aa8",
-                confidentialName: "847e0700d8d74699bcad981f09697395a2855ebd2c634d7fbf26c25d561f0837beb739295554479b88e5288859e766",
-                jobRole: "4d9cb06a2b9248558a47f51e64f65eb1fb6f0467f96142",
-                birthDate: new DateTime(2005, 3, 7),
-                mailInfo: "39c63e8c2ec3413c90507d6fd862e4c0f48",
-                phoneInfo: "2656f5630a7d4c",
-                socialInfo: "29c0c0b1fcb2417dbe50d0f85762464436f97e75224c4e1ba75789ae274147f16163bb006fe646b8923cbf6634455e",
-                addressInfo: "d7f4d8fac62442a7bd565849ded93af9c466d65a68c841",
-                tag: "05fdea52fca943e0b9b86820b1",
-                notes: "a7fc332f15b34fae8f0a18bc929fddf3807"
+                id: Guid.Parse("fd0a8d18-5a5f-4b09-8cff-37b020c1ac25"),
+                title: "0d5d3725faa6437199a7d4bfe06e34fcf67489f93fa64732903df0ed2e2136f7e9c403b5d6ec489ab390109",
+                name: "0ec009b9fc2d4162",
+                surname: "466327e3c1374e04a598e751a2cde5ee7ebfdf647",
+                confidentialName: "15fc122b14504c88beee692a004084eced394041394849b588defef191cdee69dcd35e2",
+                jobRole: "11ef673d532c41e386a1ed5ad3030408741a341c4a6b4f9a8eb2a5b",
+                birthDate: new DateTime(2021, 8, 13),
+                mailInfo: "505780442fc14722844788d85ceb34ef20a384104ca2427dbb872c48be54d974ca667dfefd1b4c5790a",
+                phoneInfo: "e1c5382999984c26b907986a6521e132c99d9c10c8ff44b3858d4c2",
+                socialInfo: "d2d9299ca2d4458f9d34dc9fcf05ebc0bb3b10295c5345dea4f6454ccd84b9f816ac50962ded4952827",
+                addressInfo: "04e99bfed70748c1bb3f39ab412fa939285e5f5730bf49e6b4d7faad04d341bc2057f1b073db4385a37c0",
+                tag: "2f7f147bf2f041e88e391890460dde828f3ea592423",
+                notes: "8c4c26a1b8944a7a9f19d741af7e8ce1c1f84114a096415093a2e1fb8320ef258580dbfba8ec48988f4403"
             ));
 
             await _contactRepository.InsertAsync(new Contact
             (
-                id: Guid.Parse("6447913c-a85f-4df5-9c00-7c97e6bf76ed"),
-                title: "8bff608e15104467aaaf53791bccddeab31b8faab3d94acd84753ea18",
-                name: "a5f073a",
-                surname: "465232405ac340769f72949caa836cbcc394f01d70984311a096c77f8d248a",
-                confidentialName: "cd93c04aa773440ab07054c968039ee7cb8258d0011a4ee6af9c6c0",
-                jobRole: "3a331aae5a794edaa6e26445a33abff363b0c438399d4c549e527bca42c39849eb6c001c",
-                birthDate: new DateTime(2009, 7, 10),
-                mailInfo: "5db2345e7052454cac71cc82dda119ec19a3f47a954e41f4b99fe5544bf1efe93a91c72",
-                phoneInfo: "a91c46885c1a4dc195b51acc0cc1d3c31",
-                socialInfo: "5edabdba75b3446898c5367ff7d8046c0e5253d0bf1a4cd2bf0444df7c1fbffc",
-                addressInfo: "76fdc37b09064b5ebba337893413aff2f523a44b542d43069eb1b5f780e111a859c43d72aeaf4b2",
-                tag: "4e674347fd714d9a9e306517e34fe3754465",
-                notes: "d4623953cdc24dc3bb2be6576b17c81c3d4561e1884045d4a84d8d898cceccd43f64cfbcfc874"
+                id: Guid.Parse("93b144f3-4e0b-4658-b107-ed134e5b04a3"),
+                title: "32c10e8f1f59",
+                name: "d3f7604eda4d469783440b6cb9a455a48c9aef6035c",
+                surname: "36cbdcd391f342d589c5c4628cde9a5069d03fe50f5140d583",
+                confidentialName: "11eecfec066748e9bdf802e36ed14e29d61e523567fd40afa5d5f4a07658591ec825188fb4a745be",
+                jobRole: "0a2054cf6dbf48f2b750a8814c0f818cf8115eaea5ef408983ec1b0",
+                birthDate: new DateTime(2009, 2, 22),
+                mailInfo: "fdc21631c6f04b228638dc2ec8673edfb06d14b214334879",
+                phoneInfo: "1d1f10c",
+                socialInfo: "a9d9d604c876446",
+                addressInfo: "9020feab2cfb4fba833eb0401ea139bc2dba2f4373e34eb586e534a1b945abe4a3a2241933a14d32b42983d",
+                tag: "7c5c7b0d25ef45d59439024c11230c9097a5f8326e",
+                notes: "aacd33806d1747b08728e213181abbac6bf6f39fd9"
             ));
 
             await _unitOfWorkManager!.Current!.SaveChangesAsync();

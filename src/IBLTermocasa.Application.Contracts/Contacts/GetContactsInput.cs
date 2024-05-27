@@ -3,7 +3,7 @@ using System;
 
 namespace IBLTermocasa.Contacts
 {
-    public abstract class GetContactsInputBase : PagedAndSortedResultRequestDto
+    public class GetContactsInput : PagedAndSortedResultRequestDto
     {
 
         public string? FilterText { get; set; }
@@ -18,7 +18,7 @@ namespace IBLTermocasa.Contacts
         public string? AddressInfo { get; set; }
         public string? Tag { get; set; }
 
-        public GetContactsInputBase()
+        public GetContactsInput()
         {
 
         }

@@ -38,8 +38,7 @@
 @* ************************* SEARCH ************************* *@
 <Card>
     <CardBody>
-@*//<suite-custom-code-block-1>*@
-@*//</suite-custom-code-block-1>*@
+
         <Form id="ContactSearchForm" class="mb-3">
             <Addons>
                 <Addon AddonType="AddonType.Body">
@@ -119,12 +118,10 @@
                     </Field>
                 </Column>
             </Row>
-@*//<suite-custom-code-block-2>*@
-@*//</suite-custom-code-block-2>*@
+
         </div>
 
-@*//<suite-custom-code-block-3>*@
-@*//</suite-custom-code-block-3>*@
+
     </CardBody>
 </Card>
 
@@ -158,8 +155,7 @@
                                           Clicked="() => DeleteContactAsync(context)"
                                           ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
                                           Text="@L["Delete"]"></EntityAction>
-@*//<suite-custom-code-block-4>*@
-@*//</suite-custom-code-block-4>*@
+
                         </EntityActions>
                     </DisplayTemplate>
                 </DataGridEntityActionsColumn>
@@ -214,8 +210,7 @@
 @* ************************* CREATE MODAL ************************* *@
 <Modal @ref="CreateContactModal" Closing="@CreateContactModal.CancelClosingModalWhenFocusLost">
     <ModalContent Centered="true">
-@*//<suite-custom-code-block-5>*@
-@*//</suite-custom-code-block-5>*@
+
         <Form id="CreateContactForm">
             <ModalHeader>
                 <ModalTitle>@L["NewContact"]</ModalTitle>
@@ -382,20 +377,17 @@
                     @L["Cancel"]
                 </Button>
                 <SubmitButton Form="CreateContactForm" Clicked="CreateContactAsync" />
-@*//<suite-custom-code-block-6>*@
-@*//</suite-custom-code-block-6>*@
+
             </ModalFooter>
         </Form>
-@*//<suite-custom-code-block-7>*@
-@*//</suite-custom-code-block-7>*@
+
     </ModalContent>
 </Modal>
 
 @* ************************* EDIT MODAL ************************* *@
 <Modal @ref="EditContactModal" Closing="@EditContactModal.CancelClosingModalWhenFocusLost">
     <ModalContent Centered="true">
-@*//<suite-custom-code-block-8>*@
-@*//</suite-custom-code-block-8>*@
+
         <Form id="EditContactForm">
             <ModalHeader>
                 <ModalTitle>@L["Update"]</ModalTitle>
@@ -562,12 +554,10 @@
                     @L["Cancel"]
                 </Button>
                 <SubmitButton Form="EditContactForm" Clicked="UpdateContactAsync" />
-@*//<suite-custom-code-block-9>*@
-@*//</suite-custom-code-block-9>*@
+
             </ModalFooter>
         </Form>
-@*//<suite-custom-code-block-10>*@
-@*//</suite-custom-code-block-10>*@
+
     </ModalContent>
 </Modal>
 

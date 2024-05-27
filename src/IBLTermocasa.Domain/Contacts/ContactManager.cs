@@ -10,11 +10,11 @@ using Volo.Abp.Data;
 
 namespace IBLTermocasa.Contacts
 {
-    public abstract class ContactManagerBase : DomainService
+    public class ContactManager : DomainService
     {
         protected IContactRepository _contactRepository;
 
-        public ContactManagerBase(IContactRepository contactRepository)
+        public ContactManager(IContactRepository contactRepository)
         {
             _contactRepository = contactRepository;
         }

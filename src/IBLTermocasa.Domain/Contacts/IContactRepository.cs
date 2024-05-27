@@ -6,7 +6,7 @@ using Volo.Abp.Domain.Repositories;
 
 namespace IBLTermocasa.Contacts
 {
-    public partial interface IContactRepository : IRepository<Contact, Guid>
+    public interface IContactRepository : IRepository<Contact, Guid>
     {
         Task<List<Contact>> GetListAsync(
             string? filterText = null,

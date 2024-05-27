@@ -29,19 +29,19 @@ namespace IBLTermocasa.Contacts
             // Assert
             result.TotalCount.ShouldBe(2);
             result.Items.Count.ShouldBe(2);
-            result.Items.Any(x => x.Id == Guid.Parse("12fa922b-1f43-4071-b46f-804e04828c70")).ShouldBe(true);
-            result.Items.Any(x => x.Id == Guid.Parse("6447913c-a85f-4df5-9c00-7c97e6bf76ed")).ShouldBe(true);
+            result.Items.Any(x => x.Id == Guid.Parse("fd0a8d18-5a5f-4b09-8cff-37b020c1ac25")).ShouldBe(true);
+            result.Items.Any(x => x.Id == Guid.Parse("93b144f3-4e0b-4658-b107-ed134e5b04a3")).ShouldBe(true);
         }
 
         [Fact]
         public async Task GetAsync()
         {
             // Act
-            var result = await _contactsAppService.GetAsync(Guid.Parse("12fa922b-1f43-4071-b46f-804e04828c70"));
+            var result = await _contactsAppService.GetAsync(Guid.Parse("fd0a8d18-5a5f-4b09-8cff-37b020c1ac25"));
 
             // Assert
             result.ShouldNotBeNull();
-            result.Id.ShouldBe(Guid.Parse("12fa922b-1f43-4071-b46f-804e04828c70"));
+            result.Id.ShouldBe(Guid.Parse("fd0a8d18-5a5f-4b09-8cff-37b020c1ac25"));
         }
 
         [Fact]
@@ -50,18 +50,18 @@ namespace IBLTermocasa.Contacts
             // Arrange
             var input = new ContactCreateDto
             {
-                Title = "821357d99",
-                Name = "25a0a1b49ba74141b3e3aa50be2ac6be084f3fb0bb1e43e5be73a504e9b28d3e0ac20833d2a94625b6320f28b56",
-                Surname = "c93d8e66d571403dab2c0918b0f85aa5d07a57067cb84fd79ebaece697",
-                ConfidentialName = "ce5383359c1f454ab2e0e7ead966a8c",
-                JobRole = "a8eb1387fe964217bc9749fdc6844d770d77246e",
-                BirthDate = new DateTime(2016, 11, 2),
-                MailInfo = "8e48c02390884096bddab3ad7eb5c145b3ffe4792b3d4434a73435c46a44e2601f6c1e7cdcfa48179668419ca853fcc6",
-                PhoneInfo = "3c22a7c055f6441a812f2db9d096e98ffd14df27fe404b9dbbcc6ac325804bf62755ec7f90374d4f85b519e872",
-                SocialInfo = "5ce6e75386384611964cfc9b980d5",
-                AddressInfo = "dd9d26557e294bf28ea5b8e312ec013bd6bd7869058b475",
-                Tag = "467a0506ae714235b5a92fb22d2be62ed2926b9de35c409a8ad1f14",
-                Notes = "c55479fb57354aec9004b8f64f0c",
+                Title = "0a8241ccb35c4d29856024f9f12403dc6e5c3be436414695b9cffa6792d04a983bac",
+                Name = "85f681621e7646168c9e8f1b1495cb84151e52b65181432693a194bb8090087bf05b67c95b5842",
+                Surname = "585f125be65945b",
+                ConfidentialName = "b1860aa9c27f464890d18ae757265813c3ab9",
+                JobRole = "91221c1fdb0b4bdabc8c74840c61bfb25c92a05e01b842f5bc343d99662100",
+                BirthDate = new DateTime(2023, 10, 18),
+                MailInfo = "acd55e1777cf4eb9a2df30d0441cb1318a37df807b1543ae",
+                PhoneInfo = "9b85ee3eb09747349b7a199b77e3e4c61",
+                SocialInfo = "636eb1a5b71",
+                AddressInfo = "3dbeda8c65574290ad40053389848fb14d32ff8a3b414c",
+                Tag = "09158c8fbc844cb0a2fb09d0e1cde93e38d91ba37947409196ab4370e69268624e646d5d9f8a4c25bac0692c47881c4",
+                Notes = "6c9f7eb0e6224b2794b9459450bf7c7",
 
             };
 
@@ -72,18 +72,18 @@ namespace IBLTermocasa.Contacts
             var result = await _contactRepository.FindAsync(c => c.Id == serviceResult.Id);
 
             result.ShouldNotBe(null);
-            result.Title.ShouldBe("821357d99");
-            result.Name.ShouldBe("25a0a1b49ba74141b3e3aa50be2ac6be084f3fb0bb1e43e5be73a504e9b28d3e0ac20833d2a94625b6320f28b56");
-            result.Surname.ShouldBe("c93d8e66d571403dab2c0918b0f85aa5d07a57067cb84fd79ebaece697");
-            result.ConfidentialName.ShouldBe("ce5383359c1f454ab2e0e7ead966a8c");
-            result.JobRole.ShouldBe("a8eb1387fe964217bc9749fdc6844d770d77246e");
-            result.BirthDate.ShouldBe(new DateTime(2016, 11, 2));
-            result.MailInfo.ShouldBe("8e48c02390884096bddab3ad7eb5c145b3ffe4792b3d4434a73435c46a44e2601f6c1e7cdcfa48179668419ca853fcc6");
-            result.PhoneInfo.ShouldBe("3c22a7c055f6441a812f2db9d096e98ffd14df27fe404b9dbbcc6ac325804bf62755ec7f90374d4f85b519e872");
-            result.SocialInfo.ShouldBe("5ce6e75386384611964cfc9b980d5");
-            result.AddressInfo.ShouldBe("dd9d26557e294bf28ea5b8e312ec013bd6bd7869058b475");
-            result.Tag.ShouldBe("467a0506ae714235b5a92fb22d2be62ed2926b9de35c409a8ad1f14");
-            result.Notes.ShouldBe("c55479fb57354aec9004b8f64f0c");
+            result.Title.ShouldBe("0a8241ccb35c4d29856024f9f12403dc6e5c3be436414695b9cffa6792d04a983bac");
+            result.Name.ShouldBe("85f681621e7646168c9e8f1b1495cb84151e52b65181432693a194bb8090087bf05b67c95b5842");
+            result.Surname.ShouldBe("585f125be65945b");
+            result.ConfidentialName.ShouldBe("b1860aa9c27f464890d18ae757265813c3ab9");
+            result.JobRole.ShouldBe("91221c1fdb0b4bdabc8c74840c61bfb25c92a05e01b842f5bc343d99662100");
+            result.BirthDate.ShouldBe(new DateTime(2023, 10, 18));
+            result.MailInfo.ShouldBe("acd55e1777cf4eb9a2df30d0441cb1318a37df807b1543ae");
+            result.PhoneInfo.ShouldBe("9b85ee3eb09747349b7a199b77e3e4c61");
+            result.SocialInfo.ShouldBe("636eb1a5b71");
+            result.AddressInfo.ShouldBe("3dbeda8c65574290ad40053389848fb14d32ff8a3b414c");
+            result.Tag.ShouldBe("09158c8fbc844cb0a2fb09d0e1cde93e38d91ba37947409196ab4370e69268624e646d5d9f8a4c25bac0692c47881c4");
+            result.Notes.ShouldBe("6c9f7eb0e6224b2794b9459450bf7c7");
 
         }
 
@@ -93,40 +93,40 @@ namespace IBLTermocasa.Contacts
             // Arrange
             var input = new ContactUpdateDto()
             {
-                Title = "36c7d3b803cb4e12bad5c025505ef571bb8bf690868d4e",
-                Name = "ddbcc992a9c1427fa6ec6ac58e1a307ae06c184a90264c578cbb5cc50a39a79d232fe6fc46554a3",
-                Surname = "e8c4d1ebd59f438e8a3b68dab8afc5a1537bc0e697244743a6dfb3ef3eab8d",
-                ConfidentialName = "c2151012c6",
-                JobRole = "b7b557eb217f4237b0a4db9a38551e41a7fd96ce7b744470818a3b9144",
-                BirthDate = new DateTime(2006, 4, 7),
-                MailInfo = "e60ec8bb167c490bbdc02de0",
-                PhoneInfo = "62d01d726bdb46c895bc101a05c9af4dd6581546005c4337a3ffd62cf120c6351c58a41eef",
-                SocialInfo = "44e93297eac14ff4819de3609244f1daa4e900a706fb4abbbbde95e7cbbd6900871eec086bc64f3dbd24e7d74",
-                AddressInfo = "e65c2f56cbc746b3b2cdedf9",
-                Tag = "c6eb53b10fa",
-                Notes = "d485bdbfa9eb4d8583635017d90f310f05ae57d9a3c44ad89b298b68743ec97b8e65c1564c02",
+                Title = "34fb5597cbe44d838158873f6f2c5cfd7da8f4164b4b4d01966a21e6a6186c5cb52bc76ae65647e78ebf2937878e54",
+                Name = "20c8629193374d11b39c826abd62aefe3faf44f2381",
+                Surname = "8e186227cb514d2499e684d628c970d5e04a5751b5fb450aa065478d2217130c7",
+                ConfidentialName = "5d7c460029994117a1d20da961c3f2814b4eedf93fe34cdb",
+                JobRole = "d6e8de7eaaec495c90c87ca7ade266c82662a6c5c6e7481893dca9f9eeebc5",
+                BirthDate = new DateTime(2009, 2, 23),
+                MailInfo = "57581f84b9b145fb831b04bc0c02caf2c3a05b98700c454eb7daf705b005539d7705667d624b46beab8a1dd4d6df5b97d1",
+                PhoneInfo = "0326a67978654ef78d2430d547",
+                SocialInfo = "4b96d5ed8f554d49a6",
+                AddressInfo = "aed28bf30ff64e0192ed4fc499353d5f1415f1a9ad9248599c892e19d75",
+                Tag = "a9ecb5667b4847278a6426c1081fc821bd99c9837aec46dfa80",
+                Notes = "d9bf8b226817411d9afe8994b717a18c839557b2a41f46ac8498a33317ec2c501878",
 
             };
 
             // Act
-            var serviceResult = await _contactsAppService.UpdateAsync(Guid.Parse("12fa922b-1f43-4071-b46f-804e04828c70"), input);
+            var serviceResult = await _contactsAppService.UpdateAsync(Guid.Parse("fd0a8d18-5a5f-4b09-8cff-37b020c1ac25"), input);
 
             // Assert
             var result = await _contactRepository.FindAsync(c => c.Id == serviceResult.Id);
 
             result.ShouldNotBe(null);
-            result.Title.ShouldBe("36c7d3b803cb4e12bad5c025505ef571bb8bf690868d4e");
-            result.Name.ShouldBe("ddbcc992a9c1427fa6ec6ac58e1a307ae06c184a90264c578cbb5cc50a39a79d232fe6fc46554a3");
-            result.Surname.ShouldBe("e8c4d1ebd59f438e8a3b68dab8afc5a1537bc0e697244743a6dfb3ef3eab8d");
-            result.ConfidentialName.ShouldBe("c2151012c6");
-            result.JobRole.ShouldBe("b7b557eb217f4237b0a4db9a38551e41a7fd96ce7b744470818a3b9144");
-            result.BirthDate.ShouldBe(new DateTime(2006, 4, 7));
-            result.MailInfo.ShouldBe("e60ec8bb167c490bbdc02de0");
-            result.PhoneInfo.ShouldBe("62d01d726bdb46c895bc101a05c9af4dd6581546005c4337a3ffd62cf120c6351c58a41eef");
-            result.SocialInfo.ShouldBe("44e93297eac14ff4819de3609244f1daa4e900a706fb4abbbbde95e7cbbd6900871eec086bc64f3dbd24e7d74");
-            result.AddressInfo.ShouldBe("e65c2f56cbc746b3b2cdedf9");
-            result.Tag.ShouldBe("c6eb53b10fa");
-            result.Notes.ShouldBe("d485bdbfa9eb4d8583635017d90f310f05ae57d9a3c44ad89b298b68743ec97b8e65c1564c02");
+            result.Title.ShouldBe("34fb5597cbe44d838158873f6f2c5cfd7da8f4164b4b4d01966a21e6a6186c5cb52bc76ae65647e78ebf2937878e54");
+            result.Name.ShouldBe("20c8629193374d11b39c826abd62aefe3faf44f2381");
+            result.Surname.ShouldBe("8e186227cb514d2499e684d628c970d5e04a5751b5fb450aa065478d2217130c7");
+            result.ConfidentialName.ShouldBe("5d7c460029994117a1d20da961c3f2814b4eedf93fe34cdb");
+            result.JobRole.ShouldBe("d6e8de7eaaec495c90c87ca7ade266c82662a6c5c6e7481893dca9f9eeebc5");
+            result.BirthDate.ShouldBe(new DateTime(2009, 2, 23));
+            result.MailInfo.ShouldBe("57581f84b9b145fb831b04bc0c02caf2c3a05b98700c454eb7daf705b005539d7705667d624b46beab8a1dd4d6df5b97d1");
+            result.PhoneInfo.ShouldBe("0326a67978654ef78d2430d547");
+            result.SocialInfo.ShouldBe("4b96d5ed8f554d49a6");
+            result.AddressInfo.ShouldBe("aed28bf30ff64e0192ed4fc499353d5f1415f1a9ad9248599c892e19d75");
+            result.Tag.ShouldBe("a9ecb5667b4847278a6426c1081fc821bd99c9837aec46dfa80");
+            result.Notes.ShouldBe("d9bf8b226817411d9afe8994b717a18c839557b2a41f46ac8498a33317ec2c501878");
 
         }
 
@@ -134,10 +134,10 @@ namespace IBLTermocasa.Contacts
         public async Task DeleteAsync()
         {
             // Act
-            await _contactsAppService.DeleteAsync(Guid.Parse("12fa922b-1f43-4071-b46f-804e04828c70"));
+            await _contactsAppService.DeleteAsync(Guid.Parse("fd0a8d18-5a5f-4b09-8cff-37b020c1ac25"));
 
             // Assert
-            var result = await _contactRepository.FindAsync(c => c.Id == Guid.Parse("12fa922b-1f43-4071-b46f-804e04828c70"));
+            var result = await _contactRepository.FindAsync(c => c.Id == Guid.Parse("fd0a8d18-5a5f-4b09-8cff-37b020c1ac25"));
 
             result.ShouldBeNull();
         }

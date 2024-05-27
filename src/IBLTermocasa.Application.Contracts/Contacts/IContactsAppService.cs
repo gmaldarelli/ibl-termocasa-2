@@ -8,7 +8,7 @@ using IBLTermocasa.Shared;
 
 namespace IBLTermocasa.Contacts
 {
-    public partial interface IContactsAppService : IApplicationService
+    public interface IContactsAppService : IApplicationService
     {
 
         Task<PagedResultDto<ContactDto>> GetListAsync(GetContactsInput input);

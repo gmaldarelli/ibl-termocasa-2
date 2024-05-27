@@ -2,7 +2,7 @@ using System;
 
 namespace IBLTermocasa.Contacts
 {
-    public abstract class ContactExcelDtoBase
+    public class ContactExcelDto
     {
         public string Name { get; set; } = null!;
         public string Surname { get; set; } = null!;

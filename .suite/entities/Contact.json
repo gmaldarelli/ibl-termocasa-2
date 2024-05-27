@@ -12,7 +12,7 @@
   "PageTitle": "Contacts",
   "MenuIcon": "id-card-alt",
   "PrimaryKeyType": "Guid",
-  "PreserveCustomCode": true,
+  "PreserveCustomCode": false,
   "IsMultiTenant": true,
   "CheckConcurrency": true,
   "BulkDeleteEnabled": false,

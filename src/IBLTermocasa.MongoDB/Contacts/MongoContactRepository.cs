@@ -12,9 +12,9 @@ using MongoDB.Driver;
 
 namespace IBLTermocasa.Contacts
 {
-    public abstract class MongoContactRepositoryBase : MongoDbRepository<IBLTermocasaMongoDbContext, Contact, Guid>
+    public class MongoContactRepository : MongoDbRepository<IBLTermocasaMongoDbContext, Contact, Guid>, IContactRepository
     {
-        public MongoContactRepositoryBase(IMongoDbContextProvider<IBLTermocasaMongoDbContext> dbContextProvider)
+        public MongoContactRepository(IMongoDbContextProvider<IBLTermocasaMongoDbContext> dbContextProvider)
             : base(dbContextProvider)
         {
         }

@@ -3,7 +3,7 @@ using System;
 
 namespace IBLTermocasa.Contacts
 {
-    public abstract class ContactExcelDownloadDtoBase
+    public class ContactExcelDownloadDto
     {
         public string DownloadToken { get; set; } = null!;
 
@@ -19,7 +19,7 @@ namespace IBLTermocasa.Contacts
         public string? AddressInfo { get; set; }
         public string? Tag { get; set; }
 
-        public ContactExcelDownloadDtoBase()
+        public ContactExcelDownloadDto()
         {
 
         }

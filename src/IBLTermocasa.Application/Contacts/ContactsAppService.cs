@@ -22,13 +22,13 @@ namespace IBLTermocasa.Contacts
 {
     [RemoteService(IsEnabled = false)]
     [Authorize(IBLTermocasaPermissions.Contacts.Default)]
-    public abstract class ContactsAppServiceBase : IBLTermocasaAppService
+    public class ContactsAppService : IBLTermocasaAppService, IContactsAppService
     {
         protected IDistributedCache<ContactExcelDownloadTokenCacheItem, string> _excelDownloadTokenCache;
         protected IContactRepository _contactRepository;
         protected ContactManager _contactManager;
 
-        public ContactsAppServiceBase(IContactRepository contactRepository, ContactManager contactManager, IDistributedCache<ContactExcelDownloadTokenCacheItem, string> excelDownloadTokenCache)
+        public ContactsAppService(IContactRepository contactRepository, ContactManager contactManager, IDistributedCache<ContactExcelDownloadTokenCacheItem, string> excelDownloadTokenCache)
         {
             _excelDownloadTokenCache = excelDownloadTokenCache;
             _contactRepository = contactRepository;

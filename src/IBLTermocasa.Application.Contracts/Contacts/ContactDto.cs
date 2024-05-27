@@ -6,7 +6,7 @@ using Volo.Abp.Domain.Entities;
 
 namespace IBLTermocasa.Contacts
 {
-    public abstract class ContactDtoBase : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
+    public class ContactDto : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
     {
         public string? Title { get; set; }
         public string Name { get; set; } = null!;
