@@ -52,12 +52,7 @@
     top: unset !important;
 }
 
-:root .lpx-theme-dim, :root .lpx-theme-dark {
-    --lpx-logo: url('/images/logo/logo-image-tc.svg');
-    --lpx-logo-icon: url('/images/logo/logo-image-tc.svg');
-}
-
-:root .lpx-theme-light {
-    --lpx-logo: url('/images/logo/logo-image-tc.svg');
-    --lpx-logo-icon: url('/images/logo/logo-image-tc.svg');
+:root {
+    --logo: url(/images/logo/logo-image-tc.svg);
+    --logo-reverse: url(/images/logo/logo-image-tc.svg);
 }
