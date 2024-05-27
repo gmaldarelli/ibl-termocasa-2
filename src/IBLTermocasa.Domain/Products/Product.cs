@@ -13,8 +13,10 @@ using Volo.Abp;
 
 namespace IBLTermocasa.Products
 {
-    public abstract class ProductBase : FullAuditedAggregateRoot<Guid>
+    public class Product : FullAuditedAggregateRoot<Guid>, IMultiTenant
     {
+        public virtual Guid? TenantId { get; set; }
+
         [NotNull]
         public virtual string Code { get; set; }
 
@@ -29,14 +31,15 @@ namespace IBLTermocasa.Products
         public virtual bool IsInternal { get; set; }
 
         public ICollection<ProductComponent> Components { get; private set; }
+        public ICollection<ProductQuestionTemplate> QuestionTemplates { get; private set; }
         public ICollection<Subproduct> Subproducts { get; private set; }
 
-        protected ProductBase()
+        protected Product()
         {
 
         }
 
-        public ProductBase(Guid id, string code, string name, bool isAssembled, bool isInternal, string? description = null)
+        public Product(Guid id, string code, string name, bool isAssembled, bool isInternal, string? description = null)
         {
 
             Id = id;
@@ -48,6 +51,7 @@ namespace IBLTermocasa.Products
             IsInternal = isInternal;
             Description = description;
             Components = new Collection<ProductComponent>();
+            QuestionTemplates = new Collection<ProductQuestionTemplate>();
             Subproducts = new Collection<Subproduct>();
         }
         public virtual void AddComponent(Guid componentId)
@@ -89,6 +93,47 @@ namespace IBLTermocasa.Products
         private bool IsInComponents(Guid componentId)
         {
             return Components.Any(x => x.ComponentId == componentId);
+        }
+
+        public virtual void AddQuestionTemplate(Guid questionTemplateId)
+        {
+            Check.NotNull(questionTemplateId, nameof(questionTemplateId));
+
+            if (IsInQuestionTemplates(questionTemplateId))
+            {
+                return;
+            }
+
+            QuestionTemplates.Add(new ProductQuestionTemplate(Id, questionTemplateId));
+        }
+
+        public virtual void RemoveQuestionTemplate(Guid questionTemplateId)
+        {
+            Check.NotNull(questionTemplateId, nameof(questionTemplateId));
+
+            if (!IsInQuestionTemplates(questionTemplateId))
+            {
+                return;
+            }
+
+            QuestionTemplates.RemoveAll(x => x.QuestionTemplateId == questionTemplateId);
+        }
+
+        public virtual void RemoveAllQuestionTemplatesExceptGivenIds(List<Guid> questionTemplateIds)
+        {
+            Check.NotNullOrEmpty(questionTemplateIds, nameof(questionTemplateIds));
+
+            QuestionTemplates.RemoveAll(x => !questionTemplateIds.Contains(x.QuestionTemplateId));
+        }
+
+        public virtual void RemoveAllQuestionTemplates()
+        {
+            QuestionTemplates.RemoveAll(x => x.ProductId == Id);
+        }
+
+        private bool IsInQuestionTemplates(Guid questionTemplateId)
+        {
+            return QuestionTemplates.Any(x => x.QuestionTemplateId == questionTemplateId);
         }
     }
 }

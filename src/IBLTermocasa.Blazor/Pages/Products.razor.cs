@@ -50,7 +50,13 @@ namespace IBLTermocasa.Blazor.Pages
         
         private string SelectedComponentText { get; set; }
 
-        private List<LookupDto<Guid>> SelectedComponents { get; set; } = new List<LookupDto<Guid>>();
+        private List<LookupDto<Guid>> SelectedComponents { get; set; } = new List<LookupDto<Guid>>();private IReadOnlyList<LookupDto<Guid>> QuestionTemplates { get; set; } = new List<LookupDto<Guid>>();
+        
+        private string SelectedQuestionTemplateId { get; set; }
+        
+        private string SelectedQuestionTemplateText { get; set; }
+
+        private List<LookupDto<Guid>> SelectedQuestionTemplates { get; set; } = new List<LookupDto<Guid>>();
         
                 #region Child Entities
         
@@ -101,6 +107,9 @@ EditingSubproduct = new SubproductUpdateDto();
         {
             await SetPermissionsAsync();
             await GetComponentLookupAsync();
+
+
+            await GetQuestionTemplateLookupAsync();
 
 
             await GetProductLookupAsync();
@@ -205,6 +214,9 @@ EditingSubproduct = new SubproductUpdateDto();
             SelectedComponents = new List<LookupDto<Guid>>();
             
 
+            SelectedQuestionTemplates = new List<LookupDto<Guid>>();
+            
+
             NewProduct = new ProductCreateDto{
                 
                 
@@ -230,6 +242,8 @@ EditingSubproduct = new SubproductUpdateDto();
             EditingProduct = ObjectMapper.Map<ProductDto, ProductUpdateDto>(product.Product);
             SelectedComponents = product.Components.Select(a => new LookupDto<Guid>{ Id = a.Id, DisplayName = a.Name}).ToList();
 
+            SelectedQuestionTemplates = product.QuestionTemplates.Select(a => new LookupDto<Guid>{ Id = a.Id, DisplayName = a.QuestionText}).ToList();
+
             await EditingProductValidations.ClearAll();
             await EditProductModal.Show();
         }
@@ -249,6 +263,8 @@ EditingSubproduct = new SubproductUpdateDto();
                     return;
                 }
                 NewProduct.ComponentIds = SelectedComponents.Select(x => x.Id).ToList();
+
+                NewProduct.QuestionTemplateIds = SelectedQuestionTemplates.Select(x => x.Id).ToList();
 
 
                 await ProductsAppService.CreateAsync(NewProduct);
@@ -275,6 +291,8 @@ EditingSubproduct = new SubproductUpdateDto();
                     return;
                 }
                 EditingProduct.ComponentIds = SelectedComponents.Select(x => x.Id).ToList();
+
+                EditingProduct.QuestionTemplateIds = SelectedQuestionTemplates.Select(x => x.Id).ToList();
 
 
                 await ProductsAppService.UpdateAsync(EditingProductId, EditingProduct);
@@ -346,6 +364,31 @@ EditingSubproduct = new SubproductUpdateDto();
             {
                 Id = Guid.Parse(SelectedComponentId),
                 DisplayName = SelectedComponentText
+            });
+        }
+
+        private async Task GetQuestionTemplateLookupAsync(string? newValue = null)
+        {
+            QuestionTemplates = (await ProductsAppService.GetQuestionTemplateLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
+        }
+
+        private void AddQuestionTemplate()
+        {
+            if (SelectedQuestionTemplateId.IsNullOrEmpty())
+            {
+                return;
+            }
+            
+            if (SelectedQuestionTemplates.Any(p => p.Id.ToString() == SelectedQuestionTemplateId))
+            {
+                UiMessageService.Warn(L["ItemAlreadyAdded"]);
+                return;
+            }
+
+            SelectedQuestionTemplates.Add(new LookupDto<Guid>
+            {
+                Id = Guid.Parse(SelectedQuestionTemplateId),
+                DisplayName = SelectedQuestionTemplateText
             });
         }
 

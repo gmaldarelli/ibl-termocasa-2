@@ -29,14 +29,14 @@ namespace IBLTermocasa.Components
 
             await _componentRepository.InsertAsync(new Component
             (
-                id: Guid.Parse("a277f0ce-c5ed-4957-9b49-9cdc39c6bb90"),
-                name: "b8b5b7d130954994afc0877be341ab33ed1e8a6306704f"
+                id: Guid.Parse("93c4cb63-038b-48ba-8d3f-9a16fb6fa8b2"),
+                name: "5216cc1c456a489c830a"
             ));
 
             await _componentRepository.InsertAsync(new Component
             (
-                id: Guid.Parse("2519e506-b867-4e8b-b1c8-8c7a3085baef"),
-                name: "6a6a917e366d4221b16"
+                id: Guid.Parse("679c6836-e338-4e7e-b8f5-7c0cc6f103d0"),
+                name: "7e943dde2d0548d2b909b8061fca"
             ));
 
             await _unitOfWorkManager!.Current!.SaveChangesAsync();

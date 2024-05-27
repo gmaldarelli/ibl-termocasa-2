@@ -1,4 +1,5 @@
 using IBLTermocasa.Components;
+using IBLTermocasa.QuestionTemplates;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,20 +12,24 @@ using Volo.Abp.Data;
 
 namespace IBLTermocasa.Products
 {
-    public abstract class ProductManagerBase : DomainService
+    public class ProductManager : DomainService
     {
         protected IProductRepository _productRepository;
         protected IRepository<Component, Guid> _componentRepository;
+        protected IRepository<QuestionTemplate, Guid> _questionTemplateRepository;
 
-        public ProductManagerBase(IProductRepository productRepository,
-        IRepository<Component, Guid> componentRepository)
+        public ProductManager(IProductRepository productRepository,
+        IRepository<Component, Guid> componentRepository,
+        IRepository<QuestionTemplate, Guid> questionTemplateRepository)
         {
             _productRepository = productRepository;
             _componentRepository = componentRepository;
+            _questionTemplateRepository = questionTemplateRepository;
         }
 
         public virtual async Task<Product> CreateAsync(
         List<Guid> componentIds,
+        List<Guid> questionTemplateIds,
         string code, string name, bool isAssembled, bool isInternal, string? description = null)
         {
             Check.NotNullOrWhiteSpace(code, nameof(code));
@@ -36,6 +41,7 @@ namespace IBLTermocasa.Products
              );
 
             await SetComponentsAsync(product, componentIds);
+            await SetQuestionTemplatesAsync(product, questionTemplateIds);
 
             return await _productRepository.InsertAsync(product);
         }
@@ -43,13 +49,14 @@ namespace IBLTermocasa.Products
         public virtual async Task<Product> UpdateAsync(
             Guid id,
             List<Guid> componentIds,
+        List<Guid> questionTemplateIds,
         string code, string name, bool isAssembled, bool isInternal, string? description = null, [CanBeNull] string? concurrencyStamp = null
         )
         {
             Check.NotNullOrWhiteSpace(code, nameof(code));
             Check.NotNullOrWhiteSpace(name, nameof(name));
 
-            var queryable = await _productRepository.WithDetailsAsync(x => x.Components);
+            var queryable = await _productRepository.WithDetailsAsync(x => x.Components, x => x.QuestionTemplates);
             var query = queryable.Where(x => x.Id == id);
 
             var product = await AsyncExecuter.FirstOrDefaultAsync(query);
@@ -61,6 +68,7 @@ namespace IBLTermocasa.Products
             product.Description = description;
 
             await SetComponentsAsync(product, componentIds);
+            await SetQuestionTemplatesAsync(product, questionTemplateIds);
 
             product.SetConcurrencyStampIfNotNull(concurrencyStamp);
             return await _productRepository.UpdateAsync(product);
@@ -89,6 +97,32 @@ namespace IBLTermocasa.Products
             foreach (var componentId in componentIdsInDb)
             {
                 product.AddComponent(componentId);
+            }
+        }
+
+        private async Task SetQuestionTemplatesAsync(Product product, List<Guid> questionTemplateIds)
+        {
+            if (questionTemplateIds == null || !questionTemplateIds.Any())
+            {
+                product.RemoveAllQuestionTemplates();
+                return;
+            }
+
+            var query = (await _questionTemplateRepository.GetQueryableAsync())
+                .Where(x => questionTemplateIds.Contains(x.Id))
+                .Select(x => x.Id);
+
+            var questionTemplateIdsInDb = await AsyncExecuter.ToListAsync(query);
+            if (!questionTemplateIdsInDb.Any())
+            {
+                return;
+            }
+
+            product.RemoveAllQuestionTemplatesExceptGivenIds(questionTemplateIdsInDb);
+
+            foreach (var questionTemplateId in questionTemplateIdsInDb)
+            {
+                product.AddQuestionTemplate(questionTemplateId);
             }
         }
 

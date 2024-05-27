@@ -8,7 +8,7 @@ using IBLTermocasa.Shared;
 
 namespace IBLTermocasa.Materials
 {
-    public partial interface IMaterialsAppService : IApplicationService
+    public interface IMaterialsAppService : IApplicationService
     {
 
         Task<PagedResultDto<MaterialDto>> GetListAsync(GetMaterialsInput input);
@@ -23,8 +23,6 @@ namespace IBLTermocasa.Materials
 
         Task<IRemoteStreamContent> GetListAsExcelFileAsync(MaterialExcelDownloadDto input);
 
-        Task<DownloadTokenResultDto> GetDownloadTokenAsync(); Task DeleteByIdsAsync(List<Guid> materialIds);
-
-        Task DeleteAllAsync(GetMaterialsInput input);
+        Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync();
     }
 }

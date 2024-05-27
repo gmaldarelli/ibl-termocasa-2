@@ -6,7 +6,7 @@ using Volo.Abp.Domain.Repositories;
 
 namespace IBLTermocasa.Products
 {
-    public partial interface IProductRepository : IRepository<Product, Guid>
+    public interface IProductRepository : IRepository<Product, Guid>
     {
 
         Task DeleteAllAsync(

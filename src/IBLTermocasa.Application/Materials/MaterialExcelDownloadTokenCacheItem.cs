@@ -2,7 +2,8 @@ using System;
 
 namespace IBLTermocasa.Materials;
 
-public abstract class MaterialExcelDownloadTokenCacheItemBase
+[Serializable]
+public class MaterialExcelDownloadTokenCacheItem
 {
     public string Token { get; set; } = null!;
 }

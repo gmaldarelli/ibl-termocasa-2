@@ -26,13 +26,13 @@ namespace IBLTermocasa.MongoDB.Domains.Components
             {
                 // Act
                 var result = await _componentRepository.GetListAsync(
-                    name: "b8b5b7d130954994afc0877be341ab33ed1e8a6306704f"
+                    name: "5216cc1c456a489c830a"
                 );
 
                 // Assert
                 result.Count.ShouldBe(1);
                 result.FirstOrDefault().ShouldNotBe(null);
-                result.First().Id.ShouldBe(Guid.Parse("a277f0ce-c5ed-4957-9b49-9cdc39c6bb90"));
+                result.First().Id.ShouldBe(Guid.Parse("93c4cb63-038b-48ba-8d3f-9a16fb6fa8b2"));
             });
         }
 
@@ -44,7 +44,7 @@ namespace IBLTermocasa.MongoDB.Domains.Components
             {
                 // Act
                 var result = await _componentRepository.GetCountAsync(
-                    name: "6a6a917e366d4221b16"
+                    name: "7e943dde2d0548d2b909b8061fca"
                 );
 
                 // Assert

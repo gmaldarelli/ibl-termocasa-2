@@ -26,14 +26,14 @@ namespace IBLTermocasa.MongoDB.Domains.Materials
             {
                 // Act
                 var result = await _materialRepository.GetListAsync(
-                    code: "860a3bc448c048b",
-                    name: "16b08a8b23e94fbb920af5cbc4eea81e4098c6db820b400a85e6becb3"
+                    code: "14395ed627fa4c48a2ab9c7d5f88a21f36d4c28",
+                    name: "acea513193b9400fbc1ebec968e57"
                 );
 
                 // Assert
                 result.Count.ShouldBe(1);
                 result.FirstOrDefault().ShouldNotBe(null);
-                result.First().Id.ShouldBe(Guid.Parse("7a33ea5e-e9f7-473e-85b2-78738b1f8e7c"));
+                result.First().Id.ShouldBe(Guid.Parse("113ff063-4359-4c2b-9270-fc257e4c6258"));
             });
         }
 
@@ -45,8 +45,9 @@ namespace IBLTermocasa.MongoDB.Domains.Materials
             {
                 // Act
                 var result = await _materialRepository.GetCountAsync(
-                    code: "3c399c1ab1a8411ebb1bc3ca08f6dfb21e5c7ce1079b4d538e456db51766b56e69d51632eebf4400a",
-                    name: "2e4744027935412ea1ac54e6e32447a6a121809719dc40dea1");
+                    code: "78efb9fd003b4825a2c2057ec45cb2c79fe23f08c1",
+                    name: "86c447606e1f48fba8629229a9b78d2507c8deabad584e2fb9f12e1bde2"
+                );
 
                 // Assert
                 result.ShouldBe(1);

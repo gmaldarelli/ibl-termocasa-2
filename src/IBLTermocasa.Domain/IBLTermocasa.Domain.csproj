@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="MongoDB.Bson" Version="2.22.0" />
     <PackageReference Include="Volo.Chat.Domain" Version="8.1.3" />
+    <PackageReference Include="Volo.FileManagement.Domain" Version="8.1.3" />
     <ProjectReference Include="..\IBLTermocasa.Domain.Shared\IBLTermocasa.Domain.Shared.csproj" />
   	<PackageReference Include="Volo.Abp.LeptonTheme.Management.Domain" Version="8.1.3" />
 </ItemGroup>

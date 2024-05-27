@@ -17,11 +17,11 @@ namespace IBLTermocasa.Controllers.Components
     [ControllerName("Component")]
     [Route("api/app/components")]
 
-    public abstract class ComponentControllerBase : AbpController
+    public class ComponentController : AbpController, IComponentsAppService
     {
         protected IComponentsAppService _componentsAppService;
 
-        public ComponentControllerBase(IComponentsAppService componentsAppService)
+        public ComponentController(IComponentsAppService componentsAppService)
         {
             _componentsAppService = componentsAppService;
         }
@@ -71,19 +71,6 @@ namespace IBLTermocasa.Controllers.Components
         public virtual Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync()
         {
             return _componentsAppService.GetDownloadTokenAsync();
-        }
-        [HttpDelete]
-        [Route("")]
-        public virtual Task DeleteByIdsAsync(List<Guid> componentIds)
-        {
-            return _componentsAppService.DeleteByIdsAsync(componentIds);
-        }
-
-        [HttpDelete]
-        [Route("all")]
-        public virtual Task DeleteAllAsync(GetComponentsInput input)
-        {
-            return _componentsAppService.DeleteAllAsync(input);
         }
     }
 }

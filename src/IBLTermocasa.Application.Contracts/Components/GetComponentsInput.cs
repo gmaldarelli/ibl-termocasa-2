@@ -3,14 +3,14 @@ using System;
 
 namespace IBLTermocasa.Components
 {
-    public abstract class GetComponentsInputBase : PagedAndSortedResultRequestDto
+    public class GetComponentsInput : PagedAndSortedResultRequestDto
     {
 
         public string? FilterText { get; set; }
 
         public string? Name { get; set; }
 
-        public GetComponentsInputBase()
+        public GetComponentsInput()
         {
 
         }

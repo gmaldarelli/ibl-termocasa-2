@@ -75,9 +75,7 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<MailInfo, MailInfoDto>();
         CreateMap<MailItemDto, MailItem>();
         CreateMap<MailItem, MailItemDto>();
-        
-        
-        
+
         CreateMap<Interaction, InteractionDto>();
         CreateMap<Interaction, InteractionExcelDto>();
         CreateMap<InteractionWithNavigationProperties, InteractionWithNavigationPropertiesDto>();
@@ -96,5 +94,10 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<RequestForQuotationWithNavigationProperties, RequestForQuotationWithNavigationPropertiesDto>();
         CreateMap<Contact, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
         CreateMap<Organization, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
+
+        CreateMap<Product, ProductDto>().Ignore(x => x.Subproducts);
+        CreateMap<QuestionTemplate, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.QuestionText));
+
+        CreateMap<Component, ComponentDto>().Ignore(x => x.ComponentItems);
     }
 }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace IBLTermocasa.Components
 {
-    public abstract class ComponentCreateDtoBase
+    public class ComponentCreateDto
     {
         [Required]
         public string Name { get; set; } = null!;

@@ -4,7 +4,7 @@ using System;
 
 namespace IBLTermocasa.Materials
 {
-    public abstract class MaterialExcelDownloadDtoBase
+    public class MaterialExcelDownloadDto
     {
         public string DownloadToken { get; set; } = null!;
 
@@ -13,7 +13,7 @@ namespace IBLTermocasa.Materials
         public string? Code { get; set; }
         public string? Name { get; set; }
 
-        public MaterialExcelDownloadDtoBase()
+        public MaterialExcelDownloadDto()
         {
 
         }

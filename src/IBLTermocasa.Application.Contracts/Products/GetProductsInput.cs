@@ -3,7 +3,7 @@ using System;
 
 namespace IBLTermocasa.Products
 {
-    public abstract class GetProductsInputBase : PagedAndSortedResultRequestDto
+    public class GetProductsInput : PagedAndSortedResultRequestDto
     {
 
         public string? FilterText { get; set; }
@@ -14,7 +14,7 @@ namespace IBLTermocasa.Products
         public bool? IsAssembled { get; set; }
         public bool? IsInternal { get; set; }
 
-        public GetProductsInputBase()
+        public GetProductsInput()
         {
 
         }

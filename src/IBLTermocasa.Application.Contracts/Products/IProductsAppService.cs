@@ -9,7 +9,7 @@ using IBLTermocasa.Shared;
 
 namespace IBLTermocasa.Products
 {
-    public partial interface IProductsAppService : IApplicationService
+    public interface IProductsAppService : IApplicationService
     {
 
         Task<PagedResultDto<ProductWithNavigationPropertiesDto>> GetListAsync(GetProductsInput input);
@@ -20,6 +20,8 @@ namespace IBLTermocasa.Products
 
         Task<PagedResultDto<LookupDto<Guid>>> GetComponentLookupAsync(LookupRequestDto input);
 
+        Task<PagedResultDto<LookupDto<Guid>>> GetQuestionTemplateLookupAsync(LookupRequestDto input);
+
         Task DeleteAsync(Guid id);
 
         Task<ProductDto> CreateAsync(ProductCreateDto input);
@@ -28,7 +30,7 @@ namespace IBLTermocasa.Products
 
         Task<IRemoteStreamContent> GetListAsExcelFileAsync(ProductExcelDownloadDto input);
 
-        Task<DownloadTokenResultDto> GetDownloadTokenAsync(); Task DeleteByIdsAsync(List<Guid> productIds);
+        Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync(); Task DeleteByIdsAsync(List<Guid> productIds);
 
         Task DeleteAllAsync(GetProductsInput input);
     }

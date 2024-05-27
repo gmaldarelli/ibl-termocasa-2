@@ -12,22 +12,11 @@ using MongoDB.Driver;
 
 namespace IBLTermocasa.Components
 {
-    public abstract class MongoComponentRepositoryBase : MongoDbRepository<IBLTermocasaMongoDbContext, Component, Guid>
+    public class MongoComponentRepository : MongoDbRepository<IBLTermocasaMongoDbContext, Component, Guid>, IComponentRepository
     {
-        public MongoComponentRepositoryBase(IMongoDbContextProvider<IBLTermocasaMongoDbContext> dbContextProvider)
+        public MongoComponentRepository(IMongoDbContextProvider<IBLTermocasaMongoDbContext> dbContextProvider)
             : base(dbContextProvider)
         {
-        }
-
-        public virtual async Task DeleteAllAsync(
-            string? filterText = null,
-                        string? name = null,
-            CancellationToken cancellationToken = default)
-        {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, name);
-
-            var ids = query.Select(x => x.Id);
-            await DeleteManyAsync(ids, cancellationToken: GetCancellationToken(cancellationToken));
         }
 
         public virtual async Task<List<Component>> GetListAsync(

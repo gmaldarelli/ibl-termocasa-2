@@ -72,8 +72,6 @@ namespace IBLTermocasa.Blazor.Pages
         #endregion
         
         
-        private List<ComponentDto> SelectedComponents { get; set; } = new();
-        private bool AllComponentsSelected { get; set; }
         
         public Components()
         {
@@ -157,7 +155,7 @@ EditingComponentItem = new ComponentItemUpdateDto();
             ComponentList = result.Items;
             TotalCount = (int)result.TotalCount;
             
-            await ClearSelection();
+            
         }
 
         protected virtual async Task SearchAsync()
@@ -302,54 +300,6 @@ EditingComponentItem = new ComponentItemUpdateDto();
     }
 
 
-        private Task SelectAllItems()
-        {
-            AllComponentsSelected = true;
-            
-            return Task.CompletedTask;
-        }
-
-        private Task ClearSelection()
-        {
-            AllComponentsSelected = false;
-            SelectedComponents.Clear();
-            
-            return Task.CompletedTask;
-        }
-
-        private Task SelectedComponentRowsChanged()
-        {
-            if (SelectedComponents.Count != PageSize)
-            {
-                AllComponentsSelected = false;
-            }
-            
-            return Task.CompletedTask;
-        }
-
-        private async Task DeleteSelectedComponentsAsync()
-        {
-            var message = AllComponentsSelected ? L["DeleteAllRecords"].Value : L["DeleteSelectedRecords", SelectedComponents.Count].Value;
-            
-            if (!await UiMessageService.Confirm(message))
-            {
-                return;
-            }
-
-            if (AllComponentsSelected)
-            {
-                await ComponentsAppService.DeleteAllAsync(Filter);
-            }
-            else
-            {
-                await ComponentsAppService.DeleteByIdsAsync(SelectedComponents.Select(x => x.Id).ToList());
-            }
-
-            SelectedComponents.Clear();
-            AllComponentsSelected = false;
-
-            await GetComponentsAsync();
-        }
 
 
         #region ComponentItems

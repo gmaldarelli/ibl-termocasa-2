@@ -1,3 +1,4 @@
+using IBLTermocasa.QuestionTemplates;
 using IBLTermocasa.Components;
 using System;
 using System.Collections.Generic;
@@ -13,9 +14,9 @@ using MongoDB.Driver;
 
 namespace IBLTermocasa.Products
 {
-    public abstract class MongoProductRepositoryBase : MongoDbRepository<IBLTermocasaMongoDbContext, Product, Guid>
+    public class MongoProductRepository : MongoDbRepository<IBLTermocasaMongoDbContext, Product, Guid>, IProductRepository
     {
-        public MongoProductRepositoryBase(IMongoDbContextProvider<IBLTermocasaMongoDbContext> dbContextProvider)
+        public MongoProductRepository(IMongoDbContextProvider<IBLTermocasaMongoDbContext> dbContextProvider)
             : base(dbContextProvider)
         {
         }
@@ -42,11 +43,14 @@ namespace IBLTermocasa.Products
 
             var componentIds = product.Components.Select(x => x.ComponentId).ToList();
             var components = await (await GetMongoQueryableAsync<Component>(cancellationToken)).Where(e => componentIds.Contains(e.Id)).ToListAsync(cancellationToken: cancellationToken);
+            var questionTemplateIds = product.QuestionTemplates.Select(x => x.QuestionTemplateId).ToList();
+            var questionTemplates = await (await GetMongoQueryableAsync<QuestionTemplate>(cancellationToken)).Where(e => questionTemplateIds.Contains(e.Id)).ToListAsync(cancellationToken: cancellationToken);
 
             return new ProductWithNavigationProperties
             {
                 Product = product,
                 Components = components,
+                QuestionTemplates = questionTemplates,
 
             };
         }
@@ -74,6 +78,7 @@ namespace IBLTermocasa.Products
             {
                 Product = s,
                 Components = new List<Component>(),
+                QuestionTemplates = new List<QuestionTemplate>(),
 
             }).ToList();
         }

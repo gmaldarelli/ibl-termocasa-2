@@ -13,6 +13,7 @@ using Volo.Abp.OpenIddict;
 using Volo.CmsKit;
 using Volo.Abp.LeptonTheme.Management;
 using Volo.Chat;
+using Volo.FileManagement;
 
 namespace IBLTermocasa;
 
@@ -34,6 +35,7 @@ namespace IBLTermocasa;
 	typeof(LeptonThemeManagementApplicationContractsModule)
 )]
 [DependsOn(typeof(ChatApplicationContractsModule))]
+    [DependsOn(typeof(FileManagementApplicationContractsModule))]
     public class IBLTermocasaApplicationContractsModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)

@@ -29,19 +29,19 @@ namespace IBLTermocasa.Components
             // Assert
             result.TotalCount.ShouldBe(2);
             result.Items.Count.ShouldBe(2);
-            result.Items.Any(x => x.Id == Guid.Parse("a277f0ce-c5ed-4957-9b49-9cdc39c6bb90")).ShouldBe(true);
-            result.Items.Any(x => x.Id == Guid.Parse("2519e506-b867-4e8b-b1c8-8c7a3085baef")).ShouldBe(true);
+            result.Items.Any(x => x.Id == Guid.Parse("93c4cb63-038b-48ba-8d3f-9a16fb6fa8b2")).ShouldBe(true);
+            result.Items.Any(x => x.Id == Guid.Parse("679c6836-e338-4e7e-b8f5-7c0cc6f103d0")).ShouldBe(true);
         }
 
         [Fact]
         public async Task GetAsync()
         {
             // Act
-            var result = await _componentsAppService.GetAsync(Guid.Parse("a277f0ce-c5ed-4957-9b49-9cdc39c6bb90"));
+            var result = await _componentsAppService.GetAsync(Guid.Parse("93c4cb63-038b-48ba-8d3f-9a16fb6fa8b2"));
 
             // Assert
             result.ShouldNotBeNull();
-            result.Id.ShouldBe(Guid.Parse("a277f0ce-c5ed-4957-9b49-9cdc39c6bb90"));
+            result.Id.ShouldBe(Guid.Parse("93c4cb63-038b-48ba-8d3f-9a16fb6fa8b2"));
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace IBLTermocasa.Components
             // Arrange
             var input = new ComponentCreateDto
             {
-                Name = "58fb1abe2cf140afbc4f5513aefa1b615ab9d5ebdbbe4800b1228e7aa8d6"
+                Name = "9245fad9caf34d02833810de5608259cabebf6ad84f24e53a30688ff12aec7549c71a956882547dbac01eb12eb6e294"
             };
 
             // Act
@@ -60,7 +60,7 @@ namespace IBLTermocasa.Components
             var result = await _componentRepository.FindAsync(c => c.Id == serviceResult.Id);
 
             result.ShouldNotBe(null);
-            result.Name.ShouldBe("58fb1abe2cf140afbc4f5513aefa1b615ab9d5ebdbbe4800b1228e7aa8d6");
+            result.Name.ShouldBe("9245fad9caf34d02833810de5608259cabebf6ad84f24e53a30688ff12aec7549c71a956882547dbac01eb12eb6e294");
         }
 
         [Fact]
@@ -69,27 +69,27 @@ namespace IBLTermocasa.Components
             // Arrange
             var input = new ComponentUpdateDto()
             {
-                Name = "e2b22ab7398f4b89a5069bc76bd25517cd30e646c4d147b5916decb367a21a70cc72"
+                Name = "b61e4ac29f44477393ed6f365d94f2653f5914427541445bbf614b373"
             };
 
             // Act
-            var serviceResult = await _componentsAppService.UpdateAsync(Guid.Parse("a277f0ce-c5ed-4957-9b49-9cdc39c6bb90"), input);
+            var serviceResult = await _componentsAppService.UpdateAsync(Guid.Parse("93c4cb63-038b-48ba-8d3f-9a16fb6fa8b2"), input);
 
             // Assert
             var result = await _componentRepository.FindAsync(c => c.Id == serviceResult.Id);
 
             result.ShouldNotBe(null);
-            result.Name.ShouldBe("e2b22ab7398f4b89a5069bc76bd25517cd30e646c4d147b5916decb367a21a70cc72");
+            result.Name.ShouldBe("b61e4ac29f44477393ed6f365d94f2653f5914427541445bbf614b373");
         }
 
         [Fact]
         public async Task DeleteAsync()
         {
             // Act
-            await _componentsAppService.DeleteAsync(Guid.Parse("a277f0ce-c5ed-4957-9b49-9cdc39c6bb90"));
+            await _componentsAppService.DeleteAsync(Guid.Parse("93c4cb63-038b-48ba-8d3f-9a16fb6fa8b2"));
 
             // Assert
-            var result = await _componentRepository.FindAsync(c => c.Id == Guid.Parse("a277f0ce-c5ed-4957-9b49-9cdc39c6bb90"));
+            var result = await _componentRepository.FindAsync(c => c.Id == Guid.Parse("93c4cb63-038b-48ba-8d3f-9a16fb6fa8b2"));
 
             result.ShouldBeNull();
         }

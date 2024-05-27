@@ -34,6 +34,7 @@ using Volo.CmsKit.Pro.Admin.Blazor.WebAssembly;
 using Volo.Abp.LeptonTheme.Management.Blazor.WebAssembly;
 using Volo.Chat.Blazor;
 using Volo.Chat.Blazor.WebAssembly;
+using Volo.FileManagement.Blazor.WebAssembly;
 
 namespace IBLTermocasa.Blazor;
 
@@ -55,6 +56,7 @@ namespace IBLTermocasa.Blazor;
 )]
 [DependsOn(typeof(ChatBlazorModule))]
     [DependsOn(typeof(ChatBlazorWebAssemblyModule))]
+    [DependsOn(typeof(FileManagementBlazorWebAssemblyModule))]
     public class IBLTermocasaBlazorModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)

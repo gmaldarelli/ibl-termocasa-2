@@ -19,6 +19,7 @@ using Volo.Abp.Gdpr;
 using Volo.CmsKit;
 using Volo.Abp.LeptonTheme.Management;
 using Volo.Chat;
+using Volo.FileManagement;
 
 namespace IBLTermocasa;
 
@@ -39,6 +40,7 @@ namespace IBLTermocasa;
 	typeof(LeptonThemeManagementDomainSharedModule)
     )]
 [DependsOn(typeof(ChatDomainSharedModule))]
+    [DependsOn(typeof(FileManagementDomainSharedModule))]
     public class IBLTermocasaDomainSharedModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)

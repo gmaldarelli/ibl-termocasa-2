@@ -17,11 +17,11 @@ namespace IBLTermocasa.Controllers.Materials
     [ControllerName("Material")]
     [Route("api/app/materials")]
 
-    public abstract class MaterialControllerBase : AbpController
+    public class MaterialController : AbpController, IMaterialsAppService
     {
         protected IMaterialsAppService _materialsAppService;
 
-        public MaterialControllerBase(IMaterialsAppService materialsAppService)
+        public MaterialController(IMaterialsAppService materialsAppService)
         {
             _materialsAppService = materialsAppService;
         }
@@ -71,19 +71,6 @@ namespace IBLTermocasa.Controllers.Materials
         public virtual Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync()
         {
             return _materialsAppService.GetDownloadTokenAsync();
-        }
-        [HttpDelete]
-        [Route("")]
-        public virtual Task DeleteByIdsAsync(List<Guid> materialIds)
-        {
-            return _materialsAppService.DeleteByIdsAsync(materialIds);
-        }
-
-        [HttpDelete]
-        [Route("all")]
-        public virtual Task DeleteAllAsync(GetMaterialsInput input)
-        {
-            return _materialsAppService.DeleteAllAsync(input);
         }
     }
 }

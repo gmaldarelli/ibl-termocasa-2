@@ -15,6 +15,7 @@ using Volo.Abp.Gdpr;
 using Volo.CmsKit;
 using Volo.Abp.LeptonTheme.Management;
 using Volo.Chat;
+using Volo.FileManagement;
 
 namespace IBLTermocasa;
 
@@ -36,6 +37,7 @@ namespace IBLTermocasa;
 	typeof(LeptonThemeManagementHttpApiClientModule)
 )]
 [DependsOn(typeof(ChatHttpApiClientModule))]
+    [DependsOn(typeof(FileManagementHttpApiClientModule))]
     public class IBLTermocasaHttpApiClientModule : AbpModule
 {
     public const string RemoteServiceName = "Default";

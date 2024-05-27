@@ -22,13 +22,13 @@ namespace IBLTermocasa.Materials
 {
     [RemoteService(IsEnabled = false)]
     [Authorize(IBLTermocasaPermissions.Materials.Default)]
-    public abstract class MaterialsAppServiceBase : IBLTermocasaAppService
+    public class MaterialsAppService : IBLTermocasaAppService, IMaterialsAppService
     {
         protected IDistributedCache<MaterialExcelDownloadTokenCacheItem, string> _excelDownloadTokenCache;
         protected IMaterialRepository _materialRepository;
         protected MaterialManager _materialManager;
 
-        public MaterialsAppServiceBase(IMaterialRepository materialRepository, MaterialManager materialManager, IDistributedCache<MaterialExcelDownloadTokenCacheItem, string> excelDownloadTokenCache)
+        public MaterialsAppService(IMaterialRepository materialRepository, MaterialManager materialManager, IDistributedCache<MaterialExcelDownloadTokenCacheItem, string> excelDownloadTokenCache)
         {
             _excelDownloadTokenCache = excelDownloadTokenCache;
             _materialRepository = materialRepository;
@@ -115,17 +115,6 @@ namespace IBLTermocasa.Materials
             {
                 Token = token
             };
-        }
-        [Authorize(IBLTermocasaPermissions.Materials.Delete)]
-        public virtual async Task DeleteByIdsAsync(List<Guid> materialIds)
-        {
-            await _materialRepository.DeleteManyAsync(materialIds);
-        }
-
-        [Authorize(IBLTermocasaPermissions.Materials.Delete)]
-        public virtual async Task DeleteAllAsync(GetMaterialsInput input)
-        {
-            await _materialRepository.DeleteAllAsync(input.FilterText, input.Code, input.Name);
         }
     }
 }

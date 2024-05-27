@@ -10,11 +10,11 @@ using Volo.Abp.Data;
 
 namespace IBLTermocasa.Components
 {
-    public abstract class ComponentManagerBase : DomainService
+    public class ComponentManager : DomainService
     {
         protected IComponentRepository _componentRepository;
 
-        public ComponentManagerBase(IComponentRepository componentRepository)
+        public ComponentManager(IComponentRepository componentRepository)
         {
             _componentRepository = componentRepository;
         }

@@ -22,13 +22,13 @@ namespace IBLTermocasa.Components
 {
     [RemoteService(IsEnabled = false)]
     [Authorize(IBLTermocasaPermissions.Components.Default)]
-    public abstract class ComponentsAppServiceBase : IBLTermocasaAppService
+    public class ComponentsAppService : IBLTermocasaAppService, IComponentsAppService
     {
         protected IDistributedCache<ComponentExcelDownloadTokenCacheItem, string> _excelDownloadTokenCache;
         protected IComponentRepository _componentRepository;
         protected ComponentManager _componentManager;
 
-        public ComponentsAppServiceBase(IComponentRepository componentRepository, ComponentManager componentManager, IDistributedCache<ComponentExcelDownloadTokenCacheItem, string> excelDownloadTokenCache)
+        public ComponentsAppService(IComponentRepository componentRepository, ComponentManager componentManager, IDistributedCache<ComponentExcelDownloadTokenCacheItem, string> excelDownloadTokenCache)
         {
             _excelDownloadTokenCache = excelDownloadTokenCache;
             _componentRepository = componentRepository;
@@ -115,17 +115,6 @@ namespace IBLTermocasa.Components
             {
                 Token = token
             };
-        }
-        [Authorize(IBLTermocasaPermissions.Components.Delete)]
-        public virtual async Task DeleteByIdsAsync(List<Guid> componentIds)
-        {
-            await _componentRepository.DeleteManyAsync(componentIds);
-        }
-
-        [Authorize(IBLTermocasaPermissions.Components.Delete)]
-        public virtual async Task DeleteAllAsync(GetComponentsInput input)
-        {
-            await _componentRepository.DeleteAllAsync(input.FilterText, input.Name);
         }
     }
 }

@@ -2,7 +2,8 @@ using System;
 
 namespace IBLTermocasa.Components;
 
-public abstract class ComponentExcelDownloadTokenCacheItemBase
+[Serializable]
+public class ComponentExcelDownloadTokenCacheItem
 {
     public string Token { get; set; } = null!;
 }

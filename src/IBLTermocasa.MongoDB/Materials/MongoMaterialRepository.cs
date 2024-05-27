@@ -13,23 +13,11 @@ using MongoDB.Driver;
 
 namespace IBLTermocasa.Materials
 {
-    public abstract class MongoMaterialRepositoryBase : MongoDbRepository<IBLTermocasaMongoDbContext, Material, Guid>
+    public class MongoMaterialRepository : MongoDbRepository<IBLTermocasaMongoDbContext, Material, Guid>, IMaterialRepository
     {
-        public MongoMaterialRepositoryBase(IMongoDbContextProvider<IBLTermocasaMongoDbContext> dbContextProvider)
+        public MongoMaterialRepository(IMongoDbContextProvider<IBLTermocasaMongoDbContext> dbContextProvider)
             : base(dbContextProvider)
         {
-        }
-
-        public virtual async Task DeleteAllAsync(
-            string? filterText = null,
-                        string? code = null,
-            string? name = null,
-            CancellationToken cancellationToken = default)
-        {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, code, name);
-
-            var ids = query.Select(x => x.Id);
-            await DeleteManyAsync(ids, cancellationToken: GetCancellationToken(cancellationToken));
         }
 
         public virtual async Task<List<Material>> GetListAsync(

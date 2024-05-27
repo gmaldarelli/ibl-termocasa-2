@@ -2,7 +2,7 @@ using System;
 
 namespace IBLTermocasa.Components
 {
-    public abstract class ComponentExcelDtoBase
+    public class ComponentExcelDto
     {
         public string Name { get; set; } = null!;
     }

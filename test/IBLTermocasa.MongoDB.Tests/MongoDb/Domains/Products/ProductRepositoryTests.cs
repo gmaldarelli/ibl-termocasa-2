@@ -26,9 +26,9 @@ namespace IBLTermocasa.MongoDB.Domains.Products
             {
                 // Act
                 var result = await _productRepository.GetListAsync(
-                    code: "f89035412abd49ca901c6",
-                    name: "d149a7618e564b6cb0d2b86e2c43057e481f450333ed49f08121f6b04fb7ad5cf1f471d087",
-                    description: "eb9f92542c83476b99",
+                    code: "c51228db35954bcbb036558cfe34ee871a27e6adab9940bfad29e7bc9f9ca2fdf9fbddde78f746a0",
+                    name: "f687499a4f344537b9852cbfb81d806cf42c2406d21443aa867ba5e8",
+                    description: "0f648430cf6f466d9ff18a67fda002e06a22abd9d9e7408a922aadaddb07fae9fcaf7916b8f74aaf801c4b1ff594ab",
                     isAssembled: true,
                     isInternal: true
                 );
@@ -36,7 +36,7 @@ namespace IBLTermocasa.MongoDB.Domains.Products
                 // Assert
                 result.Count.ShouldBe(1);
                 result.FirstOrDefault().ShouldNotBe(null);
-                result.First().Id.ShouldBe(Guid.Parse("24dd8306-6ec6-45de-b299-d964d3ae9047"));
+                result.First().Id.ShouldBe(Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c"));
             });
         }
 
@@ -48,9 +48,9 @@ namespace IBLTermocasa.MongoDB.Domains.Products
             {
                 // Act
                 var result = await _productRepository.GetCountAsync(
-                    code: "3be38c6dc52c4c229",
-                    name: "a07486fb37284c8896b272257ea15e1088424",
-                    description: "b5f09bc8a30c4e2caa7c820a8959885e3332b",
+                    code: "53b6bf2d62964a9bbaebe7a61fd8a9e5074a648ec0a64a4cbbfc14262ecd9641dfa072a",
+                    name: "67b09f03c87e46e8b9106089a41e4a4ce4062ee641b34af5b4",
+                    description: "64338505adae42d0876b44aa265b8232e",
                     isAssembled: true,
                     isInternal: true
                 );

@@ -6,7 +6,7 @@ using Volo.Abp.Domain.Entities;
 
 namespace IBLTermocasa.Materials
 {
-    public abstract class MaterialUpdateDtoBase : IHasConcurrencyStamp
+    public class MaterialUpdateDto : IHasConcurrencyStamp
     {
         [Required]
         public string Code { get; set; } = null!;

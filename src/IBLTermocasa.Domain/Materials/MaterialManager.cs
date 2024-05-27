@@ -11,11 +11,11 @@ using Volo.Abp.Data;
 
 namespace IBLTermocasa.Materials
 {
-    public abstract class MaterialManagerBase : DomainService
+    public class MaterialManager : DomainService
     {
         protected IMaterialRepository _materialRepository;
 
-        public MaterialManagerBase(IMaterialRepository materialRepository)
+        public MaterialManager(IMaterialRepository materialRepository)
         {
             _materialRepository = materialRepository;
         }

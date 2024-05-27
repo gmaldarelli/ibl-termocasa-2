@@ -12,8 +12,10 @@ using Volo.Abp;
 
 namespace IBLTermocasa.Materials
 {
-    public abstract class MaterialBase : FullAuditedAggregateRoot<Guid>
+    public class Material : FullAuditedAggregateRoot<Guid>, IMultiTenant
     {
+        public virtual Guid? TenantId { get; set; }
+
         [NotNull]
         public virtual string Code { get; set; }
 
@@ -34,12 +36,12 @@ namespace IBLTermocasa.Materials
 
         public virtual decimal AveragePriceSecond { get; set; }
 
-        protected MaterialBase()
+        protected Material()
         {
 
         }
 
-        public MaterialBase(Guid id, string code, string name, MeasureUnit measureUnit, decimal quantity, decimal lifo, decimal standardPrice, decimal averagePrice, decimal lastPrice, decimal averagePriceSecond)
+        public Material(Guid id, string code, string name, MeasureUnit measureUnit, decimal quantity, decimal lifo, decimal standardPrice, decimal averagePrice, decimal lastPrice, decimal averagePriceSecond)
         {
 
             Id = id;

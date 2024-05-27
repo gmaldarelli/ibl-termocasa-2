@@ -4,7 +4,7 @@ using System;
 
 namespace IBLTermocasa.Materials
 {
-    public abstract class GetMaterialsInputBase : PagedAndSortedResultRequestDto
+    public class GetMaterialsInput : PagedAndSortedResultRequestDto
     {
 
         public string? FilterText { get; set; }
@@ -12,7 +12,7 @@ namespace IBLTermocasa.Materials
         public string? Code { get; set; }
         public string? Name { get; set; }
 
-        public GetMaterialsInputBase()
+        public GetMaterialsInput()
         {
 
         }

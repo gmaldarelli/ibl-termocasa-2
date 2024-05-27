@@ -42,5 +42,7 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<QuestionTemplateDto, QuestionTemplateUpdateDto>();
 
         CreateMap<RequestForQuotationDto, RequestForQuotationUpdateDto>();
+
+        CreateMap<ProductDto, ProductUpdateDto>().Ignore(x => x.ComponentIds).Ignore(x => x.QuestionTemplateIds);
     }
 }

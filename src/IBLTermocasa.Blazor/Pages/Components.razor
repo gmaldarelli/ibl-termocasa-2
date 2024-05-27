@@ -40,8 +40,7 @@
 @* ************************* SEARCH ************************* *@
 <Card>
     <CardBody>
-@*//<suite-custom-code-block-1>*@
-@*//</suite-custom-code-block-1>*@
+
         <Form id="ComponentSearchForm" class="mb-3">
             <Addons>
                 <Addon AddonType="AddonType.Body">
@@ -73,69 +72,19 @@
                     </Field>
                 </Column>
             </Row>
-@*//<suite-custom-code-block-2>*@
-@*//</suite-custom-code-block-2>*@
+
         </div>
 
-@*//<suite-custom-code-block-3>*@
-@*//</suite-custom-code-block-3>*@
+
     </CardBody>
 </Card>
 
 @* ************************* DATA GRID ************************* *@
 <Card>
-    <CardBody>        
-        @if (SelectedComponents.Any())
-        {
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                @if (AllComponentsSelected)
-                {
-                    <p class="lead mb-0">
-                        @L["AllItemsAreSelected", TotalCount]
-                    </p>
-                }
-                else
-                {
-                    <p class="lead mb-0">
-                        @if (SelectedComponents.Count > 1)
-                        {
-                            @L["NumberOfItemsOnThisPageAreSelected", SelectedComponents.Count]
-                        }
-                        else
-                        {
-                            @L["OneItemOnThisPageIsSelected"]
-                        }
-                    </p>
-                }
-                    
-                <div>
-                    @if ((SelectedComponents.Count == PageSize || SelectedComponents.Count == ComponentList.Count) && TotalCount > SelectedComponents.Count)
-                    {
-                        if (!AllComponentsSelected)
-                        {
-                            <Button Clicked="SelectAllItems" Class="mx-1 btn-outline-secondary">@L["SelectAllItems", TotalCount]</Button>
-                        }
-                        else
-                        {
-                            <Button Clicked="ClearSelection" Class="mx-1 btn-outline-secondary">@L["ClearSelection"]</Button>
-                        }
-                    }
-                    
-                    <Button Color="Color.Danger" Class="mx-1" Size="Size.Medium" Clicked="DeleteSelectedComponentsAsync">
-                        <Icon Name="@IconName.Delete" /> @L["Delete"]
-                    </Button>
-                </div>
-            </div>
-            
-            <hr class="my-1 mx-0"/>
-        }
+    <CardBody>
         <DataGrid TItem="ComponentDto"
                   Data="ComponentList"
                   
-                  SelectionMode="DataGridSelectionMode.Multiple"
-                  SelectedRows="SelectedComponents"
-                  RowSelectable="@((args) => CanDeleteComponent)"
-                  SelectedRowsChanged="SelectedComponentRowsChanged"
                   DetailRowTrigger="@((x) => { x.Single = true; return ShouldShowDetailRow(); })"
                   DetailRowStartsVisible="false"
                   RowClicked="@((e) => { if (e.Item.Id == SelectedComponent?.Id) { SelectedComponent = null; } else { SelectedComponent = e.Item; } })"
@@ -147,10 +96,6 @@
                   Class="datagrid-detail">
             <DataGridColumns>
                 
-                @if (CanDeleteComponent)
-                {
-                    <DataGridMultiSelectColumn TItem="ComponentDto" Width="30px" Displayable="@(ComponentList.Any())"></DataGridMultiSelectColumn>
-                }
                 @if (ShouldShowDetailRow())
                 {
                     <DataGridColumn TItem="ComponentDto"
@@ -180,8 +125,7 @@
                                           Clicked="() => DeleteComponentAsync(context)"
                                           ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
                                           Text="@L["Delete"]"></EntityAction>
-@*//<suite-custom-code-block-4>*@
-@*//</suite-custom-code-block-4>*@
+
                         </EntityActions>
                     </DisplayTemplate>
                 </DataGridEntityActionsColumn>
@@ -285,8 +229,7 @@
 @* ************************* CREATE MODAL ************************* *@
 <Modal @ref="CreateComponentModal" Closing="@CreateComponentModal.CancelClosingModalWhenFocusLost">
     <ModalContent Centered="true">
-@*//<suite-custom-code-block-5>*@
-@*//</suite-custom-code-block-5>*@
+
         <Form id="CreateComponentForm">
             <ModalHeader>
                 <ModalTitle>@L["NewComponent"]</ModalTitle>
@@ -321,20 +264,17 @@
                     @L["Cancel"]
                 </Button>
                 <SubmitButton Form="CreateComponentForm" Clicked="CreateComponentAsync" />
-@*//<suite-custom-code-block-6>*@
-@*//</suite-custom-code-block-6>*@
+
             </ModalFooter>
         </Form>
-@*//<suite-custom-code-block-7>*@
-@*//</suite-custom-code-block-7>*@
+
     </ModalContent>
 </Modal>
 
 @* ************************* EDIT MODAL ************************* *@
 <Modal @ref="EditComponentModal" Closing="@EditComponentModal.CancelClosingModalWhenFocusLost">
     <ModalContent Centered="true">
-@*//<suite-custom-code-block-8>*@
-@*//</suite-custom-code-block-8>*@
+
         <Form id="EditComponentForm">
             <ModalHeader>
                 <ModalTitle>@L["Update"]</ModalTitle>
@@ -369,12 +309,10 @@
                     @L["Cancel"]
                 </Button>
                 <SubmitButton Form="EditComponentForm" Clicked="UpdateComponentAsync" />
-@*//<suite-custom-code-block-9>*@
-@*//</suite-custom-code-block-9>*@
+
             </ModalFooter>
         </Form>
-@*//<suite-custom-code-block-10>*@
-@*//</suite-custom-code-block-10>*@
+
     </ModalContent>
 </Modal>
 

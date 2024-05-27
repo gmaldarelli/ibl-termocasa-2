@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace IBLTermocasa.Components
 {
-    public abstract class ComponentWithNavigationPropertiesBase
+    public class ComponentWithNavigationProperties
     {
         public Component Component { get; set; } = null!;
 

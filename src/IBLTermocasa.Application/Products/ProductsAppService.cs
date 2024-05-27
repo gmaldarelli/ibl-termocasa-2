@@ -1,3 +1,4 @@
+using IBLTermocasa.QuestionTemplates;
 using IBLTermocasa.Components;
 using System;
 using System.IO;
@@ -23,18 +24,20 @@ namespace IBLTermocasa.Products
 {
     [RemoteService(IsEnabled = false)]
     [Authorize(IBLTermocasaPermissions.Products.Default)]
-    public abstract class ProductsAppServiceBase : IBLTermocasaAppService
+    public class ProductsAppService : IBLTermocasaAppService, IProductsAppService
     {
         protected IDistributedCache<ProductExcelDownloadTokenCacheItem, string> _excelDownloadTokenCache;
         protected IProductRepository _productRepository;
         protected ProductManager _productManager;
         protected IRepository<Component, Guid> _componentRepository;
+        protected IRepository<QuestionTemplate, Guid> _questionTemplateRepository;
 
-        public ProductsAppServiceBase(IProductRepository productRepository, ProductManager productManager, IDistributedCache<ProductExcelDownloadTokenCacheItem, string> excelDownloadTokenCache, IRepository<Component, Guid> componentRepository)
+        public ProductsAppService(IProductRepository productRepository, ProductManager productManager, IDistributedCache<ProductExcelDownloadTokenCacheItem, string> excelDownloadTokenCache, IRepository<Component, Guid> componentRepository, IRepository<QuestionTemplate, Guid> questionTemplateRepository)
         {
             _excelDownloadTokenCache = excelDownloadTokenCache;
             _productRepository = productRepository;
             _productManager = productManager; _componentRepository = componentRepository;
+            _questionTemplateRepository = questionTemplateRepository;
         }
 
         public virtual async Task<PagedResultDto<ProductWithNavigationPropertiesDto>> GetListAsync(GetProductsInput input)
@@ -76,6 +79,22 @@ namespace IBLTermocasa.Products
             };
         }
 
+        public virtual async Task<PagedResultDto<LookupDto<Guid>>> GetQuestionTemplateLookupAsync(LookupRequestDto input)
+        {
+            var query = (await _questionTemplateRepository.GetQueryableAsync())
+                .WhereIf(!string.IsNullOrWhiteSpace(input.Filter),
+                    x => x.QuestionText != null &&
+                         x.QuestionText.Contains(input.Filter));
+
+            var lookupData = await query.PageBy(input.SkipCount, input.MaxResultCount).ToDynamicListAsync<QuestionTemplate>();
+            var totalCount = query.Count();
+            return new PagedResultDto<LookupDto<Guid>>
+            {
+                TotalCount = totalCount,
+                Items = ObjectMapper.Map<List<QuestionTemplate>, List<LookupDto<Guid>>>(lookupData)
+            };
+        }
+
         [Authorize(IBLTermocasaPermissions.Products.Delete)]
         public virtual async Task DeleteAsync(Guid id)
         {
@@ -87,7 +106,7 @@ namespace IBLTermocasa.Products
         {
 
             var product = await _productManager.CreateAsync(
-            input.ComponentIds, input.Code, input.Name, input.IsAssembled, input.IsInternal, input.Description
+            input.ComponentIds, input.QuestionTemplateIds, input.Code, input.Name, input.IsAssembled, input.IsInternal, input.Description
             );
 
             return ObjectMapper.Map<Product, ProductDto>(product);
@@ -99,7 +118,7 @@ namespace IBLTermocasa.Products
 
             var product = await _productManager.UpdateAsync(
             id,
-            input.ComponentIds, input.Code, input.Name, input.IsAssembled, input.IsInternal, input.Description, input.ConcurrencyStamp
+            input.ComponentIds, input.QuestionTemplateIds, input.Code, input.Name, input.IsAssembled, input.IsInternal, input.Description, input.ConcurrencyStamp
             );
 
             return ObjectMapper.Map<Product, ProductDto>(product);

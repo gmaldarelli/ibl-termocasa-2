@@ -5,7 +5,7 @@ using Volo.Abp.Domain.Entities;
 
 namespace IBLTermocasa.Products
 {
-    public abstract class ProductUpdateDtoBase : IHasConcurrencyStamp
+    public class ProductUpdateDto : IHasConcurrencyStamp
     {
         [Required]
         public string Code { get; set; } = null!;
@@ -15,6 +15,7 @@ namespace IBLTermocasa.Products
         public bool IsAssembled { get; set; }
         public bool IsInternal { get; set; }
         public List<Guid> ComponentIds { get; set; }
+        public List<Guid> QuestionTemplateIds { get; set; }
 
         public string ConcurrencyStamp { get; set; } = null!;
     }

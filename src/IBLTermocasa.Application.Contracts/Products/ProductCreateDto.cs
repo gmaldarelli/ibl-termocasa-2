@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace IBLTermocasa.Products
 {
-    public abstract class ProductCreateDtoBase
+    public class ProductCreateDto
     {
         [Required]
         public string Code { get; set; } = null!;
@@ -14,5 +14,6 @@ namespace IBLTermocasa.Products
         public bool IsAssembled { get; set; } = false;
         public bool IsInternal { get; set; } = false;
         public List<Guid> ComponentIds { get; set; }
+        public List<Guid> QuestionTemplateIds { get; set; }
     }
 }

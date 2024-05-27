@@ -8,7 +8,7 @@ using IBLTermocasa.Shared;
 
 namespace IBLTermocasa.Components
 {
-    public partial interface IComponentsAppService : IApplicationService
+    public interface IComponentsAppService : IApplicationService
     {
 
         Task<PagedResultDto<ComponentDto>> GetListAsync(GetComponentsInput input);
@@ -23,8 +23,6 @@ namespace IBLTermocasa.Components
 
         Task<IRemoteStreamContent> GetListAsExcelFileAsync(ComponentExcelDownloadDto input);
 
-        Task<DownloadTokenResultDto> GetDownloadTokenAsync(); Task DeleteByIdsAsync(List<Guid> componentIds);
-
-        Task DeleteAllAsync(GetComponentsInput input);
+        Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync();
     }
 }

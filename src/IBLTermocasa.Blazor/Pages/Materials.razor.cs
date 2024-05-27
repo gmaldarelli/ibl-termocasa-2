@@ -50,8 +50,6 @@ namespace IBLTermocasa.Blazor.Pages
         
         
         
-        private List<MaterialDto> SelectedMaterials { get; set; } = new();
-        private bool AllMaterialsSelected { get; set; }
         
         public Materials()
         {
@@ -124,7 +122,7 @@ namespace IBLTermocasa.Blazor.Pages
             MaterialList = result.Items;
             TotalCount = (int)result.TotalCount;
             
-            await ClearSelection();
+            
         }
 
         protected virtual async Task SearchAsync()
@@ -262,54 +260,6 @@ namespace IBLTermocasa.Blazor.Pages
 
 
 
-        private Task SelectAllItems()
-        {
-            AllMaterialsSelected = true;
-            
-            return Task.CompletedTask;
-        }
-
-        private Task ClearSelection()
-        {
-            AllMaterialsSelected = false;
-            SelectedMaterials.Clear();
-            
-            return Task.CompletedTask;
-        }
-
-        private Task SelectedMaterialRowsChanged()
-        {
-            if (SelectedMaterials.Count != PageSize)
-            {
-                AllMaterialsSelected = false;
-            }
-            
-            return Task.CompletedTask;
-        }
-
-        private async Task DeleteSelectedMaterialsAsync()
-        {
-            var message = AllMaterialsSelected ? L["DeleteAllRecords"].Value : L["DeleteSelectedRecords", SelectedMaterials.Count].Value;
-            
-            if (!await UiMessageService.Confirm(message))
-            {
-                return;
-            }
-
-            if (AllMaterialsSelected)
-            {
-                await MaterialsAppService.DeleteAllAsync(Filter);
-            }
-            else
-            {
-                await MaterialsAppService.DeleteByIdsAsync(SelectedMaterials.Select(x => x.Id).ToList());
-            }
-
-            SelectedMaterials.Clear();
-            AllMaterialsSelected = false;
-
-            await GetMaterialsAsync();
-        }
 
 
     }

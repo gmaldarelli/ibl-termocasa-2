@@ -7,7 +7,7 @@ using Volo.Abp.Domain.Entities;
 
 namespace IBLTermocasa.Materials
 {
-    public abstract class MaterialDtoBase : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
+    public class MaterialDto : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
     {
         public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;

@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Volo.Chat.HttpApi.Client" Version="8.1.3" />
+    <PackageReference Include="Volo.FileManagement.HttpApi.Client" Version="8.1.3" />
     <ProjectReference Include="..\IBLTermocasa.Application.Contracts\IBLTermocasa.Application.Contracts.csproj" />
   	<PackageReference Include="Volo.Abp.LeptonTheme.Management.HttpApi.Client" Version="8.1.3" />
 </ItemGroup>

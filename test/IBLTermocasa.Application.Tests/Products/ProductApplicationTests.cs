@@ -29,19 +29,19 @@ namespace IBLTermocasa.Products
             // Assert
             result.TotalCount.ShouldBe(2);
             result.Items.Count.ShouldBe(2);
-            result.Items.Any(x => x.Product.Id == Guid.Parse("24dd8306-6ec6-45de-b299-d964d3ae9047")).ShouldBe(true);
-            result.Items.Any(x => x.Product.Id == Guid.Parse("dc25b2b3-d2f4-4d83-87c3-41a58d8f3806")).ShouldBe(true);
+            result.Items.Any(x => x.Product.Id == Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c")).ShouldBe(true);
+            result.Items.Any(x => x.Product.Id == Guid.Parse("58980b43-af35-4248-aa0e-fecdefd22bad")).ShouldBe(true);
         }
 
         [Fact]
         public async Task GetAsync()
         {
             // Act
-            var result = await _productsAppService.GetAsync(Guid.Parse("24dd8306-6ec6-45de-b299-d964d3ae9047"));
+            var result = await _productsAppService.GetAsync(Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c"));
 
             // Assert
             result.ShouldNotBeNull();
-            result.Id.ShouldBe(Guid.Parse("24dd8306-6ec6-45de-b299-d964d3ae9047"));
+            result.Id.ShouldBe(Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c"));
         }
 
         [Fact]
@@ -50,9 +50,9 @@ namespace IBLTermocasa.Products
             // Arrange
             var input = new ProductCreateDto
             {
-                Code = "89e3640194a44c218113f960bc982b33eeebe1143e44459",
-                Name = "ccc938f7f98341329c4ef7acd7c13edf081a98506e4540f698cee98",
-                Description = "032bf42bc77b43928d76bda9bd55da10f81a6",
+                Code = "3dfb27b6b5104905bfe7216d2975770232f07c49cc5948",
+                Name = "c72da8fbe154474bab08681e1f19c47026304063e8b147ed960f299c32d2bee",
+                Description = "d35f6b58b671458e8675e6da57b41d8ae42770d4014a480ba07d5d8d3ecd27f6f8a5c20",
                 IsAssembled = true,
                 IsInternal = true
             };
@@ -64,9 +64,9 @@ namespace IBLTermocasa.Products
             var result = await _productRepository.FindAsync(c => c.Id == serviceResult.Id);
 
             result.ShouldNotBe(null);
-            result.Code.ShouldBe("89e3640194a44c218113f960bc982b33eeebe1143e44459");
-            result.Name.ShouldBe("ccc938f7f98341329c4ef7acd7c13edf081a98506e4540f698cee98");
-            result.Description.ShouldBe("032bf42bc77b43928d76bda9bd55da10f81a6");
+            result.Code.ShouldBe("3dfb27b6b5104905bfe7216d2975770232f07c49cc5948");
+            result.Name.ShouldBe("c72da8fbe154474bab08681e1f19c47026304063e8b147ed960f299c32d2bee");
+            result.Description.ShouldBe("d35f6b58b671458e8675e6da57b41d8ae42770d4014a480ba07d5d8d3ecd27f6f8a5c20");
             result.IsAssembled.ShouldBe(true);
             result.IsInternal.ShouldBe(true);
         }
@@ -77,23 +77,23 @@ namespace IBLTermocasa.Products
             // Arrange
             var input = new ProductUpdateDto()
             {
-                Code = "95f15df70b2648389aa",
-                Name = "edc150b5f3ce443394ead4e3f459f3230319011ef0cf47da",
-                Description = "afb6b6cd0ea6472c98516695c7",
+                Code = "cd4a0075c0a5",
+                Name = "78ab4171f46c4d3b8de95dccf66bb9a889dd4b8d1aec471db831cdfced7",
+                Description = "9d9b12590a294124af3ecdadf0b6fa168c207e2125fb4e759635633c49a36",
                 IsAssembled = true,
                 IsInternal = true
             };
 
             // Act
-            var serviceResult = await _productsAppService.UpdateAsync(Guid.Parse("24dd8306-6ec6-45de-b299-d964d3ae9047"), input);
+            var serviceResult = await _productsAppService.UpdateAsync(Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c"), input);
 
             // Assert
             var result = await _productRepository.FindAsync(c => c.Id == serviceResult.Id);
 
             result.ShouldNotBe(null);
-            result.Code.ShouldBe("95f15df70b2648389aa");
-            result.Name.ShouldBe("edc150b5f3ce443394ead4e3f459f3230319011ef0cf47da");
-            result.Description.ShouldBe("afb6b6cd0ea6472c98516695c7");
+            result.Code.ShouldBe("cd4a0075c0a5");
+            result.Name.ShouldBe("78ab4171f46c4d3b8de95dccf66bb9a889dd4b8d1aec471db831cdfced7");
+            result.Description.ShouldBe("9d9b12590a294124af3ecdadf0b6fa168c207e2125fb4e759635633c49a36");
             result.IsAssembled.ShouldBe(true);
             result.IsInternal.ShouldBe(true);
         }
@@ -102,10 +102,10 @@ namespace IBLTermocasa.Products
         public async Task DeleteAsync()
         {
             // Act
-            await _productsAppService.DeleteAsync(Guid.Parse("24dd8306-6ec6-45de-b299-d964d3ae9047"));
+            await _productsAppService.DeleteAsync(Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c"));
 
             // Assert
-            var result = await _productRepository.FindAsync(c => c.Id == Guid.Parse("24dd8306-6ec6-45de-b299-d964d3ae9047"));
+            var result = await _productRepository.FindAsync(c => c.Id == Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c"));
 
             result.ShouldBeNull();
         }

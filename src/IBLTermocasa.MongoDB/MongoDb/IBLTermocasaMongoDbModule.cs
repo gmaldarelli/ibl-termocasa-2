@@ -26,6 +26,7 @@ using Volo.Abp.Gdpr;
 using Volo.Abp.OpenIddict.MongoDB;
 using Volo.CmsKit.MongoDB;
 using Volo.Chat.MongoDB;
+using Volo.FileManagement.MongoDB;
 
 namespace IBLTermocasa.MongoDB;
 
@@ -46,7 +47,8 @@ namespace IBLTermocasa.MongoDB;
     typeof(BlobStoringDatabaseMongoDbModule)
 )]
 [DependsOn(typeof(ChatMongoDbModule))]
-public class IBLTermocasaMongoDbModule : AbpModule
+[DependsOn(typeof(FileManagementMongoDbModule))]
+    public class IBLTermocasaMongoDbModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {

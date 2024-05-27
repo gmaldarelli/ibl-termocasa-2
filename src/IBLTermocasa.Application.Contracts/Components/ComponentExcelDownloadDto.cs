@@ -3,7 +3,7 @@ using System;
 
 namespace IBLTermocasa.Components
 {
-    public abstract class ComponentExcelDownloadDtoBase
+    public class ComponentExcelDownloadDto
     {
         public string DownloadToken { get; set; } = null!;
 
@@ -11,7 +11,7 @@ namespace IBLTermocasa.Components
 
         public string? Name { get; set; }
 
-        public ComponentExcelDownloadDtoBase()
+        public ComponentExcelDownloadDto()
         {
 
         }

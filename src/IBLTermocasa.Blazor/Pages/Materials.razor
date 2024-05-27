@@ -40,8 +40,7 @@
 @* ************************* SEARCH ************************* *@
 <Card>
     <CardBody>
-@*//<suite-custom-code-block-1>*@
-@*//</suite-custom-code-block-1>*@
+
         <Form id="MaterialSearchForm" class="mb-3">
             <Addons>
                 <Addon AddonType="AddonType.Body">
@@ -79,69 +78,19 @@
                     </Field>
                 </Column>
             </Row>
-@*//<suite-custom-code-block-2>*@
-@*//</suite-custom-code-block-2>*@
+
         </div>
 
-@*//<suite-custom-code-block-3>*@
-@*//</suite-custom-code-block-3>*@
+
     </CardBody>
 </Card>
 
 @* ************************* DATA GRID ************************* *@
 <Card>
-    <CardBody>        
-        @if (SelectedMaterials.Any())
-        {
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                @if (AllMaterialsSelected)
-                {
-                    <p class="lead mb-0">
-                        @L["AllItemsAreSelected", TotalCount]
-                    </p>
-                }
-                else
-                {
-                    <p class="lead mb-0">
-                        @if (SelectedMaterials.Count > 1)
-                        {
-                            @L["NumberOfItemsOnThisPageAreSelected", SelectedMaterials.Count]
-                        }
-                        else
-                        {
-                            @L["OneItemOnThisPageIsSelected"]
-                        }
-                    </p>
-                }
-                    
-                <div>
-                    @if ((SelectedMaterials.Count == PageSize || SelectedMaterials.Count == MaterialList.Count) && TotalCount > SelectedMaterials.Count)
-                    {
-                        if (!AllMaterialsSelected)
-                        {
-                            <Button Clicked="SelectAllItems" Class="mx-1 btn-outline-secondary">@L["SelectAllItems", TotalCount]</Button>
-                        }
-                        else
-                        {
-                            <Button Clicked="ClearSelection" Class="mx-1 btn-outline-secondary">@L["ClearSelection"]</Button>
-                        }
-                    }
-                    
-                    <Button Color="Color.Danger" Class="mx-1" Size="Size.Medium" Clicked="DeleteSelectedMaterialsAsync">
-                        <Icon Name="@IconName.Delete" /> @L["Delete"]
-                    </Button>
-                </div>
-            </div>
-            
-            <hr class="my-1 mx-0"/>
-        }
+    <CardBody>
         <DataGrid TItem="MaterialDto"
                   Data="MaterialList"
                   
-                  SelectionMode="DataGridSelectionMode.Multiple"
-                  SelectedRows="SelectedMaterials"
-                  RowSelectable="@((args) => CanDeleteMaterial)"
-                  SelectedRowsChanged="SelectedMaterialRowsChanged"
                   
                   
                   
@@ -153,10 +102,6 @@
                   Class="datagrid-detail">
             <DataGridColumns>
                 
-                @if (CanDeleteMaterial)
-                {
-                    <DataGridMultiSelectColumn TItem="MaterialDto" Width="30px" Displayable="@(MaterialList.Any())"></DataGridMultiSelectColumn>
-                }
                 
                 <DataGridEntityActionsColumn TItem="MaterialDto" @ref="@EntityActionsColumn">
                     <DisplayTemplate>
@@ -170,8 +115,7 @@
                                           Clicked="() => DeleteMaterialAsync(context)"
                                           ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
                                           Text="@L["Delete"]"></EntityAction>
-@*//<suite-custom-code-block-4>*@
-@*//</suite-custom-code-block-4>*@
+
                         </EntityActions>
                     </DisplayTemplate>
                 </DataGridEntityActionsColumn>
@@ -230,8 +174,7 @@
 @* ************************* CREATE MODAL ************************* *@
 <Modal @ref="CreateMaterialModal" Closing="@CreateMaterialModal.CancelClosingModalWhenFocusLost">
     <ModalContent Centered="true">
-@*//<suite-custom-code-block-5>*@
-@*//</suite-custom-code-block-5>*@
+
         <Form id="CreateMaterialForm">
             <ModalHeader>
                 <ModalTitle>@L["NewMaterial"]</ModalTitle>
@@ -363,20 +306,17 @@
                     @L["Cancel"]
                 </Button>
                 <SubmitButton Form="CreateMaterialForm" Clicked="CreateMaterialAsync" />
-@*//<suite-custom-code-block-6>*@
-@*//</suite-custom-code-block-6>*@
+
             </ModalFooter>
         </Form>
-@*//<suite-custom-code-block-7>*@
-@*//</suite-custom-code-block-7>*@
+
     </ModalContent>
 </Modal>
 
 @* ************************* EDIT MODAL ************************* *@
 <Modal @ref="EditMaterialModal" Closing="@EditMaterialModal.CancelClosingModalWhenFocusLost">
     <ModalContent Centered="true">
-@*//<suite-custom-code-block-8>*@
-@*//</suite-custom-code-block-8>*@
+
         <Form id="EditMaterialForm">
             <ModalHeader>
                 <ModalTitle>@L["Update"]</ModalTitle>
@@ -508,12 +448,10 @@
                     @L["Cancel"]
                 </Button>
                 <SubmitButton Form="EditMaterialForm" Clicked="UpdateMaterialAsync" />
-@*//<suite-custom-code-block-9>*@
-@*//</suite-custom-code-block-9>*@
+
             </ModalFooter>
         </Form>
-@*//<suite-custom-code-block-10>*@
-@*//</suite-custom-code-block-10>*@
+
     </ModalContent>
 </Modal>
 

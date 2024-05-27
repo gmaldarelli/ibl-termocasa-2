@@ -13,7 +13,7 @@ using Volo.Abp;
 
 namespace IBLTermocasa.Components
 {
-    public abstract class ComponentBase : FullAuditedAggregateRoot<Guid>, IMultiTenant
+    public class Component : FullAuditedAggregateRoot<Guid>, IMultiTenant
     {
         public virtual Guid? TenantId { get; set; }
 
@@ -22,12 +22,12 @@ namespace IBLTermocasa.Components
 
         public ICollection<ComponentItem> ComponentItems { get; private set; }
 
-        protected ComponentBase()
+        protected Component()
         {
 
         }
 
-        public ComponentBase(Guid id, string name)
+        public Component(Guid id, string name)
         {
 
             Id = id;

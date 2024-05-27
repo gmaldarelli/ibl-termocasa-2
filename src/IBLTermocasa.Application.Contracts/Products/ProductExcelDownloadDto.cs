@@ -3,7 +3,7 @@ using System;
 
 namespace IBLTermocasa.Products
 {
-    public abstract class ProductExcelDownloadDtoBase
+    public class ProductExcelDownloadDto
     {
         public string DownloadToken { get; set; } = null!;
 
@@ -15,7 +15,7 @@ namespace IBLTermocasa.Products
         public bool? IsAssembled { get; set; }
         public bool? IsInternal { get; set; }
 
-        public ProductExcelDownloadDtoBase()
+        public ProductExcelDownloadDto()
         {
 
         }

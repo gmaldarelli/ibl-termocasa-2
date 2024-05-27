@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace IBLTermocasa.Materials
 {
-    public abstract class MaterialCreateDtoBase
+    public class MaterialCreateDto
     {
         [Required]
         public string Code { get; set; } = null!;

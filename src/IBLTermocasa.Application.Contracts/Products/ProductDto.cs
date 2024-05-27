@@ -6,7 +6,7 @@ using Volo.Abp.Domain.Entities;
 
 namespace IBLTermocasa.Products
 {
-    public abstract class ProductDtoBase : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
+    public class ProductDto : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
     {
         public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;

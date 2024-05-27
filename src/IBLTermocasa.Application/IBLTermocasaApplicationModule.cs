@@ -14,6 +14,7 @@ using Volo.Saas.Host;
 using Volo.CmsKit;
 using Volo.Abp.LeptonTheme.Management;
 using Volo.Chat;
+using Volo.FileManagement;
 
 namespace IBLTermocasa;
 
@@ -36,6 +37,7 @@ namespace IBLTermocasa;
 	typeof(LeptonThemeManagementApplicationModule)
     )]
 [DependsOn(typeof(ChatApplicationModule))]
+    [DependsOn(typeof(FileManagementApplicationModule))]
     public class IBLTermocasaApplicationModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)

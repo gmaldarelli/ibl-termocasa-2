@@ -18,11 +18,11 @@ namespace IBLTermocasa.Controllers.Products
     [ControllerName("Product")]
     [Route("api/app/products")]
 
-    public abstract class ProductControllerBase : AbpController
+    public class ProductController : AbpController, IProductsAppService
     {
         protected IProductsAppService _productsAppService;
 
-        public ProductControllerBase(IProductsAppService productsAppService)
+        public ProductController(IProductsAppService productsAppService)
         {
             _productsAppService = productsAppService;
         }
@@ -52,6 +52,13 @@ namespace IBLTermocasa.Controllers.Products
         public virtual Task<PagedResultDto<LookupDto<Guid>>> GetComponentLookupAsync(LookupRequestDto input)
         {
             return _productsAppService.GetComponentLookupAsync(input);
+        }
+
+        [HttpGet]
+        [Route("question-template-lookup")]
+        public virtual Task<PagedResultDto<LookupDto<Guid>>> GetQuestionTemplateLookupAsync(LookupRequestDto input)
+        {
+            return _productsAppService.GetQuestionTemplateLookupAsync(input);
         }
 
         [HttpPost]
