@@ -22,5 +22,8 @@ namespace IBLTermocasa.Organizations
         public string? Notes { get; set; }
         public string? ImageId { get; set; }
         public Guid? IndustryId { get; set; }
+        public SourceType SourceType { get; set; }
+        public DateTime? FirstSync { get; set; }
+        public DateTime? LastSync { get; set; }
     }
 }

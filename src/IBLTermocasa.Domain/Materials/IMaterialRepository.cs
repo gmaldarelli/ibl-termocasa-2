@@ -13,6 +13,7 @@ namespace IBLTermocasa.Materials
             string? filterText = null,
             string? code = null,
             string? name = null,
+            SourceType? sourceType = null,
             string? sorting = null,
             int maxResultCount = int.MaxValue,
             int skipCount = 0,
@@ -23,6 +24,7 @@ namespace IBLTermocasa.Materials
             string? filterText = null,
             string? code = null,
             string? name = null,
+            SourceType? sourceType = null,
             CancellationToken cancellationToken = default);
     }
 }

@@ -11,6 +11,7 @@ namespace IBLTermocasa.Materials
 
         public string? Code { get; set; }
         public string? Name { get; set; }
+        public SourceType? SourceType { get; set; }
 
         public GetMaterialsInput()
         {

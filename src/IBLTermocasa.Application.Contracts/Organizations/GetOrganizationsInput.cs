@@ -17,6 +17,7 @@ namespace IBLTermocasa.Organizations
         public string? Tags { get; set; }
         public Guid? IndustryId { get; set; }
         public OrganizationType? OrganizationTypePreFiilter { get; set; }
+        public SourceType? SourceType { get; set; }
 
         public GetOrganizationsInput()
         {

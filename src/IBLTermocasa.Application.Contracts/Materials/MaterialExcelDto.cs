@@ -13,5 +13,8 @@ namespace IBLTermocasa.Materials
         public decimal StandardPrice { get; set; }
         public decimal AveragePrice { get; set; }
         public decimal LastPrice { get; set; }
+        public SourceType SourceType { get; set; }
+        public DateTime? FirstSync { get; set; }
+        public DateTime? LastSync { get; set; }
     }
 }

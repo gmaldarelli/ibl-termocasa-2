@@ -37,8 +37,8 @@ namespace IBLTermocasa.Materials
 
         public virtual async Task<PagedResultDto<MaterialDto>> GetListAsync(GetMaterialsInput input)
         {
-            var totalCount = await _materialRepository.GetCountAsync(input.FilterText, input.Code, input.Name);
-            var items = await _materialRepository.GetListAsync(input.FilterText, input.Code, input.Name, input.Sorting, input.MaxResultCount, input.SkipCount);
+            var totalCount = await _materialRepository.GetCountAsync(input.FilterText, input.Code, input.Name, input.SourceType);
+            var items = await _materialRepository.GetListAsync(input.FilterText, input.Code, input.Name, input.SourceType, input.Sorting, input.MaxResultCount, input.SkipCount);
 
             return new PagedResultDto<MaterialDto>
             {
@@ -90,7 +90,7 @@ namespace IBLTermocasa.Materials
                 throw new AbpAuthorizationException("Invalid download token: " + input.DownloadToken);
             }
 
-            var items = await _materialRepository.GetListAsync(input.FilterText, input.Code, input.Name);
+            var items = await _materialRepository.GetListAsync(input.FilterText, input.Code, input.Name, input.SourceType);
 
             var memoryStream = new MemoryStream();
             await memoryStream.SaveAsAsync(ObjectMapper.Map<List<Material>, List<MaterialExcelDto>>(items));

@@ -5,8 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using IBLTermocasa.Domain;
+using IBLTermocasa.Industries;
+using IBLTermocasa.Materials;
+using IBLTermocasa.Organizations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using MongoDB.Bson.Serialization;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Identity;
@@ -23,17 +28,29 @@ public class IBLTermocasaDbMigrationService : ITransientDependency
     private readonly IEnumerable<IIBLTermocasaDbSchemaMigrator> _dbSchemaMigrators;
     private readonly ITenantRepository _tenantRepository;
     private readonly ICurrentTenant _currentTenant;
+    private readonly IOrganizationRepository _organizationRepository;
+    private readonly IIndustryRepository _industryRepository;
+    private readonly IIdentityUserRepository _identityUserRepository;
+    private readonly IMaterialRepository _materialRepository;
 
     public IBLTermocasaDbMigrationService(
         IDataSeeder dataSeeder,
         ITenantRepository tenantRepository,
         ICurrentTenant currentTenant,
-        IEnumerable<IIBLTermocasaDbSchemaMigrator> dbSchemaMigrators)
+        IOrganizationRepository organizationRepository,
+        IEnumerable<IIBLTermocasaDbSchemaMigrator> dbSchemaMigrators,
+        IIdentityUserRepository identityUserRepository,
+        IIndustryRepository industryRepository,
+        IMaterialRepository materialRepository)
     {
         _dataSeeder = dataSeeder;
         _tenantRepository = tenantRepository;
         _currentTenant = currentTenant;
         _dbSchemaMigrators = dbSchemaMigrators;
+        _organizationRepository = organizationRepository;
+        _identityUserRepository = identityUserRepository;
+        _industryRepository = industryRepository;
+        _materialRepository = materialRepository;
 
         Logger = NullLogger<IBLTermocasaDbMigrationService>.Instance;
     }
@@ -100,6 +117,24 @@ public class IBLTermocasaDbMigrationService : ITransientDependency
             .WithProperty(IdentityDataSeedContributor.AdminPasswordPropertyName,
                 IBLTermocasaConsts.AdminPasswordDefaultValue)
         );
+        await SeedCustomerDataAsync(tenant: tenant);
+        //await SeedMaterialDataAsync(tenant: tenant);
     }
 
+    private async Task SeedCustomerDataAsync(Tenant? tenant = null)
+    {
+        Logger.LogInformation($"Executing {(tenant == null ? "host" : tenant.Name + " tenant")} database CustomerData seed...");
+        string filePath = "C:\\projects\\development\\malda\\python\\UtilsProject\\input.xlsx";
+        BsonSerializer.RegisterSerializationProvider( new CustomGuidSerializationProvider());
+        var importer = new DataImporter(_organizationRepository, _identityUserRepository, _industryRepository, _materialRepository);
+        importer.ImportCustomerDataFromExcel(filePath);
+    }
+    private async Task SeedMaterialDataAsync(Tenant? tenant = null)
+    {
+        Logger.LogInformation($"Executing {(tenant == null ? "host" : tenant.Name + " tenant")} database CustomerData seed...");
+        string filePath = "C:\\projects\\development\\malda\\python\\UtilsProject\\input2.xlsx";
+        BsonSerializer.RegisterSerializationProvider( new CustomGuidSerializationProvider());
+        var importer = new DataImporter(_organizationRepository, _identityUserRepository, _industryRepository, _materialRepository);
+        importer.ImportMaterialDataFromExcel(filePath);
+    }
 }

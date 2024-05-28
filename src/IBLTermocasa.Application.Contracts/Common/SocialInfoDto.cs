@@ -10,6 +10,19 @@ public class SocialInfoDto
         var socialItem = SocialItems.Find(x => x.SocialType == socialType);
         return socialItem?.Url;
     }
+
+    public string ResolveSocialIcon(SocialType socialSocialType)
+    {
+        return socialSocialType switch
+        {
+            SocialType.LINKEDIN => "fab fa-linkedin",
+            SocialType.TWITTER => "fab fa-twitter",
+            SocialType.FACEBOOK => "fab fa-facebook",
+            SocialType.INSTAGRAM => "fab fa-instagram",
+            SocialType.WEBSITE => "fab fa-globe",
+            _ => "fab fa-link"
+        };
+    }
 }
 
 public class SocialItemDto

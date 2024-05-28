@@ -31,6 +31,8 @@
 @inject NavigationManager NavigationManager
 @using IBLTermocasa.Types
 
+@using IBLTermocasa.Types
+
 
 @* ************************* PAGE HEADER ************************* *@
 <PageHeader Title="@L["Materials"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
@@ -75,6 +77,25 @@
                     <Field>
                         <FieldLabel>@L["Name"]</FieldLabel>
                         <TextEdit Text="@Filter.Name" TextChanged="@OnNameChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["SourceType"]</FieldLabel>
+                        <Select TValue="SourceType?"
+		SelectedValue="@Filter.SourceType"
+		SelectedValueChanged="@OnSourceTypeChangedAsync">
+
+<SelectItem></SelectItem>
+
+@foreach(SourceType value in Enum.GetValues(typeof(SourceType)))
+{
+	<SelectItem Value="value">
+		@value
+	</SelectItem>
+}
+
+</Select>                       
                     </Field>
                 </Column>
             </Row>
@@ -162,6 +183,31 @@
               <DataGridColumn TItem="MaterialDto"
                       Field="LastPrice"
                       Caption="@L["LastPrice"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="MaterialDto"
+                      Field="SourceType"
+                      Caption="@L["SourceType"]">
+                    <DisplayTemplate>
+                        @L[$"Enum:SourceType.{(int)context.SourceType}"]
+                    </DisplayTemplate>
+              </DataGridColumn>
+
+
+              <DataGridColumn TItem="MaterialDto"
+                      Field="FirstSync"
+                      Caption="@L["FirstSync"]">
+                  <DisplayTemplate>
+                        @(context.FirstSync.HasValue ? context.FirstSync.Value.ToShortDateString() : string.Empty)
+                  </DisplayTemplate>
+              </DataGridColumn>
+
+              <DataGridColumn TItem="MaterialDto"
+                      Field="LastSync"
+                      Caption="@L["LastSync"]">
+                  <DisplayTemplate>
+                        @(context.LastSync.HasValue ? context.LastSync.Value.ToShortDateString() : string.Empty)
+                  </DisplayTemplate>
               </DataGridColumn>
 
             </DataGridColumns>
@@ -436,6 +482,43 @@
                              </NumericPicker>
                         </Field>
                      </Validation>
+
+
+                    <Field>
+                        <FieldLabel>@L["SourceType"]</FieldLabel>
+                        <Select TValue="SourceType" @bind-SelectedValue="@EditingMaterial.SourceType" ReadOnly>
+                            @foreach (var itemValue in Enum.GetValues(typeof(SourceType)))
+                            {
+                                <SelectItem TValue="SourceType" Value="@((SourceType) itemValue)">
+                                    @L[$"Enum:SourceType.{((SourceType) itemValue).ToString("d")}"]
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["FirstSync"]</FieldLabel>
+                            <DateEdit TValue="DateTime?" InputMode="DateInputMode.DateTime" @bind-Date="@EditingMaterial.FirstSync" ReadOnly>
+                               <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </DateEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["LastSync"]</FieldLabel>
+                            <DateEdit TValue="DateTime?" InputMode="DateInputMode.DateTime" @bind-Date="@EditingMaterial.LastSync" ReadOnly>
+                               <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </DateEdit>
+                        </Field>
+                    </Validation>
 
 
                     

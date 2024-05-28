@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using IBLTermocasa.Industries;
 using IBLTermocasa.Permissions;
 using IBLTermocasa.Shared;
+using IBLTermocasa.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Caching.Distributed;
 using MiniExcelLibs;
@@ -99,6 +100,9 @@ namespace IBLTermocasa.Organizations
             }
 
             var organization = ObjectMapper.Map<OrganizationCreateDto, Organization>(input);
+            organization.SourceType = SourceType.System;
+            organization.FirstSync = DateTime.Now;
+            organization.LastSync = DateTime.Now;
             return ObjectMapper.Map<Organization, OrganizationDto>(
                 await _organizationManager.CreateAsync(organization));
         }
@@ -110,8 +114,8 @@ namespace IBLTermocasa.Organizations
             {
                 throw new UserFriendlyException(L["The {0} field is required.", L["Industry"]]);
             }
-
             var organization = ObjectMapper.Map<OrganizationUpdateDto, Organization>(input);
+            organization.LastSync = DateTime.Now;
             return ObjectMapper.Map<Organization, OrganizationDto>(
                 await _organizationManager.UpdateAsync(id, organization));
         }

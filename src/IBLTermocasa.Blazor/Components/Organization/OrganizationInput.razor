@@ -45,32 +45,32 @@
                             </Dropdown>
                         </div>
                     </div>
-
-                    <div class="border-bottom pb-3 mb-3">
-                        <small class="text-muted">Website</small>
-                        <h5 class="mt-0 mb-1">
-                            @Organization.SocialInfo.ResolveSocialUrl(SocialType.WEBSITE)
-                        </h5>
-                        <small class="text-muted">Social Links</small>
-                        <div>
-                            <a href="@Organization.SocialInfo.ResolveSocialUrl(SocialType.FACEBOOK)" class="">
-                                <i class="bi bi-facebook fs-4 px-1 text-muted"></i>
-                            </a>
-                            <a href="@Organization.SocialInfo.ResolveSocialUrl(SocialType.LINKEDIN)" class="">
-                                <i class="bi bi-linkedin fs-4 px-1 text-muted"></i>
-                            </a>
-                            <a href="@Organization.SocialInfo.ResolveSocialUrl(SocialType.INSTAGRAM)" class="">
-                                <i class="bi bi-instagram fs-4 px-1 text-muted"></i>
-                            </a>
-                            <a href="@Organization.SocialInfo.ResolveSocialUrl(SocialType.TWITTER)" class="">
-                                <i class="bi bi-twitter fs-4 px-1 text-muted"></i>
-                            </a>
-                        </div>
+                    <SocialBadge  SocialInfo="@InternalOrganization.SocialInfo"/>
+                    <div>
+                        <small class="text-muted">@L["Source"]</small>
+                        <h5 class="mt-0">@L[$"Enum:SourceType.{Organization.SourceType:d}"]</h5>
                     </div>
                     <div>
-                        <small class="text-muted">Registration Date</small>
-                        <h5 class="mt-0">@Organization.CreationTime</h5>
+                        <small class="text-muted">@L["FirsSync"]</small>
+                        @if (Organization.SourceType == SourceType.System)
+                        {
+                            <h5 class="mt-0">@Organization.CreationTime</h5>
+                        } else
+                        {
+                            <h5 class="mt-0">@Organization.FirstSync</h5>
+                        }
                     </div>
+                    <div>
+                        <small class="text-muted">@L["LastSync"]</small>
+                        @if (Organization.SourceType == SourceType.System)
+                        {
+                        <h5 class="mt-0">@Organization.LastModificationTime</h5>
+                        } else
+                        {
+                        <h5 class="mt-0">@Organization.LastSync</h5>
+                        }
+                    </div>
+
                 </CardBody>
             </Card>
     </Column>
@@ -177,6 +177,28 @@
                                 </Field>
                             </CollapseBody>
                         </Collapse >
+                        <Collapse  Visible="@accordionItemOtherInformationVisible">
+                            <CollapseHeader @onclick="ToggleOtherInformation">
+                                <Heading Size="HeadingSize.Is5">
+                                    <AccordionToggle>@L["OtherInformation"]</AccordionToggle>
+                                </Heading>
+                            </CollapseHeader>
+                            <CollapseBody>
+                                <Fields>
+                                    <Field ColumnSize="ColumnSize.IsFull">
+                                        <FieldLabel>@L["SocialInfo"]</FieldLabel>
+                                        <SocialInfoInput
+                                            SocialInfo="@InternalOrganization.SocialInfo"/>
+                                    </Field>
+                                </Fields>
+                                <Fields>
+                                    <Field>
+                                        <FieldLabel>@L["Tag"]</FieldLabel>
+                                        <TagInput></TagInput>
+                                    </Field>
+                                </Fields>
+                            </CollapseBody>
+                        </Collapse>
                     </Accordion>
                 </Fields>
 
@@ -199,6 +221,7 @@
     protected bool accordionItemMainInformationVisible {get; set;} = true;
     protected bool accordionItemFinancialInformationVisible {get; set;} = false;
     protected bool accordionItemAddressesInformationVisible {get; set;} = false;
+    protected bool accordionItemOtherInformationVisible {get; set;} = false;
     
     private void ToggleMainInformation()
     {
@@ -211,6 +234,10 @@
     private void ToggleAddressesInformation()
     {
         accordionItemAddressesInformationVisible = !accordionItemAddressesInformationVisible;
+    }
+    private void ToggleOtherInformation()
+    {
+        accordionItemOtherInformationVisible = !accordionItemOtherInformationVisible;
     }
     private void mailToAction(MailItemDto mailItem)
     {

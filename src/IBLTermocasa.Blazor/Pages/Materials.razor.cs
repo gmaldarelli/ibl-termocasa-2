@@ -16,6 +16,8 @@ using IBLTermocasa.Shared;
 
 using IBLTermocasa.Types;
 
+using IBLTermocasa.Types;
+
 
 
 namespace IBLTermocasa.Blazor.Pages
@@ -142,7 +144,7 @@ namespace IBLTermocasa.Blazor.Pages
                 culture = "&culture=" + culture;
             }
             await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
-            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/materials/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&Code={HttpUtility.UrlEncode(Filter.Code)}&Name={HttpUtility.UrlEncode(Filter.Name)}", forceLoad: true);
+            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/materials/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&Code={HttpUtility.UrlEncode(Filter.Code)}&Name={HttpUtility.UrlEncode(Filter.Name)}&SourceType={Filter.SourceType}", forceLoad: true);
         }
 
         private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<MaterialDto> e)
@@ -252,6 +254,11 @@ namespace IBLTermocasa.Blazor.Pages
         protected virtual async Task OnNameChangedAsync(string? name)
         {
             Filter.Name = name;
+            await SearchAsync();
+        }
+        protected virtual async Task OnSourceTypeChangedAsync(SourceType? sourceType)
+        {
+            Filter.SourceType = sourceType;
             await SearchAsync();
         }
         

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using IBLTermocasa.Materials;
 using IBLTermocasa.MongoDB;
+using IBLTermocasa.Types;
 using Xunit;
 
 namespace IBLTermocasa.MongoDB.Domains.Materials
@@ -26,14 +27,14 @@ namespace IBLTermocasa.MongoDB.Domains.Materials
             {
                 // Act
                 var result = await _materialRepository.GetListAsync(
-                    code: "14395ed627fa4c48a2ab9c7d5f88a21f36d4c28",
-                    name: "acea513193b9400fbc1ebec968e57"
+                    code: "07ea10fbd7a1445abafe9be472dc51",
+                    name: "6fdedd93112848b98f76e7b552a2a533d0d9e80311f242d8810498b6260090c37adb4a2909354b"
                 );
 
                 // Assert
                 result.Count.ShouldBe(1);
                 result.FirstOrDefault().ShouldNotBe(null);
-                result.First().Id.ShouldBe(Guid.Parse("113ff063-4359-4c2b-9270-fc257e4c6258"));
+                result.First().Id.ShouldBe(Guid.Parse("20cbea78-9a26-48c0-a0ec-bf6ebd0c8e87"));
             });
         }
 
@@ -45,8 +46,8 @@ namespace IBLTermocasa.MongoDB.Domains.Materials
             {
                 // Act
                 var result = await _materialRepository.GetCountAsync(
-                    code: "78efb9fd003b4825a2c2057ec45cb2c79fe23f08c1",
-                    name: "86c447606e1f48fba8629229a9b78d2507c8deabad584e2fb9f12e1bde2"
+                    code: "3a9a6e7d66394eeaacdddd94f40a855d83a4294bf9914ac595d6bf9224cf740d3feb49e522a54f49",
+                    name: "2230813eb238465ba8288175a792ef6797a5d862034646a78711ec061efb4526b2a8ddc826114cb69bec3b139b9c8fd00a6"
                 );
 
                 // Assert

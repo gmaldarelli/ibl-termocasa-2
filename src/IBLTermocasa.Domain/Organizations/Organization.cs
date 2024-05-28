@@ -33,7 +33,12 @@ namespace IBLTermocasa.Organizations
         public virtual PhoneInfo PhoneInfo { get; set; } = new PhoneInfo();
         public virtual MailInfo MailInfo { get; set; } = new MailInfo();
         public List<string> Tags { get; set; }
+        
+        public virtual SourceType SourceType { get; set; }
 
+        public virtual DateTime? FirstSync { get; set; }
+
+        public virtual DateTime? LastSync { get; set; }
 
         public Organization()
         {
@@ -63,6 +68,30 @@ namespace IBLTermocasa.Organizations
             Notes = notes;
         }
 
+        public Organization(Guid id, string name, Guid industryId, OrganizationType organizationType,
+            Address shippingAddress, Address billingAddress, SocialInfo socialInfo, PhoneInfo phoneInfo,
+            MailInfo mailInfo, List<string> tags, Guid? imageId, string notes,
+            SourceType sourceType, DateTime? firstSync, DateTime? lastSync)
+        {
+            Id = id;
+            Check.NotNull(name, nameof(name));
+            Name = name;
+            IndustryId = industryId;
+            OrganizationType = organizationType;
+            ShippingAddress = shippingAddress;
+            BillingAddress = billingAddress;
+            SocialInfo = socialInfo;
+            PhoneInfo = phoneInfo;
+            MailInfo = mailInfo;
+            Tags = tags;
+            ImageId = imageId;
+            Notes = notes;
+            SourceType = sourceType;
+            FirstSync = firstSync;
+            LastSync = lastSync;
+        }
+        
+        
         //generete static methot to fill all properties of the Organization except the Id using reflection with 2 variants source and destination
         public static Organization FillProperties(Organization source, Organization destination,
             IEnumerable<PropertyInfo> properties)

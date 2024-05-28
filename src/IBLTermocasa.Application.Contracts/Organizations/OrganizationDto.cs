@@ -21,6 +21,9 @@ namespace IBLTermocasa.Organizations
         public List<string> Tags { get; set; } = new List<string>();
         public string? Notes { get; set; }
         public string? ImageId { get; set; }
+        public SourceType SourceType { get; set; }
+        public DateTime? FirstSync { get; set; }
+        public DateTime? LastSync { get; set; }
 
         public string ConcurrencyStamp { get; set; } = null!;
         public string Phones => PhoneInfo.PhoneItems.Count > 0 ? string.Join(", ", PhoneInfo.PhoneItems) : string.Empty;

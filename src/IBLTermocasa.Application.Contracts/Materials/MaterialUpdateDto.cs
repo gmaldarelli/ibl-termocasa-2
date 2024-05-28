@@ -19,6 +19,9 @@ namespace IBLTermocasa.Materials
         public decimal AveragePrice { get; set; }
         public decimal LastPrice { get; set; }
         public decimal AveragePriceSecond { get; set; }
+        public SourceType SourceType { get; set; }
+        public DateTime? FirstSync { get; set; }
+        public DateTime? LastSync { get; set; }
 
         public string ConcurrencyStamp { get; set; } = null!;
     }

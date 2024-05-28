@@ -16,5 +16,8 @@ namespace IBLTermocasa.Organizations
         public AddressDto? BillingAddress { get; set; }
         public AddressDto? ShippingAddress { get; set; }
         public List<string> Tags { get; set; } = new List<string>();
+        public SourceType SourceType { get; set; }
+        public DateTime? FirstSync { get; set; }
+        public DateTime? LastSync { get; set; }
     }
 }

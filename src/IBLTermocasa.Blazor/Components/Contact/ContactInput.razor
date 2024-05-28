@@ -48,27 +48,7 @@
                         </div>
                     </div>
 
-                    <div class="border-bottom pb-3 mb-3">
-                        <small class="text-muted">Website</small>
-                        <h5 class="mt-0 mb-1">
-                            @Contact.SocialInfo.ResolveSocialUrl(SocialType.WEBSITE)
-                        </h5>
-                        <small class="text-muted">Social Links</small>
-                        <div>
-                            <a href="@Contact.SocialInfo.ResolveSocialUrl(SocialType.FACEBOOK)" class="">
-                                <i class="bi bi-facebook fs-4 px-1 text-muted"></i>
-                            </a>
-                            <a href="@Contact.SocialInfo.ResolveSocialUrl(SocialType.LINKEDIN)" class="">
-                                <i class="bi bi-linkedin fs-4 px-1 text-muted"></i>
-                            </a>
-                            <a href="@Contact.SocialInfo.ResolveSocialUrl(SocialType.INSTAGRAM)" class="">
-                                <i class="bi bi-instagram fs-4 px-1 text-muted"></i>
-                            </a>
-                            <a href="@Contact.SocialInfo.ResolveSocialUrl(SocialType.TWITTER)" class="">
-                                <i class="bi bi-twitter fs-4 px-1 text-muted"></i>
-                            </a>
-                        </div>
-                    </div>
+                    <SocialBadge  SocialInfo="@InternalContact.SocialInfo"/>
                     <div>
                         <small class="text-muted">Registration Date</small>
                         <h5 class="mt-0">@Contact.CreationTime</h5>
@@ -184,7 +164,7 @@
                             </Field>
                         </CollapseBody>
                     </Collapse>
-                            <Collapse  Visible="@accordionItemOtherInformationVisible">
+                    <Collapse  Visible="@accordionItemOtherInformationVisible">
                                 <CollapseHeader @onclick="ToggleOtherInformation">
                                     <Heading Size="HeadingSize.Is5">
                                         <AccordionToggle>@L["OtherInformation"]</AccordionToggle>

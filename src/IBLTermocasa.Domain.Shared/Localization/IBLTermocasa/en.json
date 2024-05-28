@@ -222,6 +222,18 @@
     "MaxFrom": "Max From",
     "MaxTo": "Max To",
     "NewCatalog": "New Catalog",
-    "Menu:Catalogs": "Catalogs"
+    "Menu:Catalogs": "Catalogs",
+    "Enum:SourceType.0": "External system",
+    "Enum:SourceType.1": "Mass import",
+    "Enum:SourceType.2": "Manual",
+    "Enum:SourceType.3": "System",
+    "Enum:SourceType.4": "Unknown",
+    "SourceType": "Source Type",
+    "FirstSync": "First Sync",
+    "LastSync": "Last Sync",
+    "MinFirstSync": "Min First Sync",
+    "MinLastSync": "Min Last Sync",
+    "MaxFirstSync": "Max First Sync",
+    "MaxLastSync": "Max Last Sync"
   }
 }

@@ -29,19 +29,19 @@ namespace IBLTermocasa.Materials
             // Assert
             result.TotalCount.ShouldBe(2);
             result.Items.Count.ShouldBe(2);
-            result.Items.Any(x => x.Id == Guid.Parse("113ff063-4359-4c2b-9270-fc257e4c6258")).ShouldBe(true);
-            result.Items.Any(x => x.Id == Guid.Parse("92cd78ea-760e-4c73-a1da-810a1acf28d6")).ShouldBe(true);
+            result.Items.Any(x => x.Id == Guid.Parse("20cbea78-9a26-48c0-a0ec-bf6ebd0c8e87")).ShouldBe(true);
+            result.Items.Any(x => x.Id == Guid.Parse("6084f99f-8171-40db-b346-1a77b255a697")).ShouldBe(true);
         }
 
         [Fact]
         public async Task GetAsync()
         {
             // Act
-            var result = await _materialsAppService.GetAsync(Guid.Parse("113ff063-4359-4c2b-9270-fc257e4c6258"));
+            var result = await _materialsAppService.GetAsync(Guid.Parse("20cbea78-9a26-48c0-a0ec-bf6ebd0c8e87"));
 
             // Assert
             result.ShouldNotBeNull();
-            result.Id.ShouldBe(Guid.Parse("113ff063-4359-4c2b-9270-fc257e4c6258"));
+            result.Id.ShouldBe(Guid.Parse("20cbea78-9a26-48c0-a0ec-bf6ebd0c8e87"));
         }
 
         [Fact]
@@ -50,15 +50,16 @@ namespace IBLTermocasa.Materials
             // Arrange
             var input = new MaterialCreateDto
             {
-                Code = "56d9302ca4374bfbbe797888833059",
-                Name = "20feb4ac13654cbaba6aae7e8551",
+                Code = "1f3698eb960e4fa4844d27136807ef743466ae82ada14942b07b3f17b5f",
+                Name = "981667f10987489bafcf4fb80eb0db144f1c19cf4",
                 MeasureUnit = default,
-                Quantity = 1913082733,
-                Lifo = 2066389345,
-                StandardPrice = 208518872,
-                AveragePrice = 1912707961,
-                LastPrice = 1384571396,
-                AveragePriceSecond = 1469382445
+                Quantity = 153014448,
+                Lifo = 924138079,
+                StandardPrice = 1867170580,
+                AveragePrice = 1217707986,
+                LastPrice = 878194315,
+                AveragePriceSecond = 1115200902,
+
             };
 
             // Act
@@ -68,15 +69,16 @@ namespace IBLTermocasa.Materials
             var result = await _materialRepository.FindAsync(c => c.Id == serviceResult.Id);
 
             result.ShouldNotBe(null);
-            result.Code.ShouldBe("56d9302ca4374bfbbe797888833059");
-            result.Name.ShouldBe("20feb4ac13654cbaba6aae7e8551");
+            result.Code.ShouldBe("1f3698eb960e4fa4844d27136807ef743466ae82ada14942b07b3f17b5f");
+            result.Name.ShouldBe("981667f10987489bafcf4fb80eb0db144f1c19cf4");
             result.MeasureUnit.ShouldBe(default);
-            result.Quantity.ShouldBe(1913082733);
-            result.Lifo.ShouldBe(2066389345);
-            result.StandardPrice.ShouldBe(208518872);
-            result.AveragePrice.ShouldBe(1912707961);
-            result.LastPrice.ShouldBe(1384571396);
-            result.AveragePriceSecond.ShouldBe(1469382445);
+            result.Quantity.ShouldBe(153014448);
+            result.Lifo.ShouldBe(924138079);
+            result.StandardPrice.ShouldBe(1867170580);
+            result.AveragePrice.ShouldBe(1217707986);
+            result.LastPrice.ShouldBe(878194315);
+            result.AveragePriceSecond.ShouldBe(1115200902);
+
         }
 
         [Fact]
@@ -85,43 +87,45 @@ namespace IBLTermocasa.Materials
             // Arrange
             var input = new MaterialUpdateDto()
             {
-                Code = "aa45b9e99eb642999e2accf8e845486fa38d850097d44820b8b",
-                Name = "709250bc69b3488fb60965eb64515f367709190e967e4045983471800cd09ed1443b3937b6f",
+                Code = "0b37f51972",
+                Name = "d1682138916b4",
                 MeasureUnit = default,
-                Quantity = 1457560087,
-                Lifo = 1697767489,
-                StandardPrice = 1858443576,
-                AveragePrice = 760654440,
-                LastPrice = 1216301084,
-                AveragePriceSecond = 78741786
+                Quantity = 584542307,
+                Lifo = 1872311076,
+                StandardPrice = 9074098,
+                AveragePrice = 839891819,
+                LastPrice = 1939515330,
+                AveragePriceSecond = 2030872625,
+
             };
 
             // Act
-            var serviceResult = await _materialsAppService.UpdateAsync(Guid.Parse("113ff063-4359-4c2b-9270-fc257e4c6258"), input);
+            var serviceResult = await _materialsAppService.UpdateAsync(Guid.Parse("20cbea78-9a26-48c0-a0ec-bf6ebd0c8e87"), input);
 
             // Assert
             var result = await _materialRepository.FindAsync(c => c.Id == serviceResult.Id);
 
             result.ShouldNotBe(null);
-            result.Code.ShouldBe("aa45b9e99eb642999e2accf8e845486fa38d850097d44820b8b");
-            result.Name.ShouldBe("709250bc69b3488fb60965eb64515f367709190e967e4045983471800cd09ed1443b3937b6f");
+            result.Code.ShouldBe("0b37f51972");
+            result.Name.ShouldBe("d1682138916b4");
             result.MeasureUnit.ShouldBe(default);
-            result.Quantity.ShouldBe(1457560087);
-            result.Lifo.ShouldBe(1697767489);
-            result.StandardPrice.ShouldBe(1858443576);
-            result.AveragePrice.ShouldBe(760654440);
-            result.LastPrice.ShouldBe(1216301084);
-            result.AveragePriceSecond.ShouldBe(78741786);
+            result.Quantity.ShouldBe(584542307);
+            result.Lifo.ShouldBe(1872311076);
+            result.StandardPrice.ShouldBe(9074098);
+            result.AveragePrice.ShouldBe(839891819);
+            result.LastPrice.ShouldBe(1939515330);
+            result.AveragePriceSecond.ShouldBe(2030872625);
+
         }
 
         [Fact]
         public async Task DeleteAsync()
         {
             // Act
-            await _materialsAppService.DeleteAsync(Guid.Parse("113ff063-4359-4c2b-9270-fc257e4c6258"));
+            await _materialsAppService.DeleteAsync(Guid.Parse("20cbea78-9a26-48c0-a0ec-bf6ebd0c8e87"));
 
             // Assert
-            var result = await _materialRepository.FindAsync(c => c.Id == Guid.Parse("113ff063-4359-4c2b-9270-fc257e4c6258"));
+            var result = await _materialRepository.FindAsync(c => c.Id == Guid.Parse("20cbea78-9a26-48c0-a0ec-bf6ebd0c8e87"));
 
             result.ShouldBeNull();
         }

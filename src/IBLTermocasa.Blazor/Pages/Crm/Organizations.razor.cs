@@ -304,6 +304,10 @@ namespace IBLTermocasa.Blazor.Pages.Crm
         {
             IndustriesCollection = (await OrganizationsAppService.GetIndustryLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
         }
-        
+        protected virtual async Task OnSourceTypeChangedAsync(SourceType? sourceType)
+        {
+            Filter.SourceType = sourceType;
+            await SearchAsync();
+        }
     }
 }

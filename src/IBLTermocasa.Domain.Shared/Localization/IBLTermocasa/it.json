@@ -228,6 +228,9 @@
     "MaxDiscount": "Sconto Massimo",
     "NewRequestForQuotation": "Nuova Richiesta di Preventivo",
     "Menu:RequestForQuotations": "Richieste di Preventivo",
-    "SecureDeletionTitle": "Eliminazione Sicura"
+    "SecureDeletionTitle": "Eliminazione Sicura",
+    "Source": "Fonte",
+    "FirsSync": "Caricato il",
+    "LastSync": "Aggiornato"
   }
 }

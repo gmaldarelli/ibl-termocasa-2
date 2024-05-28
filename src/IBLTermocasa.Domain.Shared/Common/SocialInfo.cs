@@ -5,11 +5,6 @@ namespace IBLTermocasa.Common;
 public class SocialInfo
 {
     public List<SocialItem> SocialItems { get; set; } = new();
-    public string ResolveSocialUrl(SocialType socialType)
-    {
-        var socialItem = SocialItems.Find(x => x.SocialType == socialType);
-        return socialItem?.Url;
-    }
 }
 
 public class SocialItem

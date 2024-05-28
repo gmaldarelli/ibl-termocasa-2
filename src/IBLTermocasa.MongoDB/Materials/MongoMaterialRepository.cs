@@ -24,12 +24,13 @@ namespace IBLTermocasa.Materials
             string? filterText = null,
             string? code = null,
             string? name = null,
+            SourceType? sourceType = null,
             string? sorting = null,
             int maxResultCount = int.MaxValue,
             int skipCount = 0,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, code, name);
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, code, name, sourceType);
             query = query.OrderBy(string.IsNullOrWhiteSpace(sorting) ? MaterialConsts.GetDefaultSorting(false) : sorting);
             return await query.As<IMongoQueryable<Material>>()
                 .PageBy<Material, IMongoQueryable<Material>>(skipCount, maxResultCount)
@@ -40,9 +41,10 @@ namespace IBLTermocasa.Materials
             string? filterText = null,
             string? code = null,
             string? name = null,
+            SourceType? sourceType = null,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, code, name);
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, code, name, sourceType);
             return await query.As<IMongoQueryable<Material>>().LongCountAsync(GetCancellationToken(cancellationToken));
         }
 
@@ -50,12 +52,14 @@ namespace IBLTermocasa.Materials
             IQueryable<Material> query,
             string? filterText = null,
             string? code = null,
-            string? name = null)
+            string? name = null,
+            SourceType? sourceType = null)
         {
             return query
                 .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Code!.Contains(filterText!) || e.Name!.Contains(filterText!))
                     .WhereIf(!string.IsNullOrWhiteSpace(code), e => e.Code.Contains(code))
-                    .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name));
+                    .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name))
+                    .WhereIf(sourceType.HasValue, e => e.SourceType == sourceType);
         }
     }
 }

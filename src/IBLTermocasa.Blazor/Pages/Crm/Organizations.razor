@@ -76,6 +76,26 @@
 
                             @foreach(OrganizationType value in Enum.GetValues(typeof(OrganizationType)))
                             {
+                                <SelectItem Value="value">
+                                    @value
+                                </SelectItem>
+                            }
+
+                        </Select>
+                    </Field>
+                </Column>
+
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["SourceType"]</FieldLabel>
+                        <Select TValue="SourceType?"
+                                SelectedValue="@Filter.SourceType"
+                                SelectedValueChanged="@OnSourceTypeChangedAsync">
+
+                            <SelectItem></SelectItem>
+
+                            @foreach(SourceType value in Enum.GetValues(typeof(SourceType)))
+                            {
                             <SelectItem Value="value">
                                 @value
                             </SelectItem>
@@ -157,6 +177,30 @@
                     </DisplayTemplate>
                 </DataGridColumn>
 
+                <DataGridColumn TItem="OrganizationDto"
+                                Field="SourceType"
+                                Caption="@L["SourceType"]">
+                    <DisplayTemplate>
+                        @L[$"Enum:SourceType.{(int)context.SourceType}"]
+                    </DisplayTemplate>
+                </DataGridColumn>
+
+
+                <DataGridColumn TItem="OrganizationDto"
+                                Field="FirstSync"
+                                Caption="@L["FirstSync"]">
+                    <DisplayTemplate>
+                        @(context.FirstSync.HasValue ? context.FirstSync.Value.ToShortDateString() : string.Empty)
+                    </DisplayTemplate>
+                </DataGridColumn>
+
+                <DataGridColumn TItem="OrganizationDto"
+                                Field="LastSync"
+                                Caption="@L["LastSync"]">
+                    <DisplayTemplate>
+                        @(context.LastSync.HasValue ? context.LastSync.Value.ToShortDateString() : string.Empty)
+                    </DisplayTemplate>
+                </DataGridColumn>
             </DataGridColumns>
             <EmptyTemplate>
                 <div class="box">
