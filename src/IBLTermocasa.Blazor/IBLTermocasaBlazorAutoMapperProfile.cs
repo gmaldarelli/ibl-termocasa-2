@@ -1,4 +1,3 @@
-using IBLTermocasa.Catalogs;
 using IBLTermocasa.RequestForQuotations;
 using IBLTermocasa.QuestionTemplates;
 using IBLTermocasa.Interactions;
@@ -12,6 +11,7 @@ using IBLTermocasa.Components;
 using Volo.Abp.AutoMapper;
 using IBLTermocasa.Materials;
 using AutoMapper;
+using IBLTermocasa.Catalogs;
 
 namespace IBLTermocasa.Blazor;
 
@@ -43,7 +43,12 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<QuestionTemplateDto, QuestionTemplateUpdateDto>();
 
         CreateMap<RequestForQuotationDto, RequestForQuotationUpdateDto>();
-
+        CreateMap<RequestForQuotationDto, RequestForQuotationCreateDto>();
+        CreateMap<RequestForQuotationCreateDto, RequestForQuotation>();
+        CreateMap<RequestForQuotationUpdateDto, RequestForQuotation>();
+        CreateMap<RequestForQuotation, RequestForQuotationUpdateDto>();
+        CreateMap<RequestForQuotation, RequestForQuotationCreateDto>();
+    
         CreateMap<ProductDto, ProductUpdateDto>().Ignore(x => x.ComponentIds).Ignore(x => x.QuestionTemplateIds);
 
         CreateMap<CatalogDto, CatalogUpdateDto>().Ignore(x => x.ProductIds);

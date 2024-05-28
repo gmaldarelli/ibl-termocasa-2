@@ -6,6 +6,9 @@ using System.Globalization;
 using System.Web;
 using Blazorise;
 using Blazorise.DataGrid;
+using IBLTermocasa.Common;
+using IBLTermocasa.Contacts;
+using IBLTermocasa.Organizations;
 using Volo.Abp.BlazoriseUI.Components;
 using Microsoft.AspNetCore.Authorization;
 using Volo.Abp.Application.Dtos;
@@ -15,15 +18,18 @@ using IBLTermocasa.Permissions;
 using IBLTermocasa.Shared;
 
 using IBLTermocasa.RequestForQuotations;
-
+using IBLTermocasa.Types;
+using Microsoft.AspNetCore.Components;
+using Volo.Abp.Identity;
+using BreadcrumbItem = Volo.Abp.BlazoriseUI.BreadcrumbItem;
 
 
 namespace IBLTermocasa.Blazor.Pages
 {
     public partial class RequestForQuotations
     {
-        protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems = new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
-        protected PageToolbar Toolbar {get;} = new PageToolbar();
+        protected List<BreadcrumbItem> BreadcrumbItems = new();
+        protected PageToolbar Toolbar { get; } = new();
         protected bool ShowAdvancedFilters { get; set; }
         private IReadOnlyList<RequestForQuotationWithNavigationPropertiesDto> RequestForQuotationList { get; set; }
         private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
@@ -36,23 +42,36 @@ namespace IBLTermocasa.Blazor.Pages
         private RequestForQuotationCreateDto NewRequestForQuotation { get; set; }
         private Validations NewRequestForQuotationValidations { get; set; } = new();
         private RequestForQuotationUpdateDto EditingRequestForQuotation { get; set; }
+
         private Validations EditingRequestForQuotationValidations { get; set; } = new();
         private Guid EditingRequestForQuotationId { get; set; }
         private Modal CreateRequestForQuotationModal { get; set; } = new();
         private Modal EditRequestForQuotationModal { get; set; } = new();
-        private GetRequestForQuotationsInput Filter { get; set; }
-        private DataGridEntityActionsColumn<RequestForQuotationWithNavigationPropertiesDto> EntityActionsColumn { get; set; } = new();
-        protected string SelectedCreateTab = "requestForQuotation-create-tab";
-        protected string SelectedEditTab = "requestForQuotation-edit-tab";
-        private RequestForQuotationWithNavigationPropertiesDto? SelectedRequestForQuotation;
-        private IReadOnlyList<LookupDto<Guid>> IdentityUsersCollection { get; set; } = new List<LookupDto<Guid>>();
-private IReadOnlyList<LookupDto<Guid>> ContactsCollection { get; set; } = new List<LookupDto<Guid>>();
-private IReadOnlyList<LookupDto<Guid>> OrganizationsCollection { get; set; } = new List<LookupDto<Guid>>();
 
+        private Modal EditAttributeModal { get; set; } = new();
+        private GetRequestForQuotationsInput Filter { get; set; }
+        private RequestForQuotationDto? SelectedRequestForQuotation;
+        private RequestForQuotationDto RequestForQuotationInput { get; set; }
+        private Dictionary<string, bool> buttonVisibility = new();
+        private bool isAttributeModalOpen;
         
+        private ModalSize ModalSize { get; set; } = ModalSize.Large;
+        [Inject] private IOrganizationsAppService OrganizationsAppService { get; set; }
+        [Inject] private IContactsAppService ContactsAppService { get; set; }
+
+        [Inject] public IIdentityUserAppService UserAppService { get; set; }
+
+        protected List<OrganizationDto> Organizations { get; set; } = new();
+        protected List<ContactDto> Contacts { get; set; } = new();
+        protected List<IdentityUserDto> Agents { get; set; } = new();
+        protected Progress progressRef;
+        protected int progress;
         
-        
-        
+// Variabili per la gestione dei filtri
+        private IReadOnlyList<LookupDto<Guid>> IdentityUsersCollection { get; set; } = new List<LookupDto<Guid>>();
+        private IReadOnlyList<LookupDto<Guid>> ContactsCollection { get; set; } = new List<LookupDto<Guid>>();
+        private IReadOnlyList<LookupDto<Guid>> OrganizationsCollection { get; set; } = new List<LookupDto<Guid>>();
+
         
         public RequestForQuotations()
         {
@@ -73,15 +92,16 @@ private IReadOnlyList<LookupDto<Guid>> OrganizationsCollection { get; set; } = n
         {
             await SetPermissionsAsync();
             await GetIdentityUserCollectionLookupAsync();
-
-
             await GetContactCollectionLookupAsync();
-
-
             await GetOrganizationCollectionLookupAsync();
-
-
-            
+            PagedResultDto<OrganizationDto> organizations =
+                await OrganizationsAppService.GetFilterTypeAsync(new GetOrganizationsInput(),
+                    OrganizationType.CUSTOMER);
+            Organizations = organizations.Items.ToList();
+            PagedResultDto<ContactDto> contacts = await ContactsAppService.GetListAsync(new GetContactsInput());
+            Contacts = contacts.Items.ToList();
+            var userList = await UserAppService.GetListAsync(new GetIdentityUsersInput());
+            Agents = userList.Items.ToList();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -96,18 +116,20 @@ private IReadOnlyList<LookupDto<Guid>> OrganizationsCollection { get; set; } = n
 
         protected virtual ValueTask SetBreadcrumbItemsAsync()
         {
-            BreadcrumbItems.Add(new Volo.Abp.BlazoriseUI.BreadcrumbItem(L["Menu:RequestForQuotations"]));
+            BreadcrumbItems.Add(new BreadcrumbItem(L["Menu:RequestForQuotations"]));
             return ValueTask.CompletedTask;
         }
 
         protected virtual ValueTask SetToolbarItemsAsync()
         {
-            Toolbar.AddButton(L["ExportToExcel"], async () =>{ await DownloadAsExcelAsync(); }, IconName.Download);
-            
-            Toolbar.AddButton(L["NewRequestForQuotation"], async () =>
-            {
-                await OpenCreateRequestForQuotationModalAsync();
-            }, IconName.Add, requiredPolicyName: IBLTermocasaPermissions.RequestForQuotations.Create);
+            Toolbar.AddButton(L["ExportToExcel"], async () => { await DownloadAsExcelAsync(); }, IconName.Download);
+
+            Toolbar.AddButton(L["NewRequestForQuotation"], () =>
+                {
+                    OpenCreateRequestForQuotationPageAsync();
+                    return Task.CompletedTask;
+                }, IconName.Add,
+                requiredPolicyName: IBLTermocasaPermissions.RequestForQuotations.Create);
 
             return ValueTask.CompletedTask;
         }
@@ -117,11 +139,9 @@ private IReadOnlyList<LookupDto<Guid>> OrganizationsCollection { get; set; } = n
             CanCreateRequestForQuotation = await AuthorizationService
                 .IsGrantedAsync(IBLTermocasaPermissions.RequestForQuotations.Create);
             CanEditRequestForQuotation = await AuthorizationService
-                            .IsGrantedAsync(IBLTermocasaPermissions.RequestForQuotations.Edit);
+                 .IsGrantedAsync(IBLTermocasaPermissions.RequestForQuotations.Edit);
             CanDeleteRequestForQuotation = await AuthorizationService
-                            .IsGrantedAsync(IBLTermocasaPermissions.RequestForQuotations.Delete);
-                            
-                            
+                 .IsGrantedAsync(IBLTermocasaPermissions.RequestForQuotations.Delete);
         }
 
         private async Task GetRequestForQuotationsAsync()
@@ -133,8 +153,6 @@ private IReadOnlyList<LookupDto<Guid>> OrganizationsCollection { get; set; } = n
             var result = await RequestForQuotationsAppService.GetListAsync(Filter);
             RequestForQuotationList = result.Items;
             TotalCount = (int)result.TotalCount;
-            
-            
         }
 
         protected virtual async Task SearchAsync()
@@ -154,46 +172,30 @@ private IReadOnlyList<LookupDto<Guid>> OrganizationsCollection { get; set; } = n
                 culture = "&culture=" + culture;
             }
             await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
-            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/request-for-quotations/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&QuoteNumber={HttpUtility.UrlEncode(Filter.QuoteNumber)}&WorkSite={HttpUtility.UrlEncode(Filter.WorkSite)}&City={HttpUtility.UrlEncode(Filter.City)}&OrganizationProperty={HttpUtility.UrlEncode(Filter.OrganizationProperty)}&ContactProperty={HttpUtility.UrlEncode(Filter.ContactProperty)}&PhoneInfo={HttpUtility.UrlEncode(Filter.PhoneInfo)}&MailInfo={HttpUtility.UrlEncode(Filter.MailInfo)}&DiscountMin={Filter.DiscountMin}&DiscountMax={Filter.DiscountMax}&Description={HttpUtility.UrlEncode(Filter.Description)}&Status={Filter.Status}&AgentId={Filter.AgentId}&ContactId={Filter.ContactId}&OrganizationId={Filter.OrganizationId}", forceLoad: true);
+            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/request-for-quotations/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&QuoteNumber={HttpUtility.UrlEncode(Filter.QuoteNumber)}&WorkSite={HttpUtility.UrlEncode(Filter.WorkSite)}&City={HttpUtility.UrlEncode(Filter.City)}&OrganizationProperty={HttpUtility.UrlEncode(Filter.OrganizationProperty.ToString())}&ContactProperty={HttpUtility.UrlEncode(Filter.ContactProperty.ToString())}&PhoneInfo={HttpUtility.UrlEncode(Filter.PhoneInfo.ToString())}&MailInfo={HttpUtility.UrlEncode(Filter.MailInfo.ToString())}&DiscountMin={Filter.DiscountMin}&DiscountMax={Filter.DiscountMax}&Description={HttpUtility.UrlEncode(Filter.Description)}&Status={Filter.Status}&AgentId={Filter.AgentId}&ContactId={Filter.ContactId}&OrganizationId={Filter.OrganizationId}", forceLoad: true);
         }
 
         private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<RequestForQuotationWithNavigationPropertiesDto> e)
         {
+            progress = 25;
+            await InvokeAsync(StateHasChanged);
             CurrentSorting = e.Columns
                 .Where(c => c.SortDirection != SortDirection.Default)
                 .Select(c => c.Field + (c.SortDirection == SortDirection.Descending ? " DESC" : ""))
                 .JoinAsString(",");
-            CurrentPage = e.Page;
-            await GetRequestForQuotationsAsync();
+            progress = 50;
             await InvokeAsync(StateHasChanged);
-        }
-
-        private async Task OpenCreateRequestForQuotationModalAsync()
-        {
-            NewRequestForQuotation = new RequestForQuotationCreateDto{
-                
-                
-            };
-            await NewRequestForQuotationValidations.ClearAll();
-            await CreateRequestForQuotationModal.Show();
-        }
-
-        private async Task CloseCreateRequestForQuotationModalAsync()
-        {
-            NewRequestForQuotation = new RequestForQuotationCreateDto{
-                
-                
-            };
-            await CreateRequestForQuotationModal.Hide();
+            CurrentPage = e.Page;
+            progress = 75;
+            await InvokeAsync(StateHasChanged);
+            await GetRequestForQuotationsAsync();
+            progress = 100;
+            await InvokeAsync(StateHasChanged);
         }
 
         private async Task OpenEditRequestForQuotationModalAsync(RequestForQuotationWithNavigationPropertiesDto input)
         {
-            var requestForQuotation = await RequestForQuotationsAppService.GetWithNavigationPropertiesAsync(input.RequestForQuotation.Id);
-            
-            EditingRequestForQuotationId = requestForQuotation.RequestForQuotation.Id;
-            EditingRequestForQuotation = ObjectMapper.Map<RequestForQuotationDto, RequestForQuotationUpdateDto>(requestForQuotation.RequestForQuotation);
-            await EditingRequestForQuotationValidations.ClearAll();
+            RequestForQuotationInput = input.RequestForQuotation;
             await EditRequestForQuotationModal.Show();
         }
 
@@ -202,26 +204,7 @@ private IReadOnlyList<LookupDto<Guid>> OrganizationsCollection { get; set; } = n
             await RequestForQuotationsAppService.DeleteAsync(input.RequestForQuotation.Id);
             await GetRequestForQuotationsAsync();
         }
-
-        private async Task CreateRequestForQuotationAsync()
-        {
-            try
-            {
-                if (await NewRequestForQuotationValidations.ValidateAll() == false)
-                {
-                    return;
-                }
-
-                await RequestForQuotationsAppService.CreateAsync(NewRequestForQuotation);
-                await GetRequestForQuotationsAsync();
-                await CloseCreateRequestForQuotationModalAsync();
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
-        }
-
+        
         private async Task CloseEditRequestForQuotationModalAsync()
         {
             await EditRequestForQuotationModal.Hide();
@@ -236,9 +219,10 @@ private IReadOnlyList<LookupDto<Guid>> OrganizationsCollection { get; set; } = n
                     return;
                 }
 
-                await RequestForQuotationsAppService.UpdateAsync(EditingRequestForQuotationId, EditingRequestForQuotation);
+                await RequestForQuotationsAppService.UpdateAsync(EditingRequestForQuotationId,
+                    EditingRequestForQuotation);
                 await GetRequestForQuotationsAsync();
-                await EditRequestForQuotationModal.Hide();                
+                await EditRequestForQuotationModal.Hide();
             }
             catch (Exception ex)
             {
@@ -246,15 +230,20 @@ private IReadOnlyList<LookupDto<Guid>> OrganizationsCollection { get; set; } = n
             }
         }
 
-        private void OnSelectedCreateTabChanged(string name)
+        private void OpenEditRequestForQuotationPageAsync(RequestForQuotationWithNavigationPropertiesDto input)
         {
-            SelectedCreateTab = name;
+            //navigate to the page RequestForQuotationDetails
+            SelectedRequestForQuotation = input.RequestForQuotation;
+            NavigationManager.NavigateTo($"/request-for-quotation/{input.RequestForQuotation.Id}");
         }
 
-        private void OnSelectedEditTabChanged(string name)
+        private void OpenCreateRequestForQuotationPageAsync()
         {
-            SelectedEditTab = name;
+            //navigate to the page RequestForQuotationCreate
+            NavigationManager.NavigateTo($"/RfqCreate");
         }
+        
+// Metodi per la gestione dei filtri
 
         protected virtual async Task OnQuoteNumberChangedAsync(string? quoteNumber)
         {
@@ -273,22 +262,28 @@ private IReadOnlyList<LookupDto<Guid>> OrganizationsCollection { get; set; } = n
         }
         protected virtual async Task OnOrganizationPropertyChangedAsync(string? organizationProperty)
         {
-            Filter.OrganizationProperty = organizationProperty;
+            Filter.OrganizationProperty = new OrganizationProperty(Guid.Empty, organizationProperty);
             await SearchAsync();
         }
         protected virtual async Task OnContactPropertyChangedAsync(string? contactProperty)
         {
-            Filter.ContactProperty = contactProperty;
+            Filter.ContactProperty = new ContactProperty(Guid.Empty, contactProperty);
             await SearchAsync();
         }
         protected virtual async Task OnPhoneInfoChangedAsync(string? phoneInfo)
         {
-            Filter.PhoneInfo = phoneInfo;
+            PhoneInfo temp = new PhoneInfo();
+            temp.PhoneItems.Add(new PhoneItem());
+            temp.PhoneItems[0].Number = phoneInfo;
+            Filter.PhoneInfo = temp;
             await SearchAsync();
         }
         protected virtual async Task OnMailInfoChangedAsync(string? mailInfo)
         {
-            Filter.MailInfo = mailInfo;
+            MailInfo temp = new MailInfo();
+            temp.MailItems.Add(new MailItem());
+            temp.MailItems[0].Email = mailInfo;
+            Filter.MailInfo = temp;
             await SearchAsync();
         }
         protected virtual async Task OnDiscountMinChangedAsync(decimal? discountMin)
@@ -326,28 +321,20 @@ private IReadOnlyList<LookupDto<Guid>> OrganizationsCollection { get; set; } = n
             Filter.OrganizationId = organizationId;
             await SearchAsync();
         }
-        
-
         private async Task GetIdentityUserCollectionLookupAsync(string? newValue = null)
         {
             IdentityUsersCollection = (await RequestForQuotationsAppService.GetIdentityUserLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
         }
-
         private async Task GetContactCollectionLookupAsync(string? newValue = null)
         {
             ContactsCollection = (await RequestForQuotationsAppService.GetContactLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
         }
-
         private async Task GetOrganizationCollectionLookupAsync(string? newValue = null)
         {
             OrganizationsCollection = (await RequestForQuotationsAppService.GetOrganizationLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
         }
 
-
-
-
-
-
+// Fine metodi per la gestione dei filtri
 
     }
 }

@@ -1,0 +1,70 @@
+@using IBLTermocasa.RequestForQuotations
+@inherits IBLTermocasaComponentBase
+
+
+<EditForm Model="@SelectedRequestForQuotationItem">
+    <Validations @ref="@RequestForQuotationItemValidations"
+                 Mode="ValidationMode.Auto"
+                 Model="@SelectedRequestForQuotationItem"
+                 ValidateOnLoad="false">
+        <Fields>
+            <Field ColumnSize="ColumnSize.Is6">
+                <FieldLabel RequiredIndicator="true">@L["Quantity"]</FieldLabel>
+                <FieldBody>
+                    <InputNumber class="input-quantity" @bind-Value="@SelectedRequestForQuotationItem.Quantity"></InputNumber>
+                </FieldBody>
+            </Field>
+        </Fields>
+        @*<Button Color="Color.Primary" Size="Size.ExtraSmall"
+                Visibility="Visibility.Visible"
+                Clicked="async () => await OpenEditQuestionTemplateModalAsync(null)">
+            <Icon Name="IconName.Add" IconSize="IconSize.ExtraSmall"/>
+        </Button>*@
+        
+        <DataGrid TItem="Answer"
+                  Data="SelectedRequestForQuotationItem.Answers">
+            <DataGridColumns>
+                <DataGridColumn
+                    Caption="@L["Question"]">
+                    <DisplayTemplate Context="templateContext">
+                        @GetQuestionName(templateContext.QuestionId)
+                    </DisplayTemplate>
+                </DataGridColumn>
+                <DataGridColumn TItem="Answer" Field="AnswerValue" Caption="@L["AnswerValue"]"/>
+            </DataGridColumns>  
+        </DataGrid>
+    </Validations>
+    <Fields>
+        <Field>
+            <Button Color="Color.Primary" Type="ButtonType.Submit" Size="Size.Small" Class="me-2" Clicked="HandleValidSubmit">@L["Save"]</Button>
+        </Field>
+        <Field>
+            <Button Color="Color.Secondary" Clicked="HandleCancel" Size="Size.Small" Class="me-2">@L["Cancel"]</Button>
+        </Field>
+    </Fields>
+</EditForm>
+
+<Modal @ref="EditQuestionTemplateModal"
+       Closing="@EditQuestionTemplateModal.CancelClosingModalWhenFocusLost"
+       Animated="true"
+       RenderMode="ModalRenderMode.LazyReload">
+    <ModalContent Centered="true" Size="@ModalSize.ExtraLarge">
+        <ModalHeader>
+            <ModalTitle>Template Domanda</ModalTitle>
+            <CloseButton Clicked="CloseEditRequestForQuotationItemModalAsync" />
+        </ModalHeader>
+        @*<ModalBody>
+            <QuestionTemplateInput
+                IsNew="true"
+                SelectedQuestionTemplate="@SelectedQuestionTemplate"
+                OnQuestionTemplateCancel="@CloseEditRequestForQuotationItemModalAsync"
+                OnQuestionTemplateSaved="@OnQuestionTemplateSaved"
+            >
+                
+            </QuestionTemplateInput>
+        </ModalBody>*@
+    </ModalContent>
+</Modal>
+@code {
+    
+}

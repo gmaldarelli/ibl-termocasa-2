@@ -36,7 +36,9 @@ namespace IBLTermocasa.Products
 
         protected Product()
         {
-
+            Components = new Collection<ProductComponent>();
+            QuestionTemplates = new Collection<ProductQuestionTemplate>();
+            Subproducts = new Collection<Subproduct>();
         }
 
         public Product(Guid id, string code, string name, bool isAssembled, bool isInternal, string? description = null)

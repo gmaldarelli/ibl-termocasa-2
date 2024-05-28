@@ -97,6 +97,12 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<QuestionTemplate, QuestionTemplateDto>();
         CreateMap<QuestionTemplate, QuestionTemplateExcelDto>();
 
+        CreateMap<RequestForQuotationDto, RequestForQuotationUpdateDto>();
+        CreateMap<RequestForQuotationDto, RequestForQuotationCreateDto>();
+        CreateMap<RequestForQuotationCreateDto, RequestForQuotation>();
+        CreateMap<RequestForQuotationUpdateDto, RequestForQuotation>();
+        CreateMap<RequestForQuotation, RequestForQuotationUpdateDto>();
+        CreateMap<RequestForQuotation, RequestForQuotationCreateDto>();
         CreateMap<RequestForQuotation, RequestForQuotationDto>();
         CreateMap<RequestForQuotation, RequestForQuotationExcelDto>();
         CreateMap<RequestForQuotationWithNavigationProperties, RequestForQuotationWithNavigationPropertiesDto>();

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace IBLTermocasa.Subproducts
 {
-    public abstract class SubproductUpdateDtoBase
+    public class SubproductUpdateDto
     {
         public Guid ProductId { get; set; }
         public int Order { get; set; }

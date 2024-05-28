@@ -174,5 +174,15 @@ namespace IBLTermocasa.Organizations
                 Token = token
             };
         }
+        
+        public async Task<PagedResultDto<OrganizationDto>> GetFilterTypeAsync(GetOrganizationsInput? input, OrganizationType organizationType)
+        {
+            var returnVal = await _organizationRepository.GetFilterTypeAsync(input, organizationType);
+            return new PagedResultDto<OrganizationDto>
+            {
+                TotalCount = await _organizationRepository.GetCountAsync(input?.FilterText, input?.Name),
+                Items = ObjectMapper.Map<List<Organization>, List<OrganizationDto>>(returnVal)
+            };
+        }
     }
 }

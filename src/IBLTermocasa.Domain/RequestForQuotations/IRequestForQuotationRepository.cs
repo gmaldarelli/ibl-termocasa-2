@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using IBLTermocasa.Common;
 using Volo.Abp.Domain.Repositories;
 
 namespace IBLTermocasa.RequestForQuotations
@@ -19,10 +20,10 @@ namespace IBLTermocasa.RequestForQuotations
             string? quoteNumber = null,
             string? workSite = null,
             string? city = null,
-            string? organizationProperty = null,
-            string? contactProperty = null,
-            string? phoneInfo = null,
-            string? mailInfo = null,
+            OrganizationProperty? organizationProperty = null,
+            ContactProperty? contactProperty = null,
+            PhoneInfo? phoneInfo = null,
+            MailInfo? mailInfo = null,
             decimal? discountMin = null,
             decimal? discountMax = null,
             string? description = null,
@@ -41,10 +42,10 @@ namespace IBLTermocasa.RequestForQuotations
                     string? quoteNumber = null,
                     string? workSite = null,
                     string? city = null,
-                    string? organizationProperty = null,
-                    string? contactProperty = null,
-                    string? phoneInfo = null,
-                    string? mailInfo = null,
+                    OrganizationProperty? organizationProperty = null,
+                    ContactProperty? contactProperty = null,
+                    PhoneInfo? phoneInfo = null,
+                    MailInfo? mailInfo = null,
                     decimal? discountMin = null,
                     decimal? discountMax = null,
                     string? description = null,
@@ -60,10 +61,10 @@ namespace IBLTermocasa.RequestForQuotations
             string? quoteNumber = null,
             string? workSite = null,
             string? city = null,
-            string? organizationProperty = null,
-            string? contactProperty = null,
-            string? phoneInfo = null,
-            string? mailInfo = null,
+            OrganizationProperty? organizationProperty = null,
+            ContactProperty? contactProperty = null,
+            PhoneInfo? phoneInfo = null,
+            MailInfo? mailInfo = null,
             decimal? discountMin = null,
             decimal? discountMax = null,
             string? description = null,

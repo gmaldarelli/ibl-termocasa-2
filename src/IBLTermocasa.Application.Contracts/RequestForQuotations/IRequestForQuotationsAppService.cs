@@ -32,6 +32,6 @@ namespace IBLTermocasa.RequestForQuotations
 
         Task<IRemoteStreamContent> GetListAsExcelFileAsync(RequestForQuotationExcelDownloadDto input);
 
-        Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync();
+        Task<DownloadTokenResultDto> GetDownloadTokenAsync();
     }
 }

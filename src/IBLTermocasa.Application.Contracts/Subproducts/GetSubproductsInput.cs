@@ -3,7 +3,7 @@ using System;
 
 namespace IBLTermocasa.Subproducts
 {
-    public abstract class GetSubproductsInputBase : PagedAndSortedResultRequestDto
+    public class GetSubproductsInput : PagedAndSortedResultRequestDto
     {
         public Guid? ProductId { get; set; }
 
@@ -15,7 +15,7 @@ namespace IBLTermocasa.Subproducts
         public bool? IsSingleProduct { get; set; }
         public bool? Mandatory { get; set; }
 
-        public GetSubproductsInputBase()
+        public GetSubproductsInput()
         {
 
         }

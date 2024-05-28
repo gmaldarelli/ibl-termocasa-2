@@ -20,47 +20,18 @@ namespace IBLTermocasa.RequestForQuotations
             _requestForQuotationRepository = requestForQuotationRepository;
         }
 
-        public virtual async Task<RequestForQuotation> CreateAsync(
-        Guid? agentId, Guid? contactId, Guid? organizationId, string quoteNumber, decimal discount, Status status, string? workSite = null, string? city = null, string? organizationProperty = null, string? contactProperty = null, string? phoneInfo = null, string? mailInfo = null, string? description = null)
+        public virtual async Task<RequestForQuotation> CreateAsync(RequestForQuotation requestForQuotation)
         {
-            Check.NotNullOrWhiteSpace(quoteNumber, nameof(quoteNumber));
-            Check.NotNull(status, nameof(status));
-
-            var requestForQuotation = new RequestForQuotation(
-             GuidGenerator.Create(),
-             agentId, contactId, organizationId, quoteNumber, discount, status, workSite, city, organizationProperty, contactProperty, phoneInfo, mailInfo, description
-             );
-
+            Check.NotNull(requestForQuotation, nameof(requestForQuotation));
             return await _requestForQuotationRepository.InsertAsync(requestForQuotation);
         }
 
-        public virtual async Task<RequestForQuotation> UpdateAsync(
-            Guid id,
-            Guid? agentId, Guid? contactId, Guid? organizationId, string quoteNumber, decimal discount, Status status, string? workSite = null, string? city = null, string? organizationProperty = null, string? contactProperty = null, string? phoneInfo = null, string? mailInfo = null, string? description = null, [CanBeNull] string? concurrencyStamp = null
-        )
+        public virtual async Task<RequestForQuotation> UpdateAsync(Guid id, RequestForQuotation requestForQuotation)
         {
-            Check.NotNullOrWhiteSpace(quoteNumber, nameof(quoteNumber));
-            Check.NotNull(status, nameof(status));
-
-            var requestForQuotation = await _requestForQuotationRepository.GetAsync(id);
-
-            requestForQuotation.AgentId = agentId;
-            requestForQuotation.ContactId = contactId;
-            requestForQuotation.OrganizationId = organizationId;
-            requestForQuotation.QuoteNumber = quoteNumber;
-            requestForQuotation.Discount = discount;
-            requestForQuotation.Status = status;
-            requestForQuotation.WorkSite = workSite;
-            requestForQuotation.City = city;
-            requestForQuotation.OrganizationProperty = organizationProperty;
-            requestForQuotation.ContactProperty = contactProperty;
-            requestForQuotation.PhoneInfo = phoneInfo;
-            requestForQuotation.MailInfo = mailInfo;
-            requestForQuotation.Description = description;
-
-            requestForQuotation.SetConcurrencyStampIfNotNull(concurrencyStamp);
-            return await _requestForQuotationRepository.UpdateAsync(requestForQuotation);
+            Check.NotNull(requestForQuotation, nameof(requestForQuotation));
+            var existingRequestForQuotation = await _requestForQuotationRepository.GetAsync(id);
+            RequestForQuotation.FillPropertiesForUpdate(requestForQuotation, existingRequestForQuotation);
+            return await _requestForQuotationRepository.UpdateAsync(existingRequestForQuotation);
         }
-
     }
 }

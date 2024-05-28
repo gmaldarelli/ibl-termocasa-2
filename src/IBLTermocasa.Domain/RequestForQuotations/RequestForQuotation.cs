@@ -6,6 +6,8 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Reflection;
+using IBLTermocasa.Common;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
@@ -29,16 +31,16 @@ namespace IBLTermocasa.RequestForQuotations
         public virtual string? City { get; set; }
 
         [CanBeNull]
-        public virtual string? OrganizationProperty { get; set; }
+        public virtual OrganizationProperty? OrganizationProperty { get; set; }
 
         [CanBeNull]
-        public virtual string? ContactProperty { get; set; }
+        public virtual ContactProperty? ContactProperty { get; set; }
 
         [CanBeNull]
-        public virtual string? PhoneInfo { get; set; }
+        public virtual PhoneInfo? PhoneInfo { get; set; }
 
         [CanBeNull]
-        public virtual string? MailInfo { get; set; }
+        public virtual MailInfo? MailInfo { get; set; }
 
         public virtual decimal Discount { get; set; }
 
@@ -49,13 +51,13 @@ namespace IBLTermocasa.RequestForQuotations
         public Guid? AgentId { get; set; }
         public Guid? ContactId { get; set; }
         public Guid? OrganizationId { get; set; }
-
+        public List<RequestForQuotationItem>? RequestForQuotationItems { get; set; } = new();
         protected RequestForQuotation()
         {
 
         }
 
-        public RequestForQuotation(Guid id, Guid? agentId, Guid? contactId, Guid? organizationId, string quoteNumber, decimal discount, Status status, string? workSite = null, string? city = null, string? organizationProperty = null, string? contactProperty = null, string? phoneInfo = null, string? mailInfo = null, string? description = null)
+        public RequestForQuotation(Guid id, Guid? agentId, Guid? contactId, Guid? organizationId, string quoteNumber, decimal discount, Status status, string? workSite = null, string? city = null, OrganizationProperty? organizationProperty = null, ContactProperty? contactProperty = null, PhoneInfo? phoneInfo = null, MailInfo? mailInfo = null, string? description = null, List<RequestForQuotationItem> requestForQuotationItems = null)
         {
 
             Id = id;
@@ -73,6 +75,36 @@ namespace IBLTermocasa.RequestForQuotations
             AgentId = agentId;
             ContactId = contactId;
             OrganizationId = organizationId;
+            RequestForQuotationItems = requestForQuotationItems;
+        }
+        
+        //generete static methot to fill all properties of the Organization except the Id using reflection with 2 variants source and destination
+        public static RequestForQuotation FillProperties(RequestForQuotation source, RequestForQuotation destination,
+            IEnumerable<PropertyInfo> properties)
+        {
+            foreach (var property in properties)
+            {
+                var sourceValue = property.GetValue(source);
+                property.SetValue(destination, sourceValue);
+            }
+
+            return destination;
+        }
+
+        public static RequestForQuotation FillPropertiesForInsert(RequestForQuotation source,
+            RequestForQuotation destination)
+        {
+            var properties = typeof(RequestForQuotation).GetProperties()
+                .Where(p => p.CanRead && p.CanWrite && p.Name != "Id" && p.Name != "ConcurrencyStamp");
+            return FillProperties(source, destination, properties);
+        }
+
+        public static RequestForQuotation FillPropertiesForUpdate(RequestForQuotation source,
+            RequestForQuotation destination)
+        {
+            var properties = typeof(RequestForQuotation).GetProperties()
+                .Where(p => p.CanRead && p.CanWrite && p.Name != "Id");
+            return FillProperties(source, destination, properties);
         }
 
     }

@@ -132,5 +132,16 @@ namespace IBLTermocasa.Organizations
                 .WhereIf(!string.IsNullOrWhiteSpace(tags), e => e.Tags.Contains(tags))
                 .WhereIf(industryId != null && industryId != Guid.Empty, e => e.IndustryId == industryId);
         }
+        
+        public virtual async Task<List<Organization>> GetFilterTypeAsync(GetOrganizationsInput? input, OrganizationType organizationType,
+            CancellationToken cancellationToken = default)
+        {
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), input.FilterText, input.Name);
+            
+            query = query.OrderBy(string.IsNullOrWhiteSpace("Name") ? OrganizationConsts.GetDefaultSorting(false) : "Name");
+            return await query.As<IMongoQueryable<Organization>>()
+                .PageBy<Organization, IMongoQueryable<Organization>>(0,100)
+                .ToListAsync(GetCancellationToken(cancellationToken));
+        }
     }
 }

@@ -7,7 +7,7 @@ using Volo.Abp.Application.Services;
 
 namespace IBLTermocasa.Subproducts
 {
-    public partial interface ISubproductsAppService : IApplicationService
+    public interface ISubproductsAppService : IApplicationService
     {
         Task<PagedResultDto<SubproductDto>> GetListByProductIdAsync(GetSubproductListInput input);
         Task<PagedResultDto<SubproductWithNavigationPropertiesDto>> GetListWithNavigationPropertiesByProductIdAsync(GetSubproductListInput input);

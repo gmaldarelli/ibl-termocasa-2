@@ -123,24 +123,15 @@ namespace IBLTermocasa.RequestForQuotations
         [Authorize(IBLTermocasaPermissions.RequestForQuotations.Create)]
         public virtual async Task<RequestForQuotationDto> CreateAsync(RequestForQuotationCreateDto input)
         {
-
-            var requestForQuotation = await _requestForQuotationManager.CreateAsync(
-            input.AgentId, input.ContactId, input.OrganizationId, input.QuoteNumber, input.Discount, input.Status, input.WorkSite, input.City, input.OrganizationProperty, input.ContactProperty, input.PhoneInfo, input.MailInfo, input.Description
-            );
-
-            return ObjectMapper.Map<RequestForQuotation, RequestForQuotationDto>(requestForQuotation);
+            var requestForQuotation = ObjectMapper.Map<RequestForQuotationCreateDto, RequestForQuotation>(input);
+            return ObjectMapper.Map<RequestForQuotation, RequestForQuotationDto>(await _requestForQuotationManager.CreateAsync(requestForQuotation));
         }
 
         [Authorize(IBLTermocasaPermissions.RequestForQuotations.Edit)]
         public virtual async Task<RequestForQuotationDto> UpdateAsync(Guid id, RequestForQuotationUpdateDto input)
         {
-
-            var requestForQuotation = await _requestForQuotationManager.UpdateAsync(
-            id,
-            input.AgentId, input.ContactId, input.OrganizationId, input.QuoteNumber, input.Discount, input.Status, input.WorkSite, input.City, input.OrganizationProperty, input.ContactProperty, input.PhoneInfo, input.MailInfo, input.Description, input.ConcurrencyStamp
-            );
-
-            return ObjectMapper.Map<RequestForQuotation, RequestForQuotationDto>(requestForQuotation);
+            var requestForQuotationDto = ObjectMapper.Map<RequestForQuotationUpdateDto, RequestForQuotation>(input);
+            return ObjectMapper.Map<RequestForQuotation, RequestForQuotationDto>(await _requestForQuotationManager.UpdateAsync(id, requestForQuotationDto));
         }
 
         [AllowAnonymous]

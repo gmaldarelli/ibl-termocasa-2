@@ -5,7 +5,7 @@ using Volo.Abp.Application.Dtos;
 
 namespace IBLTermocasa.Subproducts
 {
-    public abstract class SubproductDtoBase : EntityDto<Guid>
+    public class SubproductDto : EntityDto<Guid>
     {
         public Guid ProductId { get; set; }
         public int Order { get; set; }

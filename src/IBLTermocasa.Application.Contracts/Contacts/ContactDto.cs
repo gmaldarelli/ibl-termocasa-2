@@ -27,5 +27,10 @@ namespace IBLTermocasa.Contacts
         public string Phones => PhoneInfo.PhoneItems.Count > 0 ? string.Join(", ", PhoneInfo.PhoneItems) : string.Empty;
         public string Emails => MailInfo.MailItems.Count > 0 ? string.Join(", ", MailInfo.MailItems) : string.Empty;
 
+        
+        public string ToStringNameSurname()
+        {
+            return $"{Name} {Surname}";
+        }
     }
 }

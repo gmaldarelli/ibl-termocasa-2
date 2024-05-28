@@ -10,7 +10,7 @@ namespace IBLTermocasa.Catalogs
     {
         public CatalogDto Catalog { get; set; } = null!;
 
-        public List<ProductDto> Products { get; set; } = new List<ProductDto>();
+        public List<ProductDto> Products { get; set; } = new();
 
     }
 }

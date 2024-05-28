@@ -56,6 +56,10 @@ namespace IBLTermocasa.Organizations
             Guid? industryId = null,
             OrganizationType? organizationTypePreFiilter = null,
             CancellationToken cancellationToken = default);
+        
+        
+        Task<List<Organization>> GetFilterTypeAsync(GetOrganizationsInput? input, OrganizationType organizationType,
+            CancellationToken cancellationToken = default);
     }
     
 }

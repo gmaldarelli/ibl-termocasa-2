@@ -9,4 +9,3 @@ public enum AnswerType
     LARGE_TEXT = 4,
     CHOICE = 5
 }
-    

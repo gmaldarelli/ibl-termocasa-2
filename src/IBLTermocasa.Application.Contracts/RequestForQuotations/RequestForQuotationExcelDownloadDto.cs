@@ -1,6 +1,7 @@
 using IBLTermocasa.RequestForQuotations;
 using Volo.Abp.Application.Dtos;
 using System;
+using IBLTermocasa.Common;
 
 namespace IBLTermocasa.RequestForQuotations
 {
@@ -13,10 +14,10 @@ namespace IBLTermocasa.RequestForQuotations
         public string? QuoteNumber { get; set; }
         public string? WorkSite { get; set; }
         public string? City { get; set; }
-        public string? OrganizationProperty { get; set; }
-        public string? ContactProperty { get; set; }
-        public string? PhoneInfo { get; set; }
-        public string? MailInfo { get; set; }
+        public OrganizationProperty? OrganizationProperty { get; set; }
+        public ContactProperty? ContactProperty { get; set; }
+        public PhoneInfo? PhoneInfo { get; set; }
+        public MailInfo? MailInfo { get; set; }
         public decimal? DiscountMin { get; set; }
         public decimal? DiscountMax { get; set; }
         public string? Description { get; set; }

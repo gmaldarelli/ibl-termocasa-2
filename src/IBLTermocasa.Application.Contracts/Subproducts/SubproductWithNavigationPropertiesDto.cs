@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace IBLTermocasa.Subproducts
 {
-    public abstract class SubproductWithNavigationPropertiesDtoBase
+    public class SubproductWithNavigationPropertiesDto
     {
         public SubproductDto Subproduct { get; set; } = null!;
 

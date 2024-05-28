@@ -10,6 +10,7 @@ using Volo.Abp.Application.Dtos;
 using IBLTermocasa.Organizations;
 using Volo.Abp.Content;
 using IBLTermocasa.Shared;
+using IBLTermocasa.Types;
 
 namespace IBLTermocasa.Controllers.Organizations
 {
@@ -86,6 +87,13 @@ namespace IBLTermocasa.Controllers.Organizations
         public virtual Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync()
         {
             return _organizationsAppService.GetDownloadTokenAsync();
+        }
+        
+        [HttpGet]
+        [Route("filter-organization")]
+        public Task<PagedResultDto<OrganizationDto>> GetFilterTypeAsync(GetOrganizationsInput? input, OrganizationType organizationType)
+        {
+            return _organizationsAppService.GetFilterTypeAsync(input, organizationType);
         }
     }
 }

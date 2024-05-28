@@ -17,5 +17,7 @@ namespace IBLTermocasa.Products
         public string ConcurrencyStamp { get; set; } = null!;
 
         public List<SubproductWithNavigationPropertiesDto> Subproducts { get; set; } = new();
+        public List<ProductComponentDto> Components { get; set; } = new();
+        public List<ProductQuestionTemplateDto> QuestionTemplates { get; set; } = new();
     }
 }

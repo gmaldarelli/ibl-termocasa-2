@@ -117,6 +117,9 @@ public class IBLTermocasaDbMigrationService : ITransientDependency
             .WithProperty(IdentityDataSeedContributor.AdminPasswordPropertyName,
                 IBLTermocasaConsts.AdminPasswordDefaultValue)
         );
+        
+        //Codice da commentare se è stato eseguito la migrazione già una volta
+        
         //await SeedCustomerDataAsync(tenant: tenant);
         //await SeedMaterialDataAsync(tenant: tenant);
     }

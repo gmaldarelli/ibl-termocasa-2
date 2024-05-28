@@ -12,7 +12,7 @@ namespace IBLTermocasa.RequestForQuotations
         public string? ContactProperty { get; set; }
         public string? PhoneInfo { get; set; }
         public string? MailInfo { get; set; }
-        public decimal Discount { get; set; }
+        public decimal? Discount { get; set; }
         public string? Description { get; set; }
         public Status Status { get; set; }
     }
