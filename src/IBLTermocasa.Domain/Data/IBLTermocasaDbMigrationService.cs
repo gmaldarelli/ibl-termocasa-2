@@ -117,14 +117,14 @@ public class IBLTermocasaDbMigrationService : ITransientDependency
             .WithProperty(IdentityDataSeedContributor.AdminPasswordPropertyName,
                 IBLTermocasaConsts.AdminPasswordDefaultValue)
         );
-        await SeedCustomerDataAsync(tenant: tenant);
+        //await SeedCustomerDataAsync(tenant: tenant);
         //await SeedMaterialDataAsync(tenant: tenant);
     }
 
     private async Task SeedCustomerDataAsync(Tenant? tenant = null)
     {
         Logger.LogInformation($"Executing {(tenant == null ? "host" : tenant.Name + " tenant")} database CustomerData seed...");
-        string filePath = "C:\\projects\\development\\malda\\python\\UtilsProject\\input.xlsx";
+        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\..\\..\\..\\etc\\Import\\", "customers.xlsx");
         BsonSerializer.RegisterSerializationProvider( new CustomGuidSerializationProvider());
         var importer = new DataImporter(_organizationRepository, _identityUserRepository, _industryRepository, _materialRepository);
         importer.ImportCustomerDataFromExcel(filePath);
@@ -132,7 +132,7 @@ public class IBLTermocasaDbMigrationService : ITransientDependency
     private async Task SeedMaterialDataAsync(Tenant? tenant = null)
     {
         Logger.LogInformation($"Executing {(tenant == null ? "host" : tenant.Name + " tenant")} database CustomerData seed...");
-        string filePath = "C:\\projects\\development\\malda\\python\\UtilsProject\\input2.xlsx";
+        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\..\\..\\..\\etc\\Import\\", "materials.xlsx");
         BsonSerializer.RegisterSerializationProvider( new CustomGuidSerializationProvider());
         var importer = new DataImporter(_organizationRepository, _identityUserRepository, _industryRepository, _materialRepository);
         importer.ImportMaterialDataFromExcel(filePath);
