@@ -10,27 +10,23 @@ using JetBrains.Annotations;
 
 using Volo.Abp;
 
-namespace IBLTermocasa.ComponentItems
+namespace IBLTermocasa.Components
 {
-    public abstract class ComponentItemBase : Entity<Guid>, IMultiTenant
+    public class ComponentItem
     {
-        public virtual Guid ComponentId { get; set; }
-
-        public virtual Guid? TenantId { get; set; }
-
-        public virtual bool IsDefault { get; set; }
+        
+        public Guid Id { get; set; }
+        public bool IsDefault { get; set; }
         public Guid MaterialId { get; set; }
 
-        protected ComponentItemBase()
+        protected ComponentItem()
         {
-
+            Id = Guid.NewGuid();
         }
 
-        public ComponentItemBase(Guid id, Guid componentId, Guid materialId, bool isDefault)
+        public ComponentItem(Guid id, Guid materialId, bool isDefault)
         {
-
             Id = id;
-            ComponentId = componentId;
             IsDefault = isDefault;
             MaterialId = materialId;
         }

@@ -30,13 +30,31 @@ namespace IBLTermocasa.Components
             await _componentRepository.InsertAsync(new Component
             (
                 id: Guid.Parse("93c4cb63-038b-48ba-8d3f-9a16fb6fa8b2"),
-                name: "5216cc1c456a489c830a"
+                name: "5216cc1c456a489c830a",
+                componentItems: new System.Collections.Generic.List<ComponentItem>
+                {
+                    new ComponentItem
+                    (
+                        id: Guid.Parse("f3b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b"),
+                        materialId: Guid.Parse("f3b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b"),
+                        isDefault: true
+                    )
+                }
             ));
 
             await _componentRepository.InsertAsync(new Component
             (
                 id: Guid.Parse("679c6836-e338-4e7e-b8f5-7c0cc6f103d0"),
-                name: "7e943dde2d0548d2b909b8061fca"
+                name: "7e943dde2d0548d2b909b8061fca",
+                componentItems: new System.Collections.Generic.List<ComponentItem>
+                {
+                    new ComponentItem
+                    (
+                        id: Guid.Parse("f3b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b"),
+                        materialId: Guid.Parse("f3b3b3b3-3b3b-3b3b-3b3b-3b3b3b3b3b3b"),
+                        isDefault: true
+                    )
+                }
             ));
 
             await _unitOfWorkManager!.Current!.SaveChangesAsync();

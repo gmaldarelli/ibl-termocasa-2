@@ -1,17 +1,16 @@
+using AutoMapper;
 using IBLTermocasa.Catalogs;
-using IBLTermocasa.RequestForQuotations;
-using IBLTermocasa.QuestionTemplates;
-using IBLTermocasa.Interactions;
-using IBLTermocasa.Organizations;
+using IBLTermocasa.Components;
 using IBLTermocasa.Contacts;
 using IBLTermocasa.Industries;
-using IBLTermocasa.Subproducts;
-using IBLTermocasa.Products;
-using IBLTermocasa.ComponentItems;
-using IBLTermocasa.Components;
-using Volo.Abp.AutoMapper;
+using IBLTermocasa.Interactions;
 using IBLTermocasa.Materials;
-using AutoMapper;
+using IBLTermocasa.Organizations;
+using IBLTermocasa.Products;
+using IBLTermocasa.QuestionTemplates;
+using IBLTermocasa.RequestForQuotations;
+using IBLTermocasa.Subproducts;
+using Volo.Abp.AutoMapper;
 
 namespace IBLTermocasa.Blazor;
 
@@ -24,8 +23,11 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<MaterialDto, MaterialUpdateDto>();
 
         CreateMap<ComponentDto, ComponentUpdateDto>();
-
-        CreateMap<ComponentItemDto, ComponentItemUpdateDto>();
+        CreateMap<ComponentUpdateDto, ComponentDto>();
+        CreateMap<ComponentDto, ComponentCreateDto>();
+        CreateMap<ComponentCreateDto, ComponentDto>();
+        CreateMap<ComponentItemDto, ComponentItem>();
+        CreateMap<ComponentItem, ComponentItemDto>();
 
         CreateMap<ProductDto, ProductUpdateDto>().Ignore(x => x.ComponentIds);
 

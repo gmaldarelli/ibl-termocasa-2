@@ -17,15 +17,15 @@
 @using Volo.Abp.ObjectMapping
 @using Volo.Abp.AspNetCore.Components.Messages
 @using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
-@using IBLTermocasa.ComponentItems 
 
 @using IBLTermocasa.Permissions
 @using Volo.Abp.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Components
+@using ComponentItemDto = IBLTermocasa.Components.ComponentItemDto
 @using Volo.Abp.Http.Client
+@using Blazorise
 @inherits IBLTermocasaComponentBase
 @inject IComponentsAppService ComponentsAppService
-@inject IComponentItemsAppService ComponentItemsAppService
 
 @inject IUiMessageService UiMessageService
 @inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
@@ -36,200 +36,151 @@
 <PageHeader Title="@L["Components"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
 
 </PageHeader>
-
-@* ************************* SEARCH ************************* *@
-<Card>
-    <CardBody>
-
-        <Form id="ComponentSearchForm" class="mb-3">
-            <Addons>
-                <Addon AddonType="AddonType.Body">
-                    <TextEdit @bind-Text="@Filter.FilterText"
-                              Autofocus="true"
-                              Placeholder="@L["Search"]">
-                    </TextEdit>
-                </Addon>
-                <Addon AddonType="AddonType.End">
-                    <SubmitButton Form="ComponentSearchForm" Clicked="GetComponentsAsync">
-                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
-                    </SubmitButton>
-                </Addon>
-            </Addons>
-        </Form>
-        
-        <Row Class="mt-3 mb-3"> 
-            <div class="col-md-12">
-                <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
-            </div>
-        </Row>
-        
-        <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
-            <Row>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["Name"]</FieldLabel>
-                        <TextEdit Text="@Filter.Name" TextChanged="@OnNameChangedAsync" />                       
-                    </Field>
-                </Column>
-            </Row>
-
-        </div>
-
-
-    </CardBody>
-</Card>
-
-@* ************************* DATA GRID ************************* *@
-<Card>
-    <CardBody>
-        <DataGrid TItem="ComponentDto"
-                  Data="ComponentList"
-                  
-                  DetailRowTrigger="@((x) => { x.Single = true; return ShouldShowDetailRow(); })"
-                  DetailRowStartsVisible="false"
-                  RowClicked="@((e) => { if (e.Item.Id == SelectedComponent?.Id) { SelectedComponent = null; } else { SelectedComponent = e.Item; } })"
-                  ReadData="OnDataGridReadAsync"
-                  TotalItems="TotalCount"
-                  ShowPager="true"
-                  Responsive="true"
-                  PageSize="PageSize"
-                  Class="datagrid-detail">
-            <DataGridColumns>
-                
-                @if (ShouldShowDetailRow())
-                {
-                    <DataGridColumn TItem="ComponentDto"
-                                    Field="Id"
-                                    Width="0.5rem">
-                        <DisplayTemplate>
-                            @if (context.Id == SelectedComponent?.Id)
-                            {
-                                <i class="fas fa-chevron-up"/>
-                            }
-                            else
-                            {
-                                <i class="fas fa-chevron-down"/>
-                            }
-                        </DisplayTemplate>
-                    </DataGridColumn>
-                }
-                <DataGridEntityActionsColumn TItem="ComponentDto" @ref="@EntityActionsColumn">
-                    <DisplayTemplate>
-                        <EntityActions TItem="ComponentDto" EntityActionsColumn="@EntityActionsColumn">
-                            <EntityAction TItem="ComponentDto"
-                                          Visible="@CanEditComponent"
-                                          Clicked="async () => await OpenEditComponentModalAsync(context)"
-                                          Text="@L["Edit"]"></EntityAction>
-                            <EntityAction TItem="ComponentDto"
-                                          Visible="@CanDeleteComponent"
-                                          Clicked="() => DeleteComponentAsync(context)"
-                                          ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
-                                          Text="@L["Delete"]"></EntityAction>
-
-                        </EntityActions>
-                    </DisplayTemplate>
-                </DataGridEntityActionsColumn>
-               
-              <DataGridColumn TItem="ComponentDto"
-                      Field="Name"
-                      Caption="@L["Name"]">
-              </DataGridColumn>
-
-            </DataGridColumns>
-            
-            <DetailRowTemplate>
-    <div class="bg-light rounded p-3 pb-0 pt-1">
-        <Tabs SelectedTab="@SelectedChildTab" SelectedTabChanged="@OnSelectedChildTabChanged">
-            <Items>
-                <Tab Name="componentitem-tab">@L["ComponentItems"]</Tab>
-            </Items>
-            
-            <Content>
-                                        <TabPanel Name="componentitem-tab" Class="mt-0">
-                            @if (CanCreateComponentItem)
-                            {
-                                <Row Class="mb-2">
-                                    <Column Class="d-flex justify-content-end">
-                                        <Button Color="Color.Primary" Clicked="async () => await OpenCreateComponentItemModalAsync(context.Id)">
-                                            <i class="fas fa-plus me-1"></i>@L["NewComponentItem"]
+<CardDeck>
+    <Card>
+        <Row>
+                @* ************************* SEARCH ************************* *@
+                <Card>
+                    <CardBody>
+                        <Row>
+                            <Form id="ComponentSearchForm" class="mb-3">
+                                <Addons>
+                                    <Addon AddonType="AddonType.Body">
+                                        <TextEdit @bind-Text="@Filter.FilterText"
+                                                  Autofocus="true"
+                                                  Placeholder="@L["Search"]">
+                                        </TextEdit>
+                                    </Addon>
+                                    <Addon AddonType="AddonType.End">
+                                        <SubmitButton Form="ComponentSearchForm" Clicked="GetComponentsAsync">
+                                            <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
+                                        </SubmitButton>
+                                    </Addon>
+                                </Addons>
+                            </Form>
+                        </Row>
+                        <Row>
+                            @* ************************* DATA GRID ************************* *@
+                            <DataGrid
+                                        @ref="@ComponentDtoDataGrid"
+                                        TItem="ComponentDto"
+                                      Data="ComponentList"
+                                      RowClicked="@OnComponentDtoDataGridRowClickedAsync"
+                                      ReadData="OnDataGridReadAsync"
+                                      TotalItems="TotalCount"
+                                      SelectionMode="DataGridSelectionMode.Single"
+                                      ShowPager="true"
+                                      Responsive="true"
+                                      PageSize="PageSize"
+                                      Class="datagrid-detail" bind-PageSize="5">
+                                <DataGridColumns>
+                                    <DataGridColumn TItem="ComponentDto"
+                                                    Field="Name"
+                                                    Caption="@L["Name"]">
+                                    </DataGridColumn>
+                                </DataGridColumns>
+                                <RowOverlayTemplate>
+                                    <Div id="@context.Item.Name" class="justify-content-start">
+                                        <Button Color="Color.Primary" Size="Size.Default"
+                                                Visibility="@((CanEditComponent) ? Visibility.Visible : Visibility.Invisible)"
+                                                Clicked="() => OpenEditComponentModalAsync(context.Item)">
+                                            <Icon Name="IconName.Edit" IconSize="IconSize.Default"/>
                                         </Button>
-                                    </Column>
-                                </Row>
-                            }
+                                        <Button Color="Color.Secondary" Size="Size.Default"
+                                                Visibility="@((CanDeleteComponent) ? Visibility.Visible : Visibility.Invisible)"
+                                                Clicked="async () => await DeleteComponentAsync(context.Item)">
+                                            <Icon Name="IconName.Delete" IconSize="IconSize.Default"/>
+                                        </Button>
+                                    </Div>
+                                </RowOverlayTemplate>
+                            </DataGrid>
+                        </Row>
+                    </CardBody>
+                </Card>
+        </Row>
+    </Card>
+    <Card>
+        <Row>
 
-                            @{
-                                var componentItems = (context as ComponentDto).ComponentItems;
+            @* ************************* DATA GRID COMPONENT_ITEM************************* *@
+            <Card>
+                <CardBody>
+                    @if (_selectedComponent == null)
+                    {
+                    <EmptyData/>
+                    }
+                    else
+                    {
+                    @if (CanCreateComponentItem)
+                    {
+                    <Row Class="mb-3">
+                        <Column Class="d-flex justify-content-start">
+                            <h5>@_selectedComponent.Name</h5>
+                        </Column>
+                        <Column Class="d-flex justify-content-end">
+                            <Button Color="Color.Primary" Clicked="async () => await OpenCreateComponentItemModalAsync(_selectedComponent.Id)">
+                                <i class="fas fa-plus me-1"></i>@L["NewComponentItem"]
+                            </Button>
+                        </Column>
+                    </Row>
+                    }
 
-                                <DataGrid @ref="@ComponentItemDataGrids[context.Id]"
-                                          TItem="ComponentItemWithNavigationPropertiesDto"
-                                          Data="componentItems"
-                                          ReadData="@((args) => OnComponentItemDataGridReadAsync(args, context.Id))"
-                                          Sortable="true"
-                                          ShowCaptions="true"
-                                          ShowPager="true"
-                                          Responsive="true"
-                                          PageSize="ComponentItemPageSize">
-
-                                    <DataGridColumns>
-
-                                        <DataGridEntityActionsColumn TItem="ComponentItemWithNavigationPropertiesDto" @ref="@ComponentItemEntityActionsColumns">
-                                            <DisplayTemplate Context="component_item_context">
-                                                <EntityActions TItem="ComponentItemWithNavigationPropertiesDto" EntityActionsColumn="@ComponentItemEntityActionsColumns">
-                                                    <EntityAction TItem="ComponentItemWithNavigationPropertiesDto"
-                                                                  Visible="@CanEditComponentItem"
-                                                                  Clicked="async () => await OpenEditComponentItemModalAsync(component_item_context)"
-                                                                  Text="@L["Edit"]">
-                                                    </EntityAction>
-                                                    <EntityAction TItem="ComponentItemWithNavigationPropertiesDto"
-                                                                  Visible="@CanDeleteComponentItem"
-                                                                  Clicked="async () => await DeleteComponentItemAsync(component_item_context)"
-                                                                  ConfirmationMessage="@(() => L["DeleteConfirmationMessage"])"
-                                                                  Text="@L["Delete"]">
-                                                    </EntityAction>
-                                                </EntityActions>
-                                            </DisplayTemplate>
-                                        </DataGridEntityActionsColumn>
-
-                                        <DataGridCommandColumn/>
-
-                                        
-              <DataGridColumn TItem="ComponentItemWithNavigationPropertiesDto"
-                      Field="ComponentItem.IsDefault"
-                      Caption="@L["IsDefault"]">
-                    <DisplayTemplate Context="component_item_context">
-                        @if (component_item_context.ComponentItem.IsDefault)
-                        {
-                            <Icon TextColor="TextColor.Success" Name="@IconName.Check" />
-                        }
-                        else
-                        {
-                            <Icon TextColor="TextColor.Danger" Name="@IconName.Times" />
-                        }
-                    </DisplayTemplate>
-              </DataGridColumn>
-
-
-              <DataGridColumn TItem="ComponentItemWithNavigationPropertiesDto"
-                      Field="Material.Name"
-                      Caption="@L["Material"]">
-              </DataGridColumn>
-
-                                    </DataGridColumns>
-                                </DataGrid>
-                            }
-                        </TabPanel>
-            </Content>
-        </Tabs>
-    </div>
-</DetailRowTemplate>
-        </DataGrid>
-    </CardBody>
-</Card>
+                    <DataGrid
+                        @ref="ComponentItemDataGrid"
+                        TItem="ComponentItemDto"
+                        Data="SelectedComponentItems"
+                        Sortable="false"
+                        ShowCaptions="true"
+                        ShowPager="true"
+                        Responsive="true"
+                        PageSize="ComponentItemPageSize">
+                        <DataGridColumns>
+                            <DataGridColumn TItem="ComponentItemDto"
+                                            Field="IsDefault"
+                                            Caption="@L["IsDefault"]">
+                                <DisplayTemplate Context="component_item_context">
+                                    @if (component_item_context.IsDefault)
+                                    {
+                                    <Icon TextColor="TextColor.Success" Name="@IconName.Check"/>
+                                    }
+                                    else
+                                    {
+                                    <Icon TextColor="TextColor.Danger" Name="@IconName.Times"/>
+                                    }
+                                </DisplayTemplate>
+                            </DataGridColumn>
+                            <DataGridColumn TItem="ComponentItemDto"
+                                            Field="MaterialCode"
+                                            Caption="@L["Material"]">
+                            </DataGridColumn>
+                            <DataGridColumn TItem="ComponentItemDto"
+                                            Field="MaterialName"
+                                            Caption="@L["Material"]">
+                            </DataGridColumn>
+                        </DataGridColumns>
+                        <RowOverlayTemplate>
+                            <Button Color="Color.Primary" Size="Size.ExtraLarge"
+                                    Visibility="@((CanEditComponent) ? Visibility.Visible : Visibility.Invisible)"
+                                    Clicked="() => OpenEditComponentItemModalAsync(context.Item)">
+                                <Icon Name="IconName.Edit" IconSize="IconSize.ExtraSmall"/>
+                            </Button>
+                            <Button Color="Color.Secondary" Size="Size.ExtraSmall"
+                                    Visibility="@((CanDeleteComponent) ? Visibility.Visible : Visibility.Invisible)"
+                                    Clicked="async () => await DeleteComponentItemAsync(context.Item)">
+                                <Icon Name="IconName.Delete" IconSize="IconSize.ExtraSmall"/>
+                            </Button>
+                        </RowOverlayTemplate>
+                    </DataGrid>
+                    }
+                </CardBody>
+            </Card>
+        </Row>
+    </Card>
+</CardDeck>
 
 @* ************************* CREATE MODAL ************************* *@
 <Modal @ref="CreateComponentModal" Closing="@CreateComponentModal.CancelClosingModalWhenFocusLost">
     <ModalContent Centered="true">
-
         <Form id="CreateComponentForm">
             <ModalHeader>
                 <ModalTitle>@L["NewComponent"]</ModalTitle>

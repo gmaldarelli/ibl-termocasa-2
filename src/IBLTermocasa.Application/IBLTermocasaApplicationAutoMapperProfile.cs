@@ -8,7 +8,6 @@ using IBLTermocasa.Contacts;
 using IBLTermocasa.Industries;
 using IBLTermocasa.Subproducts;
 using IBLTermocasa.Products;
-using IBLTermocasa.ComponentItems;
 using IBLTermocasa.Components;
 using System;
 using IBLTermocasa.Shared;
@@ -32,11 +31,13 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
 
         CreateMap<Component, ComponentDto>();
         CreateMap<Component, ComponentExcelDto>();
-        CreateMap<ComponentWithNavigationProperties, ComponentWithNavigationPropertiesDto>();
+        CreateMap<ComponentCreateDto, Component>();
+        CreateMap<ComponentUpdateDto, Component>();
+        CreateMap<ComponentItemDto, ComponentItem>();
+        CreateMap<ComponentItem, ComponentItemDto>().Ignore(x => x.MaterialCode).Ignore(x => x.MaterialName);
+        CreateMap<ComponentWithNavigationProperties, ComponentItemDto>();
         CreateMap<Material, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
-
-        CreateMap<ComponentItem, ComponentItemDto>();
-        CreateMap<ComponentItemWithNavigationProperties, ComponentItemWithNavigationPropertiesDto>();
+        
 
         CreateMap<Product, ProductDto>();
         CreateMap<Product, ProductExcelDto>();

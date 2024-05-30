@@ -7,7 +7,6 @@ using IBLTermocasa.Contacts;
 using IBLTermocasa.Industries;
 using IBLTermocasa.Subproducts;
 using IBLTermocasa.Products;
-using IBLTermocasa.ComponentItems;
 using IBLTermocasa.Components;
 using IBLTermocasa.Materials;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,9 +58,7 @@ public class IBLTermocasaMongoDbModule : AbpModule
             options.AddRepository<Material, Materials.MongoMaterialRepository>();
 
             options.AddRepository<Component, Components.MongoComponentRepository>();
-
-            options.AddRepository<ComponentItem, ComponentItems.MongoComponentItemRepository>();
-
+            
             options.AddRepository<Product, Products.MongoProductRepository>();
 
             options.AddRepository<Subproduct, Subproducts.MongoSubproductRepository>();
