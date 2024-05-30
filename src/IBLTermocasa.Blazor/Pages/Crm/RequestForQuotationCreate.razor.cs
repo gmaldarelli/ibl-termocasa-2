@@ -43,16 +43,18 @@ public partial class RequestForQuotationCreate
     [Inject] public ICurrentPrincipalAccessor CurrentPrincipalAccessor { get; set; }
     [Inject] public NavigationManager NavigationManager { get; set; }
     [Inject] public ICatalogsAppService CatalogsAppService { get; set; }
+    [Inject] public IProductsAppService ProductsAppService { get; set; }
     protected List<BreadcrumbItem> BreadcrumbItems = new();
 
     private Validations RequestForQuotationValidations { get; set; } = new();
     private bool CanCreateRequestForQuotation { get; set; }
     public RequestForQuotationDto NewRequestForQuotationDto = new();
     public RequestForQuotationCreateDto NewRequestForQuotation { get; set; }
-    public CatalogDto SelectedCatalog { get; set; }
+    public CatalogWithNavigationPropertiesDto SelectedCatalog { get; set; }
     private PagedResultDto<CatalogWithNavigationPropertiesDto> Catalogs { get; set; } = new();
     private PagedResultDto<OrganizationDto> Organizations { get; set; } = new();
     private PagedResultDto<ContactDto> Contacts { get; set; } = new();
+    private List<RFQProductAndQuestionDto> RFQProductAndQuestions { get; set; } = new();
 
     private LookupDto<Guid> selectedAgentLookupDto = new();
     private bool disableContact = true;
@@ -66,15 +68,16 @@ public partial class RequestForQuotationCreate
     
     [Range(1, int.MaxValue)]
     private int SelectedCatalogItemQuantity { get; set; } = 1;
-    public List<RequestForQuotationItem> ListRequestForQuotationItems { get; set; } = new();
-    private RequestForQuotationItem selectedListViewItem { get; set; }
+    private List<RequestForQuotationItemDto> ListRequestForQuotationItems { get; set; } = new();
+    private List<QuestionTemplateDto> ListQuestionTemplateSingleProduct { get; set; } = new();
+    private RequestForQuotationItemDto selectedListViewItem { get; set; }
 
     private List<QuestionTemplateModel> QuestionTemplateValues = new();
     private string selectedStep = "1";
     private Steps stepsRef;
     private bool isSelecting = false;
     private string catalogNameSelected;
-    private string catalogItemNameSelected;
+    private string productNameSelected;
 
     protected override async Task OnInitializedAsync()
     {
@@ -184,9 +187,10 @@ public partial class RequestForQuotationCreate
         else
         {
             SelectedProduct = null;
+            disableContact = false;
             QuestionTemplateValues.Clear();
-            SelectedCatalog = Catalogs.Items.FirstOrDefault(x => x.Catalog.Id == arg.Id).Catalog;
-            SelectedCatalogProducts = Catalogs.Items.FirstOrDefault(x => x.Catalog.Id == arg.Id).Products;
+            SelectedCatalog = Catalogs.Items.FirstOrDefault(x => x.Catalog.Id == arg.Id);
+            SelectedCatalogProducts = SelectedCatalog.Products;
         }
         StateHasChanged();
     }
@@ -201,82 +205,67 @@ public partial class RequestForQuotationCreate
         else
         {
             SelectedProduct = SelectedCatalogProducts.FirstOrDefault(x => x.Id == arg.Id)!;
-            
-            //Prendi tutti i QuestionText che hanno come id 
-            
-            var guids = SelectedProduct.QuestionTemplates.Select(x => x.QuestionTemplateId).ToList();
-            var questionList = new List<QuestionTemplateDto>();
-            foreach (var guid in guids)
+            if (!SelectedProduct.IsAssembled)
             {
-                questionList.Add(QuestionTemplatesAppService.GetAsync(guid).Result);
+                var questionTemplateIds = SelectedProduct.QuestionTemplates.Select(qt => qt.QuestionTemplateId).ToList();
+                ListQuestionTemplateSingleProduct = QuestionTemplatesAppService.GetListByGuidsAsync(questionTemplateIds);
+                foreach (var questionTemplate in ListQuestionTemplateSingleProduct)
+                {
+                    QuestionTemplateValues.Add(new QuestionTemplateModel(questionTemplate.Id, "", SelectedProduct.Id));
+                }
+                // Prendo tutte le domande associate ai sotto-prodotti e le mappo in DTO
+                
+            }else{
+                RFQProductAndQuestions = RequestForQuotationsAppService.GetRfqProductAndQuestionsAsync(SelectedProduct.Id).Result.ToList();
+                foreach (var rfqProductAndQuestion in RFQProductAndQuestions)
+                {
+                    var rfqProductId = rfqProductAndQuestion.Product.Id;
+                    foreach (var questionTemplate in rfqProductAndQuestion.QuestionTemplates)
+                    {
+                        QuestionTemplateValues.Add(new QuestionTemplateModel(questionTemplate.Id, "", rfqProductId));
+                    }
+                }
             }
-
-
-            /*foreach (var questionTemplate in SelectedProduct.)
-            {
-                QuestionTemplateValues.Add(new QuestionTemplateModel(questionTemplate.Id, ""));
-            }*/
         }
-
         StateHasChanged();
     }
 
-    /*private void UpdateValueCatalogItem(CatalogItem arg)
-    {
-        if (arg == null)
-        {
-            QuestionTemplateValues.Clear();
-            SelectedCatalogItem = null;
-        }
-        else
-        {
-            SelectedCatalogItem = SelectedCatalog.CatalogItems.FirstOrDefault(x => x.Id == arg.Id);
-            foreach (var questionTemplate in SelectedCatalogItem.QuestionTemplates)
-            {
-                QuestionTemplateValues.Add(new QuestionTemplateModel(questionTemplate.Id, ""));
-            }
-        }
-
-        StateHasChanged();
-    }*/
-
-    private void OnSelectedItemChanged(RequestForQuotationItem selectedItem)
+    private void OnSelectedItemChanged(RequestForQuotationItemDto selectedItem)
     {
         QuestionTemplateValues.Clear();
         selectedListViewItem = selectedItem;
         SelectedCatalogItemQuantity = selectedItem.Quantity;
-        /*SelectedCatalogItem = Catalogs.Items
-            .SelectMany(catalog => catalog.CatalogItems)
+        SelectedProduct = Catalogs.Items
+            .SelectMany(catalog => catalog.Products)
             .FirstOrDefault(item => item.Id == selectedItem.ProductId);
-        SelectedCatalog = Catalogs.Items.FirstOrDefault(catalog => catalog.CatalogItems.Contains(SelectedCatalogItem));
-        catalogNameSelected = SelectedCatalog.Name;
-        catalogItemNameSelected = SelectedCatalogItem.Name;
+        SelectedCatalog = Catalogs.Items.FirstOrDefault(catalog => catalog.Products.Contains(SelectedProduct));
+        catalogNameSelected = SelectedCatalog.Catalog.Name;
+        productNameSelected = SelectedProduct.Name;
         isSelecting = true;
 
         foreach (var answer in selectedListViewItem.Answers)
         {
-            QuestionTemplateValues.Add(new QuestionTemplateModel(answer.QuestionId, answer.AnswerValue));
+            QuestionTemplateValues.Add(new QuestionTemplateModel(answer.QuestionId, answer.AnswerValue, selectedListViewItem.ProductId));
         }
-        */
-
         StateHasChanged();
     }
 
     private void SaveAnswerForRFQ()
     {
-        /*ListRequestForQuotationItems.RemoveAll(x => x.ProductId.Equals(SelectedCatalogItem.Id));
+        
+        ListRequestForQuotationItems.RemoveAll(x => x.ProductId.Equals(SelectedProduct.Id));
         SelectedCatalogItemQuantity = Math.Max(SelectedCatalogItemQuantity, 1);
         
-        ListRequestForQuotationItems.Add(new RequestForQuotationItem
+        ListRequestForQuotationItems.Add(new RequestForQuotationItemDto
         {
-            ProductId = SelectedCatalogItem.Id,
+            ProductId = SelectedProduct.Id,
             Answers = QuestionTemplateValues.Select(x => new Answer
             {
-                QuestionId = x.Id,
-                AnswerValue = x.Value
+                QuestionId = x.QuestionId,
+                AnswerValue = x.AnswerValue
             }).ToList(),
             Quantity = SelectedCatalogItemQuantity
-        });*/
+        });
         
         UpdateValueCatalog(null);
         CatalogAutocompleteRef.Clear();
@@ -310,7 +299,7 @@ public partial class RequestForQuotationCreate
         StateHasChanged();
     }
     
-    private void OnClickSelectSingleItem(RequestForQuotationItem item)
+    private void OnClickSelectSingleItem(RequestForQuotationItemDto item)
     {
         OnSelectedItemChanged(item);
     }
@@ -320,7 +309,7 @@ public partial class RequestForQuotationCreate
         try
         {
             // Creazione di una nuova richiesta di preventivo
-            /*NewRequestForQuotationDto.RequestForQuotationItems = ListRequestForQuotationItems;*/
+            NewRequestForQuotationDto.RequestForQuotationItems = ListRequestForQuotationItems;
             NewRequestForQuotationDto.ConcurrencyStamp = Guid.NewGuid().ToString();
             NewRequestForQuotation =
                 _mapper.Map<RequestForQuotationDto, RequestForQuotationCreateDto>(NewRequestForQuotationDto);
@@ -412,7 +401,7 @@ public partial class RequestForQuotationCreate
     
     private Task<IEnumerable<ProductDto>> SearchProduct(string value)
     {
-        if (Catalogs.Items == null || Catalogs.Items.Count == 0)
+        if (SelectedCatalog.Products == null || SelectedCatalog.Products.Count == 0)
             return new Task<IEnumerable<ProductDto>>(() => new List<ProductDto>());
         // Se il testo è null o vuoto, mostra l'elenco completo
         return string.IsNullOrEmpty(value)

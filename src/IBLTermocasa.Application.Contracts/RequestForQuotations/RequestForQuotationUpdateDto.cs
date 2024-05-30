@@ -23,6 +23,7 @@ namespace IBLTermocasa.RequestForQuotations
         public Guid? AgentId { get; set; }
         public Guid? ContactId { get; set; }
         public Guid? OrganizationId { get; set; }
+        public DateTime? DateDocument { get; set; }
 
         public string ConcurrencyStamp { get; set; } = null!;
     }

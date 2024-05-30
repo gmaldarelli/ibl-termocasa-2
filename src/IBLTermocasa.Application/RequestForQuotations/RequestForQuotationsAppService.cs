@@ -13,6 +13,8 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
 using IBLTermocasa.Permissions;
+using IBLTermocasa.Products;
+using IBLTermocasa.QuestionTemplates;
 using IBLTermocasa.RequestForQuotations;
 using MiniExcelLibs;
 using Volo.Abp.Content;
@@ -20,6 +22,7 @@ using Volo.Abp.Authorization;
 using Volo.Abp.Caching;
 using Microsoft.Extensions.Caching.Distributed;
 using IBLTermocasa.Shared;
+using Volo.Abp.Domain.Entities;
 
 namespace IBLTermocasa.RequestForQuotations
 {
@@ -33,14 +36,19 @@ namespace IBLTermocasa.RequestForQuotations
         protected IRepository<IdentityUser, Guid> _identityUserRepository;
         protected IRepository<Contact, Guid> _contactRepository;
         protected IRepository<Organization, Guid> _organizationRepository;
+        protected IProductRepository _productRepository;
+        protected IQuestionTemplateRepository _questionTemplateRepository;
 
-        public RequestForQuotationsAppService(IRequestForQuotationRepository requestForQuotationRepository, RequestForQuotationManager requestForQuotationManager, IDistributedCache<RequestForQuotationExcelDownloadTokenCacheItem, string> excelDownloadTokenCache, IRepository<IdentityUser, Guid> identityUserRepository, IRepository<Contact, Guid> contactRepository, IRepository<Organization, Guid> organizationRepository)
+        public RequestForQuotationsAppService(IRequestForQuotationRepository requestForQuotationRepository, RequestForQuotationManager requestForQuotationManager, IDistributedCache<RequestForQuotationExcelDownloadTokenCacheItem, string> excelDownloadTokenCache, IRepository<IdentityUser, Guid> identityUserRepository, IRepository<Contact, Guid> contactRepository, IRepository<Organization, Guid> organizationRepository, IProductRepository productRepository, IQuestionTemplateRepository questionTemplateRepository)
         {
             _excelDownloadTokenCache = excelDownloadTokenCache;
             _requestForQuotationRepository = requestForQuotationRepository;
-            _requestForQuotationManager = requestForQuotationManager; _identityUserRepository = identityUserRepository;
+            _requestForQuotationManager = requestForQuotationManager;
+            _identityUserRepository = identityUserRepository;
             _contactRepository = contactRepository;
             _organizationRepository = organizationRepository;
+            _productRepository = productRepository;
+            _questionTemplateRepository = questionTemplateRepository;
         }
 
         public virtual async Task<PagedResultDto<RequestForQuotationWithNavigationPropertiesDto>> GetListAsync(GetRequestForQuotationsInput input)
@@ -186,6 +194,40 @@ namespace IBLTermocasa.RequestForQuotations
             {
                 Token = token
             };
+        }
+        
+        public virtual async Task<IEnumerable<RFQProductAndQuestionDto>> GetRfqProductAndQuestionsAsync(Guid id)
+        {
+            // Ottengo il prodotto principale
+            var productPrincipal = await _productRepository.GetAsync(id);
+            if (productPrincipal == null)
+            {
+                throw new EntityNotFoundException($"Product with ID {id} not found");
+            }
+
+            // Prendo tutti gli ID dei sotto-prodotti
+            var listProductIds = productPrincipal.Subproducts.Select(x => x.SingleProductId).ToList();
+
+            // Prendo tutti i prodotti associati ai sotto-prodotti
+            var products = await _productRepository.GetListAsync(p => listProductIds.Contains(p.Id));
+
+            var listProduct = new List<RFQProductAndQuestionDto>();
+
+            // Per ogni prodotto, prendo le domande associate
+            foreach (var product in products)
+            {
+                var questionTemplateIds = product.QuestionTemplates.Select(qt => qt.QuestionTemplateId).ToList();
+                
+                // Prendo tutte le domande associate ai sotto-prodotti e le mappo in DTO
+                var questionTemplates = ObjectMapper.Map<List<QuestionTemplate>, List<QuestionTemplateDto>>(
+                    await _questionTemplateRepository.GetListAsync(q => questionTemplateIds.Contains(q.Id))
+                    );
+                // Mappo il prodotto in DTO e creo un oggetto RFQProductAndQuestionDto con il prodotto e le domande associate
+                var rfqProductAndQuestionDto = new RFQProductAndQuestionDto(ObjectMapper.Map<Product, ProductDto>(product), questionTemplates);
+                listProduct.Add(rfqProductAndQuestionDto);
+            }
+            
+            return listProduct;
         }
     }
 }

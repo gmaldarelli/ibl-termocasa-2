@@ -39,7 +39,7 @@ namespace IBLTermocasa.QuestionTemplates
         {
             var totalCount = await _questionTemplateRepository.GetCountAsync(input.FilterText, input.Code, input.QuestionText, input.AnswerType, input.ChoiceValue);
             var items = await _questionTemplateRepository.GetListAsync(input.FilterText, input.Code, input.QuestionText, input.AnswerType, input.ChoiceValue, input.Sorting, input.MaxResultCount, input.SkipCount);
-
+            _questionTemplateRepository.GetListAsync(x => x.Code == input.Code);
             return new PagedResultDto<QuestionTemplateDto>
             {
                 TotalCount = totalCount,
@@ -115,6 +115,11 @@ namespace IBLTermocasa.QuestionTemplates
             {
                 Token = token
             };
+        }
+        
+        public virtual List<QuestionTemplateDto> GetListByGuidsAsync(List<Guid> questionTemplateIds)
+        {
+            return ObjectMapper.Map<List<QuestionTemplate>, List<QuestionTemplateDto>>(_questionTemplateRepository.GetListAsync(x => questionTemplateIds.Contains(x.Id)).Result);
         }
     }
 }

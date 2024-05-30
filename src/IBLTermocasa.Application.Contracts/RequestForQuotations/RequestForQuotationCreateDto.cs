@@ -23,5 +23,6 @@ namespace IBLTermocasa.RequestForQuotations
         public Guid? ContactId { get; set; }
         public Guid? OrganizationId { get; set; }
         public List<RequestForQuotationItemDto>? RequestForQuotationItems { get; set; } = new();
+        public DateTime? DateDocument { get; set; } = DateTime.Now;
     }
 }

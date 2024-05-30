@@ -24,11 +24,11 @@ namespace IBLTermocasa.RequestForQuotations
 
         public List<RequestForQuotationItemDto>? RequestForQuotationItems { get; set; } = new();
         
+        public DateTime? DateDocument { get; set; }
+        
         public string Emails => MailInfo != null && MailInfo.MailItems.Count > 0 ? string.Join(", ", MailInfo.MailItems) : string.Empty;
         public string Phones => PhoneInfo != null && PhoneInfo.PhoneItems.Count > 0 ? string.Join(", ", PhoneInfo.PhoneItems) : string.Empty;
         public string ConcurrencyStamp { get; set; } = null!;
         
-        public DateTime? CreationTime { get; set; } = DateTime.Now;
-
     }
 }

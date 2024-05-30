@@ -78,10 +78,10 @@
                 <MudTextField @bind-Value="@InternalRequestForQuotation.City" Label="@L["City"]"/>
             </MudItem>
             <MudItem xs="6">
-                <MudDatePicker @bind-Date="InternalRequestForQuotation.CreationTime" Label="@L["Date"]" DisableToolbar="true"/>
+                <MudDatePicker DateChanged="time => InternalRequestForQuotation.DateDocument = time" Label="@L["Date"]" DisableToolbar="true"/>
             </MudItem>
             <MudItem xs="6">
-                <MudNumericField T="decimal?" @bind-Value="@InternalRequestForQuotation.Discount" Label="@L["Discount (%)"]"/>
+                <MudNumericField T="decimal?" @bind-Value="@InternalRequestForQuotation.Discount" Pattern="^(100(,0|,00)?|([1-9]?\d)(,\d{1,2})?)$" Label="@L["Discount (%)"]"/>
             </MudItem>
             <MudItem xs="6">
                 <MudTextField T="string" @bind-Text="@InternalRequestForQuotation.QuoteNumber" Label="@L["QuoteNumber"]"/>

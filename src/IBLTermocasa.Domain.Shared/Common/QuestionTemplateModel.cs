@@ -4,13 +4,15 @@ namespace IBLTermocasa.Common;
 
 public class QuestionTemplateModel
 {
-    public Guid Id { get; set; }
-    public string Value { get; set; }
+    public Guid QuestionId { get; set; }
+    public string AnswerValue { get; set; }
+    public Guid ProductId { get; set; }
     
-    public QuestionTemplateModel(Guid id, string value)
+    public QuestionTemplateModel(Guid questionId, string answerValue, Guid productId)
     {
-        Id = id;
-        Value = value;
+        QuestionId = questionId;
+        AnswerValue = answerValue;
+        ProductId = productId;
     }
     
     public QuestionTemplateModel()

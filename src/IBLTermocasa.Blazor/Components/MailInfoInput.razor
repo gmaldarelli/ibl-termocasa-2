@@ -1,61 +1,59 @@
-﻿@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+﻿@using System.ComponentModel.DataAnnotations
 @using IBLTermocasa.Common
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@using MudBlazor
+@using Color = MudBlazor.Color
 @using IBLTermocasa.Localization
 @using Volo.Abp.AspNetCore.Components.Web
+@using Size = MudBlazor.Size
 @inherits IBLTermocasaComponentBase
-@foreach (var mailItem in MailInfo.MailItems)
-{
-    <Validations @ref="@MailInfoValidations"
-                 Mode="ValidationMode.Auto"
-                 Model="@mailItem"
-                 ValidateOnLoad="false">
-    <Fields>
-        <Field ColumnSize="ColumnSize.IsHalf">
-            <Validation MessageLocalizer="@LH.Localize">
-                <TextEdit @bind-Text="mailItem.Email" Placeholder="Email">
-                    <Feedback>
-                        <ValidationError/>
-                    </Feedback>
-                </TextEdit>
-            </Validation>
-        </Field>
-        <Field>
-           <Select TValue="MailType" @bind-SelectedValue="@mailItem.Type">
+<MudForm @ref="MailInfoForm" Disabled="@ReadOnly" >
+    @foreach (var mailItem in MailInfo.MailItems)
+    {
+    <MudGrid>
+        <MudItem xs="7">
+            <MudTextField @bind-Value="@mailItem.Email" Placeholder="Email" Validation="@(new EmailAddressAttribute() {ErrorMessage = @L["The email address is invalid"]})" />
+        </MudItem>
+        <MudItem xs="4">
+            <MudSelect T="MailType" @bind-Value="mailItem.Type" Label="@L["Type"]">
                 @foreach (var type in Enum.GetValues<MailType>())
                 {
-                    <SelectItem Value="@type">@L[$"Enum:EmailType.{type:d}"]</SelectItem>
+                <MudSelectItem Value="@type">@L[$"Enum:EmailType.{type:d}"]</MudSelectItem>
                 }
-            </Select>
-        </Field>
-        <Field  ColumnSize="ColumnSize.Is1">
-            <Button Color="Color.Danger" Clicked="@(() => RemoveMailItem(mailItem))">
-                <Icon IconSize="IconSize.ExtraSmall" Name="IconName.Delete"/>
-            </Button>
-        </Field>
-    </Fields>
-    </Validations>
-}
-<Button Color="Color.Primary"  Clicked="@(() => AddNewMailItem())">
-    <Icon IconSize="IconSize.ExtraSmall" Name="IconName.Add"/>
-</Button>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="1" Style="position: relative;">
+            <MudButton Color="Color.Secondary" OnClick="@(() => RemoveMailItem(mailItem))" Size="Size.Small" Style="position: absolute; bottom: 20%; left: 0;">
+                <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Delete" />
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+    }
+    <MudButton Color="Color.Primary" OnClick="@AddNewMailItem" Size="Size.Small" Class="mt-2">
+        <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Add" />
+    </MudButton>
+</MudForm>
 @code {
-    [Parameter] public MailInfoDto MailInfo { get; set; }
-    [Parameter] public EventCallback<AddressDto> OnAddMailItem { get; set; }
-    [Parameter] public EventCallback<AddressDto> OnRemoveMailItem { get; set; }
-    [Parameter] public Validations MailInfoValidations { get; set; }
-    private void AddNewMailItem()
-    {
-        var newItem = new MailItemDto() { Email = "" }; 
-        MailInfo.MailItems.Add(newItem);
-        StateHasChanged();
-    }
-    private void RemoveMailItem(MailItemDto mailItem)
-    {
-        MailInfo.MailItems.Remove(mailItem);
-        StateHasChanged();
-    }
-    private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<MailItemDto> e)
-    {
-        await Task.CompletedTask;
-    }
+[Parameter] public MailInfoDto MailInfo { get; set; }
+[Parameter] public EventCallback<AddressDto> OnAddMailItem { get; set; }
+[Parameter] public EventCallback<AddressDto> OnRemoveMailItem { get; set; }
+[Parameter] public Validations MailInfoValidations { get; set; }
+[Parameter] public bool ReadOnly { get; set; }
+private MudForm MailInfoForm;
+
+private void AddNewMailItem()
+{
+var newItem = new MailItemDto{ Email = "" };
+MailInfo.MailItems.Add(newItem);
+StateHasChanged();
+}
+private void RemoveMailItem(MailItemDto mailItem)
+{
+MailInfo.MailItems.Remove(mailItem);
+StateHasChanged();
+}
+private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<MailItemDto> e)
+{
+await Task.CompletedTask;
+}
 }

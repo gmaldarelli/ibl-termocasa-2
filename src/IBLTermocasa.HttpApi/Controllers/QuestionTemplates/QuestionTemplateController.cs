@@ -72,5 +72,11 @@ namespace IBLTermocasa.Controllers.QuestionTemplates
         {
             return _questionTemplatesAppService.GetDownloadTokenAsync();
         }
+        
+        [HttpGet]
+        public List<QuestionTemplateDto> GetListByGuidsAsync(List<Guid> questionTemplateIds)
+        {
+            return _questionTemplatesAppService.GetListByGuidsAsync(questionTemplateIds);
+        }
     }
 }

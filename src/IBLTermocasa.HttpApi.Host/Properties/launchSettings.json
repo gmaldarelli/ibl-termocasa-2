@@ -17,7 +17,7 @@
     },
     "IBLTermocasa.HttpApi.Host": {
       "commandName": "Project",
-      "launchBrowser": true,
+      "launchBrowser": false,
       "applicationUrl": "https://localhost:44316",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

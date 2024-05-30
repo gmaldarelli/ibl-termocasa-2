@@ -46,7 +46,7 @@ namespace IBLTermocasa.Controllers.RequestForQuotations
         {
             return _requestForQuotationsAppService.GetAsync(id);
         }
-
+        
         [HttpGet]
         [Route("identity-user-lookup")]
         public virtual Task<PagedResultDto<LookupDto<Guid>>> GetIdentityUserLookupAsync(LookupRequestDto input)
@@ -100,6 +100,13 @@ namespace IBLTermocasa.Controllers.RequestForQuotations
         public virtual Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync()
         {
             return _requestForQuotationsAppService.GetDownloadTokenAsync();
+        }
+        
+        [HttpGet]
+        [Route("rfq-product-and-question/{id}")]
+        public virtual Task<IEnumerable<RFQProductAndQuestionDto>> GetRfqProductAndQuestionsAsync(Guid id)
+        {
+            return _requestForQuotationsAppService.GetRfqProductAndQuestionsAsync(id);
         }
     }
 }

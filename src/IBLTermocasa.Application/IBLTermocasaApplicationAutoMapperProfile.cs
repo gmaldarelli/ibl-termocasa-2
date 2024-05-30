@@ -39,6 +39,8 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<ComponentItemWithNavigationProperties, ComponentItemWithNavigationPropertiesDto>();
 
         CreateMap<Product, ProductDto>();
+        CreateMap<ProductComponent, ProductComponentDto>();
+        CreateMap<ProductQuestionTemplate, ProductQuestionTemplateDto>();
         CreateMap<Product, ProductExcelDto>();
         CreateMap<ProductWithNavigationProperties, ProductWithNavigationPropertiesDto>();
         CreateMap<Component, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
@@ -116,6 +118,8 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
 
         CreateMap<Catalog, CatalogDto>();
         CreateMap<Catalog, CatalogExcelDto>();
-        CreateMap<CatalogWithNavigationProperties, CatalogWithNavigationPropertiesDto>();
+        CreateMap<CatalogWithNavigationProperties, CatalogWithNavigationPropertiesDto>()
+            .ForMember(dest => dest.Catalog, opt => opt.MapFrom(src => src.Catalog))
+            .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.Products));
     }
 }
