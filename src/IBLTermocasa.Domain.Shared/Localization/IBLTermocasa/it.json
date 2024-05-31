@@ -114,17 +114,17 @@
     "NumberOfItemsOnThisPageAreSelected": "Tutti i {0} elementi in questa pagina sono selezionati",
     "SelectAllItems": "Seleziona tutti i {0} elementi",
     "ClearSelection": "Cancella selezione",
-    "DeleteAllRecords": "Sei sicuro di voler eliminare tutti i record?",
-    "DeleteSelectedRecords": "Sei sicuro di voler eliminare {0} record?",
+    "DeleteAllRecords": "Sei sicuro di voler eliminare tutti gli elementi?",
+    "DeleteSelectedRecords": "Sei sicuro di voler eliminare {0}?",
     "Menu:Materials": "Materiali",
     "Menu:IBLTermocasa": "I B L Termocasa",
     "Permission:Components": "Componenti",
     "Components": "Componenti",
     "NewComponent": "Nuovo Componente",
     "Menu:Components": "Componenti",
-    "IsDefault": "È Predefinito",
-    "ComponentItems": "Elementi del Componente",
-    "NewComponentItem": "Nuovo Elemento del Componente",
+    "IsDefault": "Predefinito",
+    "ComponentItems": "Materiali",
+    "NewComponentItem": "Associa Materiale",
     "Material": "Materiale",
     "Permission:ComponentItems": "Elementi del Componente",
     "Permission:Products": "Prodotti",
@@ -231,6 +231,19 @@
     "SecureDeletionTitle": "Eliminazione Sicura",
     "Source": "Fonte",
     "FirsSync": "Caricato il",
-    "LastSync": "Aggiornato"
+    "LastSync": "Aggiornato",
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    "NoComponentItemFoundToRemove": "Nessun elemento del componente trovato da rimuovere ",
+    "NoComponentFound": "Nessun componente trovato"
   }
 }

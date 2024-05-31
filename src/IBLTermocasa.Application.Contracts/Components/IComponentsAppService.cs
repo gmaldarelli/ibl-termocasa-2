@@ -24,5 +24,10 @@ namespace IBLTermocasa.Components
         Task<IRemoteStreamContent> GetListAsExcelFileAsync(ComponentExcelDownloadDto input);
 
         Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync();
+        Task<ComponentDto>  DeleteComponentItemAsync(Guid componentId, Guid componentItemId);
+        Task<ComponentDto> UpdateComponentItemAsync(Guid componentId, List<ComponentItemDto> componentItems);
+        Task<ComponentDto> CreateComponentItemAsync(Guid componentId, List<ComponentItemDto> componentItems);
+        Task<PagedResultDto<LookupDto<Guid>>> GetMaterialLookupAsync(LookupRequestDto lookupRequestDto);
     }
 }
+

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Globalization;
@@ -13,16 +15,19 @@ using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
 using IBLTermocasa.Components;
 using IBLTermocasa.Permissions;
 using IBLTermocasa.Shared;
-using IBLTermocasa.ComponentItems; 
-
+using NUglify.Helpers;
+using Volo.Abp.AspNetCore.Components.Messages;
+using ComponentItemDto = IBLTermocasa.Components.ComponentItemDto;
 
 
 namespace IBLTermocasa.Blazor.Pages
 {
     public partial class Components
     {
-        protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems = new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
-        protected PageToolbar Toolbar {get;} = new PageToolbar();
+        protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems =
+            new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
+
+        protected PageToolbar Toolbar { get; } = new PageToolbar();
         protected bool ShowAdvancedFilters { get; set; }
         private IReadOnlyList<ComponentDto> ComponentList { get; set; }
         private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
@@ -40,39 +45,34 @@ namespace IBLTermocasa.Blazor.Pages
         private Modal CreateComponentModal { get; set; } = new();
         private Modal EditComponentModal { get; set; } = new();
         private GetComponentsInput Filter { get; set; }
-        private DataGridEntityActionsColumn<ComponentDto> EntityActionsColumn { get; set; } = new();
         protected string SelectedCreateTab = "component-create-tab";
         protected string SelectedEditTab = "component-edit-tab";
-        private ComponentDto? SelectedComponent;
-        
-        
-                #region Child Entities
-        
-                #region ComponentItems
+        private ComponentDto? _selectedComponent;
 
-                private bool CanListComponentItem { get; set; }
-                private bool CanCreateComponentItem { get; set; }
-                private bool CanEditComponentItem { get; set; }
-                private bool CanDeleteComponentItem { get; set; }
-                private ComponentItemCreateDto NewComponentItem { get; set; }
-                private Dictionary<Guid, DataGrid<ComponentItemWithNavigationPropertiesDto>> ComponentItemDataGrids { get; set; } = new();
-                private int ComponentItemPageSize { get; } = 5;
-                private DataGridEntityActionsColumn<ComponentItemWithNavigationPropertiesDto> ComponentItemEntityActionsColumns { get; set; } = new();
-                private Validations NewComponentItemValidations { get; set; } = new();
-                private Modal CreateComponentItemModal { get; set; } = new();
-                private Guid EditingComponentItemId { get; set; }
-                private ComponentItemUpdateDto EditingComponentItem { get; set; }
-                private Validations EditingComponentItemValidations { get; set; } = new();
-                private Modal EditComponentItemModal { get; set; } = new();
-                private IReadOnlyList<LookupDto<Guid>> MaterialsCollection { get; set; } = new List<LookupDto<Guid>>();
+        private ObservableCollection<ComponentItemDto> SelectedComponentItems { get; set; } =
+            new ObservableCollection<ComponentItemDto>();
+        
 
-            
-                #endregion
-        
-        #endregion
-        
-        
-        
+        private bool CanListComponentItem { get; set; }
+        private bool CanCreateComponentItem { get; set; }
+        private bool CanEditComponentItem { get; set; }
+        private bool CanDeleteComponentItem { get; set; }
+        private ComponentItemDto NewComponentItem { get; set; }
+        private DataGrid<ComponentItemDto> ComponentItemDataGrid { get; set; } = new();
+        private DataGrid<ComponentDto> ComponentDtoDataGrid { get; set; } = new();
+        private int ComponentItemPageSize { get; } = 5;
+        private Validations NewComponentItemValidations { get; set; } = new();
+        private Modal CreateComponentItemModal { get; set; } = new();
+        private Guid EditingComponentItemId { get; set; }
+        private ComponentItemDto EditingComponentItem { get; set; }
+        private Validations EditingComponentItemValidations { get; set; } = new();
+        private Modal EditComponentItemModal { get; set; } = new();
+        private IReadOnlyList<LookupDto<Guid>> MaterialsCollection { get; set; } = new List<LookupDto<Guid>>();
+
+
+        private bool _isComponentRendered = false;
+        private bool _ComponentItemDataGridLoaded = false;
+
         public Components()
         {
             NewComponent = new ComponentCreateDto();
@@ -84,9 +84,9 @@ namespace IBLTermocasa.Blazor.Pages
                 Sorting = CurrentSorting
             };
             ComponentList = new List<ComponentDto>();
-            
-            NewComponentItem = new ComponentItemCreateDto();
-EditingComponentItem = new ComponentItemUpdateDto();
+
+            NewComponentItem = new ComponentItemDto();
+            EditingComponentItem = new ComponentItemDto();
         }
 
         protected override async Task OnInitializedAsync()
@@ -103,7 +103,7 @@ EditingComponentItem = new ComponentItemUpdateDto();
                 await SetToolbarItemsAsync();
                 StateHasChanged();
             }
-        }  
+        }
 
         protected virtual ValueTask SetBreadcrumbItemsAsync()
         {
@@ -113,12 +113,10 @@ EditingComponentItem = new ComponentItemUpdateDto();
 
         protected virtual ValueTask SetToolbarItemsAsync()
         {
-            Toolbar.AddButton(L["ExportToExcel"], async () =>{ await DownloadAsExcelAsync(); }, IconName.Download);
-            
-            Toolbar.AddButton(L["NewComponent"], async () =>
-            {
-                await OpenCreateComponentModalAsync();
-            }, IconName.Add, requiredPolicyName: IBLTermocasaPermissions.Components.Create);
+            Toolbar.AddButton(L["ExportToExcel"], async () => { await DownloadAsExcelAsync(); }, IconName.Download);
+
+            Toolbar.AddButton(L["NewComponent"], async () => { await OpenCreateComponentModalAsync(); }, IconName.Add,
+                requiredPolicyName: IBLTermocasaPermissions.Components.Create);
 
             return ValueTask.CompletedTask;
         }
@@ -128,12 +126,10 @@ EditingComponentItem = new ComponentItemUpdateDto();
             CanCreateComponent = await AuthorizationService
                 .IsGrantedAsync(IBLTermocasaPermissions.Components.Create);
             CanEditComponent = await AuthorizationService
-                            .IsGrantedAsync(IBLTermocasaPermissions.Components.Edit);
+                .IsGrantedAsync(IBLTermocasaPermissions.Components.Edit);
             CanDeleteComponent = await AuthorizationService
-                            .IsGrantedAsync(IBLTermocasaPermissions.Components.Delete);
-                            
-            
-            #region ComponentItems
+                .IsGrantedAsync(IBLTermocasaPermissions.Components.Delete);
+
             CanListComponentItem = await AuthorizationService
                 .IsGrantedAsync(IBLTermocasaPermissions.ComponentItems.Default);
             CanCreateComponentItem = await AuthorizationService
@@ -142,7 +138,7 @@ EditingComponentItem = new ComponentItemUpdateDto();
                 .IsGrantedAsync(IBLTermocasaPermissions.ComponentItems.Edit);
             CanDeleteComponentItem = await AuthorizationService
                 .IsGrantedAsync(IBLTermocasaPermissions.ComponentItems.Delete);
-            #endregion                
+
         }
 
         private async Task GetComponentsAsync()
@@ -154,8 +150,6 @@ EditingComponentItem = new ComponentItemUpdateDto();
             var result = await ComponentsAppService.GetListAsync(Filter);
             ComponentList = result.Items;
             TotalCount = (int)result.TotalCount;
-            
-            
         }
 
         protected virtual async Task SearchAsync()
@@ -168,18 +162,24 @@ EditingComponentItem = new ComponentItemUpdateDto();
         private async Task DownloadAsExcelAsync()
         {
             var token = (await ComponentsAppService.GetDownloadTokenAsync()).Token;
-            var remoteService = await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("IBLTermocasa") ?? await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
+            var remoteService =
+                await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("IBLTermocasa") ??
+                await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
             var culture = CultureInfo.CurrentUICulture.Name ?? CultureInfo.CurrentCulture.Name;
-            if(!culture.IsNullOrEmpty())
+            if (!culture.IsNullOrEmpty())
             {
                 culture = "&culture=" + culture;
             }
+
             await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
-            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/components/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&Name={HttpUtility.UrlEncode(Filter.Name)}", forceLoad: true);
+            NavigationManager.NavigateTo(
+                $"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/components/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&Name={HttpUtility.UrlEncode(Filter.Name)}",
+                forceLoad: true);
         }
 
         private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<ComponentDto> e)
         {
+            
             CurrentSorting = e.Columns
                 .Where(c => c.SortDirection != SortDirection.Default)
                 .Select(c => c.Field + (c.SortDirection == SortDirection.Descending ? " DESC" : ""))
@@ -191,9 +191,10 @@ EditingComponentItem = new ComponentItemUpdateDto();
 
         private async Task OpenCreateComponentModalAsync()
         {
-            NewComponent = new ComponentCreateDto{
-                
-                
+            NewComponent = new ComponentCreateDto
+            {
+
+
             };
             await NewComponentValidations.ClearAll();
             await CreateComponentModal.Show();
@@ -201,9 +202,10 @@ EditingComponentItem = new ComponentItemUpdateDto();
 
         private async Task CloseCreateComponentModalAsync()
         {
-            NewComponent = new ComponentCreateDto{
-                
-                
+            NewComponent = new ComponentCreateDto
+            {
+
+
             };
             await CreateComponentModal.Hide();
         }
@@ -211,7 +213,7 @@ EditingComponentItem = new ComponentItemUpdateDto();
         private async Task OpenEditComponentModalAsync(ComponentDto input)
         {
             var component = await ComponentsAppService.GetAsync(input.Id);
-            
+
             EditingComponentId = component.Id;
             EditingComponent = ObjectMapper.Map<ComponentDto, ComponentUpdateDto>(component);
             await EditingComponentValidations.ClearAll();
@@ -220,7 +222,15 @@ EditingComponentItem = new ComponentItemUpdateDto();
 
         private async Task DeleteComponentAsync(ComponentDto input)
         {
-            await ComponentsAppService.DeleteAsync(input.Id);
+            var message = L["DeleteSelectedRecords", input.Name];
+            if (!await UiMessageService.Confirm(message))
+            {
+                return;
+            }
+            else
+            {
+                await ComponentsAppService.DeleteAsync(input.Id);
+            }
             await GetComponentsAsync();
         }
 
@@ -259,7 +269,7 @@ EditingComponentItem = new ComponentItemUpdateDto();
 
                 await ComponentsAppService.UpdateAsync(EditingComponentId, EditingComponent);
                 await GetComponentsAsync();
-                await EditComponentModal.Hide();                
+                await EditComponentModal.Hide();
             }
             catch (Exception ex)
             {
@@ -282,79 +292,44 @@ EditingComponentItem = new ComponentItemUpdateDto();
             Filter.Name = name;
             await SearchAsync();
         }
-        
-
-
-    private bool ShouldShowDetailRow()
-    {
-        return CanListComponentItem;
-    }
-    
-    public string SelectedChildTab { get; set; } = "componentitem-tab";
-        
-    private Task OnSelectedChildTabChanged(string name)
-    {
-        SelectedChildTab = name;
-    
-        return Task.CompletedTask;
-    }
 
 
 
-
-        #region ComponentItems
-        
-        private async Task OnComponentItemDataGridReadAsync(DataGridReadDataEventArgs<ComponentItemWithNavigationPropertiesDto> e, Guid componentId)
+        private bool ShouldShowDetailRow()
         {
-            var sorting = e.Columns
-                .Where(c => c.SortDirection != SortDirection.Default)
-                .Select(c => c.Field + (c.SortDirection == SortDirection.Descending ? " DESC" : ""))
-                .JoinAsString(",");
-
-            var currentPage = e.Page;
-            await SetComponentItemsAsync(componentId, currentPage, sorting: sorting);
-            await InvokeAsync(StateHasChanged);
+            return CanListComponentItem;
         }
-        
+
+        public string SelectedChildTab { get; set; } = "componentitem-tab";
+
+
         private async Task SetComponentItemsAsync(Guid componentId, int currentPage = 1, string? sorting = null)
         {
             var component = ComponentList.FirstOrDefault(x => x.Id == componentId);
-            if(component == null)
+            if (component == null)
             {
                 return;
             }
 
-            var componentItems = await ComponentItemsAppService.GetListWithNavigationPropertiesByComponentIdAsync(new GetComponentItemListInput 
-            {
-                ComponentId = componentId,
-                MaxResultCount = ComponentItemPageSize,
-                SkipCount = (currentPage - 1) * ComponentItemPageSize,
-                Sorting = sorting
-            });
-
-            component.ComponentItems = componentItems.Items.ToList();
-
-            var componentItemDataGrid = ComponentItemDataGrids[componentId];
-            
-            componentItemDataGrid.CurrentPage = currentPage;
-            componentItemDataGrid.TotalItems = (int)componentItems.TotalCount;
+            ComponentItemDataGrid.Data = component.ComponentItems;
+            ComponentItemDataGrid.CurrentPage = currentPage;
+            ComponentItemDataGrid.TotalItems = (int)component.ComponentItems.Count();
         }
-        
-        private async Task OpenEditComponentItemModalAsync(ComponentItemWithNavigationPropertiesDto input)
-        {
-            var componentItem = await ComponentItemsAppService.GetAsync(input.ComponentItem.Id);
 
+        private async Task OpenEditComponentItemModalAsync(ComponentItemDto input)
+        {
+            var componentItem = _selectedComponent.ComponentItems.FirstOrDefault(x => x.Id == input.Id);
             EditingComponentItemId = componentItem.Id;
-            EditingComponentItem = ObjectMapper.Map<ComponentItemDto, ComponentItemUpdateDto>(componentItem);
+            EditingComponentItem = input;
             await EditingComponentItemValidations.ClearAll();
             await EditComponentItemModal.Show();
         }
-        
+
         private async Task CloseEditComponentItemModalAsync()
         {
             await EditComponentItemModal.Hide();
         }
-        
+
         private async Task UpdateComponentItemAsync()
         {
             try
@@ -364,40 +339,63 @@ EditingComponentItem = new ComponentItemUpdateDto();
                     return;
                 }
 
-                await ComponentItemsAppService.UpdateAsync(EditingComponentItemId, EditingComponentItem);
-                await SetComponentItemsAsync(EditingComponentItem.ComponentId);
+                var updated =
+                    await ComponentsAppService.UpdateComponentItemAsync(_selectedComponent.Id, new List<ComponentItemDto>
+                    {
+                        EditingComponentItem
+                    });
+                await ReLoadComponentItemsComponent(updated);
+
+                /*
+                _selectedComponent = updated;
+                EditingComponentItem = _selectedComponent.ComponentItems.Where(x => x.Id == EditingComponentItemId).FirstOrDefault();
+                ComponentList.ToList().ForEach(x => {
+                    if (x.Id == updated.Id) {
+                        x = updated;
+                    }
+                });
+                SelectedComponentItems = updated.ComponentItems;
+                */
                 await EditComponentItemModal.Hide();
+                await InvokeAsync(StateHasChanged);
             }
             catch (Exception ex)
             {
                 await HandleErrorAsync(ex);
             }
         }
-        
-        private async Task DeleteComponentItemAsync(ComponentItemWithNavigationPropertiesDto input)
+
+        private async Task DeleteComponentItemAsync(ComponentItemDto input)
         {
-            await ComponentItemsAppService.DeleteAsync(input.ComponentItem.Id);
-            await SetComponentItemsAsync(input.ComponentItem.ComponentId);
+            var message = L["DeleteSelectedRecords", input.MaterialName!];
+            if (!await UiMessageService.Confirm(message))
+            {
+                return;
+            }
+            else
+            {
+                 var updated = await ComponentsAppService.DeleteComponentItemAsync(_selectedComponent!.Id, input.Id);
+                await ReLoadComponentItemsComponent(updated);
+                StateHasChanged();
+            }
         }
-        
+
         private async Task OpenCreateComponentItemModalAsync(Guid componentId)
         {
-            NewComponentItem = new ComponentItemCreateDto
+            NewComponentItem = new ComponentItemDto
             {
-                ComponentId = componentId
+                Id = Guid.NewGuid()
             };
-
             await NewComponentItemValidations.ClearAll();
             await CreateComponentItemModal.Show();
         }
-        
+
         private async Task CloseCreateComponentItemModalAsync()
         {
-            NewComponentItem = new ComponentItemCreateDto();
-
+            NewComponentItem = new ComponentItemDto();
             await CreateComponentItemModal.Hide();
         }
-        
+
         private async Task CreateComponentItemAsync()
         {
             try
@@ -407,24 +405,93 @@ EditingComponentItem = new ComponentItemUpdateDto();
                     return;
                 }
 
-                await ComponentItemsAppService.CreateAsync(NewComponentItem);
-                await SetComponentItemsAsync(NewComponentItem.ComponentId);
+                var updated =
+                    await ComponentsAppService.CreateComponentItemAsync(_selectedComponent.Id, new List<ComponentItemDto>
+                    {
+                        NewComponentItem
+                    });
+                await ReLoadComponentItemsComponent(updated);
+                /*_selectedComponent = updated;
+                ComponentList.ToList().ForEach(x => {
+                    if (x.Id == updated.Id) {
+                        x = updated;
+                    }
+                });
+                SelectedComponentItems = updated.ComponentItems;
+                Console.WriteLine($"CreateComponentItemAsync updated1 {updated.ToString()}");
+                await SetComponentItemsAsync(NewComponentItem.Id);
+                Console.WriteLine($"CreateComponentItemAsync updated2 {updated.ToString()}");*/
                 await CloseCreateComponentItemModalAsync();
+                Console.WriteLine($"CreateComponentItemAsync updated2 {updated.ToString()}");
             }
             catch (Exception ex)
             {
                 await HandleErrorAsync(ex);
             }
         }
-        
-                private async Task GetMaterialLookupAsync(string? filter = null)
+
+        private async Task GetMaterialLookupAsync(string? filter = null)
         {
-            MaterialsCollection = (await ComponentItemsAppService.GetMaterialLookupAsync(new LookupRequestDto
+            MaterialsCollection = (await ComponentsAppService.GetMaterialLookupAsync(new LookupRequestDto
             {
                 Filter = filter
             })).Items;
         }
-        
-        #endregion
+
+        private async Task OnComponentDtoDataGridRowClickedAsync(DataGridRowMouseEventArgs<ComponentDto> e)
+        {
+            if (e.Item.Id == _selectedComponent?.Id)
+            {
+                return;
+            }
+            else
+            {
+                await LoadComponentItemsComponent(e.Item);
+            }
+
+            StateHasChanged();
+        }
+
+        private async Task LoadComponentItemsComponent(ComponentDto componentDto){
+            if (componentDto.Id == _selectedComponent?.Id) { 
+                return;
+            }
+            else
+            {
+                await ReLoadComponentItemsComponent(componentDto);
+            }
+        }
+
+    private async Task ReLoadComponentItemsComponent(ComponentDto componentDto)
+        {
+            _selectedComponent = componentDto; 
+            ComponentList.ToList().ForEach(x => {
+                if (x.Id == componentDto.Id) {
+                    x = componentDto;
+                }
+            });
+            ComponentDtoDataGrid.Data = ComponentList;
+            SelectedComponentItems = new ObservableCollection<ComponentItemDto>(componentDto.ComponentItems);
+            ComponentItemDataGrid.Data = SelectedComponentItems;
+            ComponentItemDataGrid.CurrentPage = 1;
+            ComponentItemDataGrid.TotalItems = (int)SelectedComponentItems.Count();
+            
+            if (_ComponentItemDataGridLoaded)
+            {
+                await ComponentDtoDataGrid.Reload();
+                await this.ComponentItemDataGrid.Reload();
+            }else{
+                _ComponentItemDataGridLoaded = true;
+            }
+            StateHasChanged();
+        }
+
+        protected override void OnAfterRender(bool firstRender)
+        {
+            if (firstRender)
+            {
+                _isComponentRendered = true;
+            }
+        }
     }
 }

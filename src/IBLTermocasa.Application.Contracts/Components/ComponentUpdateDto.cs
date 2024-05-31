@@ -10,6 +10,8 @@ namespace IBLTermocasa.Components
         [Required]
         public string Name { get; set; } = null!;
 
+        public List<ComponentItemDto> ComponentItems { get; set; } = new();
+        
         public string ConcurrencyStamp { get; set; } = null!;
     }
 }

@@ -10,7 +10,6 @@ using IBLTermocasa.Contacts;
 using IBLTermocasa.Industries;
 using IBLTermocasa.Subproducts;
 using IBLTermocasa.Products;
-using IBLTermocasa.ComponentItems;
 using IBLTermocasa.Components;
 using IBLTermocasa.Materials;
 using MongoDB.Driver;

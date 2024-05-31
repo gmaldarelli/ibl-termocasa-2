@@ -1,13 +1,10 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
 using JetBrains.Annotations;
 
-using IBLTermocasa.ComponentItems;
 
 using Volo.Abp;
 
@@ -20,20 +17,19 @@ namespace IBLTermocasa.Components
         [NotNull]
         public virtual string Name { get; set; }
 
-        public ICollection<ComponentItem> ComponentItems { get; private set; }
+        public List<ComponentItem> ComponentItems { get;  set; }
 
         protected Component()
         {
 
         }
 
-        public Component(Guid id, string name)
+        public Component(Guid id, string name, List<ComponentItem> componentItems)
         {
-
             Id = id;
             Check.NotNull(name, nameof(name));
             Name = name;
-            ComponentItems = new Collection<ComponentItem>();
+            ComponentItems = componentItems;
         }
 
     }

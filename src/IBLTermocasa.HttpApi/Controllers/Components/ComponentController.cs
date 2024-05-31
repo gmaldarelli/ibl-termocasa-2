@@ -72,5 +72,32 @@ namespace IBLTermocasa.Controllers.Components
         {
             return _componentsAppService.GetDownloadTokenAsync();
         }
+        [HttpGet]
+        [Route("component-items/{componentId}/delete/{componentItemId}")]
+        public virtual Task<ComponentDto> DeleteComponentItemAsync(Guid componentId, Guid componentItemId)
+        {
+            return _componentsAppService.DeleteComponentItemAsync(componentId, componentItemId);
+        }
+
+        [HttpPut]
+        [Route("component-items/{componentId}/update")]
+        public virtual Task<ComponentDto> UpdateComponentItemAsync(Guid componentId, List<ComponentItemDto> componentItems)
+        {
+            return _componentsAppService.UpdateComponentItemAsync(componentId, componentItems);
+        }
+
+        [HttpPut]
+        [Route("component-items/{componentId}/add")]
+        public virtual Task<ComponentDto> CreateComponentItemAsync(Guid componentId, List<ComponentItemDto> componentItems)
+        {
+            return _componentsAppService.CreateComponentItemAsync(componentId, componentItems);
+        }
+        
+        [HttpGet]
+        [Route("material-lookup")]
+        public virtual Task<PagedResultDto<LookupDto<Guid>>> GetMaterialLookupAsync(LookupRequestDto input)
+        {
+            return _componentsAppService.GetMaterialLookupAsync(input);
+        }
     }
 }
