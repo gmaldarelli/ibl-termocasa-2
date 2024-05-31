@@ -24,6 +24,6 @@ namespace IBLTermocasa.QuestionTemplates
         Task<IRemoteStreamContent> GetListAsExcelFileAsync(QuestionTemplateExcelDownloadDto input);
 
         Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync();
-        List<QuestionTemplateDto> GetListByGuidsAsync(List<Guid> questionTemplateIds);
+        Task<List<QuestionTemplateDto>> GetListByGuidsAsync(List<Guid> questionTemplateIds);
     }
 }

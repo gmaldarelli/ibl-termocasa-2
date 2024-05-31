@@ -148,5 +148,17 @@ namespace IBLTermocasa.Catalogs
                 Token = token
             };
         }
+
+        public virtual async Task<PagedResultDto<CatalogWithNavigationPropertiesDto>> GetListCatalogWithProducts(GetCatalogsInput input)
+        {
+            var totalCount = await _catalogRepository.GetCountAsync(input.FilterText, input.Name, input.FromMin, input.FromMax, input.ToMin, input.ToMax, input.Description, input.ProductId);
+            var items = await _catalogRepository.GetListCatalogWithProducts(input.FilterText, input.Name, input.FromMin, input.FromMax, input.ToMin, input.ToMax, input.Description, input.ProductId, input.Sorting, input.MaxResultCount, input.SkipCount);
+
+            return new PagedResultDto<CatalogWithNavigationPropertiesDto>
+            {
+                TotalCount = totalCount,
+                Items = ObjectMapper.Map<List<CatalogWithNavigationProperties>, List<CatalogWithNavigationPropertiesDto>>(items)
+            };
+        }
     }
 }

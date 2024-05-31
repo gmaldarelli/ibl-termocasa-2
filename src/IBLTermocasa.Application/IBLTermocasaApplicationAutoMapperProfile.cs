@@ -102,7 +102,11 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
 
         CreateMap<RequestForQuotationDto, RequestForQuotationUpdateDto>();
         CreateMap<RequestForQuotationDto, RequestForQuotationCreateDto>();
-        CreateMap<RequestForQuotationCreateDto, RequestForQuotation>();
+        CreateMap<RequestForQuotationCreateDto, RequestForQuotation>()
+            .ForMember(dest => dest.ContactProperty, opt => opt.MapFrom(src => src.ContactProperty))
+            .ForMember(dest => dest.OrganizationProperty, opt => opt.MapFrom(src => src.OrganizationProperty));
+        CreateMap<RequestForQuotationItem, RequestForQuotationItemDto>();
+        CreateMap<RequestForQuotationItemDto, RequestForQuotationItem>();
         CreateMap<RequestForQuotationUpdateDto, RequestForQuotation>();
         CreateMap<RequestForQuotation, RequestForQuotationUpdateDto>();
         CreateMap<RequestForQuotation, RequestForQuotationCreateDto>();
@@ -119,8 +123,6 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
 
         CreateMap<Catalog, CatalogDto>();
         CreateMap<Catalog, CatalogExcelDto>();
-        CreateMap<CatalogWithNavigationProperties, CatalogWithNavigationPropertiesDto>()
-            .ForMember(dest => dest.Catalog, opt => opt.MapFrom(src => src.Catalog))
-            .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.Products));
+        CreateMap<CatalogWithNavigationProperties, CatalogWithNavigationPropertiesDto>();
     }
 }

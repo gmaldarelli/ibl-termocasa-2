@@ -28,6 +28,7 @@ namespace IBLTermocasa.Catalogs
 
         Task<IRemoteStreamContent> GetListAsExcelFileAsync(CatalogExcelDownloadDto input);
 
-        Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync();
+        Task<DownloadTokenResultDto> GetDownloadTokenAsync();
+        Task<PagedResultDto<CatalogWithNavigationPropertiesDto>> GetListCatalogWithProducts(GetCatalogsInput getCatalogsInput);
     }
 }

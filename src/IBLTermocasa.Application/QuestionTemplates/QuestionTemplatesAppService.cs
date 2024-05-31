@@ -117,9 +117,9 @@ namespace IBLTermocasa.QuestionTemplates
             };
         }
         
-        public virtual List<QuestionTemplateDto> GetListByGuidsAsync(List<Guid> questionTemplateIds)
+        public virtual async Task<List<QuestionTemplateDto>> GetListByGuidsAsync(List<Guid> questionTemplateIds)
         {
-            return ObjectMapper.Map<List<QuestionTemplate>, List<QuestionTemplateDto>>(_questionTemplateRepository.GetListAsync(x => questionTemplateIds.Contains(x.Id)).Result);
+            return ObjectMapper.Map<List<QuestionTemplate>, List<QuestionTemplateDto>>( await _questionTemplateRepository.GetListAsync(x => questionTemplateIds.Contains(x.Id)));
         }
     }
 }

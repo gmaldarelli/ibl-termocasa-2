@@ -87,5 +87,12 @@ namespace IBLTermocasa.Controllers.Catalogs
         {
             return _catalogsAppService.GetDownloadTokenAsync();
         }
+        
+        [HttpGet]
+        [Route("list-catalog-with-products")]
+        public Task<PagedResultDto<CatalogWithNavigationPropertiesDto>> GetListCatalogWithProducts(GetCatalogsInput input)
+        {
+            return _catalogsAppService.GetListCatalogWithProducts(input);
+        }
     }
 }

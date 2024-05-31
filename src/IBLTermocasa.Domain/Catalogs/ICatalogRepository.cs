@@ -52,5 +52,20 @@ namespace IBLTermocasa.Catalogs
             string? description = null,
             Guid? productId = null,
             CancellationToken cancellationToken = default);
+        
+        Task<List<CatalogWithNavigationProperties>> GetListCatalogWithProducts(
+            string? filterText = null,
+            string? name = null,
+            DateTime? fromMin = null,
+            DateTime? fromMax = null,
+            DateTime? toMin = null,
+            DateTime? toMax = null,
+            string? description = null,
+            Guid? productId = null,
+            string? sorting = null,
+            int maxResultCount = int.MaxValue,
+            int skipCount = 0,
+            CancellationToken cancellationToken = default
+        );
     }
 }

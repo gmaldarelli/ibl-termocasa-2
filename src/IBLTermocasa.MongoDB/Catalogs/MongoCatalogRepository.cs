@@ -35,6 +35,41 @@ namespace IBLTermocasa.Catalogs
 
             };
         }
+        
+        public virtual async Task<List<CatalogWithNavigationProperties>> GetListCatalogWithProducts(
+            string? filterText = null,
+            string? name = null,
+            DateTime? fromMin = null,
+            DateTime? fromMax = null,
+            DateTime? toMin = null,
+            DateTime? toMax = null,
+            string? description = null,
+            Guid? productId = null,
+            string? sorting = null,
+            int maxResultCount = int.MaxValue,
+            int skipCount = 0,
+            CancellationToken cancellationToken = default)
+        {
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, name, fromMin, fromMax, toMin, toMax, description, productId);
+            var catalogs = await query.OrderBy(string.IsNullOrWhiteSpace(sorting) ? CatalogConsts.GetDefaultSorting(false) : sorting.Split('.').Last())
+                .As<IMongoQueryable<Catalog>>()
+                .PageBy<Catalog, IMongoQueryable<Catalog>>(skipCount, maxResultCount)
+                .ToListAsync(GetCancellationToken(cancellationToken));
+
+            var listCatalogs = new List<CatalogWithNavigationProperties>();
+            foreach (var catalog in catalogs)
+            {
+                var productIds = catalog.Products.Select(x => x.ProductId).ToList();
+                var products = await (await GetMongoQueryableAsync<Product>(cancellationToken)).Where(e => productIds.Contains(e.Id)).ToListAsync(cancellationToken: cancellationToken);
+                listCatalogs.Add(new CatalogWithNavigationProperties
+                {
+                    Catalog = catalog,
+                    Products = products,
+                });
+            }
+            
+            return listCatalogs;
+        }
 
         public virtual async Task<List<CatalogWithNavigationProperties>> GetListWithNavigationPropertiesAsync(
             string? filterText = null,

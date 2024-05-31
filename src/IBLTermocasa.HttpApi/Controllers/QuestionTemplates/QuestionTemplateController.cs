@@ -74,7 +74,8 @@ namespace IBLTermocasa.Controllers.QuestionTemplates
         }
         
         [HttpGet]
-        public List<QuestionTemplateDto> GetListByGuidsAsync(List<Guid> questionTemplateIds)
+        [Route("get-list-by-guids")]
+        public virtual Task<List<QuestionTemplateDto>> GetListByGuidsAsync(List<Guid> questionTemplateIds)
         {
             return _questionTemplatesAppService.GetListByGuidsAsync(questionTemplateIds);
         }

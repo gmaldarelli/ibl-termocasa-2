@@ -68,7 +68,7 @@ public partial class RequestForQuotationCreate
     
     [Range(1, int.MaxValue)]
     private int SelectedCatalogItemQuantity { get; set; } = 1;
-    private List<RequestForQuotationItemDto> ListRequestForQuotationItems { get; set; } = new();
+    private List<RequestForQuotationItemDto>? ListRequestForQuotationItems { get; set; } = new();
     private List<QuestionTemplateDto> ListQuestionTemplateSingleProduct { get; set; } = new();
     private RequestForQuotationItemDto selectedListViewItem { get; set; }
 
@@ -85,7 +85,7 @@ public partial class RequestForQuotationCreate
         Organizations =
             await OrganizationsAppService.GetFilterTypeAsync(new GetOrganizationsInput(), OrganizationType.CUSTOMER);
         Contacts = await ContactsAppService.GetListAsync(new GetContactsInput());
-        Catalogs = await CatalogsAppService.GetListAsync(new GetCatalogsInput());
+        Catalogs = await CatalogsAppService.GetListCatalogWithProducts(new GetCatalogsInput());
         var mySelfId = CurrentPrincipalAccessor.Principal.FindUserId();
         var userList = await UserAppService.GetListAsync(new GetIdentityUsersInput());
         //riempi con il contenuto di  userlist  una variabile userLookUpDtos di tipo List<LookUpDto>
@@ -195,7 +195,7 @@ public partial class RequestForQuotationCreate
         StateHasChanged();
     }
     
-    private void UpdateValueProduct(ProductDto arg)
+    private async Task UpdateValueProduct(ProductDto arg)
     {
         if (arg == null)
         {
@@ -204,11 +204,12 @@ public partial class RequestForQuotationCreate
         }
         else
         {
-            SelectedProduct = SelectedCatalogProducts.FirstOrDefault(x => x.Id == arg.Id)!;
+            SelectedProduct = arg;
             if (!SelectedProduct.IsAssembled)
             {
                 var questionTemplateIds = SelectedProduct.QuestionTemplates.Select(qt => qt.QuestionTemplateId).ToList();
-                ListQuestionTemplateSingleProduct = QuestionTemplatesAppService.GetListByGuidsAsync(questionTemplateIds);
+                ListQuestionTemplateSingleProduct = await QuestionTemplatesAppService.GetListByGuidsAsync(questionTemplateIds);
+                RFQProductAndQuestions.Add(new RFQProductAndQuestionDto(SelectedProduct, ListQuestionTemplateSingleProduct));
                 foreach (var questionTemplate in ListQuestionTemplateSingleProduct)
                 {
                     QuestionTemplateValues.Add(new QuestionTemplateModel(questionTemplate.Id, "", SelectedProduct.Id));
@@ -216,7 +217,8 @@ public partial class RequestForQuotationCreate
                 // Prendo tutte le domande associate ai sotto-prodotti e le mappo in DTO
                 
             }else{
-                RFQProductAndQuestions = RequestForQuotationsAppService.GetRfqProductAndQuestionsAsync(SelectedProduct.Id).Result.ToList();
+                var result = await RequestForQuotationsAppService.GetRfqProductAndQuestionsAsync(SelectedProduct.Id);
+                RFQProductAndQuestions = result.ToList();
                 foreach (var rfqProductAndQuestion in RFQProductAndQuestions)
                 {
                     var rfqProductId = rfqProductAndQuestion.Product.Id;
