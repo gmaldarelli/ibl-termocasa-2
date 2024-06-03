@@ -19,6 +19,7 @@ using Volo.Abp.Authorization;
 using Volo.Abp.Caching;
 using Microsoft.Extensions.Caching.Distributed;
 using IBLTermocasa.Shared;
+using IBLTermocasa.Subproducts;
 
 namespace IBLTermocasa.Products
 {
@@ -31,13 +32,15 @@ namespace IBLTermocasa.Products
         protected ProductManager _productManager;
         protected IRepository<Component, Guid> _componentRepository;
         protected IRepository<QuestionTemplate, Guid> _questionTemplateRepository;
+        //protected ISubproductRepository _subproductRepository;
 
-        public ProductsAppService(IProductRepository productRepository, ProductManager productManager, IDistributedCache<ProductExcelDownloadTokenCacheItem, string> excelDownloadTokenCache, IRepository<Component, Guid> componentRepository, IRepository<QuestionTemplate, Guid> questionTemplateRepository)
+        public ProductsAppService(IProductRepository productRepository, ProductManager productManager, IDistributedCache<ProductExcelDownloadTokenCacheItem, string> excelDownloadTokenCache, IRepository<Component, Guid> componentRepository, IRepository<QuestionTemplate, Guid> questionTemplateRepository, ISubproductRepository subproductRepository)
         {
             _excelDownloadTokenCache = excelDownloadTokenCache;
             _productRepository = productRepository;
             _productManager = productManager; _componentRepository = componentRepository;
             _questionTemplateRepository = questionTemplateRepository;
+            //_subproductRepository = subproductRepository;
         }
 
         public virtual async Task<PagedResultDto<ProductWithNavigationPropertiesDto>> GetListAsync(GetProductsInput input)
@@ -54,8 +57,10 @@ namespace IBLTermocasa.Products
 
         public virtual async Task<ProductWithNavigationPropertiesDto> GetWithNavigationPropertiesAsync(Guid id)
         {
-            return ObjectMapper.Map<ProductWithNavigationProperties, ProductWithNavigationPropertiesDto>
-                (await _productRepository.GetWithNavigationPropertiesAsync(id));
+            var product = await _productRepository.GetWithNavigationPropertiesAsync(id);
+            //var subproduct = await _subproductRepository.GetListByProductIdAsync(id);
+            //product.Subproducts = subproduct;
+            return ObjectMapper.Map<ProductWithNavigationProperties, ProductWithNavigationPropertiesDto>(product);
         }
 
         public virtual async Task<ProductDto> GetAsync(Guid id)

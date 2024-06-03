@@ -182,7 +182,7 @@ public partial class RequestForQuotationInput
         if (SelectedOrganization == null)
         {
             InternalRequestForQuotation.OrganizationId = Guid.Empty;
-            InternalRequestForQuotation.OrganizationPropertyDto = null;
+            InternalRequestForQuotation.OrganizationProperty = null;
             InternalRequestForQuotation.MailInfo = new MailInfoDto();
             InternalRequestForQuotation.PhoneInfo = new PhoneInfoDto();
         }
@@ -193,7 +193,7 @@ public partial class RequestForQuotationInput
             SelectedOrganization = organization;
             InternalRequestForQuotation.MailInfo = organization.MailInfo != null ? organization.MailInfo : new MailInfoDto();
             InternalRequestForQuotation.PhoneInfo = organization.PhoneInfo != null ? organization.PhoneInfo : new PhoneInfoDto();
-            InternalRequestForQuotation.OrganizationPropertyDto =
+            InternalRequestForQuotation.OrganizationProperty =
                 new OrganizationPropertyDto(organization.Id, organization.Name);
         }
 
@@ -205,14 +205,14 @@ public partial class RequestForQuotationInput
         if (SelectedContact == null)
         {
             InternalRequestForQuotation.ContactId = Guid.Empty;
-            InternalRequestForQuotation.ContactPropertyDto = null;
+            InternalRequestForQuotation.ContactProperty = null;
         }
         else
         {
             InternalRequestForQuotation.ContactId = SelectedContact.Id;
             var contact = Contacts.Items.FirstOrDefault(x => x.Id == SelectedContact.Id);
             SelectedContact = contact;
-            InternalRequestForQuotation.ContactPropertyDto =
+            InternalRequestForQuotation.ContactProperty =
                 new ContactPropertyDto(contact.Id, contact.Name + " " + contact.Surname);
         }
 

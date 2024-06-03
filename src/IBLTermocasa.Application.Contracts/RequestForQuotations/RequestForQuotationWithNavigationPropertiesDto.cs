@@ -2,10 +2,6 @@ using Volo.Abp.Identity;
 using IBLTermocasa.Contacts;
 using IBLTermocasa.Organizations;
 
-using System;
-using Volo.Abp.Application.Dtos;
-using System.Collections.Generic;
-
 namespace IBLTermocasa.RequestForQuotations
 {
     public class RequestForQuotationWithNavigationPropertiesDto

@@ -50,7 +50,7 @@ public partial class RequestForQuotationCreate
     private bool CanCreateRequestForQuotation { get; set; }
     public RequestForQuotationDto NewRequestForQuotationDto = new();
     public RequestForQuotationCreateDto NewRequestForQuotation { get; set; }
-    public CatalogWithNavigationPropertiesDto SelectedCatalog { get; set; }
+    public CatalogWithNavigationPropertiesDto SelectedCatalog { get; set; } = new();
     private PagedResultDto<CatalogWithNavigationPropertiesDto> Catalogs { get; set; } = new();
     private PagedResultDto<OrganizationDto> Organizations { get; set; } = new();
     private PagedResultDto<ContactDto> Contacts { get; set; } = new();
@@ -63,7 +63,7 @@ public partial class RequestForQuotationCreate
     private List<LookupDto<Guid>> userLookUpDtos = new();
     public MudAutocomplete<CatalogDto> CatalogAutocompleteRef { get; set; }
     private MudAutocomplete<ContactDto> ContactsAutoCompleteRef { get; set; }
-    private ProductDto SelectedProduct { get; set; }
+    private ProductDto SelectedProduct { get; set; } = new();
     private List<ProductDto> SelectedCatalogProducts { get; set; }
     
     [Range(1, int.MaxValue)]
@@ -76,8 +76,6 @@ public partial class RequestForQuotationCreate
     private string selectedStep = "1";
     private Steps stepsRef;
     private bool isSelecting = false;
-    private string catalogNameSelected;
-    private string productNameSelected;
 
     protected override async Task OnInitializedAsync()
     {
@@ -135,7 +133,7 @@ public partial class RequestForQuotationCreate
         if (arg == null)
         {
             NewRequestForQuotationDto.OrganizationId = Guid.Empty;
-            NewRequestForQuotationDto.OrganizationPropertyDto = null;
+            NewRequestForQuotationDto.OrganizationProperty = null;
             disableContact = true;
             NewRequestForQuotationDto.MailInfo = new MailInfoDto();
             NewRequestForQuotationDto.PhoneInfo = new PhoneInfoDto();
@@ -148,7 +146,7 @@ public partial class RequestForQuotationCreate
             var organization = Organizations.Items.FirstOrDefault(x => x.Id == arg.Id);
             NewRequestForQuotationDto.MailInfo = organization.MailInfo != null ? organization.MailInfo : new MailInfoDto();
             NewRequestForQuotationDto.PhoneInfo = organization.PhoneInfo != null ? organization.PhoneInfo : new PhoneInfoDto();
-            NewRequestForQuotationDto.OrganizationPropertyDto =
+            NewRequestForQuotationDto.OrganizationProperty =
                 new OrganizationPropertyDto(organization.Id, organization.Name);
             //Bisogna mettere in attesa il thread per 100 millisecondi per evitare che il focus venga perso, perchè sulla stessa riga
             await Task.Delay(100);
@@ -163,13 +161,13 @@ public partial class RequestForQuotationCreate
         if (arg == null)
         {
             NewRequestForQuotationDto.ContactId = Guid.Empty;
-            NewRequestForQuotationDto.ContactPropertyDto = null;
+            NewRequestForQuotationDto.ContactProperty = null;
         }
         else
         {
             NewRequestForQuotationDto.ContactId = arg.Id;
             var contact = Contacts.Items.FirstOrDefault(x => x.Id == arg.Id);
-            NewRequestForQuotationDto.ContactPropertyDto = new ContactPropertyDto(contact.Id, contact.ToStringNameSurname());
+            NewRequestForQuotationDto.ContactProperty = new ContactPropertyDto(contact.Id, contact.ToStringNameSurname());
         }
 
         StateHasChanged();
@@ -179,14 +177,15 @@ public partial class RequestForQuotationCreate
     {
         if (arg == null)
         {
-            SelectedCatalog = null;
-            SelectedProduct = null;
+            SelectedCatalog = new CatalogWithNavigationPropertiesDto();
+            SelectedProduct = new ProductDto();
             SelectedCatalogItemQuantity = 1;
             QuestionTemplateValues.Clear();
+            RFQProductAndQuestions.Clear();
         }
         else
         {
-            SelectedProduct = null;
+            SelectedProduct = new ProductDto();
             disableContact = false;
             QuestionTemplateValues.Clear();
             SelectedCatalog = Catalogs.Items.FirstOrDefault(x => x.Catalog.Id == arg.Id);
@@ -200,11 +199,14 @@ public partial class RequestForQuotationCreate
         if (arg == null)
         {
             QuestionTemplateValues.Clear();
-            SelectedProduct = null;
+            RFQProductAndQuestions.Clear();
+            ListQuestionTemplateSingleProduct.Clear();
+            SelectedProduct = new ProductDto();
         }
         else
         {
             SelectedProduct = arg;
+            RFQProductAndQuestions.Clear();
             if (!SelectedProduct.IsAssembled)
             {
                 var questionTemplateIds = SelectedProduct.QuestionTemplates.Select(qt => qt.QuestionTemplateId).ToList();
@@ -214,11 +216,11 @@ public partial class RequestForQuotationCreate
                 {
                     QuestionTemplateValues.Add(new QuestionTemplateModel(questionTemplate.Id, "", SelectedProduct.Id));
                 }
-                // Prendo tutte le domande associate ai sotto-prodotti e le mappo in DTO
                 
             }else{
                 var result = await RequestForQuotationsAppService.GetRfqProductAndQuestionsAsync(SelectedProduct.Id);
-                RFQProductAndQuestions = result.ToList();
+                RFQProductAndQuestions = result.OrderByDescending(p => p.Product.IsAssembled)
+                    .ToList();
                 foreach (var rfqProductAndQuestion in RFQProductAndQuestions)
                 {
                     var rfqProductId = rfqProductAndQuestion.Product.Id;
@@ -232,29 +234,50 @@ public partial class RequestForQuotationCreate
         StateHasChanged();
     }
 
-    private void OnSelectedItemChanged(RequestForQuotationItemDto selectedItem)
+    private async Task OnSelectedItemChanged(RequestForQuotationItemDto selectedItem)
     {
+        UpdateValueCatalog(null);
         QuestionTemplateValues.Clear();
         selectedListViewItem = selectedItem;
         SelectedCatalogItemQuantity = selectedItem.Quantity;
         SelectedProduct = Catalogs.Items
             .SelectMany(catalog => catalog.Products)
-            .FirstOrDefault(item => item.Id == selectedItem.ProductId);
-        SelectedCatalog = Catalogs.Items.FirstOrDefault(catalog => catalog.Products.Contains(SelectedProduct));
-        catalogNameSelected = SelectedCatalog.Catalog.Name;
-        productNameSelected = SelectedProduct.Name;
-        isSelecting = true;
-
-        foreach (var answer in selectedListViewItem.Answers)
+            .FirstOrDefault(item => item.Id == selectedItem.ProductId)!;
+        SelectedCatalog = Catalogs.Items.FirstOrDefault(catalog => catalog.Products.Contains(SelectedProduct))!;
+        if (!SelectedProduct.IsAssembled)
         {
-            QuestionTemplateValues.Add(new QuestionTemplateModel(answer.QuestionId, answer.AnswerValue, selectedListViewItem.ProductId));
+            var questionTemplateIds = SelectedProduct.QuestionTemplates.Select(qt => qt.QuestionTemplateId).ToList();
+            ListQuestionTemplateSingleProduct = await QuestionTemplatesAppService.GetListByGuidsAsync(questionTemplateIds);
+            RFQProductAndQuestions.Add(new RFQProductAndQuestionDto(SelectedProduct, ListQuestionTemplateSingleProduct));
+            foreach (var questionTemplate in ListQuestionTemplateSingleProduct)
+            {
+                foreach (var answer in selectedItem.Answers.Where(answer => answer.QuestionId == questionTemplate.Id))
+                {
+                    QuestionTemplateValues.Add(new QuestionTemplateModel(questionTemplate.Id, answer.AnswerValue, SelectedProduct.Id));
+                }
+            }
+        } else {
+            var result = await RequestForQuotationsAppService.GetRfqProductAndQuestionsAsync(SelectedProduct.Id);
+            RFQProductAndQuestions = result.OrderByDescending(p => p.Product.IsAssembled)
+                .ToList();
+            foreach (var rfqProductAndQuestion in RFQProductAndQuestions)
+            {
+                var rfqProductId = rfqProductAndQuestion.Product.Id;
+                foreach (var questionTemplate in rfqProductAndQuestion.QuestionTemplates)
+                {
+                    foreach (var answer in selectedListViewItem.Answers.Where(answer => answer.QuestionId == questionTemplate.Id && answer.ProductId == rfqProductId))
+                    {
+                        QuestionTemplateValues.Add(new QuestionTemplateModel(questionTemplate.Id, answer.AnswerValue, rfqProductId));
+                    }
+                }
+            }
         }
+        isSelecting = true;
         StateHasChanged();
     }
 
     private void SaveAnswerForRFQ()
     {
-        
         ListRequestForQuotationItems.RemoveAll(x => x.ProductId.Equals(SelectedProduct.Id));
         SelectedCatalogItemQuantity = Math.Max(SelectedCatalogItemQuantity, 1);
         
@@ -263,14 +286,14 @@ public partial class RequestForQuotationCreate
             ProductId = SelectedProduct.Id,
             Answers = QuestionTemplateValues.Select(x => new Answer
             {
+                ProductId = x.ProductId,
                 QuestionId = x.QuestionId,
                 AnswerValue = x.AnswerValue
             }).ToList(),
             Quantity = SelectedCatalogItemQuantity
         });
-        
-        UpdateValueCatalog(null);
         CatalogAutocompleteRef.Clear();
+        UpdateValueCatalog(null);
         isSelecting = false;
         StateHasChanged();
     }
@@ -312,9 +335,14 @@ public partial class RequestForQuotationCreate
         {
             // Creazione di una nuova richiesta di preventivo
             NewRequestForQuotationDto.RequestForQuotationItems = ListRequestForQuotationItems;
+            var organizationProperty = NewRequestForQuotationDto.OrganizationProperty;
+            var contactProperty = NewRequestForQuotationDto.ContactProperty;
+            NewRequestForQuotationDto.Status = Status.NEW;
             NewRequestForQuotationDto.ConcurrencyStamp = Guid.NewGuid().ToString();
             NewRequestForQuotation =
                 _mapper.Map<RequestForQuotationDto, RequestForQuotationCreateDto>(NewRequestForQuotationDto);
+            NewRequestForQuotationDto.OrganizationProperty = organizationProperty;
+            NewRequestForQuotationDto.ContactProperty = contactProperty;
             Console.WriteLine(NewRequestForQuotationDto);
             var result = await RequestForQuotationsAppService.CreateAsync(NewRequestForQuotation);
             NavigationManager.NavigateTo("/request-for-quotations");
@@ -336,6 +364,7 @@ public partial class RequestForQuotationCreate
         try
         {
             NewRequestForQuotationDto.ConcurrencyStamp = Guid.NewGuid().ToString();
+            NewRequestForQuotationDto.Status = Status.DRAFT;
             NewRequestForQuotation =
                 _mapper.Map<RequestForQuotationDto, RequestForQuotationCreateDto>(NewRequestForQuotationDto);
             Console.WriteLine(NewRequestForQuotationDto);

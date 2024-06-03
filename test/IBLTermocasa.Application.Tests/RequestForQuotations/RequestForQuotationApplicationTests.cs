@@ -56,8 +56,8 @@ namespace IBLTermocasa.RequestForQuotations
                 City = "1ad91bd8bdea4ba0b2ad6937e170438243ca6def2a2a48e4bb",
                 OrganizationProperty = new OrganizationPropertyDto(),
                 ContactProperty = new ContactPropertyDto(),
-                PhoneInfo = new PhoneInfo(),
-                MailInfo = new MailInfo(),
+                PhoneInfo = new PhoneInfoDto(),
+                MailInfo = new MailInfoDto(),
                 Discount = 1332453570,
                 Description = "b01dba2682c647148ef417a9baa1377edc91b285a2ac40c38e6379e",
                 Status = default

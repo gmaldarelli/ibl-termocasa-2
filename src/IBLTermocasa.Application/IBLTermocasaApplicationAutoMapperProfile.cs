@@ -47,6 +47,7 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<Component, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
 
         CreateMap<Subproduct, SubproductDto>();
+        CreateMap<SubproductDto, Subproduct>();
         CreateMap<SubproductWithNavigationProperties, SubproductWithNavigationPropertiesDto>();
         CreateMap<Product, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
 

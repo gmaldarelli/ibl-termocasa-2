@@ -1,27 +1,15 @@
-
-
 @page "/products"
 
 @attribute [Authorize(IBLTermocasaPermissions.Products.Default)]
-@using IBLTermocasa.Products
 @using IBLTermocasa.Localization
-@using IBLTermocasa.Shared
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.Extensions.Localization
-@using Microsoft.AspNetCore.Components.Web
-@using Blazorise
-@using Blazorise.Components
-@using Blazorise.DataGrid
-@using Volo.Abp.BlazoriseUI
-@using Volo.Abp.BlazoriseUI.Components
-@using Volo.Abp.ObjectMapping
-@using Volo.Abp.AspNetCore.Components.Messages
-@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
-@using IBLTermocasa.Subproducts 
-
 @using IBLTermocasa.Permissions
+@using IBLTermocasa.Products
+@using IBLTermocasa.Shared
+@using IBLTermocasa.Subproducts
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.AspNetCore.Components.Messages
 @using Volo.Abp.AspNetCore.Components.Web
-@using Microsoft.AspNetCore.Components
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
 @using Volo.Abp.Http.Client
 @inherits IBLTermocasaComponentBase
 @inject IProductsAppService ProductsAppService
@@ -56,59 +44,59 @@
                 </Addon>
             </Addons>
         </Form>
-        
-        <Row Class="mt-3 mb-3"> 
+
+        <Row Class="mt-3 mb-3">
             <div class="col-md-12">
                 <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
             </div>
         </Row>
-        
+
         <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
             <Row>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["Code"]</FieldLabel>
-                        <TextEdit Text="@Filter.Code" TextChanged="@OnCodeChangedAsync" />                       
+                        <TextEdit Text="@Filter.Code" TextChanged="@OnCodeChangedAsync"/>
                     </Field>
                 </Column>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["Name"]</FieldLabel>
-                        <TextEdit Text="@Filter.Name" TextChanged="@OnNameChangedAsync" />                       
+                        <TextEdit Text="@Filter.Name" TextChanged="@OnNameChangedAsync"/>
                     </Field>
                 </Column>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["Description"]</FieldLabel>
-                        <TextEdit Text="@Filter.Description" TextChanged="@OnDescriptionChangedAsync" />                       
+                        <TextEdit Text="@Filter.Description" TextChanged="@OnDescriptionChangedAsync"/>
                     </Field>
                 </Column>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["IsAssembled"]</FieldLabel>
                         <Select TValue="bool?"
-		SelectedValue="@Filter.IsAssembled"
-		SelectedValueChanged="@OnIsAssembledChangedAsync">
+                                SelectedValue="@Filter.IsAssembled"
+                                SelectedValueChanged="@OnIsAssembledChangedAsync">
 
-<SelectItem></SelectItem>
-<SelectItem Value="true">@L["Yes"]</SelectItem>
-<SelectItem Value="false">@L["No"]</SelectItem>
+                            <SelectItem></SelectItem>
+                            <SelectItem Value="true">@L["Yes"]</SelectItem>
+                            <SelectItem Value="false">@L["No"]</SelectItem>
 
-</Select>                       
+                        </Select>
                     </Field>
                 </Column>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["IsInternal"]</FieldLabel>
                         <Select TValue="bool?"
-		SelectedValue="@Filter.IsInternal"
-		SelectedValueChanged="@OnIsInternalChangedAsync">
+                                SelectedValue="@Filter.IsInternal"
+                                SelectedValueChanged="@OnIsInternalChangedAsync">
 
-<SelectItem></SelectItem>
-<SelectItem Value="true">@L["Yes"]</SelectItem>
-<SelectItem Value="false">@L["No"]</SelectItem>
+                            <SelectItem></SelectItem>
+                            <SelectItem Value="true">@L["Yes"]</SelectItem>
+                            <SelectItem Value="false">@L["No"]</SelectItem>
 
-</Select>                       
+                        </Select>
                     </Field>
                 </Column>
             </Row>
@@ -121,7 +109,7 @@
 
 @* ************************* DATA GRID ************************* *@
 <Card>
-    <CardBody>        
+    <CardBody>
         @if (SelectedProducts.Any())
         {
             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -144,7 +132,7 @@
                         }
                     </p>
                 }
-                    
+
                 <div>
                     @if ((SelectedProducts.Count == PageSize || SelectedProducts.Count == ProductList.Count) && TotalCount > SelectedProducts.Count)
                     {
@@ -157,25 +145,25 @@
                             <Button Clicked="ClearSelection" Class="mx-1 btn-outline-secondary">@L["ClearSelection"]</Button>
                         }
                     }
-                    
+
                     <Button Color="Color.Danger" Class="mx-1" Size="Size.Medium" Clicked="DeleteSelectedProductsAsync">
-                        <Icon Name="@IconName.Delete" /> @L["Delete"]
+                        <Icon Name="@IconName.Delete"/> @L["Delete"]
                     </Button>
                 </div>
             </div>
-            
+
             <hr class="my-1 mx-0"/>
         }
         <DataGrid TItem="ProductWithNavigationPropertiesDto"
                   Data="ProductList"
-                  
+
                   SelectionMode="DataGridSelectionMode.Multiple"
                   SelectedRows="SelectedProducts"
                   RowSelectable="@((args) => CanDeleteProduct)"
                   SelectedRowsChanged="SelectedProductRowsChanged"
                   DetailRowTrigger="@((x) => { x.Single = true; return ShouldShowDetailRow(); })"
                   DetailRowStartsVisible="false"
-                  RowClicked="@((e) => { if (e.Item.Product.Id == SelectedProduct?.Product.Id) { SelectedProduct = null; } else { SelectedProduct = e.Item; } })"
+                  RowClicked="@((e) => { if (e.Item.Product.Id == SelectedProduct?.Product.Id) { SelectedProduct = null; }else { SelectedProduct = e.Item; } })"
                   ReadData="OnDataGridReadAsync"
                   TotalItems="TotalCount"
                   ShowPager="true"
@@ -183,7 +171,7 @@
                   PageSize="PageSize"
                   Class="datagrid-detail">
             <DataGridColumns>
-                
+
                 @if (CanDeleteProduct)
                 {
                     <DataGridMultiSelectColumn TItem="ProductWithNavigationPropertiesDto" Width="30px" Displayable="@(ProductList.Any())"></DataGridMultiSelectColumn>
@@ -211,172 +199,174 @@
                             <EntityAction TItem="ProductWithNavigationPropertiesDto"
                                           Visible="@CanEditProduct"
                                           Clicked="async () => await OpenEditProductModalAsync(context)"
-                                          Text="@L["Edit"]"></EntityAction>
+                                          Text="@L["Edit"]">
+                            </EntityAction>
                             <EntityAction TItem="ProductWithNavigationPropertiesDto"
                                           Visible="@CanDeleteProduct"
                                           Clicked="() => DeleteProductAsync(context)"
-                                          ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
-                                          Text="@L["Delete"]"></EntityAction>
+                                          ConfirmationMessage="@(() => L["DeleteConfirmationMessage"])"
+                                          Text="@L["Delete"]">
+                            </EntityAction>
 
                         </EntityActions>
                     </DisplayTemplate>
                 </DataGridEntityActionsColumn>
-               
-              <DataGridColumn TItem="ProductWithNavigationPropertiesDto"
-                      Field="Product.Code"
-                      Caption="@L["Code"]">
-              </DataGridColumn>
 
-              <DataGridColumn TItem="ProductWithNavigationPropertiesDto"
-                      Field="Product.Name"
-                      Caption="@L["Name"]">
-              </DataGridColumn>
+                <DataGridColumn TItem="ProductWithNavigationPropertiesDto"
+                                Field="Product.Code"
+                                Caption="@L["Code"]">
+                </DataGridColumn>
 
-              <DataGridColumn TItem="ProductWithNavigationPropertiesDto"
-                      Field="Product.IsAssembled"
-                      Caption="@L["IsAssembled"]">
+                <DataGridColumn TItem="ProductWithNavigationPropertiesDto"
+                                Field="Product.Name"
+                                Caption="@L["Name"]">
+                </DataGridColumn>
+
+                <DataGridColumn TItem="ProductWithNavigationPropertiesDto"
+                                Field="Product.IsAssembled"
+                                Caption="@L["IsAssembled"]">
                     <DisplayTemplate>
                         @if (context.Product.IsAssembled)
                         {
-                            <Icon TextColor="TextColor.Success" Name="@IconName.Check" />
+                            <Icon TextColor="TextColor.Success" Name="@IconName.Check"/>
                         }
                         else
                         {
-                            <Icon TextColor="TextColor.Danger" Name="@IconName.Times" />
+                            <Icon TextColor="TextColor.Danger" Name="@IconName.Times"/>
                         }
                     </DisplayTemplate>
-              </DataGridColumn>
+                </DataGridColumn>
 
 
-              <DataGridColumn TItem="ProductWithNavigationPropertiesDto"
-                      Field="Product.IsInternal"
-                      Caption="@L["IsInternal"]">
+                <DataGridColumn TItem="ProductWithNavigationPropertiesDto"
+                                Field="Product.IsInternal"
+                                Caption="@L["IsInternal"]">
                     <DisplayTemplate>
                         @if (context.Product.IsInternal)
                         {
-                            <Icon TextColor="TextColor.Success" Name="@IconName.Check" />
+                            <Icon TextColor="TextColor.Success" Name="@IconName.Check"/>
                         }
                         else
                         {
-                            <Icon TextColor="TextColor.Danger" Name="@IconName.Times" />
+                            <Icon TextColor="TextColor.Danger" Name="@IconName.Times"/>
                         }
                     </DisplayTemplate>
-              </DataGridColumn>
+                </DataGridColumn>
 
 
             </DataGridColumns>
-            
+
             <DetailRowTemplate>
-    <div class="bg-light rounded p-3 pb-0 pt-1">
-        <Tabs SelectedTab="@SelectedChildTab" SelectedTabChanged="@OnSelectedChildTabChanged">
-            <Items>
-                <Tab Name="subproduct-tab">@L["Subproducts"]</Tab>
-            </Items>
-            
-            <Content>
-                                        <TabPanel Name="subproduct-tab" Class="mt-0">
-                            @if (CanCreateSubproduct)
-                            {
-                                <Row Class="mb-2">
-                                    <Column Class="d-flex justify-content-end">
-                                        <Button Color="Color.Primary" Clicked="async () => await OpenCreateSubproductModalAsync(context.Product.Id)">
-                                            <i class="fas fa-plus me-1"></i>@L["NewSubproduct"]
-                                        </Button>
-                                    </Column>
-                                </Row>
-                            }
+                <div class="bg-light rounded p-3 pb-0 pt-1">
+                    <Tabs SelectedTab="@SelectedChildTab" SelectedTabChanged="@OnSelectedChildTabChanged">
+                        <Items>
+                            <Tab Name="subproduct-tab">@L["Subproducts"]</Tab>
+                        </Items>
 
-                            @{
-                                var subproducts = (context as ProductWithNavigationPropertiesDto).Product.Subproducts;
+                        <Content>
+                            <TabPanel Name="subproduct-tab" Class="mt-0">
+                                @if (CanCreateSubproduct)
+                                {
+                                    <Row Class="mb-2">
+                                        <Column Class="d-flex justify-content-end">
+                                            <Button Color="Color.Primary" Clicked="async () => await OpenCreateSubproductModalAsync(context.Product.Id)">
+                                                <i class="fas fa-plus me-1"></i>@L["NewSubproduct"]
+                                            </Button>
+                                        </Column>
+                                    </Row>
+                                }
 
-                                <DataGrid @ref="@SubproductDataGrids[context.Product.Id]"
-                                          TItem="SubproductWithNavigationPropertiesDto"
-                                          Data="subproducts"
-                                          ReadData="@((args) => OnSubproductDataGridReadAsync(args, context.Product.Id))"
-                                          Sortable="true"
-                                          ShowCaptions="true"
-                                          ShowPager="true"
-                                          Responsive="true"
-                                          PageSize="SubproductPageSize">
+                                @{
+                                    var subproducts = (context as ProductWithNavigationPropertiesDto).Product.Subproducts;
 
-                                    <DataGridColumns>
+                                    <DataGrid @ref="@SubproductDataGrids[context.Product.Id]"
+                                              TItem="SubproductWithNavigationPropertiesDto"
+                                              Data="subproducts"
+                                              ReadData="@((args) => OnSubproductDataGridReadAsync(args, context.Product.Id))"
+                                              Sortable="true"
+                                              ShowCaptions="true"
+                                              ShowPager="true"
+                                              Responsive="true"
+                                              PageSize="SubproductPageSize">
 
-                                        <DataGridEntityActionsColumn TItem="SubproductWithNavigationPropertiesDto" @ref="@SubproductEntityActionsColumns">
-                                            <DisplayTemplate Context="subproduct_context">
-                                                <EntityActions TItem="SubproductWithNavigationPropertiesDto" EntityActionsColumn="@SubproductEntityActionsColumns">
-                                                    <EntityAction TItem="SubproductWithNavigationPropertiesDto"
-                                                                  Visible="@CanEditSubproduct"
-                                                                  Clicked="async () => await OpenEditSubproductModalAsync(subproduct_context)"
-                                                                  Text="@L["Edit"]">
-                                                    </EntityAction>
-                                                    <EntityAction TItem="SubproductWithNavigationPropertiesDto"
-                                                                  Visible="@CanDeleteSubproduct"
-                                                                  Clicked="async () => await DeleteSubproductAsync(subproduct_context)"
-                                                                  ConfirmationMessage="@(() => L["DeleteConfirmationMessage"])"
-                                                                  Text="@L["Delete"]">
-                                                    </EntityAction>
-                                                </EntityActions>
-                                            </DisplayTemplate>
-                                        </DataGridEntityActionsColumn>
+                                        <DataGridColumns>
 
-                                        <DataGridCommandColumn/>
+                                            <DataGridEntityActionsColumn TItem="SubproductWithNavigationPropertiesDto" @ref="@SubproductEntityActionsColumns">
+                                                <DisplayTemplate Context="subproduct_context">
+                                                    <EntityActions TItem="SubproductWithNavigationPropertiesDto" EntityActionsColumn="@SubproductEntityActionsColumns">
+                                                        <EntityAction TItem="SubproductWithNavigationPropertiesDto"
+                                                                      Visible="@CanEditSubproduct"
+                                                                      Clicked="async () => await OpenEditSubproductModalAsync(subproduct_context)"
+                                                                      Text="@L["Edit"]">
+                                                        </EntityAction>
+                                                        <EntityAction TItem="SubproductWithNavigationPropertiesDto"
+                                                                      Visible="@CanDeleteSubproduct"
+                                                                      Clicked="async () => await DeleteSubproductAsync(subproduct_context)"
+                                                                      ConfirmationMessage="@(() => L["DeleteConfirmationMessage"])"
+                                                                      Text="@L["Delete"]">
+                                                        </EntityAction>
+                                                    </EntityActions>
+                                                </DisplayTemplate>
+                                            </DataGridEntityActionsColumn>
 
-                                        
-              <DataGridColumn TItem="SubproductWithNavigationPropertiesDto"
-                      Field="Subproduct.Order"
-                      Caption="@L["Order"]">
-              </DataGridColumn>
-
-              <DataGridColumn TItem="SubproductWithNavigationPropertiesDto"
-                      Field="Subproduct.Name"
-                      Caption="@L["Name"]">
-              </DataGridColumn>
-
-              <DataGridColumn TItem="SubproductWithNavigationPropertiesDto"
-                      Field="Subproduct.IsSingleProduct"
-                      Caption="@L["IsSingleProduct"]">
-                    <DisplayTemplate Context="subproduct_context">
-                        @if (subproduct_context.Subproduct.IsSingleProduct)
-                        {
-                            <Icon TextColor="TextColor.Success" Name="@IconName.Check" />
-                        }
-                        else
-                        {
-                            <Icon TextColor="TextColor.Danger" Name="@IconName.Times" />
-                        }
-                    </DisplayTemplate>
-              </DataGridColumn>
+                                            <DataGridCommandColumn/>
 
 
-              <DataGridColumn TItem="SubproductWithNavigationPropertiesDto"
-                      Field="Subproduct.Mandatory"
-                      Caption="@L["Mandatory"]">
-                    <DisplayTemplate Context="subproduct_context">
-                        @if (subproduct_context.Subproduct.Mandatory)
-                        {
-                            <Icon TextColor="TextColor.Success" Name="@IconName.Check" />
-                        }
-                        else
-                        {
-                            <Icon TextColor="TextColor.Danger" Name="@IconName.Times" />
-                        }
-                    </DisplayTemplate>
-              </DataGridColumn>
+                                            <DataGridColumn TItem="SubproductWithNavigationPropertiesDto"
+                                                            Field="Subproduct.Order"
+                                                            Caption="@L["Order"]">
+                                            </DataGridColumn>
+
+                                            <DataGridColumn TItem="SubproductWithNavigationPropertiesDto"
+                                                            Field="Subproduct.Name"
+                                                            Caption="@L["Name"]">
+                                            </DataGridColumn>
+
+                                            <DataGridColumn TItem="SubproductWithNavigationPropertiesDto"
+                                                            Field="Subproduct.IsSingleProduct"
+                                                            Caption="@L["IsSingleProduct"]">
+                                                <DisplayTemplate Context="subproduct_context">
+                                                    @if (subproduct_context.Subproduct.IsSingleProduct)
+                                                    {
+                                                        <Icon TextColor="TextColor.Success" Name="@IconName.Check"/>
+                                                    }
+                                                    else
+                                                    {
+                                                        <Icon TextColor="TextColor.Danger" Name="@IconName.Times"/>
+                                                    }
+                                                </DisplayTemplate>
+                                            </DataGridColumn>
 
 
-              <DataGridColumn TItem="SubproductWithNavigationPropertiesDto"
-                      Field="Product.Name"
-                      Caption="@L["SingleProduct"]">
-              </DataGridColumn>
+                                            <DataGridColumn TItem="SubproductWithNavigationPropertiesDto"
+                                                            Field="Subproduct.Mandatory"
+                                                            Caption="@L["Mandatory"]">
+                                                <DisplayTemplate Context="subproduct_context">
+                                                    @if (subproduct_context.Subproduct.Mandatory)
+                                                    {
+                                                        <Icon TextColor="TextColor.Success" Name="@IconName.Check"/>
+                                                    }
+                                                    else
+                                                    {
+                                                        <Icon TextColor="TextColor.Danger" Name="@IconName.Times"/>
+                                                    }
+                                                </DisplayTemplate>
+                                            </DataGridColumn>
 
-                                    </DataGridColumns>
-                                </DataGrid>
-                            }
-                        </TabPanel>
-            </Content>
-        </Tabs>
-    </div>
-</DetailRowTemplate>
+
+                                            <DataGridColumn TItem="SubproductWithNavigationPropertiesDto"
+                                                            Field="Product.Name"
+                                                            Caption="@L["SingleProduct"]">
+                                            </DataGridColumn>
+
+                                        </DataGridColumns>
+                                    </DataGrid>
+                                }
+                            </TabPanel>
+                        </Content>
+                    </Tabs>
+                </div>
+            </DetailRowTemplate>
         </DataGrid>
     </CardBody>
 </Card>
@@ -388,68 +378,68 @@
         <Form id="CreateProductForm">
             <ModalHeader>
                 <ModalTitle>@L["NewProduct"]</ModalTitle>
-                <CloseButton Clicked="CloseCreateProductModalAsync" />
+                <CloseButton Clicked="CloseCreateProductModalAsync"/>
             </ModalHeader>
             <ModalBody>
                 <Tabs SelectedTab="@SelectedCreateTab" SelectedTabChanged="@OnSelectedCreateTabChanged">
                     <Items>
-                        <Tab Name="product-create-tab">@L["Product"].Value</Tab> 
+                        <Tab Name="product-create-tab">@L["Product"].Value</Tab>
                         <Tab Name="components-create-tab">@L["Components"].Value</Tab>
                         <Tab Name="questionTemplates-create-tab">@L["QuestionTemplates"].Value</Tab>
                     </Items>
                     <Content>
-                <Validations @ref="@NewProductValidations"
-                            Mode="ValidationMode.Auto"
-                            Model="@NewProduct"
-                            ValidateOnLoad="false">
-                     <TabPanel Name="product-create-tab">
-                    
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Code"] *</FieldLabel>
-                            <TextEdit @bind-Text="@NewProduct.Code"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
+                        <Validations @ref="@NewProductValidations"
+                                     Mode="ValidationMode.Auto"
+                                     Model="@NewProduct"
+                                     ValidateOnLoad="false">
+                            <TabPanel Name="product-create-tab">
+
+                                <Validation MessageLocalizer="@LH.Localize">
+                                    <Field>
+                                        <FieldLabel>@L["Code"] *</FieldLabel>
+                                        <TextEdit @bind-Text="@NewProduct.Code">
+                                            <Feedback>
+                                                <ValidationError/>
+                                            </Feedback>
+                                        </TextEdit>
+                                    </Field>
+                                </Validation>
 
 
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Name"] *</FieldLabel>
-                            <TextEdit @bind-Text="@NewProduct.Name"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
+                                <Validation MessageLocalizer="@LH.Localize">
+                                    <Field>
+                                        <FieldLabel>@L["Name"] *</FieldLabel>
+                                        <TextEdit @bind-Text="@NewProduct.Name">
+                                            <Feedback>
+                                                <ValidationError/>
+                                            </Feedback>
+                                        </TextEdit>
+                                    </Field>
+                                </Validation>
 
 
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Description"]</FieldLabel>
-                            <MemoEdit @bind-Text="@NewProduct.Description"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </MemoEdit>
-                        </Field>
-                    </Validation>
+                                <Validation MessageLocalizer="@LH.Localize">
+                                    <Field>
+                                        <FieldLabel>@L["Description"]</FieldLabel>
+                                        <MemoEdit @bind-Text="@NewProduct.Description">
+                                            <Feedback>
+                                                <ValidationError/>
+                                            </Feedback>
+                                        </MemoEdit>
+                                    </Field>
+                                </Validation>
 
 
-                    <Field>
-                        <Check TValue="bool" @bind-Checked="@NewProduct.IsAssembled" >@L["IsAssembled"]</Check>
-                    </Field>
+                                <Field>
+                                    <Check TValue="bool" @bind-Checked="@NewProduct.IsAssembled">@L["IsAssembled"]</Check>
+                                </Field>
 
-                    <Field>
-                        <Check TValue="bool" @bind-Checked="@NewProduct.IsInternal" >@L["IsInternal"]</Check>
-                    </Field>
+                                <Field>
+                                    <Check TValue="bool" @bind-Checked="@NewProduct.IsInternal">@L["IsInternal"]</Check>
+                                </Field>
 
-                    </TabPanel>
-                                                <TabPanel Name="components-create-tab">
+                            </TabPanel>
+                            <TabPanel Name="components-create-tab">
 
                                 <Row>
                                     <Column ColumnSize="ColumnSize.Is9">
@@ -477,13 +467,17 @@
                                 {
                                     <Table striped-rows="true" responsive-sm="true" class="mt-2">
                                         <TableHeader>
-                                            <TableHeaderCell><Span class="float-start">@L["Name"]</Span></TableHeaderCell>
+                                            <TableHeaderCell>
+                                                <Span class="float-start">@L["Name"]</Span>
+                                            </TableHeaderCell>
                                         </TableHeader>
                                         <TableBody>
                                             @foreach (var component in SelectedComponents)
                                             {
                                                 <TableRow>
-                                                    <TableRowCell><Span class="float-start">@component.DisplayName</Span></TableRowCell>
+                                                    <TableRowCell>
+                                                        <Span class="float-start">@component.DisplayName</Span>
+                                                    </TableRowCell>
                                                     <TableRowCell>
                                                         <span class="btn btn-danger btn-sm float-end"
                                                               @onclick="() => SelectedComponents.RemoveAll(s => s.Id == component.Id)">
@@ -495,7 +489,8 @@
                                         </TableBody>
                                     </Table>
                                 }
-                            </TabPanel>                            <TabPanel Name="questionTemplates-create-tab">
+                            </TabPanel>
+                            <TabPanel Name="questionTemplates-create-tab">
 
                                 <Row>
                                     <Column ColumnSize="ColumnSize.Is9">
@@ -523,13 +518,17 @@
                                 {
                                     <Table striped-rows="true" responsive-sm="true" class="mt-2">
                                         <TableHeader>
-                                            <TableHeaderCell><Span class="float-start">@L["QuestionText"]</Span></TableHeaderCell>
+                                            <TableHeaderCell>
+                                                <Span class="float-start">@L["QuestionText"]</Span>
+                                            </TableHeaderCell>
                                         </TableHeader>
                                         <TableBody>
                                             @foreach (var questionTemplate in SelectedQuestionTemplates)
                                             {
                                                 <TableRow>
-                                                    <TableRowCell><Span class="float-start">@questionTemplate.DisplayName</Span></TableRowCell>
+                                                    <TableRowCell>
+                                                        <Span class="float-start">@questionTemplate.DisplayName</Span>
+                                                    </TableRowCell>
                                                     <TableRowCell>
                                                         <span class="btn btn-danger btn-sm float-end"
                                                               @onclick="() => SelectedQuestionTemplates.RemoveAll(s => s.Id == questionTemplate.Id)">
@@ -542,7 +541,7 @@
                                     </Table>
                                 }
                             </TabPanel>
-                </Validations>
+                        </Validations>
                     </Content>
                 </Tabs>
             </ModalBody>
@@ -551,7 +550,7 @@
                         Clicked="CloseCreateProductModalAsync">
                     @L["Cancel"]
                 </Button>
-                <SubmitButton Form="CreateProductForm" Clicked="CreateProductAsync" />
+                <SubmitButton Form="CreateProductForm" Clicked="CreateProductAsync"/>
 
             </ModalFooter>
         </Form>
@@ -566,69 +565,69 @@
         <Form id="EditProductForm">
             <ModalHeader>
                 <ModalTitle>@L["Update"]</ModalTitle>
-                <CloseButton Clicked="CloseEditProductModalAsync" />
+                <CloseButton Clicked="CloseEditProductModalAsync"/>
             </ModalHeader>
             <ModalBody>
                 <Tabs SelectedTab="@SelectedEditTab" SelectedTabChanged="@OnSelectedEditTabChanged">
                     <Items>
                         <Tab Name="product-edit-tab">@L["Product"].Value</Tab>
-                        
+
                         <Tab Name="components-edit-tab">@L["Components"].Value</Tab>
                         <Tab Name="questionTemplates-edit-tab">@L["QuestionTemplates"].Value</Tab>
                     </Items>
                     <Content>
-                <Validations @ref="@EditingProductValidations"
-                            Mode="ValidationMode.Auto"
-                            Model="@EditingProduct"
-                            ValidateOnLoad="false">
-                     <TabPanel Name="product-edit-tab">
-                    
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Code"] *</FieldLabel>
-                            <TextEdit @bind-Text="@EditingProduct.Code"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
+                        <Validations @ref="@EditingProductValidations"
+                                     Mode="ValidationMode.Auto"
+                                     Model="@EditingProduct"
+                                     ValidateOnLoad="false">
+                            <TabPanel Name="product-edit-tab">
+
+                                <Validation MessageLocalizer="@LH.Localize">
+                                    <Field>
+                                        <FieldLabel>@L["Code"] *</FieldLabel>
+                                        <TextEdit @bind-Text="@EditingProduct.Code">
+                                            <Feedback>
+                                                <ValidationError/>
+                                            </Feedback>
+                                        </TextEdit>
+                                    </Field>
+                                </Validation>
 
 
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Name"] *</FieldLabel>
-                            <TextEdit @bind-Text="@EditingProduct.Name"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
+                                <Validation MessageLocalizer="@LH.Localize">
+                                    <Field>
+                                        <FieldLabel>@L["Name"] *</FieldLabel>
+                                        <TextEdit @bind-Text="@EditingProduct.Name">
+                                            <Feedback>
+                                                <ValidationError/>
+                                            </Feedback>
+                                        </TextEdit>
+                                    </Field>
+                                </Validation>
 
 
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Description"]</FieldLabel>
-                            <MemoEdit @bind-Text="@EditingProduct.Description"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </MemoEdit>
-                        </Field>
-                    </Validation>
+                                <Validation MessageLocalizer="@LH.Localize">
+                                    <Field>
+                                        <FieldLabel>@L["Description"]</FieldLabel>
+                                        <MemoEdit @bind-Text="@EditingProduct.Description">
+                                            <Feedback>
+                                                <ValidationError/>
+                                            </Feedback>
+                                        </MemoEdit>
+                                    </Field>
+                                </Validation>
 
 
-                    <Field>
-                        <Check TValue="bool" @bind-Checked="@EditingProduct.IsAssembled" >@L["IsAssembled"]</Check>
-                    </Field>
+                                <Field>
+                                    <Check TValue="bool" @bind-Checked="@EditingProduct.IsAssembled">@L["IsAssembled"]</Check>
+                                </Field>
 
-                    <Field>
-                        <Check TValue="bool" @bind-Checked="@EditingProduct.IsInternal" >@L["IsInternal"]</Check>
-                    </Field>
+                                <Field>
+                                    <Check TValue="bool" @bind-Checked="@EditingProduct.IsInternal">@L["IsInternal"]</Check>
+                                </Field>
 
-                    </TabPanel>
-                                                <TabPanel Name="components-edit-tab">
+                            </TabPanel>
+                            <TabPanel Name="components-edit-tab">
 
                                 <Row>
                                     <Column ColumnSize="ColumnSize.Is9">
@@ -656,13 +655,17 @@
                                 {
                                     <Table striped-rows="true" responsive-sm="true" class="mt-2">
                                         <TableHeader>
-                                            <TableHeaderCell><Span class="float-start">@L["Name"]</Span></TableHeaderCell>
+                                            <TableHeaderCell>
+                                                <Span class="float-start">@L["Name"]</Span>
+                                            </TableHeaderCell>
                                         </TableHeader>
                                         <TableBody>
                                             @foreach (var component in SelectedComponents)
                                             {
                                                 <TableRow>
-                                                    <TableRowCell><Span class="float-start">@component.DisplayName</Span></TableRowCell>
+                                                    <TableRowCell>
+                                                        <Span class="float-start">@component.DisplayName</Span>
+                                                    </TableRowCell>
                                                     <TableRowCell>
                                                         <span class="btn btn-danger btn-sm float-end"
                                                               @onclick="() => SelectedComponents.RemoveAll(s => s.Id == component.Id)">
@@ -674,7 +677,8 @@
                                         </TableBody>
                                     </Table>
                                 }
-                            </TabPanel>                            <TabPanel Name="questionTemplates-edit-tab">
+                            </TabPanel>
+                            <TabPanel Name="questionTemplates-edit-tab">
 
                                 <Row>
                                     <Column ColumnSize="ColumnSize.Is9">
@@ -702,13 +706,17 @@
                                 {
                                     <Table striped-rows="true" responsive-sm="true" class="mt-2">
                                         <TableHeader>
-                                            <TableHeaderCell><Span class="float-start">@L["QuestionText"]</Span></TableHeaderCell>
+                                            <TableHeaderCell>
+                                                <Span class="float-start">@L["QuestionText"]</Span>
+                                            </TableHeaderCell>
                                         </TableHeader>
                                         <TableBody>
                                             @foreach (var questionTemplate in SelectedQuestionTemplates)
                                             {
                                                 <TableRow>
-                                                    <TableRowCell><Span class="float-start">@questionTemplate.DisplayName</Span></TableRowCell>
+                                                    <TableRowCell>
+                                                        <Span class="float-start">@questionTemplate.DisplayName</Span>
+                                                    </TableRowCell>
                                                     <TableRowCell>
                                                         <span class="btn btn-danger btn-sm float-end"
                                                               @onclick="() => SelectedQuestionTemplates.RemoveAll(s => s.Id == questionTemplate.Id)">
@@ -721,7 +729,7 @@
                                     </Table>
                                 }
                             </TabPanel>
-                </Validations>
+                        </Validations>
                     </Content>
                 </Tabs>
             </ModalBody>
@@ -730,7 +738,7 @@
                         Clicked="CloseEditProductModalAsync">
                     @L["Cancel"]
                 </Button>
-                <SubmitButton Form="EditProductForm" Clicked="UpdateProductAsync" />
+                <SubmitButton Form="EditProductForm" Clicked="UpdateProductAsync"/>
 
             </ModalFooter>
         </Form>
@@ -744,70 +752,69 @@
         <Form id="CreateSubproductForm">
             <ModalHeader>
                 <ModalTitle>@L["NewSubproduct"]</ModalTitle>
-                <CloseButton Clicked="CloseCreateSubproductModalAsync" />
+                <CloseButton Clicked="CloseCreateSubproductModalAsync"/>
             </ModalHeader>
             <ModalBody>
                 <Tabs SelectedTab="@SelectedCreateTab" SelectedTabChanged="@OnSelectedCreateTabChanged">
                     <Items>
-                        <Tab Name="product-create-tab">@L["Product"].Value</Tab> 
+                        <Tab Name="product-create-tab">@L["Product"].Value</Tab>
                         <Tab Name="components-create-tab">@L["Components"].Value</Tab>
                         <Tab Name="questionTemplates-create-tab">@L["QuestionTemplates"].Value</Tab>
                     </Items>
                     <Content>
-                <Validations @ref="@NewSubproductValidations"
-                             Mode="ValidationMode.Auto"
-                             Model="@NewSubproduct"
-                             ValidateOnLoad="false">
-                     
-                    
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Order"]</FieldLabel>
-                            <NumericPicker TValue="int" @bind-Value="@NewSubproduct.Order"  Decimals="0" >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                             </NumericPicker>
-                        </Field>
-                     </Validation>
+                        <Validations @ref="@NewSubproductValidations"
+                                     Mode="ValidationMode.Auto"
+                                     Model="@NewSubproduct"
+                                     ValidateOnLoad="false">
 
 
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Name"] *</FieldLabel>
-                            <TextEdit @bind-Text="@NewSubproduct.Name"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
+                            <Validation MessageLocalizer="@LH.Localize">
+                                <Field>
+                                    <FieldLabel>@L["Order"]</FieldLabel>
+                                    <NumericPicker TValue="int" @bind-Value="@NewSubproduct.Order" Decimals="0">
+                                        <Feedback>
+                                            <ValidationError/>
+                                        </Feedback>
+                                    </NumericPicker>
+                                </Field>
+                            </Validation>
 
 
-                    <Field>
-                        <Check TValue="bool" @bind-Checked="@NewSubproduct.IsSingleProduct" >@L["IsSingleProduct"]</Check>
-                    </Field>
-
-                    <Field>
-                        <Check TValue="bool" @bind-Checked="@NewSubproduct.Mandatory" >@L["Mandatory"]</Check>
-                    </Field>
-
-                    <Field>
-                        <FieldLabel>@L["Product"]</FieldLabel>
-                        <Select TValue="Guid?" @bind-SelectedValue="@NewSubproduct.SingleProductId">
-                            <SelectItem TValue="Guid?" Value="null"></SelectItem>
-                            @foreach (var product in ProductsCollection)
-                            {
-                                <SelectItem TValue="Guid?" Value="@(product.Id)">
-                                    @(product.DisplayName)
-                                </SelectItem>
-                            }
-                        </Select>
-                    </Field>
+                            <Validation MessageLocalizer="@LH.Localize">
+                                <Field>
+                                    <FieldLabel>@L["Name"] *</FieldLabel>
+                                    <TextEdit @bind-Text="@NewSubproduct.Name">
+                                        <Feedback>
+                                            <ValidationError/>
+                                        </Feedback>
+                                    </TextEdit>
+                                </Field>
+                            </Validation>
 
 
-                    
-                </Validations>
+                            <Field>
+                                <Check TValue="bool" @bind-Checked="@NewSubproduct.IsSingleProduct">@L["IsSingleProduct"]</Check>
+                            </Field>
+
+                            <Field>
+                                <Check TValue="bool" @bind-Checked="@NewSubproduct.Mandatory">@L["Mandatory"]</Check>
+                            </Field>
+
+                            <Field>
+                                <FieldLabel>@L["Product"]</FieldLabel>
+                                <Select TValue="Guid?" @bind-SelectedValue="@NewSubproduct.SingleProductId">
+                                    <SelectItem TValue="Guid?" Value="null"></SelectItem>
+                                    @foreach (var product in ProductsCollection)
+                                    {
+                                        <SelectItem TValue="Guid?" Value="@(product.Id)">
+                                            @(product.DisplayName)
+                                        </SelectItem>
+                                    }
+                                </Select>
+                            </Field>
+
+
+                        </Validations>
                     </Content>
                 </Tabs>
             </ModalBody>
@@ -816,7 +823,7 @@
                         Clicked="CloseCreateSubproductModalAsync">
                     @L["Cancel"]
                 </Button>
-                <SubmitButton Form="CreateSubproductForm" Clicked="CreateSubproductAsync" />
+                <SubmitButton Form="CreateSubproductForm" Clicked="CreateSubproductAsync"/>
             </ModalFooter>
         </Form>
     </ModalContent>
@@ -828,71 +835,70 @@
         <Form id="EditSubproductForm">
             <ModalHeader>
                 <ModalTitle>@L["Update"]</ModalTitle>
-                <CloseButton Clicked="CloseEditSubproductModalAsync" />
+                <CloseButton Clicked="CloseEditSubproductModalAsync"/>
             </ModalHeader>
             <ModalBody>
                 <Tabs SelectedTab="@SelectedEditTab" SelectedTabChanged="@OnSelectedEditTabChanged">
                     <Items>
                         <Tab Name="product-edit-tab">@L["Product"].Value</Tab>
-                        
+
                         <Tab Name="components-edit-tab">@L["Components"].Value</Tab>
                         <Tab Name="questionTemplates-edit-tab">@L["QuestionTemplates"].Value</Tab>
                     </Items>
                     <Content>
-                <Validations @ref="@EditingSubproductValidations"
-                             Mode="ValidationMode.Auto"
-                             Model="@EditingSubproduct"
-                             ValidateOnLoad="false">
-                     
-                    
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Order"]</FieldLabel>
-                            <NumericPicker TValue="int" @bind-Value="@EditingSubproduct.Order"  Decimals="0" >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                             </NumericPicker>
-                        </Field>
-                     </Validation>
+                        <Validations @ref="@EditingSubproductValidations"
+                                     Mode="ValidationMode.Auto"
+                                     Model="@EditingSubproduct"
+                                     ValidateOnLoad="false">
 
 
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Name"] *</FieldLabel>
-                            <TextEdit @bind-Text="@EditingSubproduct.Name"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
+                            <Validation MessageLocalizer="@LH.Localize">
+                                <Field>
+                                    <FieldLabel>@L["Order"]</FieldLabel>
+                                    <NumericPicker TValue="int" @bind-Value="@EditingSubproduct.Order" Decimals="0">
+                                        <Feedback>
+                                            <ValidationError/>
+                                        </Feedback>
+                                    </NumericPicker>
+                                </Field>
+                            </Validation>
 
 
-                    <Field>
-                        <Check TValue="bool" @bind-Checked="@EditingSubproduct.IsSingleProduct" >@L["IsSingleProduct"]</Check>
-                    </Field>
-
-                    <Field>
-                        <Check TValue="bool" @bind-Checked="@EditingSubproduct.Mandatory" >@L["Mandatory"]</Check>
-                    </Field>
-
-                    <Field>
-                        <FieldLabel>@L["Product"]</FieldLabel>
-                        <Select TValue="Guid?" @bind-SelectedValue="@EditingSubproduct.SingleProductId">
-                            <SelectItem TValue="Guid?" Value="null"></SelectItem>
-                            @foreach (var product in ProductsCollection)
-                            {
-                                <SelectItem TValue="Guid?" Value="@(product.Id)">
-                                    @(product.DisplayName)
-                                </SelectItem>
-                            }
-                        </Select>
-                    </Field>
+                            <Validation MessageLocalizer="@LH.Localize">
+                                <Field>
+                                    <FieldLabel>@L["Name"] *</FieldLabel>
+                                    <TextEdit @bind-Text="@EditingSubproduct.Name">
+                                        <Feedback>
+                                            <ValidationError/>
+                                        </Feedback>
+                                    </TextEdit>
+                                </Field>
+                            </Validation>
 
 
-                    
-                </Validations>
+                            <Field>
+                                <Check TValue="bool" @bind-Checked="@EditingSubproduct.IsSingleProduct">@L["IsSingleProduct"]</Check>
+                            </Field>
+
+                            <Field>
+                                <Check TValue="bool" @bind-Checked="@EditingSubproduct.Mandatory">@L["Mandatory"]</Check>
+                            </Field>
+
+                            <Field>
+                                <FieldLabel>@L["Product"]</FieldLabel>
+                                <Select TValue="Guid?" @bind-SelectedValue="@EditingSubproduct.SingleProductId">
+                                    <SelectItem TValue="Guid?" Value="null"></SelectItem>
+                                    @foreach (var product in ProductsCollection)
+                                    {
+                                        <SelectItem TValue="Guid?" Value="@(product.Id)">
+                                            @(product.DisplayName)
+                                        </SelectItem>
+                                    }
+                                </Select>
+                            </Field>
+
+
+                        </Validations>
                     </Content>
                 </Tabs>
             </ModalBody>
@@ -901,7 +907,7 @@
                         Clicked="CloseEditSubproductModalAsync">
                     @L["Cancel"]
                 </Button>
-                <SubmitButton Form="EditSubproductForm" Clicked="UpdateSubproductAsync" />
+                <SubmitButton Form="EditSubproductForm" Clicked="UpdateSubproductAsync"/>
             </ModalFooter>
         </Form>
     </ModalContent>

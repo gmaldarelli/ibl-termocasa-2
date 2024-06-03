@@ -14,8 +14,8 @@ namespace IBLTermocasa.RequestForQuotations
         public string? City { get; set; }
         public OrganizationPropertyDto? OrganizationProperty { get; set; }
         public ContactPropertyDto? ContactProperty { get; set; }
-        public PhoneInfo? PhoneInfo { get; set; }
-        public MailInfo? MailInfo { get; set; }
+        public PhoneInfoDto? PhoneInfo { get; set; }
+        public MailInfoDto? MailInfo { get; set; }
         public decimal? Discount { get; set; }
         public string? Description { get; set; }
         public Status Status { get; set; } = ((Status[])Enum.GetValues(typeof(Status)))[0];

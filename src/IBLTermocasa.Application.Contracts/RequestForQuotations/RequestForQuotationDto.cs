@@ -11,8 +11,8 @@ namespace IBLTermocasa.RequestForQuotations
         public string QuoteNumber { get; set; } = null!;
         public string? WorkSite { get; set; }
         public string? City { get; set; }
-        public OrganizationPropertyDto? OrganizationPropertyDto { get; set; }  = new();
-        public ContactPropertyDto? ContactPropertyDto { get; set; } = new();
+        public OrganizationPropertyDto? OrganizationProperty { get; set; }  = new();
+        public ContactPropertyDto? ContactProperty { get; set; } = new();
         public PhoneInfoDto? PhoneInfo { get; set; } = new();
         public MailInfoDto? MailInfo { get; set; } = new();
         public decimal? Discount { get; set; }

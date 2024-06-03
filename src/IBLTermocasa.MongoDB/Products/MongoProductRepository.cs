@@ -7,6 +7,7 @@ using System.Linq.Dynamic.Core;
 using System.Threading;
 using System.Threading.Tasks;
 using IBLTermocasa.MongoDB;
+using IBLTermocasa.Subproducts;
 using Volo.Abp.Domain.Repositories.MongoDB;
 using Volo.Abp.MongoDB;
 using MongoDB.Driver.Linq;
@@ -45,13 +46,14 @@ namespace IBLTermocasa.Products
             var components = await (await GetMongoQueryableAsync<Component>(cancellationToken)).Where(e => componentIds.Contains(e.Id)).ToListAsync(cancellationToken: cancellationToken);
             var questionTemplateIds = product.QuestionTemplates.Select(x => x.QuestionTemplateId).ToList();
             var questionTemplates = await (await GetMongoQueryableAsync<QuestionTemplate>(cancellationToken)).Where(e => questionTemplateIds.Contains(e.Id)).ToListAsync(cancellationToken: cancellationToken);
-
+            var subproduct = await (await GetMongoQueryableAsync<Subproduct>(cancellationToken)).Where(e => e.ProductId == product.Id).ToListAsync(cancellationToken: cancellationToken);
+            
             return new ProductWithNavigationProperties
             {
                 Product = product,
                 Components = components,
                 QuestionTemplates = questionTemplates,
-
+                Subproducts = subproduct
             };
         }
 
@@ -79,7 +81,7 @@ namespace IBLTermocasa.Products
                 Product = s,
                 Components = new List<Component>(),
                 QuestionTemplates = new List<QuestionTemplate>(),
-
+                Subproducts = new List<Subproduct>(),
             }).ToList();
         }
 
