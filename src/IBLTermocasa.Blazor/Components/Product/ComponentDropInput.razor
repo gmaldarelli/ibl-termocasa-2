@@ -1,0 +1,60 @@
+﻿@using IBLTermocasa.Components
+@using MudBlazor
+@inherits IBLTermocasaComponentBase
+<MudDropContainer T="DropItem" Items="_items" ItemsSelector="@((item,dropzone) => item.Identifier == dropzone)" ItemDropped="ItemUpdated" Class="d-flex flex-wrap flex-grow-1">
+    <ChildContent>
+        <MudDropZone T="DropItem" Identifier="ToAdd" Class="rounded mud-background-gray pa-1 ma-1 flex-grow-1">
+            <MudText >@L["Components"]</MudText>
+        </MudDropZone>
+        <MudDropZone T="DropItem" Identifier="InProduct" Class="rounded mud-background-gray pa-1 ma-1 flex-grow-1">
+            <MudText>Aggiunti</MudText>
+        </MudDropZone>
+    </ChildContent>
+    <ItemRenderer>
+        @context.Component.Name
+    </ItemRenderer>
+</MudDropContainer>
+
+@code {
+    [Parameter] public IReadOnlyList<ComponentDto>? ComponentList { get; set; }
+    [Parameter] public List<ComponentDto>? SelectedComponents { get; set; }
+    private List<DropItem> _items = new List<DropItem>();
+
+    public List<ComponentDto> OutputSelectedComponents => 
+        _items.Where(x => x.Identifier == "InProduct").Select(x => x.Component).ToList();
+
+    protected override System.Threading.Tasks.Task OnParametersSetAsync()
+    {
+        if(ComponentList == null || SelectedComponents == null)
+        {
+            return base.OnParametersSetAsync();
+        }
+        else
+        {
+            _items = ComponentList.Select(x => new DropItem
+            {
+                Component = x, 
+                Identifier = (
+                    SelectedComponents.Any(
+                        s => s.Id == x.Id
+                    ) ? "InProduct" : "ToAdd"
+                        
+                )
+            }).ToList();
+        }
+        return base.OnParametersSetAsync();
+    }
+
+
+    private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
+    {
+        dropItem.Item.Identifier = dropItem.DropzoneIdentifier;
+    }
+
+    
+    public class DropItem
+    {
+        public ComponentDto Component { get; init; }
+        public string Identifier { get; set; }
+    }
+}

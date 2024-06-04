@@ -29,8 +29,8 @@ namespace IBLTermocasa.Products
             // Assert
             result.TotalCount.ShouldBe(2);
             result.Items.Count.ShouldBe(2);
-            result.Items.Any(x => x.Product.Id == Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c")).ShouldBe(true);
-            result.Items.Any(x => x.Product.Id == Guid.Parse("58980b43-af35-4248-aa0e-fecdefd22bad")).ShouldBe(true);
+            result.Items.Any(x => x.Id == Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c")).ShouldBe(true);
+            result.Items.Any(x => x.Id == Guid.Parse("58980b43-af35-4248-aa0e-fecdefd22bad")).ShouldBe(true);
         }
 
         [Fact]

@@ -5,21 +5,24 @@ namespace IBLTermocasa.Products
 {
     public class ProductComponent : Entity
     {
+        public Guid ProductId { get;  set; }
 
-        public Guid ProductId { get; protected set; }
+        public Guid ComponentId { get;  set; }
 
-        public Guid ComponentId { get; protected set; }
-
+        public virtual int Order { get; set; }
+        public virtual bool Mandatory { get; set; }
         private ProductComponent()
         {
 
         }
 
-        public ProductComponent(Guid productId, Guid componentId)
+        public ProductComponent(Guid productId, Guid componentId, int order, bool mandatory)
         {
             ProductId = productId;
             ComponentId = componentId;
-        }
+            Order = order;
+            Mandatory = mandatory;
+        }  
 
         public override object[] GetKeys()
         {

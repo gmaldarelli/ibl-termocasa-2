@@ -10,7 +10,6 @@ using IBLTermocasa.Organizations;
 using IBLTermocasa.Products;
 using IBLTermocasa.QuestionTemplates;
 using IBLTermocasa.RequestForQuotations;
-using IBLTermocasa.Subproducts;
 using Volo.Abp.AutoMapper;
 
 namespace IBLTermocasa.Blazor;
@@ -30,9 +29,7 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<ComponentItemDto, ComponentItem>();
         CreateMap<ComponentItem, ComponentItemDto>();
 
-        CreateMap<ProductDto, ProductUpdateDto>().Ignore(x => x.ComponentIds);
-
-        CreateMap<SubproductDto, SubproductUpdateDto>();
+        CreateMap<ProductDto, ProductUpdateDto>();
 
         CreateMap<IndustryDto, IndustryUpdateDto>();
         CreateMap<ContactDto, ContactUpdateDto>();
@@ -52,7 +49,8 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<RequestForQuotationItem, RequestForQuotationItemDto>();
         CreateMap<RequestForQuotationItemDto, RequestForQuotationItem>();
     
-        CreateMap<ProductDto, ProductUpdateDto>().Ignore(x => x.ComponentIds).Ignore(x => x.QuestionTemplateIds);
+        CreateMap<ProductDto, ProductUpdateDto>();
+        CreateMap<ProductDto, ProductCreateDto>();
 
         CreateMap<CatalogDto, CatalogUpdateDto>().Ignore(x => x.ProductIds);
         

@@ -1,0 +1,161 @@
+﻿@using IBLTermocasa.Shared
+@using MudBlazor
+@using Microsoft.AspNetCore.Components
+@inherits IBLTermocasaComponentBase
+
+<MudSelect @ref="MudSelectComponent"
+           MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))" 
+           @bind-Value="_guidStringSelected"
+           @bind-SelectedValues="_guidStringsSelected"
+           MultiSelection="IsMultiSelection" 
+           T="string" Label="@ComponentLabelPlural" 
+           AdornmentIcon="@Icons.Material.Filled.Search" 
+           AnchorOrigin="Origin.BottomCenter"
+           >
+    @foreach (var GuidString in _guidStrings)
+    {
+        <MudSelectItem T="string" Value="@GuidString">@ComponentName(@GuidString)</MudSelectItem>
+    }
+</MudSelect>
+<MudSwitch @bind-Checked="_multiselectionTextChoice"
+           Class="mud-width-full"
+           Color="MudBlazor.Color.Primary">
+    @L["ViewSelectedName"]
+</MudSwitch>
+
+@code {
+    [Parameter] public IEnumerable<LookupDto<Guid>> ComponentList { get; set; }
+    [Parameter] public IEnumerable<LookupDto<Guid>> SelectedComponents { get; set; }
+    [Parameter] public bool IsMultiSelection { get; set; }
+    [Parameter] public string ComponentLabelSingle { get; set; }
+    [Parameter] public string ComponentLabelPlural { get; set; }
+    [Parameter] public EventCallback<IEnumerable<Guid>> SelectorValueChanged { get; set; }
+    public MudSelect<string> MudSelectComponent { get; set; }
+    private bool _multiselectionTextChoice;
+    private string _guidStringSelected { get; set; }
+    private IEnumerable<string> _guidStringsSelected { get; set; } = Array.Empty<string>();
+    private IEnumerable<string> _guidStrings = Array.Empty<string>();
+
+    public List<LookupDto<Guid>> OutputSelectedComponents()
+    {
+        return ComponentList.Where(x => _guidStringsSelected.Contains(x.Id.ToString())).ToList();
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        if (ComponentList == null || SelectedComponents == null)
+        {
+            return base.OnParametersSetAsync();
+        }
+        else
+        {
+            _guidStringSelected = L["NothingSelected"];
+            _guidStringsSelected = SelectedComponents.Select(x => x.Id.ToString());
+            _guidStrings = ComponentList.Select(x => x.Id.ToString()).ToArray();
+        }
+
+        return base.OnParametersSetAsync();
+    }
+
+    private string GetMultiSelectionText(List<string> selectedValues)
+    {
+        if (_multiselectionTextChoice)
+        {
+            if (selectedValues.Count == 0)
+            {
+                return L["NothingSelected"];
+            }
+
+            var names = ComponentList.Where(x =>
+                selectedValues.Contains(x.Id.ToString())).Select(x => x.DisplayName).ToList();
+            return $"{string.Join(", ", names)}";
+        }
+        else
+        {
+            if (selectedValues.Count == 0)
+            {
+                return L["NothingSelected"];
+            }
+
+            if (selectedValues.Count == 1)
+            {
+                return L["OneItemSelected", selectedValues.Count];
+            }
+
+            return L["XItemsSelected", selectedValues.Count];
+        }
+    }
+
+    private string ComponentName(string guidString)
+    {
+        return ComponentList.Where(x => x.Id.ToString().Equals(guidString)).Select(x => x.DisplayName).FirstOrDefault();
+    }
+    private void OnSelectedValuesChanged(IEnumerable<string> values)
+    {
+        _guidStringsSelected = values;
+        if (IsMultiSelection)
+        {
+            List<Guid> guids = ComponentList.Where(x => values.Contains(x.Id.ToString())).ToList()
+                .Select(x => x.Id).ToList();
+            SelectorValueChanged.InvokeAsync(guids);
+        }
+    }
+
+    private void OnValueChanged(string value)
+    {
+        this._guidStringSelected = value ?? "Nothing selected";    
+        _guidStringsSelected = new List<string>(){value};
+        if (IsMultiSelection)
+        {
+            List<Guid> guids = ComponentList.Where(x => _guidStringsSelected.Equals(x.Id.ToString())).ToList()
+                .Select(x => x.Id).ToList();
+            if (guids.Count>0)
+            {
+                SelectorValueChanged.InvokeAsync(new List<Guid>(){guids.First()});
+            }
+        }
+    }
+    protected virtual void OnSelectionValuesChanged(IEnumerable<string> values)
+    { 
+        if (IsMultiSelection)
+        {
+            List<Guid> guids = ComponentList.Where(x => values.Contains(x.Id.ToString())).ToList()
+                .Select(x => x.Id).ToList();
+            SelectorValueChanged.InvokeAsync(guids);
+        }
+    }
+
+    private void OnMudSelectComponentClosed()
+    {
+        Console.WriteLine("MudSelectComponent Closed");
+        List<Guid> guids = new List<Guid>();
+        if (IsMultiSelection)
+        {
+            Console.WriteLine("IsMultiSelection");
+                guids = ComponentList.Where(x => _guidStringsSelected.Equals(x.Id.ToString())).ToList()
+                .Select(x => x.Id).ToList();
+
+        }
+        else
+        {
+            Console.WriteLine("Not IsMultiSelection");
+            if (!_guidStringSelected.Equals(@L["NothingSelected"]))
+            {
+                Console.WriteLine("Not NothingSelected");
+                guids = ComponentList.Where(x => _guidStringSelected.Contains(x.Id.ToString())).ToList()
+                    .Select(x => x.Id).ToList();
+            }
+        }
+        if (guids.Count>0)
+        {
+            Console.WriteLine("InvokeAsync");
+            SelectorValueChanged.InvokeAsync(new List<Guid>(){guids.First()});
+        }
+        else
+        {
+            Console.WriteLine("InvokeAsync Empty");
+            SelectorValueChanged.InvokeAsync(new List<Guid>());
+        }
+    }
+
+}

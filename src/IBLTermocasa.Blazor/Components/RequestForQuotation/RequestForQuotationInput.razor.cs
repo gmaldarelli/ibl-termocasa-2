@@ -53,7 +53,7 @@ public partial class RequestForQuotationInput
     public RequestForQuotationItemDto selectedRequestForQuotationItem { get; set; }
     public DataGrid<RequestForQuotationItemDto> RequestForQuotationItemsDataGrid { get; set; }
     
-    private List<Product> CatalogItemFilter { get; set; } = new();
+    private List<ProductDto> CatalogItemFilter { get; set; } = new();
     public List<(Guid, string?)> ListQuestionTemplate = new();
     private List<(Guid, string)> ListProductName = new();
 

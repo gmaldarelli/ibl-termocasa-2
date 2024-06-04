@@ -1,0 +1,43 @@
+﻿@using IBLTermocasa.Blazor.Components.Selector
+@using MudBlazor
+@inherits IBLTermocasaComponentBase
+<Modal @ref="ProductComponentModal" Closing="@ProductComponentModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true" >
+        <ModalHeader>
+            <ModalTitle> @L["Product"]</ModalTitle>
+            <CloseButton Clicked="OnModalCancel" />
+        </ModalHeader>
+        <ModalBody>
+            <ElementSelectorInput
+                                    @ref="ElementSelectorInput"
+                                  IsMultiSelection="IsMultiSelection"
+                                  ComponentLabelSingle="@ProductLabelSingle"
+                                  ComponentLabelPlural="@ProductLabelPlural"
+                                  ComponentList="ComponentListLookupDto"
+                                  SelectedComponents="SelectedComponentListLookupDto"/>
+            <MudNumericField @bind-Value="@ProductComponent.Order" InvertMouseWheel="true" 
+                             Label="@L["Order"]" Variant="Variant.Filled" Min="@MinValue" Max="@MaxValue" />
+            <MudSwitch @bind-Checked="@ProductComponent.Mandatory"
+                       Class="mud-width-full"
+                       Color="MudBlazor.Color.Primary">
+                @L["Mandatory"]
+            </MudSwitch>
+        </ModalBody>
+        <ModalFooter>
+            <Button Color="Blazorise.Color.Secondary"
+                    Clicked="OnModalCancel">
+                @L["Cancel"]
+            </Button>
+            <Button Color="Blazorise.Color.Primary"
+                    Clicked="OnModalSave">
+                @L["Save"]
+            </Button>
+        </ModalFooter>
+
+    </ModalContent>
+</Modal>
+@code {
+    
+    //
+    
+}

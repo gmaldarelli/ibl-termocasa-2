@@ -1,24 +1,22 @@
-using IBLTermocasa.QuestionTemplates;
-using IBLTermocasa.Components;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq.Dynamic.Core;
+using System.Threading.Tasks;
+using IBLTermocasa.Components;
+using IBLTermocasa.Permissions;
+using IBLTermocasa.QuestionTemplates;
+using IBLTermocasa.Shared;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Distributed;
+using MiniExcelLibs;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
-using Volo.Abp.Application.Services;
-using Volo.Abp.Domain.Repositories;
-using IBLTermocasa.Permissions;
-using IBLTermocasa.Products;
-using MiniExcelLibs;
-using Volo.Abp.Content;
 using Volo.Abp.Authorization;
 using Volo.Abp.Caching;
-using Microsoft.Extensions.Caching.Distributed;
-using IBLTermocasa.Shared;
+using Volo.Abp.Content;
+using Volo.Abp.Domain.Repositories;
 
 namespace IBLTermocasa.Products
 {
@@ -40,29 +38,74 @@ namespace IBLTermocasa.Products
             _questionTemplateRepository = questionTemplateRepository;
         }
 
-        public virtual async Task<PagedResultDto<ProductWithNavigationPropertiesDto>> GetListAsync(GetProductsInput input)
+        public virtual async Task<PagedResultDto<ProductDto>> GetListAsync(GetProductsInput input, bool includeDetails = false)
         {
             var totalCount = await _productRepository.GetCountAsync(input.FilterText, input.Code, input.Name, input.Description, input.IsAssembled, input.IsInternal);
-            var items = await _productRepository.GetListWithNavigationPropertiesAsync(input.FilterText, input.Code, input.Name, input.Description, input.IsAssembled, input.IsInternal, input.Sorting, input.MaxResultCount, input.SkipCount);
-
-            return new PagedResultDto<ProductWithNavigationPropertiesDto>
+            var fullEntityItems = await _productRepository.GetListAsync(input.FilterText, input.Code, input.Name, input.Description, input.IsAssembled, input.IsInternal, input.Sorting, input.MaxResultCount, input.SkipCount);
+            var dtos = MapFullItemList(fullEntityItems);
+            return new PagedResultDto<ProductDto>
             {
                 TotalCount = totalCount,
-                Items = ObjectMapper.Map<List<ProductWithNavigationProperties>, List<ProductWithNavigationPropertiesDto>>(items)
+                Items = await MapFullItemList(fullEntityItems, includeDetails)
             };
         }
 
-        public virtual async Task<ProductWithNavigationPropertiesDto> GetWithNavigationPropertiesAsync(Guid id)
+        public virtual async Task<ProductDto> GetAsync(Guid id, bool includeDetails = false)
         {
-            return ObjectMapper.Map<ProductWithNavigationProperties, ProductWithNavigationPropertiesDto>
-                (await _productRepository.GetWithNavigationPropertiesAsync(id));
+            var fullEntity = await _productRepository.GetAsync(id);
+            var dto = await MapFullItem(fullEntity, includeDetails);
+            return dto;
         }
 
-        public virtual async Task<ProductDto> GetAsync(Guid id)
+        private  async Task<ProductDto> MapFullItem(Product fullEntity, bool includeDetails = false)
         {
-            return ObjectMapper.Map<Product, ProductDto>(await _productRepository.GetAsync(id));
+            List<Product> fullEntityList = new List<Product> { fullEntity };
+            return (await MapFullItemList(fullEntityList, includeDetails)).First();
         }
+        private async Task<List<ProductDto>> MapFullItemList(List<Product> fullEntity, bool includeDetails = false)
+        {
+            var dtos = ObjectMapper.Map<List<Product>, List<ProductDto>>(fullEntity).ToList();
+            List<Guid> questionTemplateIds =  fullEntity.SelectMany(x => x.QuestionTemplates).Select(x => x.QuestionTemplateId).ToList();
+            var componentIds = fullEntity.SelectMany(x => x.Components).Select(x => x.ComponentId).ToList();
+            if (includeDetails)
+            {
+                var questionTemplates = await _questionTemplateRepository.GetListAsync(x => questionTemplateIds.Contains(x.Id));
+                var components = await _componentRepository.GetListAsync(x => componentIds.Contains(x.Id));
+                dtos.ForEach(dto =>
+                {
+                    foreach (var componentId in componentIds)
+                    {
+                        fullEntity.ForEach(entity =>
+                        {
+                            var productComponent = entity.Components.First(x => x.ComponentId == componentId);
+                            var component = components.First(x => x.Id == productComponent.ComponentId);
+                            var productComponentDto =
+                                ObjectMapper.Map<ProductComponent, ProductComponentDto>(productComponent);
+                            productComponentDto.Component = ObjectMapper.Map<Component, ComponentDto>(component);
+                            dto.ProductComponents.Add(productComponentDto);
+                        });
+                    }
 
+                    foreach (var questionTemplateId in questionTemplateIds)
+                    {
+                        fullEntity.ForEach(entity =>
+                        {
+                            var productQuestionTemplate =
+                                entity.QuestionTemplates.First(x => x.QuestionTemplateId == questionTemplateId);
+                            var questionTemplate =
+                                questionTemplates.First(x => x.Id == productQuestionTemplate.QuestionTemplateId);
+                            var productQuestionTemplateDto =
+                                ObjectMapper.Map<ProductQuestionTemplate, ProductQuestionTemplateDto>(
+                                    productQuestionTemplate);
+                            productQuestionTemplateDto.QuestionTemplate =
+                                ObjectMapper.Map<QuestionTemplate, QuestionTemplateDto>(questionTemplate);
+                            dto.ProductQuestionTemplates.Add(productQuestionTemplateDto);
+                        });
+                    } 
+                });
+            }
+            return dtos;
+        }
         public virtual async Task<PagedResultDto<LookupDto<Guid>>> GetComponentLookupAsync(LookupRequestDto input)
         {
             var query = (await _componentRepository.GetQueryableAsync())
@@ -104,9 +147,11 @@ namespace IBLTermocasa.Products
         [Authorize(IBLTermocasaPermissions.Products.Create)]
         public virtual async Task<ProductDto> CreateAsync(ProductCreateDto input)
         {
-
-            var product = await _productManager.CreateAsync(
-            input.ComponentIds, input.QuestionTemplateIds, input.Code, input.Name, input.IsAssembled, input.IsInternal, input.Description
+            var productComponents = ObjectMapper.Map<List<ProductComponentDto>, List<ProductComponent>>(input.ProductComponents);
+            var productQuestionTemplates = ObjectMapper.Map<List<ProductQuestionTemplateDto>, List<ProductQuestionTemplate>>(input.ProductQuestionTemplates);
+            var subProducts = ObjectMapper.Map<List<SubProductDto>, List<SubProduct>>(input.SubProducts);
+            var product = await _productManager.CreateAsync( subProducts, 
+                productComponents, productQuestionTemplates, input.Code, input.Name, input.IsAssembled, input.IsInternal, input.Description
             );
 
             return ObjectMapper.Map<Product, ProductDto>(product);
@@ -115,10 +160,15 @@ namespace IBLTermocasa.Products
         [Authorize(IBLTermocasaPermissions.Products.Edit)]
         public virtual async Task<ProductDto> UpdateAsync(Guid id, ProductUpdateDto input)
         {
-
+            var productComponents = ObjectMapper.Map<List<ProductComponentDto>, List<ProductComponent>>(input.ProductComponents);
+            var productQuestionTemplates = ObjectMapper.Map<List<ProductQuestionTemplateDto>, List<ProductQuestionTemplate>>(input.ProductQuestionTemplates);
+            var subProducts = ObjectMapper.Map<List<SubProductDto>, List<SubProduct>>(input.SubProducts);
+            productComponents.ForEach(x => x.ProductId = id);
+            productQuestionTemplates.ForEach(x => x.ProductId = id);
+            subProducts.ForEach(x => x.ParentId = id);
             var product = await _productManager.UpdateAsync(
-            id,
-            input.ComponentIds, input.QuestionTemplateIds, input.Code, input.Name, input.IsAssembled, input.IsInternal, input.Description, input.ConcurrencyStamp
+            id, subProducts,
+            productComponents, productQuestionTemplates, input.Code, input.Name, input.IsAssembled, input.IsInternal, input.Description, input.ConcurrencyStamp
             );
 
             return ObjectMapper.Map<Product, ProductDto>(product);
@@ -151,7 +201,7 @@ namespace IBLTermocasa.Products
             return new RemoteStreamContent(memoryStream, "Products.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
 
-        public virtual async Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync()
+        public virtual async Task<DownloadTokenResultDto> GetDownloadTokenAsync()
         {
             var token = Guid.NewGuid().ToString("N");
 
@@ -163,7 +213,7 @@ namespace IBLTermocasa.Products
                     AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30)
                 });
 
-            return new IBLTermocasa.Shared.DownloadTokenResultDto
+            return new DownloadTokenResultDto
             {
                 Token = token
             };

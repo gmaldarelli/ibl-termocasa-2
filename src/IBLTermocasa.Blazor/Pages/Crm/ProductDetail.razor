@@ -1,0 +1,37 @@
+﻿@page "/product/{id}"
+@page "/new-product"
+
+@attribute [Authorize(IBLTermocasaPermissions.Products.Default)]
+@using IBLTermocasa.Blazor.Components.Product
+@using IBLTermocasa.Contacts
+@using IBLTermocasa.Localization
+@using IBLTermocasa.Permissions
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using Volo.Abp.Http.Client
+@using MudBlazor
+@inherits IBLTermocasaComponentBase
+@inject IContactsAppService ContactsAppService
+@inject NavigationManager NavigationManager
+@inject IUiMessageService UiMessageService
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+
+<PageHeader Title="@L["Products"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+<ProductInput
+    @ref="ProductInputComponent"
+    Product="@Product"
+    OnProductSaved="HandleProductSaved"
+    OnProductCancel="HandleProductCancel"/>
+<MudThemeProvider/>
+<MudSnackbarProvider />
+@code {
+    
+    //Fast code here otherwise into cs file
+
+ 
+}

@@ -6,60 +6,61 @@
 @using Color = MudBlazor.Color
 @using Size = MudBlazor.Size
 @inherits IBLTermocasaComponentBase
-<MudForm @ref="PhoneInfoForm" Disabled="@ReadOnly" >
+<MudForm @ref="PhoneInfoForm" Disabled="@ReadOnly">
     @foreach (var phoneItem in PhoneInfo.PhoneItems)
     {
-    <MudGrid>
-        <MudItem xs="3">
-            <MudSelect T="PhoneType" @bind-Value="phoneItem.Type" Placeholder="@L["Type"]">
-                @foreach (var type in Enum.GetValues<PhoneType>())
-                {
-                <MudSelectItem Value="@type">@L[$"Enum:PhoneType.{type:d}"]</MudSelectItem>
-                }
-            </MudSelect>
-        </MudItem>
-        <MudItem xs="4">
-            <InternationalPrefixSelector ReadOnly="@ReadOnly" SelectedPrefixChanged="value => phoneItem.Prefix = value"/>
-        </MudItem>
-        <MudItem xs="4" Style="display: grid;">
-            <MudMask @bind-Value="phoneItem.Number" Label="@L["Phone"]" Mask="@phoneMask" Style="align-items: flex-end;"/>
-        </MudItem>
-        <MudItem xs="1" Class="position-relative">
-            <MudButton Color="Color.Secondary" OnClick="@(() => RemovePhoneItem(phoneItem))" Size="Size.Small" Style="position: absolute; bottom: 20%; left: 0;">
-                <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Delete" />
-            </MudButton>
-        </MudItem>
-    </MudGrid>
+        <MudGrid>
+            <MudItem xs="3">
+                <MudSelect T="PhoneType" @bind-Value="phoneItem.Type" Placeholder="@L["Type"]">
+                    @foreach (var type in Enum.GetValues<PhoneType>())
+                    {
+                        <MudSelectItem Value="@type">@L[$"Enum:PhoneType.{type:d}"]</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="4">
+                <InternationalPrefixSelector ReadOnly="@ReadOnly" SelectedPrefixChanged="value => phoneItem.Prefix = value"/>
+            </MudItem>
+            <MudItem xs="4" Style="display: grid;">
+                <MudMask @bind-Value="phoneItem.Number" Label="@L["Phone"]" Mask="@phoneMask" Style="align-items: flex-end;"/>
+            </MudItem>
+            <MudItem xs="1" Class="position-relative">
+                <MudButton Color="Color.Secondary" OnClick="@(() => RemovePhoneItem(phoneItem))" Size="Size.Small" Style="position: absolute; bottom: 20%; left: 0;">
+                    <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Delete"/>
+                </MudButton>
+            </MudItem>
+        </MudGrid>
     }
     <MudButton Color="Color.Primary" OnClick="@AddNewPhoneItem" Size="Size.Small" Class="mt-2">
-        <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Add" />
+        <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Add"/>
     </MudButton>
 </MudForm>
+
 @code {
-[Parameter] public PhoneInfoDto PhoneInfo { get; set; }
-[Parameter] public EventCallback<PhoneItem> OnAddPhoneItem { get; set; }
-[Parameter] public EventCallback<PhoneItem> OnRemovePhoneItem { get; set; }
-[Parameter] public Validations PhoneInfoValidations { get; set; }
-[Parameter] public bool ReadOnly { get; set; }
-private MudForm PhoneInfoForm;
-public IMask phoneMask = new PatternMask("000-0000000");
+    [Parameter] public PhoneInfoDto PhoneInfo { get; set; }
+    [Parameter] public EventCallback<PhoneItem> OnAddPhoneItem { get; set; }
+    [Parameter] public EventCallback<PhoneItem> OnRemovePhoneItem { get; set; }
+    [Parameter] public Validations PhoneInfoValidations { get; set; }
+    [Parameter] public bool ReadOnly { get; set; }
+    private MudForm PhoneInfoForm;
+    public IMask phoneMask = new PatternMask("000-0000000");
 
-private void AddNewPhoneItem()
-{
-var newItem = new PhoneItemDto();
-PhoneInfo.PhoneItems.Add(newItem);
-StateHasChanged();
-}
+    private void AddNewPhoneItem()
+    {
+        var newItem = new PhoneItemDto();
+        PhoneInfo.PhoneItems.Add(newItem);
+        StateHasChanged();
+    }
 
-private void RemovePhoneItem(PhoneItemDto phoneItem)
-{
-PhoneInfo.PhoneItems.Remove(phoneItem);
-StateHasChanged();
-}
+    private void RemovePhoneItem(PhoneItemDto phoneItem)
+    {
+        PhoneInfo.PhoneItems.Remove(phoneItem);
+        StateHasChanged();
+    }
 
-private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<PhoneItem> e)
-{
-await Task.CompletedTask;
-}
+    private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<PhoneItem> e)
+    {
+        await Task.CompletedTask;
+    }
 
 }

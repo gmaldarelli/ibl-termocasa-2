@@ -7,53 +7,57 @@
 @using Volo.Abp.AspNetCore.Components.Web
 @using Size = MudBlazor.Size
 @inherits IBLTermocasaComponentBase
-<MudForm @ref="MailInfoForm" Disabled="@ReadOnly" >
+<MudForm @ref="MailInfoForm" Disabled="@ReadOnly">
     @foreach (var mailItem in MailInfo.MailItems)
     {
-    <MudGrid>
-        <MudItem xs="7">
-            <MudTextField @bind-Value="@mailItem.Email" Placeholder="Email" Validation="@(new EmailAddressAttribute() {ErrorMessage = @L["The email address is invalid"]})" />
-        </MudItem>
-        <MudItem xs="4">
-            <MudSelect T="MailType" @bind-Value="mailItem.Type" Label="@L["Type"]">
-                @foreach (var type in Enum.GetValues<MailType>())
-                {
-                <MudSelectItem Value="@type">@L[$"Enum:EmailType.{type:d}"]</MudSelectItem>
-                }
-            </MudSelect>
-        </MudItem>
-        <MudItem xs="1" Style="position: relative;">
-            <MudButton Color="Color.Secondary" OnClick="@(() => RemoveMailItem(mailItem))" Size="Size.Small" Style="position: absolute; bottom: 20%; left: 0;">
-                <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Delete" />
-            </MudButton>
-        </MudItem>
-    </MudGrid>
+        <MudGrid>
+            <MudItem xs="7">
+                <MudTextField @bind-Value="@mailItem.Email" Placeholder="Email" Validation="@(new EmailAddressAttribute() { ErrorMessage = @L["The email address is invalid"] })"/>
+            </MudItem>
+            <MudItem xs="4">
+                <MudSelect T="MailType" @bind-Value="mailItem.Type" Label="@L["Type"]">
+                    @foreach (var type in Enum.GetValues<MailType>())
+                    {
+                        <MudSelectItem Value="@type">@L[$"Enum:EmailType.{type:d}"]</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="1" Style="position: relative;">
+                <MudButton Color="Color.Secondary" OnClick="@(() => RemoveMailItem(mailItem))" Size="Size.Small" Style="position: absolute; bottom: 20%; left: 0;">
+                    <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Delete"/>
+                </MudButton>
+            </MudItem>
+        </MudGrid>
     }
     <MudButton Color="Color.Primary" OnClick="@AddNewMailItem" Size="Size.Small" Class="mt-2">
-        <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Add" />
+        <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Add"/>
     </MudButton>
 </MudForm>
-@code {
-[Parameter] public MailInfoDto MailInfo { get; set; }
-[Parameter] public EventCallback<AddressDto> OnAddMailItem { get; set; }
-[Parameter] public EventCallback<AddressDto> OnRemoveMailItem { get; set; }
-[Parameter] public Validations MailInfoValidations { get; set; }
-[Parameter] public bool ReadOnly { get; set; }
-private MudForm MailInfoForm;
 
-private void AddNewMailItem()
-{
-var newItem = new MailItemDto{ Email = "" };
-MailInfo.MailItems.Add(newItem);
-StateHasChanged();
-}
-private void RemoveMailItem(MailItemDto mailItem)
-{
-MailInfo.MailItems.Remove(mailItem);
-StateHasChanged();
-}
-private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<MailItemDto> e)
-{
-await Task.CompletedTask;
-}
+@code {
+    [Parameter] public MailInfoDto MailInfo { get; set; }
+    [Parameter] public EventCallback<AddressDto> OnAddMailItem { get; set; }
+    [Parameter] public EventCallback<AddressDto> OnRemoveMailItem { get; set; }
+    [Parameter] public Validations MailInfoValidations { get; set; }
+    [Parameter] public bool ReadOnly { get; set; }
+    private MudForm MailInfoForm;
+
+    private void AddNewMailItem()
+    {
+        var newItem = new MailItemDto { Email = "" };
+        MailInfo.MailItems.Add(newItem);
+        StateHasChanged();
+    }
+
+    private void RemoveMailItem(MailItemDto mailItem)
+    {
+        MailInfo.MailItems.Remove(mailItem);
+        StateHasChanged();
+    }
+
+    private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<MailItemDto> e)
+    {
+        await Task.CompletedTask;
+    }
+
 }

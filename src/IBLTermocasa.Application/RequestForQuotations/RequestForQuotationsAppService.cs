@@ -206,7 +206,7 @@ namespace IBLTermocasa.RequestForQuotations
             }
 
             // Prendo tutti gli ID dei sotto-prodotti
-            var listProductIds = productPrincipal.Subproducts.Select(x => x.SingleProductId).ToList();
+            var listProductIds = productPrincipal.SubProducts.Select(sp => sp.ProductIds).SelectMany(p => p).ToList();
 
             // Prendo tutti i prodotti associati ai sotto-prodotti
             var products = await _productRepository.GetListAsync(p => listProductIds.Contains(p.Id));

@@ -45,13 +45,24 @@ namespace IBLTermocasa.Products
             var components = await (await GetMongoQueryableAsync<Component>(cancellationToken)).Where(e => componentIds.Contains(e.Id)).ToListAsync(cancellationToken: cancellationToken);
             var questionTemplateIds = product.QuestionTemplates.Select(x => x.QuestionTemplateId).ToList();
             var questionTemplates = await (await GetMongoQueryableAsync<QuestionTemplate>(cancellationToken)).Where(e => questionTemplateIds.Contains(e.Id)).ToListAsync(cancellationToken: cancellationToken);
-
+            List<Guid> subProductIds = new List<Guid>();
+            foreach (var subProduct in product.SubProducts)
+            {
+                foreach (var subProductProductId in subProduct.ProductIds)
+                {
+                    if (subProductIds.Where(x => x == subProductProductId).ToList().Count == 0)
+                    {
+                        subProductIds.Add(subProductProductId);
+                    }
+                }
+            }
+            var products = await (await GetMongoQueryableAsync<Product>(cancellationToken)).Where(e => subProductIds.Contains(e.Id)).ToListAsync(cancellationToken: cancellationToken);
             return new ProductWithNavigationProperties
             {
                 Product = product,
                 Components = components,
                 QuestionTemplates = questionTemplates,
-
+                Products = products
             };
         }
 
