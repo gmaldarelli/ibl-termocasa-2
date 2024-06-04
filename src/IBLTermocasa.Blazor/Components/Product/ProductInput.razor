@@ -61,9 +61,9 @@
                                 <Columns>
                                     <PropertyColumn Property="x => x.Order" Title="@L["Order"]" IsEditable="true">
                                     </PropertyColumn>
-                                    <PropertyColumn Property="x => x.Component.Name" IsEditable="false"  Title="@L["Name"]">
+                                    <PropertyColumn Property="x => x.Component.Name" IsEditable="false" Title="@L["Name"]">
                                         <EditTemplate>
-                                            <MudTextField @bind-Value="context.Item.Component.Name" ReadOnly="true" />
+                                            <MudTextField @bind-Value="context.Item.Component.Name" ReadOnly="true"/>   
                                         </EditTemplate>
                                     </PropertyColumn>
                                     <PropertyColumn Property="x => x.Mandatory"  Title="@L["Mandatory"]">

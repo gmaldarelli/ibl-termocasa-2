@@ -246,7 +246,7 @@ public partial class RequestForQuotationCreate
         SelectedCatalog = Catalogs.Items.FirstOrDefault(catalog => catalog.Products.Contains(SelectedProduct))!;
         if (!SelectedProduct.IsAssembled)
         {
-            var questionTemplateIds = SelectedProduct.QuestionTemplates.Select(qt => qt.QuestionTemplateId).ToList();
+            var questionTemplateIds = SelectedProduct.ProductQuestionTemplates.Select(qt => qt.Id).ToList();
             ListQuestionTemplateSingleProduct = await QuestionTemplatesAppService.GetListByGuidsAsync(questionTemplateIds);
             RFQProductAndQuestions.Add(new RFQProductAndQuestionDto(SelectedProduct, ListQuestionTemplateSingleProduct));
             foreach (var questionTemplate in ListQuestionTemplateSingleProduct)
@@ -265,7 +265,7 @@ public partial class RequestForQuotationCreate
                 var rfqProductId = rfqProductAndQuestion.Product.Id;
                 foreach (var questionTemplate in rfqProductAndQuestion.QuestionTemplates)
                 {
-                    foreach (var answer in selectedListViewItem.Answers.Where(answer => answer.QuestionId == questionTemplate.Id && answer.ProductId == rfqProductId))
+                    foreach (var answer in selectedListViewItem.Answers.Where(answer => answer.QuestionId == questionTemplate.Id && answer.ProductItemId == rfqProductId))
                     {
                         QuestionTemplateValues.Add(new QuestionTemplateModel(questionTemplate.Id, answer.AnswerValue, rfqProductId));
                     }
@@ -278,7 +278,7 @@ public partial class RequestForQuotationCreate
 
     private void SaveAnswerForRFQ()
     {
-        ListRequestForQuotationItems.RemoveAll(x => x.ProductId.Equals(SelectedProduct.Id));
+            ListRequestForQuotationItems.RemoveAll(x => x.ProductId.Equals(SelectedProduct.Id));
         SelectedCatalogItemQuantity = Math.Max(SelectedCatalogItemQuantity, 1);
         
         ListRequestForQuotationItems.Add(new RequestForQuotationItemDto
@@ -286,7 +286,7 @@ public partial class RequestForQuotationCreate
             ProductId = SelectedProduct.Id,
             Answers = QuestionTemplateValues.Select(x => new Answer
             {
-                ProductId = x.ProductId,
+                ProductItemId = x.ProductId,
                 QuestionId = x.QuestionId,
                 AnswerValue = x.AnswerValue
             }).ToList(),

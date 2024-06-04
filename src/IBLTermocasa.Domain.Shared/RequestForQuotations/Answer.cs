@@ -4,13 +4,13 @@ namespace IBLTermocasa.RequestForQuotations;
 
 public class Answer
 {
-    public Guid ProductId { get; set; }
+    public Guid ProductItemId { get; set; }
     public Guid QuestionId { get; set; }
     public string AnswerValue { get; set; } = null!;
 
-    public Answer(Guid productId, Guid questionId, string answerValue)
+    public Answer(Guid productItemId, Guid questionId, string answerValue)
     {
-        ProductId = productId;
+        ProductItemId = productItemId;
         QuestionId = questionId;
         AnswerValue = answerValue;
     }
