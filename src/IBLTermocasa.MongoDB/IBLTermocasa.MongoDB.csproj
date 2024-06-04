@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NUglify" Version="1.21.0" />
     <PackageReference Include="Volo.Chat.MongoDB" Version="8.1.3" />
     <PackageReference Include="Volo.FileManagement.MongoDB" Version="8.1.3" />
     <ProjectReference Include="..\IBLTermocasa.Domain\IBLTermocasa.Domain.csproj" />

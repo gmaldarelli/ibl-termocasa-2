@@ -1,0 +1,68 @@
+﻿@page "/reorder-components"
+@using IBLTermocasa.Components
+@using MudBlazor
+@inherits IBLTermocasaComponentBase
+
+<MudSelect MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))" MultiSelection="true" @bind-Value="value" @bind-SelectedValues="options" T="string" Label="@L["Components"]" AdornmentIcon="@Icons.Material.Filled.Search" AnchorOrigin="Origin.BottomCenter">
+    @foreach (var GuidString in GuidStrings)
+    {
+    <MudSelectItem T="string" Value="@GuidString">@ComponentName(@GuidString)</MudSelectItem>
+    }
+</MudSelect>
+<MudSwitch @bind-Checked="multiselectionTextChoice" 
+           Class="mud-width-full" 
+           Color="MudBlazor.Color.Primary">MultiSelection Text choice</MudSwitch>
+
+@code {
+    [Parameter] public IEnumerable<ComponentDto> ComponentList { get; set; }
+    [Parameter] public IEnumerable<ComponentDto> SelectedComponents { get; set; }
+
+    
+    
+    private bool multiselectionTextChoice;
+    private string value { get; set; } = "Nothing selected";
+    private IEnumerable<string> options { get; set; } =  Array.Empty<string>();
+    private string[] GuidStrings = Array.Empty<string>();
+    
+    
+    
+    public List<ComponentDto> OutputSelectedComponents()
+    {
+        return ComponentList.Where(x => options.Contains(x.Id.ToString())).ToList();
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        if(ComponentList == null || SelectedComponents == null)
+        {
+            return base.OnParametersSetAsync();
+        }
+        else
+        {
+            options = SelectedComponents.Select(x => x.Id.ToString());
+            GuidStrings = ComponentList.Select(x => x.Id.ToString()).ToArray();
+        }
+        return base.OnParametersSetAsync();
+    }
+    
+    private string GetMultiSelectionText(List<string> selectedValues)
+    {
+        if (multiselectionTextChoice)
+        {
+            var names = ComponentList.Where(x =>
+                selectedValues.Contains(x.Id.ToString())).Select(x => x.Name).ToList();
+            return $"Selected state{(selectedValues.Count > 1 ? "s" : "")}: " +
+                   $"{string.Join(", ", names)}";
+        }
+        else
+        {
+            return $"{selectedValues.Count} state{(selectedValues.Count > 1 ? "s have":" has")} been selected";
+        }
+    }
+
+    private string ComponentName(string guidString)
+    {
+        return ComponentList.Where(x => x.Id.ToString().Equals(guidString)).Select(x => x.Name).FirstOrDefault();
+    }
+
+}

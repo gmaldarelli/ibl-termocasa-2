@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using IBLTermocasa.Subproducts;
+using IBLTermocasa.Components;
+using IBLTermocasa.QuestionTemplates;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Domain.Entities;
 
@@ -16,8 +17,9 @@ namespace IBLTermocasa.Products
 
         public string ConcurrencyStamp { get; set; } = null!;
 
-        public List<SubproductWithNavigationPropertiesDto> Subproducts { get; set; } = new();
-        public List<ProductComponentDto> Components { get; set; } = new();
-        public List<ProductQuestionTemplateDto> QuestionTemplates { get; set; } = new();
+        public List<SubProductDto> SubProducts { get; set; } = new();
+        public List<ProductComponentDto> ProductComponents { get; set; } = new();
+        public List<ProductQuestionTemplateDto> ProductQuestionTemplates { get; set; } = new();
+
     }
 }

@@ -1,0 +1,51 @@
+﻿@using IBLTermocasa.Blazor.Components.Selector
+@using MudBlazor
+@inherits IBLTermocasaComponentBase
+<Modal @ref="SubProductModal" Closing="@SubProductModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true" >
+        <ModalHeader>
+            <ModalTitle> @L["Product"]</ModalTitle>
+            <CloseButton Clicked="OnModalCancel" />
+        </ModalHeader>
+        <ModalBody>
+            <ElementSelectorInput @ref="ElementSelectorInput"
+                                  IsMultiSelection="IsMultiSelection"
+                                  ComponentLabelSingle="@ProductLabelSingle"
+                                  ComponentLabelPlural="@ProductLabelPlural"
+                                  ComponentList="ComponentListLookupDto"
+                                  SelectedComponents="SelectedComponentListLookupDto"
+                                  />
+            <MudNumericField @bind-Value="@SubProduct.Order" InvertMouseWheel="true"
+                             Label="@L["Order"]" Variant="Variant.Filled" Min="@MinValue" Max="@MaxValue" />
+            <MudTextField @bind-Value="@SubProduct.Name"
+                          Label="@L["Name"]"
+                          Required="true" RequiredError="@L["Required"]"/>
+            <MudSwitch @bind-Checked="@SubProduct.IsSingleProduct"
+                       Class="mud-width-full"
+                       Color="MudBlazor.Color.Primary">
+                @L["IsSingleProduct"]
+            </MudSwitch>
+                <MudSwitch @bind-Checked="@SubProduct.Mandatory"
+                           Class="mud-width-full"
+                           Color="MudBlazor.Color.Primary">
+                @L["Mandatory"]
+            </MudSwitch>
+        </ModalBody>
+        <ModalFooter>
+            <Button Color="Blazorise.Color.Secondary"
+                    Clicked="OnModalCancel">
+                @L["Cancel"]
+            </Button>
+            <Button Color="Blazorise.Color.Primary"
+                    Clicked="OnModalSave">
+                @L["Save"]
+            </Button>
+        </ModalFooter>
+
+    </ModalContent>
+</Modal>
+@code {
+    
+    //
+    
+}

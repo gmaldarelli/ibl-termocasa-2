@@ -1,33 +1,14 @@
 using System;
-using Volo.Abp.Domain.Entities;
+using System.Collections.Generic;
+using IBLTermocasa.QuestionTemplates;
+using Volo.Abp.Application.Dtos;
 
 namespace IBLTermocasa.Products
 {
-    public class ProductQuestionTemplateDto : Entity
+    public class ProductQuestionTemplateDto : EntityDto<Guid>
     {
-
-        public Guid ProductId { get; protected set; }
-
-        public Guid QuestionTemplateId { get; protected set; }
-
-        private ProductQuestionTemplateDto()
-        {
-
-        }
-
-        public ProductQuestionTemplateDto(Guid productId, Guid questionTemplateId)
-        {
-            ProductId = productId;
-            QuestionTemplateId = questionTemplateId;
-        }
-
-        public override object[] GetKeys()
-        {
-            return new object[]
-                {
-                    ProductId,
-                    QuestionTemplateId
-                };
-        }
+        public int Order { get; set; }
+        public bool Mandatory { get; set; }
+        public QuestionTemplateDto QuestionTemplate { get; set; }
     }
 }

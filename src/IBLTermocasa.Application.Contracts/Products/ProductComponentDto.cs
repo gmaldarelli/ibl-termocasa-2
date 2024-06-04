@@ -1,33 +1,12 @@
-using System;
-using Volo.Abp.Domain.Entities;
+﻿using System;
+using IBLTermocasa.Components;
+using Volo.Abp.Application.Dtos;
 
-namespace IBLTermocasa.Products
+namespace IBLTermocasa.Products;
+
+public class ProductComponentDto : EntityDto<Guid>
 {
-    public class ProductComponentDto : Entity
-    {
-
-        public Guid ProductId { get; protected set; }
-
-        public Guid ComponentId { get; protected set; }
-
-        private ProductComponentDto()
-        {
-
-        }
-
-        public ProductComponentDto(Guid productId, Guid componentId)
-        {
-            ProductId = productId;
-            ComponentId = componentId;
-        }
-
-        public override object[] GetKeys()
-        {
-            return new object[]
-                {
-                    ProductId,
-                    ComponentId
-                };
-        }
-    }
+    public int Order { get; set; }
+    public bool Mandatory { get; set; }
+    public ComponentDto Component { get;  set; }
 }

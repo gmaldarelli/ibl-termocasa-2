@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
@@ -34,7 +35,25 @@ namespace IBLTermocasa.Products
                 name: "f687499a4f344537b9852cbfb81d806cf42c2406d21443aa867ba5e8",
                 description: "0f648430cf6f466d9ff18a67fda002e06a22abd9d9e7408a922aadaddb07fae9fcaf7916b8f74aaf801c4b1ff594ab",
                 isAssembled: true,
-                isInternal: true
+                isInternal: true,
+                subProducts: new List<SubProduct>()
+                {
+                    new SubProduct(
+                        Guid.Parse("f1b1b3b4-1b3b-4b1b-b3b4-1b3b4b1b3b4b"), 
+                        productIds: new List<Guid> { Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c") },
+                        order: 1,
+                        name: "Name1",
+                        mandatory: true,
+                        isSingleProduct: true),
+                    new SubProduct(
+                        parentId: Guid.Parse("f1b1b3b4-1b3b-4b1b-b3b4-1b3b4b1b3b4b"),
+                        productIds: new List<Guid> { Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c") },
+                        order: 2,
+                        name: "Name2",
+                        mandatory: true,
+                        isSingleProduct: true)
+                        
+                }
             ));
 
             await _productRepository.InsertAsync(new Product
@@ -44,7 +63,25 @@ namespace IBLTermocasa.Products
                 name: "67b09f03c87e46e8b9106089a41e4a4ce4062ee641b34af5b4",
                 description: "64338505adae42d0876b44aa265b8232e",
                 isAssembled: true,
-                isInternal: true
+                isInternal: true,
+                subProducts: new List<SubProduct>()
+                {
+                    new SubProduct(
+                        Guid.Parse("f1b1b3b4-1b3b-4b1b-b3b4-1b3b4b1b3b4b"), 
+                        productIds: new List<Guid> { Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c") },
+                        order: 1,
+                        name: "Name1",
+                        mandatory: true,
+                        isSingleProduct: true),
+                    new SubProduct(
+                        parentId: Guid.Parse("f1b1b3b4-1b3b-4b1b-b3b4-1b3b4b1b3b4b"),
+                        productIds: new List<Guid> { Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c") },
+                        order: 2,
+                        name: "Name2",
+                        mandatory: true,
+                        isSingleProduct: true)
+                        
+                }
             ));
 
             await _unitOfWorkManager!.Current!.SaveChangesAsync();

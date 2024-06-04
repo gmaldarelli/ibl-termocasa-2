@@ -8,7 +8,6 @@ using Volo.Abp.Identity;
 using IBLTermocasa.Organizations;
 using IBLTermocasa.Contacts;
 using IBLTermocasa.Industries;
-using IBLTermocasa.Subproducts;
 using IBLTermocasa.Products;
 using IBLTermocasa.Components;
 using IBLTermocasa.Materials;
@@ -28,7 +27,7 @@ public class IBLTermocasaMongoDbContext : AbpMongoDbContext
     public IMongoCollection<Organization> Organizations => Collection<Organization>();
     public IMongoCollection<Contact> Contacts => Collection<Contact>();
     public IMongoCollection<Industry> Industries => Collection<Industry>();
-    public IMongoCollection<Subproduct> Subproducts => Collection<Subproduct>();
+    public IMongoCollection<SubProduct> Subproducts => Collection<SubProduct>();
     public IMongoCollection<Product> Products => Collection<Product>();
     public IMongoCollection<ComponentItem> ComponentItems => Collection<ComponentItem>();
     public IMongoCollection<Component> Components => Collection<Component>();
@@ -55,7 +54,7 @@ public class IBLTermocasaMongoDbContext : AbpMongoDbContext
 
         modelBuilder.Entity<Product>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "Products"; });
 
-        modelBuilder.Entity<Subproduct>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "Subproducts"; });
+        modelBuilder.Entity<SubProduct>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "SubProducts"; });
 
         modelBuilder.Entity<Industry>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "Industries"; });
 

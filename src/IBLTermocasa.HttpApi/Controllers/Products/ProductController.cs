@@ -28,23 +28,16 @@ namespace IBLTermocasa.Controllers.Products
         }
 
         [HttpGet]
-        public virtual Task<PagedResultDto<ProductWithNavigationPropertiesDto>> GetListAsync(GetProductsInput input)
+        public virtual Task<PagedResultDto<ProductDto>> GetListAsync(GetProductsInput input, [FromQuery(Name = "includeDetails")] bool includeDetails = false)
         {
-            return _productsAppService.GetListAsync(input);
-        }
-
-        [HttpGet]
-        [Route("with-navigation-properties/{id}")]
-        public virtual Task<ProductWithNavigationPropertiesDto> GetWithNavigationPropertiesAsync(Guid id)
-        {
-            return _productsAppService.GetWithNavigationPropertiesAsync(id);
+            return _productsAppService.GetListAsync(input, includeDetails);
         }
 
         [HttpGet]
         [Route("{id}")]
-        public virtual Task<ProductDto> GetAsync(Guid id)
+        public virtual Task<ProductDto> GetAsync(Guid id, [FromQuery(Name = "includeDetails")] bool includeDetails = false)
         {
-            return _productsAppService.GetAsync(id);
+            return _productsAppService.GetAsync(id, includeDetails);
         }
 
         [HttpGet]

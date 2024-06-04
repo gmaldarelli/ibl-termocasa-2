@@ -19,8 +19,8 @@ namespace IBLTermocasa.Products
         protected IRepository<QuestionTemplate, Guid> _questionTemplateRepository;
 
         public ProductManager(IProductRepository productRepository,
-        IRepository<Component, Guid> componentRepository,
-        IRepository<QuestionTemplate, Guid> questionTemplateRepository)
+            IRepository<Component, Guid> componentRepository,
+            IRepository<QuestionTemplate, Guid> questionTemplateRepository)
         {
             _productRepository = productRepository;
             _componentRepository = componentRepository;
@@ -28,35 +28,37 @@ namespace IBLTermocasa.Products
         }
 
         public virtual async Task<Product> CreateAsync(
-        List<Guid> componentIds,
-        List<Guid> questionTemplateIds,
-        string code, string name, bool isAssembled, bool isInternal, string? description = null)
+            List<SubProduct> subProducts,
+            List<ProductComponent> productComponents,
+            List<ProductQuestionTemplate> questionTemplates,
+            string code, string name, bool isAssembled, bool isInternal, string? description = null)
         {
             Check.NotNullOrWhiteSpace(code, nameof(code));
             Check.NotNullOrWhiteSpace(name, nameof(name));
 
             var product = new Product(
-             GuidGenerator.Create(),
-             code, name, isAssembled, isInternal, description
-             );
-
-            await SetComponentsAsync(product, componentIds);
-            await SetQuestionTemplatesAsync(product, questionTemplateIds);
+                GuidGenerator.Create(),
+                code, name, isAssembled, isInternal, subProducts, description
+            );
+            await SetComponentsAsync(product, productComponents);
+            await SetQuestionTemplatesAsync(product, questionTemplates);
 
             return await _productRepository.InsertAsync(product);
         }
 
         public virtual async Task<Product> UpdateAsync(
             Guid id,
-            List<Guid> componentIds,
-        List<Guid> questionTemplateIds,
-        string code, string name, bool isAssembled, bool isInternal, string? description = null, [CanBeNull] string? concurrencyStamp = null
+            List<SubProduct> subProducts,
+            List<ProductComponent> productComponents,
+            List<ProductQuestionTemplate> questionTemplates,
+            string code, string name, bool isAssembled, bool isInternal, string? description = null,
+            [CanBeNull] string? concurrencyStamp = null
         )
         {
             Check.NotNullOrWhiteSpace(code, nameof(code));
             Check.NotNullOrWhiteSpace(name, nameof(name));
 
-            var queryable = await _productRepository.WithDetailsAsync(x => x.Components, x => x.QuestionTemplates);
+            var queryable = await _productRepository.WithDetailsAsync(x => x.Components, x => x.QuestionTemplates,x => x.SubProducts);
             var query = queryable.Where(x => x.Id == id);
 
             var product = await AsyncExecuter.FirstOrDefaultAsync(query);
@@ -66,47 +68,53 @@ namespace IBLTermocasa.Products
             product.IsAssembled = isAssembled;
             product.IsInternal = isInternal;
             product.Description = description;
-
-            await SetComponentsAsync(product, componentIds);
-            await SetQuestionTemplatesAsync(product, questionTemplateIds);
-
+            await SetSubProductsAsync(product, subProducts);
+            await SetComponentsAsync(product, productComponents);
+            await SetQuestionTemplatesAsync(product, questionTemplates);
             product.SetConcurrencyStampIfNotNull(concurrencyStamp);
             return await _productRepository.UpdateAsync(product);
         }
 
-        private async Task SetComponentsAsync(Product product, List<Guid> componentIds)
+        private async Task SetSubProductsAsync(Product product, List<SubProduct> subProducts)
         {
-            if (componentIds == null || !componentIds.Any())
+            if (subProducts == null || !subProducts.Any())
+            {
+                product.RemoveAllSubproducts();
+                return;
+            }
+
+            product.RemoveAllSubproducts();
+
+            foreach (var subProduct in subProducts)
+            {
+                product.AddSubproduct(subProduct);
+            }
+        }
+
+        private async Task SetComponentsAsync(Product product, List<ProductComponent> productComponents)
+        {
+            if (productComponents == null || !productComponents.Any())
             {
                 product.RemoveAllComponents();
                 return;
             }
 
-            var query = (await _componentRepository.GetQueryableAsync())
-                .Where(x => componentIds.Contains(x.Id))
-                .Select(x => x.Id);
+            product.RemoveAllComponents();
 
-            var componentIdsInDb = await AsyncExecuter.ToListAsync(query);
-            if (!componentIdsInDb.Any())
+            foreach (var productComponent in productComponents)
             {
-                return;
-            }
-
-            product.RemoveAllComponentsExceptGivenIds(componentIdsInDb);
-
-            foreach (var componentId in componentIdsInDb)
-            {
-                product.AddComponent(componentId);
+                product.AddComponent(productComponent.ComponentId, productComponent.Order, productComponent.Mandatory);
             }
         }
 
-        private async Task SetQuestionTemplatesAsync(Product product, List<Guid> questionTemplateIds)
+        private async Task SetQuestionTemplatesAsync(Product product, List<ProductQuestionTemplate> questionTemplates)
         {
-            if (questionTemplateIds == null || !questionTemplateIds.Any())
+            if (questionTemplates == null || !questionTemplates.Any())
             {
                 product.RemoveAllQuestionTemplates();
                 return;
             }
+            var questionTemplateIds = questionTemplates.Select(x => x.QuestionTemplateId).ToList();
 
             var query = (await _questionTemplateRepository.GetQueryableAsync())
                 .Where(x => questionTemplateIds.Contains(x.Id))
@@ -122,9 +130,9 @@ namespace IBLTermocasa.Products
 
             foreach (var questionTemplateId in questionTemplateIdsInDb)
             {
-                product.AddQuestionTemplate(questionTemplateId);
+                var entity = questionTemplates.Where(x => x.QuestionTemplateId == questionTemplateId).First();
+                product.AddQuestionTemplate(entity);
             }
         }
-
     }
 }

@@ -12,11 +12,9 @@ namespace IBLTermocasa.Products
     public interface IProductsAppService : IApplicationService
     {
 
-        Task<PagedResultDto<ProductWithNavigationPropertiesDto>> GetListAsync(GetProductsInput input);
+        Task<PagedResultDto<ProductDto>> GetListAsync(GetProductsInput input, bool includeDetails = false);
 
-        Task<ProductWithNavigationPropertiesDto> GetWithNavigationPropertiesAsync(Guid id);
-
-        Task<ProductDto> GetAsync(Guid id);
+        Task<ProductDto> GetAsync(Guid id, bool includeDetails = false);
 
         Task<PagedResultDto<LookupDto<Guid>>> GetComponentLookupAsync(LookupRequestDto input);
 

@@ -199,35 +199,35 @@ namespace IBLTermocasa.RequestForQuotations
         public virtual async Task<IEnumerable<RFQProductAndQuestionDto>> GetRfqProductAndQuestionsAsync(Guid id)
         {
             // Ottengo il prodotto principale
-            var productPrincipal = await _productRepository.GetWithNavigationPropertiesAsync(id);
+            var productPrincipal = await _productRepository.GetAsync(id);
             if (productPrincipal == null)
             {
                 throw new EntityNotFoundException($"Product with ID {id} not found");
             }
 
             // Prendo tutti gli ID dei sotto-prodotti
-            var listSubproductIds = productPrincipal.Subproducts.Select(x => x.SingleProductId).ToList();
+            var listProductIds = productPrincipal.SubProducts.Select(sp => sp.ProductIds).SelectMany(p => p).ToList();
 
             // Prendo tutti i prodotti associati ai sotto-prodotti
-            var subproducts = await _productRepository.GetListAsync(p => listSubproductIds.Contains(p.Id));
+            var products = await _productRepository.GetListAsync(p => listProductIds.Contains(p.Id));
 
-            var listSubproduct = new List<RFQProductAndQuestionDto>();
+            var listProduct = new List<RFQProductAndQuestionDto>();
 
             // Per ogni prodotto, prendo le domande associate
-            foreach (var subproduct in subproducts)
+            foreach (var product in products)
             {
-                var questionTemplateIds = subproduct.QuestionTemplates.Select(qt => qt.QuestionTemplateId).ToList();
+                var questionTemplateIds = product.QuestionTemplates.Select(qt => qt.QuestionTemplateId).ToList();
                 
                 // Prendo tutte le domande associate ai sotto-prodotti e le mappo in DTO
                 var questionTemplates = ObjectMapper.Map<List<QuestionTemplate>, List<QuestionTemplateDto>>(
                     await _questionTemplateRepository.GetListAsync(q => questionTemplateIds.Contains(q.Id))
                     );
                 // Mappo il prodotto in DTO e creo un oggetto RFQProductAndQuestionDto con il prodotto e le domande associate
-                var rfqProductAndQuestionDto = new RFQProductAndQuestionDto(ObjectMapper.Map<Product, ProductDto>(subproduct), questionTemplates);
-                listSubproduct.Add(rfqProductAndQuestionDto);
+                var rfqProductAndQuestionDto = new RFQProductAndQuestionDto(ObjectMapper.Map<Product, ProductDto>(product), questionTemplates);
+                listProduct.Add(rfqProductAndQuestionDto);
             }
-            listSubproduct.Add(new RFQProductAndQuestionDto(ObjectMapper.Map<Product, ProductDto>(productPrincipal.Product), ObjectMapper.Map<List<QuestionTemplate>,List<QuestionTemplateDto>>(productPrincipal.QuestionTemplates)));
-            return listSubproduct;
+            
+            return listProduct;
         }
     }
 }

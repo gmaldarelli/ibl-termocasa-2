@@ -1,15 +1,11 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Volo.Abp.Domain.Entities;
+using System.Linq;
+using JetBrains.Annotations;
+using Volo.Abp;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
-using JetBrains.Annotations;
-
-using IBLTermocasa.Subproducts;
-
-using Volo.Abp;
 
 namespace IBLTermocasa.Products
 {
@@ -32,18 +28,17 @@ namespace IBLTermocasa.Products
 
         public ICollection<ProductComponent> Components { get; private set; }
         public ICollection<ProductQuestionTemplate> QuestionTemplates { get; private set; }
-        public ICollection<Subproduct> Subproducts { get; private set; }
+        public ICollection<SubProduct> SubProducts { get;  set; }
 
         protected Product()
         {
             Components = new Collection<ProductComponent>();
             QuestionTemplates = new Collection<ProductQuestionTemplate>();
-            Subproducts = new Collection<Subproduct>();
+            SubProducts = new Collection<SubProduct>();
         }
 
-        public Product(Guid id, string code, string name, bool isAssembled, bool isInternal, string? description = null)
+        public Product(Guid id, string code, string name, bool isAssembled, bool isInternal, List<SubProduct>? subProducts, string? description = null)
         {
-
             Id = id;
             Check.NotNull(code, nameof(code));
             Check.NotNull(name, nameof(name));
@@ -54,9 +49,9 @@ namespace IBLTermocasa.Products
             Description = description;
             Components = new Collection<ProductComponent>();
             QuestionTemplates = new Collection<ProductQuestionTemplate>();
-            Subproducts = new Collection<Subproduct>();
+            SubProducts = (subProducts is null) ? new Collection<SubProduct>() : new Collection<SubProduct>(subProducts);
         }
-        public virtual void AddComponent(Guid componentId)
+        public virtual void AddComponent(Guid componentId, int order, bool mandatory)
         {
             Check.NotNull(componentId, nameof(componentId));
 
@@ -65,8 +60,9 @@ namespace IBLTermocasa.Products
                 return;
             }
 
-            Components.Add(new ProductComponent(Id, componentId));
+            Components.Add(new ProductComponent(Id, componentId, order, mandatory));
         }
+        
 
         public virtual void RemoveComponent(Guid componentId)
         {
@@ -87,6 +83,11 @@ namespace IBLTermocasa.Products
             Components.RemoveAll(x => !componentIds.Contains(x.ComponentId));
         }
 
+        public virtual void RemoveAllSubProducts()
+        {
+            SubProducts.RemoveAll(x => x.ParentId == Id);
+        }
+        
         public virtual void RemoveAllComponents()
         {
             Components.RemoveAll(x => x.ProductId == Id);
@@ -97,16 +98,17 @@ namespace IBLTermocasa.Products
             return Components.Any(x => x.ComponentId == componentId);
         }
 
-        public virtual void AddQuestionTemplate(Guid questionTemplateId)
+        public virtual void AddQuestionTemplate(ProductQuestionTemplate questionTemplate)
         {
-            Check.NotNull(questionTemplateId, nameof(questionTemplateId));
+            Check.NotNull(questionTemplate.QuestionTemplateId, nameof(questionTemplate.QuestionTemplateId));
+            Check.NotNull(questionTemplate.ProductId, nameof(questionTemplate.ProductId));
 
-            if (IsInQuestionTemplates(questionTemplateId))
+            if (IsInQuestionTemplates(questionTemplate.QuestionTemplateId))
             {
                 return;
             }
 
-            QuestionTemplates.Add(new ProductQuestionTemplate(Id, questionTemplateId));
+            QuestionTemplates.Add(questionTemplate);
         }
 
         public virtual void RemoveQuestionTemplate(Guid questionTemplateId)
@@ -136,6 +138,42 @@ namespace IBLTermocasa.Products
         private bool IsInQuestionTemplates(Guid questionTemplateId)
         {
             return QuestionTemplates.Any(x => x.QuestionTemplateId == questionTemplateId);
+        }
+        
+        public virtual void RemoveAllSubproducts()
+        {
+            SubProducts.RemoveAll(x => x.ParentId == Id);
+        }
+        
+        public virtual void AddSubproduct(SubProduct subProduct)
+        {
+            Check.NotNull(subProduct, nameof(subProduct));
+
+            if (IsInSubproducts(subProduct))
+            {
+                return;
+            }
+
+            SubProducts.Add(subProduct);
+        }
+        
+        public virtual void RemoveSubproduct(SubProduct subProduct)
+        {
+            Check.NotNull(subProduct, nameof(subProduct));
+
+            if (!IsInSubproducts(subProduct))
+            {
+                return;
+            }
+
+            SubProducts.Remove(subProduct);
+        }
+        
+        private bool IsInSubproducts(SubProduct subProduct)
+        {
+            var inputOrdered =subProduct.ProductIds.Order();
+            var entityOrderd = SubProducts.Select(x => x.ProductIds).ToList().Order();
+            return entityOrderd.Any(x => x.SequenceEqual(inputOrdered));
         }
     }
 }

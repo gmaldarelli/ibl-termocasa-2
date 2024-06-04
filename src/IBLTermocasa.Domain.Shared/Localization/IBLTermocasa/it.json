@@ -134,6 +134,8 @@
     "Products": "Prodotti",
     "NewProduct": "Nuovo Prodotto",
     "Menu:Products": "Prodotti",
+    "Menu:Product": "Prodotto",
+    "Menu:NewProduct": "Nuovo Prodotto",
     "Order": "Ordine",
     "IsSingleProduct": "Prodotto Singolo",
     "Mandatory": "Obbligatorio",
@@ -144,6 +146,7 @@
     "Product": "Prodotto",
     "Permission:Subproducts": "Sottoprodotti",
     "SingleProduct": "Prodotto Singolo",
+    "ProductNotFound": "Il prodoto che hai provato a visualizzare non è stato trovato riprova.",
     "Permission:Industries": "Settori Industriali",
     "Industries": "Settori Industriali",
     "NewIndustry": "Nuovo Sett. Industriale",
@@ -167,6 +170,7 @@
     "MaxBirthDate": "Data di Nascita Massima",
     "NewContact": "Nuovo Contatto",
     "Menu:Contacts": "Contatti",
+    "Menu:Contact": "Contatto",
     "Enum:OrganizationType.1": "LEAD",
     "Enum:OrganizationType.2": "CLIENTE",
     "Enum:OrganizationType.3": "PARTNER",
@@ -181,6 +185,7 @@
     "Organizations": "Organizzazioni",
     "NewOrganization": "Nuova Organizzazione",
     "Menu:Organizations": "Organizzazioni",
+    "Menu:Organization": "Organizzazione",
     "MainInformation": "Informazioni Principali",
     "Financialformation": "Informazioni Finanziarie",
     "AddressesInformation": "Informazioni Indirizzi",
@@ -232,18 +237,23 @@
     "Source": "Fonte",
     "FirsSync": "Caricato il",
     "LastSync": "Aggiornato",
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+    "AddButton": "Aggiungi",
     "NoComponentItemFoundToRemove": "Nessun elemento del componente trovato da rimuovere ",
-    "NoComponentFound": "Nessun componente trovato"
+    "NoComponentFound": "Nessun componente trovato",
+    "NothingSelected": "Nessun elemento selezionato",
+    "OneItemSelected": "1 elemento selezionato",
+    "XItemsSelected": "{0} elementi selezionati",
+    "ViewSelectedName": "Visualizza i nomi selezionati",
+    "AddRemoveComponent": "Aggiungi/Rimuovi {0}"
   }
 }

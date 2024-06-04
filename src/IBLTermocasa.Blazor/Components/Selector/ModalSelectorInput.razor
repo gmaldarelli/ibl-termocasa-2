@@ -1,0 +1,31 @@
+﻿@typeparam TItem
+@inherits IBLTermocasaComponentBase
+
+<Modal @ref="ComponentModal" Closing="@ComponentModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true" >
+        <ModalHeader>
+            <ModalTitle> @L[ModalTitleResolver]</ModalTitle>
+            <CloseButton Clicked="OnModalCancel" />
+        </ModalHeader>
+        <ModalBody>
+            <ElementSelectorInput @ref="ElementSelectorInput"
+                                  IsMultiSelection="IsMultiSelection"
+                                  ComponentLabelSingle="@ComponentLabelSingle"
+                                  ComponentLabelPlural="@ComponentLabelPlural" 
+                                  ComponentList="ComponentListLookupDto" 
+                                  SelectedComponents="SelectedComponentListLookupDto"
+                                  SelectorValueChanged="OnSelectorValueChanged"/>
+        </ModalBody>
+        <ModalFooter>
+            <Button Color="Blazorise.Color.Secondary"
+                    Clicked="OnModalCancel">
+                @L["Cancel"]
+            </Button>
+            <Button Color="Blazorise.Color.Primary"
+                    Clicked="OnModalSave">
+                @L["Save"]
+            </Button>
+        </ModalFooter>
+
+    </ModalContent>
+</Modal>
