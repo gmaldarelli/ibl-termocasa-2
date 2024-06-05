@@ -216,7 +216,7 @@ namespace IBLTermocasa.RequestForQuotations
             // Per ogni prodotto, prendo le domande associate
             foreach (var product in products)
             {
-                var questionTemplateIds = product.QuestionTemplates.Select(qt => qt.QuestionTemplateId).ToList();
+                var questionTemplateIds = product.ProductQuestionTemplates.Select(qt => qt.QuestionTemplateId).ToList();
                 
                 // Prendo tutte le domande associate ai sotto-prodotti e le mappo in DTO
                 var questionTemplates = ObjectMapper.Map<List<QuestionTemplate>, List<QuestionTemplateDto>>(

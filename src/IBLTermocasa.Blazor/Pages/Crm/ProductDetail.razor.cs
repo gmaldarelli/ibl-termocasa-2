@@ -90,7 +90,7 @@ public partial class ProductDetail
             }
             else
             {
-                BreadcrumbItems.Add(new BreadcrumbItem($"{L["Menu:Product"]} - {Product.Name} ", $"/contact/{Product.Id}"));
+                BreadcrumbItems.Add(new BreadcrumbItem($"{L["Menu:Product"]} - {Product.Name} ", $"/product/{Product.Id}"));
             }
         }
         return ValueTask.CompletedTask;

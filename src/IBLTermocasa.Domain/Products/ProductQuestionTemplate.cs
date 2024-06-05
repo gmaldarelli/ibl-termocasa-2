@@ -1,4 +1,5 @@
 ﻿using System;
+using JetBrains.Annotations;
 using Volo.Abp.Domain.Entities;
 
 namespace IBLTermocasa.Products
@@ -10,8 +11,13 @@ namespace IBLTermocasa.Products
 
         public Guid QuestionTemplateId { get; set; }
 
+        [NotNull]
         public virtual int Order { get; set; }
+        
+        [NotNull]
+        public virtual string Name { get; set; }
         public virtual bool Mandatory { get; set; }
+        
         private ProductQuestionTemplate()
         {
 

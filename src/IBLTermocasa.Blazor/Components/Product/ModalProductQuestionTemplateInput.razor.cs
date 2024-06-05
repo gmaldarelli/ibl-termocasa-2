@@ -57,12 +57,12 @@ public partial class ModalProductQuestionTemplateInput
             );
             SelectedComponentListLookupDto = new List<LookupDto<Guid>>();
             
-            if(ProductQuestionTemplate.QuestionTemplate != null)
+            if(ProductQuestionTemplate.QuestionTemplateId != null)
             {
                 new LookupDto<Guid>()
                 {
-                    Id = ProductQuestionTemplate.QuestionTemplate.Id,
-                    DisplayName = $"{ProductQuestionTemplate.QuestionTemplate.QuestionText}"
+                    Id = ProductQuestionTemplate.QuestionTemplateId,
+                    DisplayName = $"{ComponentListLookupDto.FirstOrDefault(y => y.Id.Equals(ProductQuestionTemplate.QuestionTemplateId))}"
                 };
             };
         }
@@ -88,12 +88,13 @@ public partial class ModalProductQuestionTemplateInput
             .Select(y => y.Id).Contains(x.Id)).ToList();
         if(updatedList.Count > 0)
         {
-            ProductQuestionTemplate.QuestionTemplate = updatedList.First();
+            ProductQuestionTemplate.QuestionTemplateId = updatedList.First().Id;
         }
         else
         {
             //TODO: Show validation error
         }
+        _isModalOpen = false;
         OnSave.InvokeAsync(ProductQuestionTemplate);
         StateHasChanged();
     }

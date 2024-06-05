@@ -46,7 +46,7 @@ namespace IBLTermocasa.Products
                         mandatory: true,
                         isSingleProduct: true),
                     new SubProduct(
-                        parentId: Guid.Parse("f1b1b3b4-1b3b-4b1b-b3b4-1b3b4b1b3b4b"),
+                        id: Guid.Parse("f1b1b3b4-1b3b-4b1b-b3b4-1b3b4b1b3b4b"),
                         productIds: new List<Guid> { Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c") },
                         order: 2,
                         name: "Name2",
@@ -74,7 +74,7 @@ namespace IBLTermocasa.Products
                         mandatory: true,
                         isSingleProduct: true),
                     new SubProduct(
-                        parentId: Guid.Parse("f1b1b3b4-1b3b-4b1b-b3b4-1b3b4b1b3b4b"),
+                        id: Guid.Parse("f1b1b3b4-1b3b-4b1b-b3b4-1b3b4b1b3b4b"),
                         productIds: new List<Guid> { Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c") },
                         order: 2,
                         name: "Name2",

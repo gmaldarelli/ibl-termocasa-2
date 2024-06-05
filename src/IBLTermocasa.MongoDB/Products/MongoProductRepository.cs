@@ -41,9 +41,9 @@ namespace IBLTermocasa.Products
             var product = await (await GetMongoQueryableAsync(cancellationToken))
                 .FirstOrDefaultAsync(e => e.Id == id, GetCancellationToken(cancellationToken));
 
-            var componentIds = product.Components.Select(x => x.ComponentId).ToList();
+            var componentIds = product.ProductComponents.Select(x => x.ComponentId).ToList();
             var components = await (await GetMongoQueryableAsync<Component>(cancellationToken)).Where(e => componentIds.Contains(e.Id)).ToListAsync(cancellationToken: cancellationToken);
-            var questionTemplateIds = product.QuestionTemplates.Select(x => x.QuestionTemplateId).ToList();
+            var questionTemplateIds = product.ProductQuestionTemplates.Select(x => x.QuestionTemplateId).ToList();
             var questionTemplates = await (await GetMongoQueryableAsync<QuestionTemplate>(cancellationToken)).Where(e => questionTemplateIds.Contains(e.Id)).ToListAsync(cancellationToken: cancellationToken);
             List<Guid> subProductIds = new List<Guid>();
             foreach (var subProduct in product.SubProducts)

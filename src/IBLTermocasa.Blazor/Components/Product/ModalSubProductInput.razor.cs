@@ -52,10 +52,10 @@ public partial class ModalSubProductInput
                     DisplayName = $"{x.Code} - {x.Name}"
                 }
             );
-            SelectedComponentListLookupDto = SubProduct.Products.Select(x => new LookupDto<Guid>()
+            SelectedComponentListLookupDto = SubProduct.ProductIds.Select(x => new LookupDto<Guid>()
                 {
-                    Id = x.Id,
-                    DisplayName = $"{x.Code} - {x.Name}"
+                    Id = x,
+                    DisplayName = $"{ComponentListLookupDto.FirstOrDefault(y => y.Id.Equals(x))}"
                 }
             );
         }
@@ -81,8 +81,8 @@ public partial class ModalSubProductInput
             .Select(y => y.Id).Contains(x.Id)).ToList();
         if(updatedList.Count > 0)
         {
-            SubProduct.Products = updatedList;
-            Console.WriteLine("SubProduct.Products: " + SubProduct.Products.Count);
+            SubProduct.ProductIds = updatedList.Select(x => x.Id).ToList();
+            Console.WriteLine("SubProduct.Products: " + SubProduct.ProductIds.Count);
             SubProduct.Name = updatedList.First().Name;
         }
         else
@@ -159,5 +159,14 @@ public partial class ModalSubProductInput
             }
         }
         return result;
+    }
+
+    public void InitializetModal(SubProductDto selectedSubProducts,  IEnumerable<ProductDto> productList)
+    {
+        _isModalOpen = false;
+        SubProduct = selectedSubProducts;
+        ProductList = productList;
+        _ = OnParametersSetAsync();
+        StateHasChanged();
     }
 }

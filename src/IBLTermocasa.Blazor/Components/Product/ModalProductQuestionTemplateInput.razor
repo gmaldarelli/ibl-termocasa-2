@@ -17,6 +17,7 @@
                                   SelectedComponents="SelectedComponentListLookupDto"/>
             <MudNumericField @bind-Value="@ProductQuestionTemplate.Order" InvertMouseWheel="true" 
                              Label="@L["Order"]" Variant="Variant.Filled" Min="@MinValue" Max="@MaxValue" />
+            <MudTextField @bind-Value="@ProductQuestionTemplate.Name" Label="@L["Name"]" Variant="Variant.Filled" />
             <MudSwitch @bind-Checked="@ProductQuestionTemplate.Mandatory"
                        Class="mud-width-full"
                        Color="MudBlazor.Color.Primary">
