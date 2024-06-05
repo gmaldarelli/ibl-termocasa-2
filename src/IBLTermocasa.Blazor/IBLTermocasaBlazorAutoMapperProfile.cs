@@ -48,9 +48,22 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<RequestForQuotation, RequestForQuotationDto>();
         CreateMap<RequestForQuotationItem, RequestForQuotationItemDto>();
         CreateMap<RequestForQuotationItemDto, RequestForQuotationItem>();
-    
+
         CreateMap<ProductDto, ProductUpdateDto>();
-        CreateMap<ProductDto, ProductCreateDto>();
+            /*.Ignore(x => x.SubProducts)
+            .AfterMap(
+                (src, dest) =>
+                {
+                    dest.SubProducts = src.SubProducts;
+                }
+            );*/
+        CreateMap<ProductDto, ProductCreateDto>()/*.Ignore(x => x.SubProducts)
+            .AfterMap(
+                (src, dest) =>
+                {
+                    dest.SubProducts = src.SubProducts;
+                }
+            )*/;
 
         CreateMap<CatalogDto, CatalogUpdateDto>().Ignore(x => x.ProductIds);
         

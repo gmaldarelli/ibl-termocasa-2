@@ -9,11 +9,10 @@ namespace IBLTermocasa.Products
 {
     public  class SubProduct : Entity
     {
-        public virtual Guid ParentId { get; set; }
+        public virtual Guid Id { get; set; }
         public virtual  ICollection<Guid> ProductIds { get; set; } = new List<Guid>();
-
+        [NotNull]
         public virtual int Order { get; set; }
-
         [NotNull]
         public virtual string Name { get; set; }
 
@@ -25,13 +24,13 @@ namespace IBLTermocasa.Products
         {
         }
 
-        public SubProduct( Guid parentId, ICollection<Guid> productIds, int order, string name, bool isSingleProduct, bool mandatory)
+        public SubProduct( Guid id, ICollection<Guid> productIds, int order, string name, bool isSingleProduct, bool mandatory)
         {
 
             Check.NotNull(name, nameof(name));
-            Check.NotNull(parentId, nameof(parentId));
+            Check.NotNull(id, nameof(id));
             Check.NotNull(productIds, nameof(productIds));
-            ParentId = parentId;
+            Id = id;
             ProductIds = productIds;
             Order = order;
             Name = name;
@@ -43,8 +42,7 @@ namespace IBLTermocasa.Products
         {
             return new object[]
             {
-                ParentId,
-                ProductIds
+                Id
             };
         }
     }

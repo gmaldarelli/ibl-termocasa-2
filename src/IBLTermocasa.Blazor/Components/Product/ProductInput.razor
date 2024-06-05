@@ -57,47 +57,46 @@
                         <MudPaper>
                             <MudDataGrid @ref="ProductComponentMudDataGrid"  T="ProductComponentDto" Items="@Product.ProductComponents" ReadOnly="false" EditMode="MudBlazor.DataGridEditMode.Cell"
                                          EditTrigger="DataGridEditTrigger.OnRowClick" CommittedItemChanges="@ProductComponentCommittedItemChanges"
-                                         Bordered="true" Dense="true">
+                                         Bordered="true" Dense="true" Filterable="false" SortMode="SortMode.None">
                                 <Columns>
-                                    <PropertyColumn Property="x => x.Order" Title="@L["Order"]" IsEditable="true">
+                                    <PropertyColumn Property="x => x.Order" Title="@L["Order"]" IsEditable="true" Sortable="false" Filterable="false">
                                     </PropertyColumn>
-                                    <PropertyColumn Property="x => x.Component.Name" IsEditable="false"  Title="@L["Name"]">
+                                    <PropertyColumn Property="x => x.Name" IsEditable="true"  Title="@L["Name"]" Sortable="false" Filterable="false">
                                         <EditTemplate>
-                                            <MudTextField @bind-Value="context.Item.Component.Name" ReadOnly="true" />
+                                            <MudTextField @bind-Value="context.Item.Name"  />
                                         </EditTemplate>
                                     </PropertyColumn>
-                                    <PropertyColumn Property="x => x.Mandatory"  Title="@L["Mandatory"]">
+                                    <PropertyColumn Property="x => x.Mandatory"  Title="@L["Mandatory"]" Sortable="false" Filterable="false">
                                         <EditTemplate>
                                             <MudCheckBox T="bool" @bind-Value="context.Item.Mandatory" />
                                         </EditTemplate>
                                     </PropertyColumn>
-                                    <TemplateColumn>
-                                        <CellTemplate>
-                                            <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Outlined.Delete" OnClick="() => DeleteProductComponentAsync(context.Item)" />
-                                        </CellTemplate>
+                                    <TemplateColumn CellClass="d-flex justify-center" Sortable="false" Filterable="false">
+                                        <HeaderTemplate>
+                                            <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.Add" OnClick="AddComponentAsync"></MudIconButton>
+                                        </HeaderTemplate>
+                                        <EditTemplate>
+                                            <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.Delete" OnClick="() => DeleteProductComponentAsync(context.Item)"/>
+                                        </EditTemplate>
                                     </TemplateColumn>
                                 </Columns>
                             </MudDataGrid>
-                            <MudToolBar>
-                                <MudSpacer/>
-                                <MudButton OnClick="AddComponentAsync">@L["AddButton"]</MudButton>
-                            </MudToolBar>
                         </MudPaper>
                     </MudBlazor.MudTabPanel>
                     @* ************************* Tab Products on right side ************************* *@
                     <MudBlazor.MudTabPanel Text="@L["Products"]">
                         <MudDataGrid T="SubProductDto" Items="@Product.SubProducts" ReadOnly="false" EditMode="MudBlazor.DataGridEditMode.Cell"
                                      EditTrigger="DataGridEditTrigger.OnRowClick" CommittedItemChanges="@SubProductDtoCommittedItemChanges"
-                                     Bordered="true" Dense="true">
+                                     Bordered="true" Dense="true" Filterable="false" SortMode="SortMode.None">
                             <Columns>
                                 <PropertyColumn Property="x => x.Order" Title="@L["Order"]" >
                                     <EditTemplate>
                                         <MudNumericField @bind-Value="context.Item.Order"  Min="1" Max="(Product.SubProducts.Count + 1)" />
                                     </EditTemplate>
                                 </PropertyColumn>
-                                <PropertyColumn Property="x => x.Name" IsEditable="false" Title="@L["Name"]">
+                                <PropertyColumn Property="x => x.Name" IsEditable="true" Title="@L["Name"]">
                                     <EditTemplate>
-                                        <MudTextField @bind-Value="context.Item.Name" ReadOnly="true" />
+                                        <MudTextField @bind-Value="context.Item.Name" />
                                     </EditTemplate>
                                 </PropertyColumn>
                                 <PropertyColumn Property="x => x.IsSingleProduct"  Title="@L["IsSingleProduct"]">
@@ -110,37 +109,31 @@
                                         <MudCheckBox T="bool" @bind-Value="context.Item.Mandatory" />
                                     </EditTemplate>
                                 </PropertyColumn>
-                                <TemplateColumn >
-                                    <CellTemplate>
-                                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Outlined.Delete" OnClick="() => DeleteSubProductAsync(context.Item)" />
-                                    </CellTemplate>
+                                <TemplateColumn CellClass="d-flex justify-center">
+                                    <HeaderTemplate>
+                                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.NoteAdd" OnClick="AddSubProductAsync"></MudIconButton>
+                                    </HeaderTemplate>
+                                    <EditTemplate>
+                                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.Delete" OnClick="() => DeleteSubProductAsync(context.Item)"/>
+                                    </EditTemplate>
                                 </TemplateColumn>
                             </Columns>
                         </MudDataGrid>
-                        <MudToolBar>
-                            <MudSpacer/>
-                            <MudButton OnClick="AddSubProductAsync">@L["AddButton"]</MudButton>
-                        </MudToolBar>
                     </MudBlazor.MudTabPanel>
                     @* ************************* Tab QuestionTemplate on right side ************************* *@
                     <MudBlazor.MudTabPanel Text="@L["QuestionTemplates"]">
                         <MudDataGrid T="ProductQuestionTemplateDto" Items="@Product.ProductQuestionTemplates" ReadOnly="false" EditMode="MudBlazor.DataGridEditMode.Cell"
                                      EditTrigger="DataGridEditTrigger.OnRowClick" CommittedItemChanges="@QuestionTemplateDtoCommittedItemChanges"
-                                     Bordered="true" Dense="true">
+                                     Bordered="true" Dense="true" Filterable="false" SortMode="SortMode.None">
                             <Columns>
                                 <PropertyColumn Property="x => x.Order" Title="@L["Order"]" >
                                     <EditTemplate>
                                         <MudNumericField @bind-Value="context.Item.Order"  Min="1" Max="(Product.SubProducts.Count + 1)" />
                                     </EditTemplate>
                                 </PropertyColumn>
-                                <PropertyColumn Property="x => x.QuestionTemplate.Code" IsEditable="false" Title="@L["Code"]">
+                                <PropertyColumn Property="x => x.Name" IsEditable="true" Title="@L["Name"]">
                                     <EditTemplate>
-                                        <MudTextField @bind-Value="context.Item.QuestionTemplate.Code" ReadOnly="true" />
-                                    </EditTemplate>
-                                </PropertyColumn>
-                                <PropertyColumn Property="x => x.QuestionTemplate.QuestionText" IsEditable="false" Title="@L["Name"]">
-                                    <EditTemplate>
-                                        <MudTextField @bind-Value="context.Item.QuestionTemplate.QuestionText" ReadOnly="true" />
+                                        <MudTextField @bind-Value="context.Item.Name"/>
                                     </EditTemplate>
                                 </PropertyColumn>
                                 <PropertyColumn Property="x => x.Mandatory"  Title="@L["Mandatory"]">
@@ -153,17 +146,16 @@
                                         <MudCheckBox T="bool" @bind-Value="context.Item.Mandatory" />
                                     </EditTemplate>
                                 </PropertyColumn>
-                                <TemplateColumn>
-                                    <CellTemplate>
-                                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Outlined.Delete" OnClick="() => DeleteProductQuestionTemplateAsync(context.Item)" />
-                                    </CellTemplate>
+                                <TemplateColumn CellClass="d-flex justify-center">
+                                    <HeaderTemplate>
+                                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.Add" OnClick="AddQuestionTemplateAsync"></MudIconButton>
+                                    </HeaderTemplate>
+                                    <EditTemplate>
+                                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.Delete" OnClick="() => DeleteProductQuestionTemplateAsync(context.Item)"/>
+                                    </EditTemplate>
                                 </TemplateColumn>
                             </Columns>
                         </MudDataGrid>
-                        <MudToolBar>
-                            <MudSpacer/>
-                            <MudButton OnClick="AddQuestionTemplateAsync">@L["AddButton"]</MudButton>
-                        </MudToolBar>
                     </MudBlazor.MudTabPanel>
                 </MudBlazor.MudTabs>
             </MudPaper>

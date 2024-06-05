@@ -46,14 +46,16 @@ namespace IBLTermocasa.Products
             return new PagedResultDto<ProductDto>
             {
                 TotalCount = totalCount,
-                Items = await MapFullItemList(fullEntityItems, includeDetails)
+                Items = ObjectMapper.Map<List<Product>, List<ProductDto>>(fullEntityItems)
+                    //await MapFullItemList(fullEntityItems, includeDetails)
             };
         }
 
         public virtual async Task<ProductDto> GetAsync(Guid id, bool includeDetails = false)
         {
             var fullEntity = await _productRepository.GetAsync(id);
-            var dto = await MapFullItem(fullEntity, includeDetails);
+            var dto = ObjectMapper.Map<Product, ProductDto>(fullEntity);
+                //await MapFullItem(fullEntity, includeDetails);
             return dto;
         }
 
@@ -65,8 +67,8 @@ namespace IBLTermocasa.Products
         private async Task<List<ProductDto>> MapFullItemList(List<Product> fullEntity, bool includeDetails = false)
         {
             var dtos = ObjectMapper.Map<List<Product>, List<ProductDto>>(fullEntity).ToList();
-            List<Guid> questionTemplateIds =  fullEntity.SelectMany(x => x.QuestionTemplates).Select(x => x.QuestionTemplateId).ToList();
-            var componentIds = fullEntity.SelectMany(x => x.Components).Select(x => x.ComponentId).ToList();
+            List<Guid> questionTemplateIds =  fullEntity.SelectMany(x => x.ProductQuestionTemplates).Select(x => x.QuestionTemplateId).ToList();
+            var componentIds = fullEntity.SelectMany(x => x.ProductComponents).Select(x => x.ComponentId).ToList();
             if (includeDetails)
             {
                 var questionTemplates = await _questionTemplateRepository.GetListAsync(x => questionTemplateIds.Contains(x.Id));
@@ -77,11 +79,11 @@ namespace IBLTermocasa.Products
                     {
                         fullEntity.ForEach(entity =>
                         {
-                            var productComponent = entity.Components.First(x => x.ComponentId == componentId);
+                            var productComponent = entity.ProductComponents.First(x => x.ComponentId == componentId);
                             var component = components.First(x => x.Id == productComponent.ComponentId);
                             var productComponentDto =
                                 ObjectMapper.Map<ProductComponent, ProductComponentDto>(productComponent);
-                            productComponentDto.Component = ObjectMapper.Map<Component, ComponentDto>(component);
+                           // productComponentDto.Component = ObjectMapper.Map<Component, ComponentDto>(component);
                             dto.ProductComponents.Add(productComponentDto);
                         });
                     }
@@ -91,13 +93,13 @@ namespace IBLTermocasa.Products
                         fullEntity.ForEach(entity =>
                         {
                             var productQuestionTemplate =
-                                entity.QuestionTemplates.First(x => x.QuestionTemplateId == questionTemplateId);
+                                entity.ProductQuestionTemplates.First(x => x.QuestionTemplateId == questionTemplateId);
                             var questionTemplate =
                                 questionTemplates.First(x => x.Id == productQuestionTemplate.QuestionTemplateId);
                             var productQuestionTemplateDto =
                                 ObjectMapper.Map<ProductQuestionTemplate, ProductQuestionTemplateDto>(
                                     productQuestionTemplate);
-                            productQuestionTemplateDto.QuestionTemplate =
+                            //productQuestionTemplateDto.QuestionTemplate =
                                 ObjectMapper.Map<QuestionTemplate, QuestionTemplateDto>(questionTemplate);
                             dto.ProductQuestionTemplates.Add(productQuestionTemplateDto);
                         });
@@ -165,11 +167,11 @@ namespace IBLTermocasa.Products
             var subProducts = ObjectMapper.Map<List<SubProductDto>, List<SubProduct>>(input.SubProducts);
             productComponents.ForEach(x => x.ProductId = id);
             productQuestionTemplates.ForEach(x => x.ProductId = id);
-            subProducts.ForEach(x => x.ParentId = id);
             var product = await _productManager.UpdateAsync(
-            id, subProducts,
-            productComponents, productQuestionTemplates, input.Code, input.Name, input.IsAssembled, input.IsInternal, input.Description, input.ConcurrencyStamp
-            );
+            id, subProducts, productComponents, 
+            productQuestionTemplates, input.Code, 
+            input.Name, input.IsAssembled, input.IsInternal, 
+            input.Description, input.ConcurrencyStamp);
 
             return ObjectMapper.Map<Product, ProductDto>(product);
         }

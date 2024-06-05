@@ -8,15 +8,22 @@
             <CloseButton Clicked="OnModalCancel" />
         </ModalHeader>
         <ModalBody>
-            <ElementSelectorInput
-                                    @ref="ElementSelectorInput"
-                                  IsMultiSelection="IsMultiSelection"
-                                  ComponentLabelSingle="@ProductLabelSingle"
-                                  ComponentLabelPlural="@ProductLabelPlural"
-                                  ComponentList="ComponentListLookupDto"
-                                  SelectedComponents="SelectedComponentListLookupDto"/>
+            <MudSelect @ref="MudSelectComponent"
+                       MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                       @bind-Value="_guidStringSelected"
+                       MultiSelection="IsMultiSelection"
+                       T="string" Label="@L["Component"]"
+                       AdornmentIcon="@Icons.Material.Filled.Search"
+                       AnchorOrigin="Origin.BottomCenter"
+            >
+                @foreach (var GuidString in ComponentList.Select(x => x.Id.ToString()).ToList())
+                {
+                <MudSelectItem T="string" Value="@GuidString">@ComponentName(@GuidString)</MudSelectItem>
+                }
+            </MudSelect>
             <MudNumericField @bind-Value="@ProductComponent.Order" InvertMouseWheel="true" 
-                             Label="@L["Order"]" Variant="Variant.Filled" Min="@MinValue" Max="@MaxValue" />
+                             Label="@L["Order"]" Variant="Variant.Filled" Min="@OrderMinValue" Max="@OrderMaxValue" />
+            <MudTextField @bind-Value="@ProductComponent.Name" Label="@L["Name"]" Variant="Variant.Filled" />
             <MudSwitch @bind-Checked="@ProductComponent.Mandatory"
                        Class="mud-width-full"
                        Color="MudBlazor.Color.Primary">

@@ -96,7 +96,7 @@ namespace IBLTermocasa.QuestionTemplates
             await memoryStream.SaveAsAsync(ObjectMapper.Map<List<QuestionTemplate>, List<QuestionTemplateExcelDto>>(items));
             memoryStream.Seek(0, SeekOrigin.Begin);
 
-            return new RemoteStreamContent(memoryStream, "QuestionTemplates.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            return new RemoteStreamContent(memoryStream, "ProductQuestionTemplates.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
 
         public virtual async Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync()

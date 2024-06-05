@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Blazorise;
-using IBLTermocasa.Blazor.Components.Selector;
 using IBLTermocasa.Components;
 using IBLTermocasa.Products;
-using IBLTermocasa.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using NUglify.Helpers;
+using MudBlazor;
 
 namespace IBLTermocasa.Blazor.Components.Product;
 
@@ -21,20 +19,20 @@ public partial class ModalProductComponentInput
     [Parameter] public EventCallback<ProductComponentDto> OnSave { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
 
-    [Parameter] public int MaxValue { get; set; } = 100;
-    [Parameter] public int MinValue { get; set; } = 1;
+    [Parameter] public int OrderMaxValue { get; set; } = 100;
+    [Parameter] public int OrderMinValue { get; set; } = 1;
     
     private bool IsMultiSelection = false;
     private string ProductLabelSingle = "";
     private string ProductLabelPlural = "";
     private string TextProperty = "Name";
     public Modal ProductComponentModal { get; set; }
-    public ElementSelectorInput ElementSelectorInput { get; set; }
-    public IEnumerable<LookupDto<Guid>> ComponentListLookupDto { get; set; }
-    public IEnumerable<LookupDto<Guid>> SelectedComponentListLookupDto { get; set; }
+    
+    public MudSelect<string> MudSelectComponent { get; set; }
 
     private bool _isModalOpen;
-    
+    private string? _guidStringSelected;
+
     private void OpenModal()
     {
         _isModalOpen = true;
@@ -48,22 +46,7 @@ public partial class ModalProductComponentInput
         }
         else
         {
-            ComponentListLookupDto = ComponentList.Select(x => new LookupDto<Guid>()
-                {
-                    Id = x.Id,
-                    DisplayName = $"{x.Name}"
-                }
-            );
-            SelectedComponentListLookupDto = new List<LookupDto<Guid>>();
-            
-            if(ProductComponent.Component != null)
-            {
-                new LookupDto<Guid>()
-                {
-                    Id = ProductComponent.Component.Id,
-                    DisplayName = $"{ProductComponent.Component.Name}"
-                };
-            };
+            _guidStringSelected = ProductComponent?.ComponentId.ToString();
         }
         ProductLabelSingle = L["Product"];
         ProductLabelPlural = L["Products"];
@@ -77,31 +60,31 @@ public partial class ModalProductComponentInput
 
     private void OnModalCancel(MouseEventArgs obj)
     { 
+        _isModalOpen = false;
+        ProductComponentModal.Hide();
         OnCancel.InvokeAsync();
         StateHasChanged();
     }
 
-    private void OnModalSave(MouseEventArgs obj)
+    private async void OnModalSave(MouseEventArgs obj)
     {
-        var updatedList = ComponentList.Where(x => ElementSelectorInput.OutputSelectedComponents()
-            .Select(y => y.Id).Contains(x.Id)).ToList();
-        if(updatedList.Count > 0)
+
+        if(_guidStringSelected !=null )
         {
-            ProductComponent.Component = updatedList.First();
+            ProductComponent.ComponentId = Guid.Parse(_guidStringSelected);
+            Console.WriteLine("ProductComponent.ComponentId: " + ProductComponent.ComponentId);
         }
         else
         {
             //TODO: Show validation error
         }
-        OnSave.InvokeAsync(ProductComponent);
-        StateHasChanged();
+        await OnSave.InvokeAsync(ProductComponent);
     }
 
     public void Hide()
     {
         _isModalOpen = false;
         ProductComponentModal.Hide();
-        StateHasChanged();
     }
     
     public void Show()
@@ -110,14 +93,27 @@ public partial class ModalProductComponentInput
         ProductComponentModal.Show();
         StateHasChanged();
     }
-    
-    private void OnElementSelectorInputSelectedComponentsChanged(IEnumerable<LookupDto<Guid>> selectedComponents)
-    {
-        SelectedComponentListLookupDto = selectedComponents;
-    }
+
 
     private void OnSelectorValueChanged(IEnumerable<Guid> selectedComponents)
     {
         StateHasChanged();
+    }
+
+    private string GetMultiSelectionText(List<string> selectedValues)
+    {
+        if (selectedValues.Count == 0)
+        {
+            return L["NothingSelected"];
+        }
+
+        var names = ComponentList.Where(x =>
+            selectedValues.Contains(x.Id.ToString())).Select(x => x.Name).ToList();
+        return $"{string.Join(", ", names)}";
+    }
+
+    private string ComponentName(string guidString)
+    {
+        return ComponentList.Where(x => x.Id.ToString().Equals(guidString)).Select(x => x.Name).FirstOrDefault();
     }
 }

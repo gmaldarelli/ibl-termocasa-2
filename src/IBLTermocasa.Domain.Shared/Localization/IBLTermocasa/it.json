@@ -237,6 +237,13 @@
     "Source": "Fonte",
     "FirsSync": "Caricato il",
     "LastSync": "Aggiornato",
+    "Permission:QuestionTemplates": "Modelli di Domande",
+    "QuestionText": "Testo della Domanda",
+    "AnswerType": "Tipo di Risposta",
+    "ChoiceValue": "Valore della Scelta",
+    "QuestionTemplates": "Modelli di Domande",
+    "NewQuestionTemplate": "Nuovo Modello di Domanda",
+    "Menu:QuestionTemplates": "Modelli di Domande",
 
 
 

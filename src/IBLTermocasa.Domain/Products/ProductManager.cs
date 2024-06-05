@@ -58,7 +58,7 @@ namespace IBLTermocasa.Products
             Check.NotNullOrWhiteSpace(code, nameof(code));
             Check.NotNullOrWhiteSpace(name, nameof(name));
 
-            var queryable = await _productRepository.WithDetailsAsync(x => x.Components, x => x.QuestionTemplates,x => x.SubProducts);
+            var queryable = await _productRepository.WithDetailsAsync(x => x.ProductComponents, x => x.ProductQuestionTemplates,x => x.SubProducts);
             var query = queryable.Where(x => x.Id == id);
 
             var product = await AsyncExecuter.FirstOrDefaultAsync(query);
@@ -82,6 +82,19 @@ namespace IBLTermocasa.Products
                 product.RemoveAllSubproducts();
                 return;
             }
+            var pruductIds = subProducts.SelectMany(x => x.ProductIds).ToList();
+
+            var query = (await _productRepository.GetQueryableAsync())
+                .Where(x => pruductIds.Contains(x.Id))
+                .Select(x => x.Id);
+
+            if (!pruductIds.Any())
+            {
+                return;
+            }
+            product.RemoveAllSubProductssExceptGivenIds(pruductIds);
+
+            product.RemoveAllSubProducts();
 
             product.RemoveAllSubproducts();
 
@@ -98,12 +111,23 @@ namespace IBLTermocasa.Products
                 product.RemoveAllComponents();
                 return;
             }
+            var componentIds = productComponents.Select(x => x.ComponentId).ToList();
+
+            var query = (await _componentRepository.GetQueryableAsync())
+                .Where(x => componentIds.Contains(x.Id))
+                .Select(x => x.Id);
+
+            if (!componentIds.Any())
+            {
+                return;
+            }
+            product.RemoveAllComponentsExceptGivenIds(componentIds);
 
             product.RemoveAllComponents();
 
             foreach (var productComponent in productComponents)
             {
-                product.AddComponent(productComponent.ComponentId, productComponent.Order, productComponent.Mandatory);
+                product.AddComponent(productComponent.ComponentId, productComponent.Order, productComponent.Name, productComponent.Mandatory);
             }
         }
 
@@ -127,6 +151,7 @@ namespace IBLTermocasa.Products
             }
 
             product.RemoveAllQuestionTemplatesExceptGivenIds(questionTemplateIdsInDb);
+            product.RemoveAllQuestionTemplates();
 
             foreach (var questionTemplateId in questionTemplateIdsInDb)
             {

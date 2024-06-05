@@ -147,12 +147,17 @@ public partial class ProductInput
 
     private void SaveModalProductComponentInputAsync(ProductComponentDto obj)
     {
+
+        AddComponentModal.Hide();
         if(Product.ProductComponents == null)
         {
             Product.ProductComponents = new List<ProductComponentDto>();
         }
+        if(obj.Id == Guid.Empty)
+        {
+            obj.Id = Guid.NewGuid();
+        }
         Product.ProductComponents.Add(obj);
-        AddComponentModal.Hide();
         StateHasChanged();
     }
     
@@ -172,6 +177,8 @@ public partial class ProductInput
     {
         SelectedSubProducts = new SubProductDto();
         SelectedSubProducts.Id = Guid.NewGuid();
+        SelectedSubProducts.Order = Product.SubProducts.Count + 1;
+        AddSubProductModal.InitializetModal(SelectedSubProducts,  ProductList);
         AddSubProductModal.Show();
     }
     
@@ -179,6 +186,7 @@ public partial class ProductInput
     private async Task AddComponentAsync(MouseEventArgs obj)
     {
         ComponentList = (await ComponentsAppService.GetListAsync(new GetComponentsInput())).Items;
+        AddComponentModal.ComponentList = ComponentList;
         AddComponentModal.Show();
     }
     
@@ -201,16 +209,19 @@ public partial class ProductInput
         }
     }
 
-    private void UpdateProductAsync()
+    private async void UpdateProductAsync()
     {
         var dto = ObjectMapper.Map<ProductDto, ProductUpdateDto>(Product);
-        ProductService.UpdateAsync(Product.Id, dto);
+        Console.WriteLine("Product SubProducts.Count: " + Product.SubProducts.Count);
+        Product = await ProductService.UpdateAsync(Product.Id, dto);
+       StateHasChanged();
     }
 
-    private void CreateProductAsync()
+    private async void CreateProductAsync()
     {
         var dto = ObjectMapper.Map<ProductDto, ProductCreateDto>(Product);
-        ProductService.CreateAsync(dto);
+        Product = await ProductService.CreateAsync(dto);
+        StateHasChanged();
     }
 
     private void ProductComponentCommittedItemChanges(ProductComponentDto obj)

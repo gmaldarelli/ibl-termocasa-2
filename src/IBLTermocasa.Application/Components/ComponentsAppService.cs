@@ -117,7 +117,7 @@ namespace IBLTermocasa.Components
             await memoryStream.SaveAsAsync(ObjectMapper.Map<List<Component>, List<ComponentExcelDto>>(items));
             memoryStream.Seek(0, SeekOrigin.Begin);
 
-            return new RemoteStreamContent(memoryStream, "Components.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            return new RemoteStreamContent(memoryStream, "ProductComponents.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
 
         public virtual async Task<DownloadTokenResultDto> GetDownloadTokenAsync()
