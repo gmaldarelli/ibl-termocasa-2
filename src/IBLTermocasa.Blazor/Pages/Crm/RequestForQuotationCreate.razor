@@ -38,7 +38,7 @@
         <Steps @bind-SelectedStep="selectedStep" @ref="stepsRef">
             <Items>
                 <Step Name="1">@L["Details"]</Step>
-                <Step Name="2">@L["Items"]</Step>
+                <Step Name="2">@L["Products"]</Step>
                 <Step Name="3">@L["Annotation"]</Step>
                 <Step Name="4">
                     <Marker>
@@ -103,7 +103,7 @@
                                     <MudDatePicker DateChanged="time => NewRequestForQuotationDto.DateDocument = time" Label="@L["Date"]" DisableToolbar="true"/>
                                 </MudItem>
                                 <MudItem xs="6">
-                                    <MudNumericField T="decimal?" @bind-Value="@NewRequestForQuotationDto.Discount" Label="@L["Discount (%)"]"/>
+                                    <MudNumericField T="decimal?" @bind-Value="@NewRequestForQuotationDto.Discount" Label="@L["Discount(%)"]"/>
                                 </MudItem>
                                 <MudItem xs="6">
                                     <MudTextField T="string" @bind-Text="@NewRequestForQuotationDto.QuoteNumber" Label="@L["QuoteNumber"]"/>
@@ -226,23 +226,18 @@
                                                                          Text="@Catalogs.Items.SelectMany(catalog => catalog.Products).FirstOrDefault(product => product.Id == item.ProductId)?.Name">
                                                             </MudListItem>
                                                         }
-                                                        @if (selectedListViewItem != null)
-                                                        {
                                                             <MudItem Class="m-2 d-flex justify-content-between">
                                                                 <MudButton Color="Color.Primary" OnClick="AddNewItem" Size="Size.Small" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" IconSize="Size.Small" Class="mt-2">
                                                                     @L["Add"]
                                                                 </MudButton>
                                                                 <MudButton Color="Color.Secondary" OnClick="DeleteSelectedItem" Size="Size.Small" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" IconSize="Size.Small" Class="mt-2">
                                                                     @L["Delete"]
-
                                                                 </MudButton>
                                                             </MudItem>
-                                                        }
                                                     </MudList>
                                                 </MudPaper>
                                             </MudItem>
                                         }
-
                                     </MudGrid>
                                 </MudItem>
                             </MudGrid>
@@ -276,7 +271,7 @@
     @if (selectedStep == "4")
     {
         <MudItem xs="4" class="d-flex justify-start">
-            <MudButton Color="Color.Primary" OnClick="HandleValidDraft" Size="Size.Small" Class="mt-2 me-2">@L["Save Draft"]</MudButton>
+            <MudButton Color="Color.Primary" OnClick="HandleValidDraft" Size="Size.Small" Class="mt-2 me-2">@L["SaveDraft"]</MudButton>
         </MudItem>
         <MudItem xs="4" class="d-flex justify-center">
             <MudButton Color="Color.Secondary" OnClick="HandleCancel" Size="Size.Small" Class="mt-2 me-2">@L["Cancel"]</MudButton>
@@ -288,7 +283,7 @@
     else
     {
         <MudItem xs="4" class="d-flex justify-start">
-            <MudButton Color="Color.Primary" OnClick="HandleValidDraft" Size="Size.Small" Class="mt-2 me-2">@L["Save Draft"]</MudButton>
+            <MudButton Color="Color.Primary" OnClick="HandleValidDraft" Size="Size.Small" Class="mt-2 me-2">@L["SaveDraft"]</MudButton>
         </MudItem>
         if (selectedStep == "1")
         {

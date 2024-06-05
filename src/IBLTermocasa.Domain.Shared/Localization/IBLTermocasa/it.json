@@ -2,6 +2,7 @@
   "Culture": "it",
   "Texts": {
     "Menu:Home": "Home",
+    "Menu:Catalogs": "Cataloghi",
     "Menu:ContactUs": "Contattaci",
     "Menu:ArticleSample": "Esempio di Articolo",
     "Home": "Home",
@@ -244,16 +245,6 @@
     "QuestionTemplates": "Modelli di Domande",
     "NewQuestionTemplate": "Nuovo Modello di Domanda",
     "Menu:QuestionTemplates": "Modelli di Domande",
-
-
-
-
-
-
-
-
-
-
     "AddButton": "Aggiungi",
     "NoComponentItemFoundToRemove": "Nessun elemento del componente trovato da rimuovere ",
     "NoComponentFound": "Nessun componente trovato",
@@ -261,6 +252,25 @@
     "OneItemSelected": "1 elemento selezionato",
     "XItemsSelected": "{0} elementi selezionati",
     "ViewSelectedName": "Visualizza i nomi selezionati",
-    "AddRemoveComponent": "Aggiungi/Rimuovi {0}"
+    "AddRemoveComponent": "Aggiungi/Rimuovi {0}",
+    "Add": "Nuovo",
+    "Delete": "Elimina",
+    "Products List": "Lista Prodotti",
+    "Catalogs": "Cataloghi",
+    "Catalog": "Catalogo",
+    "Phone": "Telefono",
+    "Email": "Email",
+    "Details": "Dettagli",
+    "Items": "Elementi",
+    "Annotation": "Annotazione",
+    "Finish": "Fine",
+    "Save": "Salva",
+    "SaveDraft": "Salva Bozza",
+    "Next": "Avanti",
+    "Previous": "Precedente",
+    "Cancel": "Annulla",
+    "CreateRequestForQuotation": "Crea Richiesta di Preventivo",
+    "Discount(%)": "Sconto (%)",
+    "Type": "Tipo",
   }
 }

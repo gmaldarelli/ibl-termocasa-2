@@ -8,10 +8,10 @@ namespace IBLTermocasa.Products
 {
     public class ProductQuestionTemplateDto : EntityDto<Guid>
     {
+        public Guid QuestionTemplateId { get; set; }
         public int Order { get; set; }
         [Required]
         public string Name { get; set; } = null!;
         public bool Mandatory { get; set; }
-        public Guid QuestionTemplateId { get; set; }
     }
 }

@@ -209,7 +209,7 @@ public partial class RequestForQuotationCreate
             RFQProductAndQuestions.Clear();
             if (!SelectedProduct.IsAssembled)
             {
-                var questionTemplateIds = SelectedProduct.ProductQuestionTemplates.Select(qt => qt.Id).ToList();
+                var questionTemplateIds = SelectedProduct.ProductQuestionTemplates.Select(qt => qt.QuestionTemplateId).ToList();
                 ListQuestionTemplateSingleProduct = await QuestionTemplatesAppService.GetListByGuidsAsync(questionTemplateIds);
                 RFQProductAndQuestions.Add(new RFQProductAndQuestionDto(SelectedProduct, ListQuestionTemplateSingleProduct));
                 foreach (var questionTemplate in ListQuestionTemplateSingleProduct)
@@ -246,7 +246,7 @@ public partial class RequestForQuotationCreate
         SelectedCatalog = Catalogs.Items.FirstOrDefault(catalog => catalog.Products.Contains(SelectedProduct))!;
         if (!SelectedProduct.IsAssembled)
         {
-            var questionTemplateIds = SelectedProduct.ProductQuestionTemplates.Select(qt => qt.Id).ToList();
+            var questionTemplateIds = SelectedProduct.ProductQuestionTemplates.Select(qt => qt.QuestionTemplateId).ToList();
             ListQuestionTemplateSingleProduct = await QuestionTemplatesAppService.GetListByGuidsAsync(questionTemplateIds);
             RFQProductAndQuestions.Add(new RFQProductAndQuestionDto(SelectedProduct, ListQuestionTemplateSingleProduct));
             foreach (var questionTemplate in ListQuestionTemplateSingleProduct)

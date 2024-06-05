@@ -210,7 +210,8 @@ namespace IBLTermocasa.RequestForQuotations
 
             // Prendo tutti i prodotti associati ai sotto-prodotti
             var products = await _productRepository.GetListAsync(p => listProductIds.Contains(p.Id));
-
+            products.Add(productPrincipal);
+            
             var listProduct = new List<RFQProductAndQuestionDto>();
 
             // Per ogni prodotto, prendo le domande associate
