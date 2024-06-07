@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Web;
 using Blazorise;
 using Blazorise.DataGrid;
+using DocumentFormat.OpenXml.Spreadsheet;
 using IBLTermocasa.Common;
 using IBLTermocasa.Contacts;
 using IBLTermocasa.Organizations;
@@ -31,7 +32,7 @@ namespace IBLTermocasa.Blazor.Pages
         protected List<BreadcrumbItem> BreadcrumbItems = new();
         protected PageToolbar Toolbar { get; } = new();
         protected bool ShowAdvancedFilters { get; set; }
-        private IReadOnlyList<RequestForQuotationWithNavigationPropertiesDto> RequestForQuotationList { get; set; }
+        private IReadOnlyList<RequestForQuotationDto> RequestForQuotationList { get; set; }
         private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
         private int CurrentPage { get; set; } = 1;
         private string CurrentSorting { get; set; } = string.Empty;
@@ -66,7 +67,9 @@ namespace IBLTermocasa.Blazor.Pages
         protected List<IdentityUserDto> Agents { get; set; } = new();
         protected Progress progressRef;
         protected int progress;
-        
+        private List<LookupDto<Guid>> OrganizationsList { get; set; } = new();
+        private List<LookupDto<Guid>> ContactsList { get; set; } = new();
+        private List<LookupDto<Guid>> AgentsList { get; set; } = new();
 // Variabili per la gestione dei filtri
         private IReadOnlyList<LookupDto<Guid>> IdentityUsersCollection { get; set; } = new List<LookupDto<Guid>>();
         private IReadOnlyList<LookupDto<Guid>> ContactsCollection { get; set; } = new List<LookupDto<Guid>>();
@@ -83,7 +86,7 @@ namespace IBLTermocasa.Blazor.Pages
                 SkipCount = (CurrentPage - 1) * PageSize,
                 Sorting = CurrentSorting
             };
-            RequestForQuotationList = new List<RequestForQuotationWithNavigationPropertiesDto>();
+            RequestForQuotationList = new List<RequestForQuotationDto>();
             
             
         }
@@ -94,14 +97,9 @@ namespace IBLTermocasa.Blazor.Pages
             await GetIdentityUserCollectionLookupAsync();
             await GetContactCollectionLookupAsync();
             await GetOrganizationCollectionLookupAsync();
-            PagedResultDto<OrganizationDto> organizations =
-                await OrganizationsAppService.GetFilterTypeAsync(new GetOrganizationsInput(),
-                    OrganizationType.CUSTOMER);
-            Organizations = organizations.Items.ToList();
-            PagedResultDto<ContactDto> contacts = await ContactsAppService.GetListAsync(new GetContactsInput());
-            Contacts = contacts.Items.ToList();
-            var userList = await UserAppService.GetListAsync(new GetIdentityUsersInput());
-            Agents = userList.Items.ToList();
+            OrganizationsList = (await RequestForQuotationsAppService.GetOrganizationLookupCustomerAsync(new LookupRequestDto())).Items.ToList();
+            ContactsList = (await RequestForQuotationsAppService.GetContactLookupAsync(new LookupRequestDto())).Items.ToList();
+            AgentsList = (await RequestForQuotationsAppService.GetIdentityUserLookupAsync(new LookupRequestDto())).Items.ToList();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -150,7 +148,7 @@ namespace IBLTermocasa.Blazor.Pages
             Filter.SkipCount = (CurrentPage - 1) * PageSize;
             Filter.Sorting = CurrentSorting;
 
-            var result = await RequestForQuotationsAppService.GetListAsync(Filter);
+            var result = await RequestForQuotationsAppService.GetListRFQAsync(Filter);
             RequestForQuotationList = result.Items;
             TotalCount = (int)result.TotalCount;
         }
@@ -172,10 +170,10 @@ namespace IBLTermocasa.Blazor.Pages
                 culture = "&culture=" + culture;
             }
             await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
-            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/request-for-quotations/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&QuoteNumber={HttpUtility.UrlEncode(Filter.QuoteNumber)}&WorkSite={HttpUtility.UrlEncode(Filter.WorkSite)}&City={HttpUtility.UrlEncode(Filter.City)}&OrganizationProperty={HttpUtility.UrlEncode(Filter.OrganizationProperty.ToString())}&ContactProperty={HttpUtility.UrlEncode(Filter.ContactProperty.ToString())}&PhoneInfo={HttpUtility.UrlEncode(Filter.PhoneInfo.ToString())}&MailInfo={HttpUtility.UrlEncode(Filter.MailInfo.ToString())}&DiscountMin={Filter.DiscountMin}&DiscountMax={Filter.DiscountMax}&Description={HttpUtility.UrlEncode(Filter.Description)}&Status={Filter.Status}&AgentId={Filter.AgentId}&ContactId={Filter.ContactId}&OrganizationId={Filter.OrganizationId}", forceLoad: true);
+            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/request-for-quotations/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&QuoteNumber={HttpUtility.UrlEncode(Filter.QuoteNumber)}&WorkSite={HttpUtility.UrlEncode(Filter.WorkSite)}&City={HttpUtility.UrlEncode(Filter.City)}&OrganizationProperty={HttpUtility.UrlEncode(Filter.OrganizationProperty.ToString())}&ContactProperty={HttpUtility.UrlEncode(Filter.ContactProperty.ToString())}&PhoneInfo={HttpUtility.UrlEncode(Filter.PhoneInfo.ToString())}&MailInfo={HttpUtility.UrlEncode(Filter.MailInfo.ToString())}&DiscountMin={Filter.DiscountMin}&DiscountMax={Filter.DiscountMax}&Description={HttpUtility.UrlEncode(Filter.Description)}&Status={Filter.Status}", forceLoad: true);
         }
 
-        private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<RequestForQuotationWithNavigationPropertiesDto> e)
+        private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<RequestForQuotationDto> e)
         {
             progress = 25;
             await InvokeAsync(StateHasChanged);
@@ -193,15 +191,15 @@ namespace IBLTermocasa.Blazor.Pages
             await InvokeAsync(StateHasChanged);
         }
 
-        private async Task OpenEditRequestForQuotationModalAsync(RequestForQuotationWithNavigationPropertiesDto input)
+        private async Task OpenEditRequestForQuotationModalAsync(RequestForQuotationDto input)
         {
-            RequestForQuotationInput = input.RequestForQuotation;
+            RequestForQuotationInput = input;
             await EditRequestForQuotationModal.Show();
         }
 
-        private async Task DeleteRequestForQuotationAsync(RequestForQuotationWithNavigationPropertiesDto input)
+        private async Task DeleteRequestForQuotationAsync(RequestForQuotationDto input)
         {
-            await RequestForQuotationsAppService.DeleteAsync(input.RequestForQuotation.Id);
+            await RequestForQuotationsAppService.DeleteAsync(input.Id);
             await GetRequestForQuotationsAsync();
         }
         
@@ -230,17 +228,23 @@ namespace IBLTermocasa.Blazor.Pages
             }
         }
 
-        private void OpenEditRequestForQuotationPageAsync(RequestForQuotationWithNavigationPropertiesDto input)
+        private void OpenEditRequestForQuotationPageAsync(RequestForQuotationDto input)
         {
             //navigate to the page RequestForQuotationDetails
-            SelectedRequestForQuotation = input.RequestForQuotation;
-            NavigationManager.NavigateTo($"/request-for-quotation/{input.RequestForQuotation.Id}");
+            if (input.Status == Status.DRAFT)
+            {
+                NavigationManager.NavigateTo($"/rfq-draft/{input.Id}");
+            }
+            else
+            {
+                NavigationManager.NavigateTo($"/request-for-quotation/{input.Id}");
+            }
         }
 
         private void OpenCreateRequestForQuotationPageAsync()
         {
             //navigate to the page RequestForQuotationCreate
-            NavigationManager.NavigateTo($"/RfqCreate");
+            NavigationManager.NavigateTo($"/rfq-create");
         }
         
 // Metodi per la gestione dei filtri
@@ -258,6 +262,11 @@ namespace IBLTermocasa.Blazor.Pages
         protected virtual async Task OnCityChangedAsync(string? city)
         {
             Filter.City = city;
+            await SearchAsync();
+        }
+        protected virtual async Task OnAgentPropertyChangedAsync(string? agentProperty)
+        {
+            Filter.AgentProperty = new AgentProperty(Guid.Empty, agentProperty);
             await SearchAsync();
         }
         protected virtual async Task OnOrganizationPropertyChangedAsync(string? organizationProperty)
@@ -306,21 +315,7 @@ namespace IBLTermocasa.Blazor.Pages
             Filter.Status = status;
             await SearchAsync();
         }
-        protected virtual async Task OnAgentIdChangedAsync(Guid? agentId)
-        {
-            Filter.AgentId = agentId;
-            await SearchAsync();
-        }
-        protected virtual async Task OnContactIdChangedAsync(Guid? contactId)
-        {
-            Filter.ContactId = contactId;
-            await SearchAsync();
-        }
-        protected virtual async Task OnOrganizationIdChangedAsync(Guid? organizationId)
-        {
-            Filter.OrganizationId = organizationId;
-            await SearchAsync();
-        }
+        
         private async Task GetIdentityUserCollectionLookupAsync(string? newValue = null)
         {
             IdentityUsersCollection = (await RequestForQuotationsAppService.GetIdentityUserLookupAsync(new LookupRequestDto { Filter = newValue })).Items;

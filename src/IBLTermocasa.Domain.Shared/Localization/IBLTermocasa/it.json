@@ -233,7 +233,9 @@
     "MinDiscount": "Sconto Minimo",
     "MaxDiscount": "Sconto Massimo",
     "NewRequestForQuotation": "Nuova Richiesta di Preventivo",
+    "Menu:NewRequestForQuotation": "Nuova Richiesta di Preventivo",
     "Menu:RequestForQuotations": "Richieste di Preventivo",
+    "Menu:RequestForQuotationDraft": "Bozza Richiesta di Preventivo",
     "SecureDeletionTitle": "Eliminazione Sicura",
     "Source": "Fonte",
     "FirsSync": "Caricato il",
@@ -272,5 +274,7 @@
     "CreateRequestForQuotation": "Crea Richiesta di Preventivo",
     "Discount(%)": "Sconto (%)",
     "Type": "Tipo",
+    "Yes": "Si",
+    "No": "No"
   }
 }

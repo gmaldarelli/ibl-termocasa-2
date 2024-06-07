@@ -253,5 +253,7 @@
     "CreateRequestForQuotation": "Create Request For Quotation",
     "Discount(%)": "Discount (%)",
     "Type": "Type",
+    "Yes": "Yes",
+    "No": "No"
   }
 }

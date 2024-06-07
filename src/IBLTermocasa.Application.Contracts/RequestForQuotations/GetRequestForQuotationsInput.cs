@@ -13,6 +13,7 @@ namespace IBLTermocasa.RequestForQuotations
         public string? QuoteNumber { get; set; }
         public string? WorkSite { get; set; }
         public string? City { get; set; }
+        public AgentProperty? AgentProperty { get; set; }
         public OrganizationProperty? OrganizationProperty { get; set; }
         public ContactProperty? ContactProperty { get; set; }
         public PhoneInfo? PhoneInfo { get; set; }
@@ -21,9 +22,6 @@ namespace IBLTermocasa.RequestForQuotations
         public decimal? DiscountMax { get; set; }
         public string? Description { get; set; }
         public Status? Status { get; set; }
-        public Guid? AgentId { get; set; }
-        public Guid? ContactId { get; set; }
-        public Guid? OrganizationId { get; set; }
 
         public GetRequestForQuotationsInput()
         {

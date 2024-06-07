@@ -171,6 +171,8 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<Industry, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Description));
         CreateMap<OrganizationPropertyDto, OrganizationProperty>();
         CreateMap<OrganizationProperty, OrganizationPropertyDto>();
+        CreateMap<AgentPropertyDto, AgentProperty>();
+        CreateMap<AgentProperty, AgentPropertyDto>();
         CreateMap<OrganizationUpdateDto, Organization>();
         CreateMap<OrganizationCreateDto, Organization>();
         CreateMap<AddressDto, Address>();
@@ -201,7 +203,8 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<RequestForQuotationDto, RequestForQuotationCreateDto>();
         CreateMap<RequestForQuotationCreateDto, RequestForQuotation>()
             .ForMember(dest => dest.ContactProperty, opt => opt.MapFrom(src => src.ContactProperty))
-            .ForMember(dest => dest.OrganizationProperty, opt => opt.MapFrom(src => src.OrganizationProperty));
+            .ForMember(dest => dest.OrganizationProperty, opt => opt.MapFrom(src => src.OrganizationProperty))
+            .ForMember(dest => dest.AgentProperty, opt => opt.MapFrom(src => src.AgentProperty));
         CreateMap<RequestForQuotationItem, RequestForQuotationItemDto>();
         CreateMap<RequestForQuotationItemDto, RequestForQuotationItem>();
         CreateMap<RequestForQuotationUpdateDto, RequestForQuotation>();
@@ -210,7 +213,11 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<RequestForQuotation, RequestForQuotationDto>();
         CreateMap<RequestForQuotation, RequestForQuotationExcelDto>();
         CreateMap<RequestForQuotationWithNavigationProperties, RequestForQuotationWithNavigationPropertiesDto>();
-        CreateMap<Contact, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
+        CreateMap<ProductItemDto, ProductItem>();
+        CreateMap<ProductItem, ProductItemDto>();
+        CreateMap<AnswerDto, Answer>();
+        CreateMap<Answer, AnswerDto>();
+        CreateMap<Contact, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name + " " + src.Surname));
         CreateMap<Organization, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
         
         CreateMap<Catalog, CatalogDto>();

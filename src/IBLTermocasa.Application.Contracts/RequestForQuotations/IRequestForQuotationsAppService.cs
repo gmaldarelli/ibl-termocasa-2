@@ -13,6 +13,7 @@ namespace IBLTermocasa.RequestForQuotations
     {
 
         Task<PagedResultDto<RequestForQuotationWithNavigationPropertiesDto>> GetListAsync(GetRequestForQuotationsInput input);
+        Task<PagedResultDto<RequestForQuotationDto>> GetListRFQAsync(GetRequestForQuotationsInput input);
 
         Task<RequestForQuotationWithNavigationPropertiesDto> GetWithNavigationPropertiesAsync(Guid id);
 
@@ -23,6 +24,8 @@ namespace IBLTermocasa.RequestForQuotations
         Task<PagedResultDto<LookupDto<Guid>>> GetContactLookupAsync(LookupRequestDto input);
 
         Task<PagedResultDto<LookupDto<Guid>>> GetOrganizationLookupAsync(LookupRequestDto input);
+        
+        Task<PagedResultDto<LookupDto<Guid>>> GetOrganizationLookupCustomerAsync(LookupRequestDto input);
 
         Task DeleteAsync(Guid id);
 

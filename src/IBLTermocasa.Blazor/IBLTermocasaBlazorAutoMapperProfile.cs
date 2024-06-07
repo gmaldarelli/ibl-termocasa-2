@@ -85,5 +85,11 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<OrganizationProperty, OrganizationPropertyDto>();
         CreateMap<ContactPropertyDto, ContactProperty>();
         CreateMap<ContactProperty, ContactPropertyDto>();
+        CreateMap<AgentPropertyDto, AgentProperty>();
+        CreateMap<AgentProperty, AgentPropertyDto>();
+        CreateMap<ProductItemDto, ProductItem>();
+        CreateMap<ProductItem, ProductItemDto>();
+        CreateMap<AnswerDto, Answer>();
+        CreateMap<Answer, AnswerDto>();
     }
 }

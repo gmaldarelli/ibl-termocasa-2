@@ -1,16 +1,16 @@
-using System;
+﻿using System;
 using IBLTermocasa.Types;
 
 namespace IBLTermocasa.RequestForQuotations;
 
-public class Answer
+public class AnswerDto
 {
     public Guid QuestionId { get; set; }
     public string QuestionText { get; set; } = null!;
     public AnswerType AnswerType { get; set; }
     public string AnswerValue { get; set; } = null!;
 
-    public Answer(Guid questionId, string questionText, AnswerType answerType, string answerValue)
+    public AnswerDto(Guid questionId, string questionText, AnswerType answerType, string answerValue)
     {
         QuestionId = questionId;
         QuestionText = questionText;
@@ -18,7 +18,7 @@ public class Answer
         AnswerValue = answerValue;
     }
 
-    public Answer()
+    public AnswerDto()
     {
     }
 }

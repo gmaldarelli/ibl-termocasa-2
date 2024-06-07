@@ -20,6 +20,7 @@ namespace IBLTermocasa.RequestForQuotations
             string? quoteNumber = null,
             string? workSite = null,
             string? city = null,
+            AgentProperty? agentProperty = null,
             OrganizationProperty? organizationProperty = null,
             ContactProperty? contactProperty = null,
             PhoneInfo? phoneInfo = null,
@@ -28,9 +29,6 @@ namespace IBLTermocasa.RequestForQuotations
             decimal? discountMax = null,
             string? description = null,
             Status? status = null,
-            Guid? agentId = null,
-            Guid? contactId = null,
-            Guid? organizationId = null,
             string? sorting = null,
             int maxResultCount = int.MaxValue,
             int skipCount = 0,
@@ -42,6 +40,7 @@ namespace IBLTermocasa.RequestForQuotations
                     string? quoteNumber = null,
                     string? workSite = null,
                     string? city = null,
+                    AgentProperty? agentProperty = null,
                     OrganizationProperty? organizationProperty = null,
                     ContactProperty? contactProperty = null,
                     PhoneInfo? phoneInfo = null,
@@ -61,6 +60,7 @@ namespace IBLTermocasa.RequestForQuotations
             string? quoteNumber = null,
             string? workSite = null,
             string? city = null,
+            AgentProperty? agentProperty = null,
             OrganizationProperty? organizationProperty = null,
             ContactProperty? contactProperty = null,
             PhoneInfo? phoneInfo = null,
@@ -69,9 +69,6 @@ namespace IBLTermocasa.RequestForQuotations
             decimal? discountMax = null,
             string? description = null,
             Status? status = null,
-            Guid? agentId = null,
-            Guid? contactId = null,
-            Guid? organizationId = null,
             CancellationToken cancellationToken = default);
     }
 }

@@ -15,23 +15,31 @@
                 </FieldBody>
             </Field>
         </Fields>
-        @*<Button Color="Color.Primary" Size="Size.ExtraSmall"
-                Visibility="Visibility.Visible"
-                Clicked="async () => await OpenEditQuestionTemplateModalAsync(null)">
-            <Icon Name="IconName.Add" IconSize="IconSize.ExtraSmall"/>
-        </Button>*@
-        
-        <DataGrid TItem="Answer"
-                  Data="SelectedRequestForQuotationItem.Answers">
+
+        <DataGrid TItem="ProductItemDto"
+                  Data="SelectedRequestForQuotationItem.ProductItems">
             <DataGridColumns>
-                <DataGridColumn
-                    Caption="@L["Question"]">
+                <DataGridColumn Caption="@L["Product"]">
                     <DisplayTemplate Context="templateContext">
-                        @GetQuestionName(templateContext.QuestionId)
+                        @GetProductName(templateContext.ProductId)
                     </DisplayTemplate>
                 </DataGridColumn>
-                <DataGridColumn TItem="Answer" Field="AnswerValue" Caption="@L["AnswerValue"]"/>
-            </DataGridColumns>  
+                <DataGridColumn Caption="@L["Order"]" Field="Order" />
+                <DataGridColumn Caption="@L["Answers"]">
+                    <DisplayTemplate Context="templateContext">
+                        <DataGrid TItem="AnswerDto" Data="templateContext.Answers">
+                            <DataGridColumns>
+                                <DataGridColumn Caption="@L["Question"]">
+                                    <DisplayTemplate Context="answerContext">
+                                        @GetQuestionName(answerContext.QuestionId)
+                                    </DisplayTemplate>
+                                </DataGridColumn>
+                                <DataGridColumn TItem="AnswerDto" Field="AnswerValue" Caption="@L["AnswerValue"]" />
+                            </DataGridColumns>
+                        </DataGrid>
+                    </DisplayTemplate>
+                </DataGridColumn>
+            </DataGridColumns>
         </DataGrid>
     </Validations>
     <Fields>

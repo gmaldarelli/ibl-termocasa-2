@@ -93,16 +93,15 @@
                   Class="datagrid-question"
                   Data="@InternalRequestForQuotation.RequestForQuotationItems"
                   @bind-SelectedRow="@selectedRequestForQuotationItem"
-                  DetailRowTrigger="@((e) => e.Item.ProductId == selectedRequestForQuotationItem?.ProductId)"
+                  DetailRowTrigger="@((e) => e.Item.ProductItems.Any(p => p.ProductId == selectedRequestForQuotationItem?.ProductItems.FirstOrDefault()?.ProductId))"
                   Responsive>
             <DataGridColumns>
                 <DataGridCommandColumn />
                 <DataGridColumn Caption="Articoli">
                     <DisplayTemplate Context="templateContext">
-                        @GetCatalogItemName(templateContext.ProductId)
+                        @GetCatalogItemName(templateContext.ProductItems.FirstOrDefault()?.ProductId ?? Guid.Empty)
                     </DisplayTemplate>
                 </DataGridColumn>
-
             </DataGridColumns>
             <DetailRowTemplate Context="detailContext">
                 <RequestForQuotationItemInput
@@ -112,158 +111,4 @@
             </DetailRowTemplate>
         </DataGrid>
     </MudForm>
-    @*<EditForm Model="@RequestForQuotation">
-
-        <Validations @ref="@RequestForQuotationValidations"
-                     Mode="ValidationMode.Auto"
-                     Model="@InternalRequestForQuotation"
-                     ValidateOnLoad="false">
-            <Fields>
-                <Validation MessageLocalizer="@LH.Localize">
-                    <Field ColumnSize="ColumnSize.Is6">
-                        <FieldLabel>@L["Organization"]</FieldLabel>
-                        <FieldBody>
-                            <Autocomplete TItem="OrganizationDto"
-                                          TValue="Guid"
-                                          Data="@Organizations.Items"
-                                          TextField="@((item) => item.Name)"
-                                          ValueField="@((item) => item.Id)"
-                                          SelectedValue="InternalRequestForQuotation.OrganizationId"
-                                          SelectedValueChanged="UpdateValueOrganization"
-                                          Placeholder=@L["Search Organization..."]
-                                          Filter="AutocompleteFilter.Contains"
-                                          CustomFilter="@((item, searchValue) => item.Name.IndexOf(searchValue, 0, StringComparison.CurrentCultureIgnoreCase) >= 0)"
-                                          Disabled="@ReadOnly">
-                                <NotFoundContent Context="organizationNotFound"> Sorry... @organizationNotFound was not found! :( </NotFoundContent>
-                            </Autocomplete>
-                        </FieldBody>
-                    </Field>
-                </Validation>
-                <Validation MessageLocalizer="@LH.Localize">
-                    <Field ColumnSize="ColumnSize.Is6">
-                        <FieldLabel>@L["Contact"]</FieldLabel>
-                        <FieldBody>
-                            <Autocomplete TItem="ContactDto"
-                                          TValue="Guid"
-                                          Data="@Contacts.Items"
-                                          TextField="@((item) => item.Name + " " + item.Surname)"
-                                          ValueField="@((item) => item.Id)"
-                                          SelectedValue="InternalRequestForQuotation.ContactId"
-                                          SelectedValueChanged="UpdateValueContact"
-                                          Placeholder=@L["Search Contact..."]
-                                          Filter="AutocompleteFilter.Contains"
-                                          CustomFilter="@((item, searchValue) => (item.Name + " " + item.Surname).IndexOf(searchValue, 0, StringComparison.CurrentCultureIgnoreCase) >= 0)"
-                                          Disabled="@ReadOnly">
-                                <NotFoundContent Context="contactNotFound"> Sorry... @contactNotFound was not found! :( </NotFoundContent>
-                            </Autocomplete>
-                        </FieldBody>
-                    </Field>
-                </Validation>
-            </Fields>
-            <Fields>
-                <Validation MessageLocalizer="@LH.Localize">
-                    <Field>
-                        <FieldLabel>@L["Agent"]</FieldLabel>
-                        <Autocomplete TItem="LookupDto<Guid>"
-                                      TValue="Guid"
-                                      Data="@userLookUpDtos"
-                                      TextField="@((item) => item.DisplayName)"
-                                      ValueField="@((item) => item.Id)"
-                                      SelectedValue="@selectedAgentLookupDto.Id"
-                                      SelectedValueChanged="UpdateValueAgent"
-                                      Placeholder=@L["Search Agent..."]
-                                      Filter="AutocompleteFilter.Contains"
-                                      CustomFilter="@((item, searchValue) => item.DisplayName.IndexOf(searchValue, 0, StringComparison.CurrentCultureIgnoreCase) >= 0)"
-                                      Disabled="@ReadOnly">
-                            <NotFoundContent Context="agentNotFound"> Sorry... @agentNotFound was not found! :( </NotFoundContent>
-                        </Autocomplete>
-                    </Field>
-                    <Field>
-                        <FieldLabel>@L["WorkSite"]</FieldLabel>
-                        <TextEdit @bind-Text="@InternalRequestForQuotation.WorkSite" Disabled="@ReadOnly"></TextEdit>
-                    </Field>
-                </Validation>
-            </Fields>
-            <Fields>
-                <Field>
-                    <FieldLabel>@L["Email"]</FieldLabel>
-                    <MailInfoInput MailInfo="@InternalRequestForQuotation.MailInfo" ReadOnly="@ReadOnly"/>
-                </Field>
-                <Field>
-                    <FieldLabel>@L["Phone"]</FieldLabel>
-                    <PhoneInfoInput PhoneInfo="@InternalRequestForQuotation.PhoneInfo" ReadOnly="@ReadOnly"/>
-                </Field>
-            </Fields>
-            <Fields>
-                <Field>
-                    <FieldLabel>@L["City"]</FieldLabel>
-                    <TextEdit @bind-Text="@InternalRequestForQuotation.City" Disabled="@ReadOnly"></TextEdit>
-                </Field>
-                <Field>
-                    <FieldLabel>@L["Date"]</FieldLabel>
-                    <DateEdit InputMode="DateInputMode.Date" @bind-Date="@InternalRequestForQuotation.CreationTime" Pattern="dd/MM/yyyy" Disabled="@ReadOnly"></DateEdit>
-                </Field>
-            </Fields>
-            <Fields>
-                <Field>
-                    <FieldLabel>@L["Discount (%)"]</FieldLabel>
-                    <NumericEdit TValue="decimal?" @bind-Value="@InternalRequestForQuotation.Discount" Disabled="@ReadOnly"></NumericEdit>
-                </Field>
-                <Field>
-                    <FieldLabel>@L["QuoteNumber"]</FieldLabel>
-                    <TextEdit @bind-Text="@InternalRequestForQuotation.QuoteNumber" Disabled="@ReadOnly"></TextEdit>
-                </Field>
-            </Fields>
-
-            <DataGrid @ref="RequestForQuotationItemsDataGrid"
-                      TItem="RequestForQuotationItem"
-                      Class="datagrid-question"
-                      Data="@InternalRequestForQuotation.RequestForQuotationItems"
-                      @bind-SelectedRow="@selectedRequestForQuotationItem"
-                      DetailRowTrigger="@((e) => e.Item.CatalogItemId == selectedRequestForQuotationItem?.CatalogItemId)"
-                      Responsive>
-                <DataGridColumns>
-                    <DataGridCommandColumn />
-                    $1$<DataGridColumn
-                        Field="@nameof(RequestForQuotationItemDto.CatalogItemName)" Caption="Articolo" />#1#
-
-                    <DataGridColumn Caption="Articoli">
-                        <DisplayTemplate Context="templateContext">
-                            @GetCatalogItemName(templateContext.CatalogItemId)
-                        </DisplayTemplate>
-                    </DataGridColumn>
-                    
-                </DataGridColumns>
-                <DetailRowTemplate Context="detailContext">
-                    <RequestForQuotationItemInput
-                        SelectedRequestForQuotationItem="@detailContext"
-                        QuestionTemplateNames="@ListQuestionTemplate">
-                    </RequestForQuotationItemInput>
-                </DetailRowTemplate>
-            </DataGrid>
-
-
-
-
-
-            <Fields Class="mt-2">
-                <Field ColumnSize="ColumnSize.IsFull" Position="Position.Relative" Class="text-end">
-                    @if (!ReadOnly)
-                    {
-                        <Button Color="Color.Primary" Type="ButtonType.Submit" Size="Size.Small" Class="me-2" Clicked="HandleValidSubmit">@L["Save"]</Button>
-                    }
-                    <Button Color="Color.Secondary" Clicked="HandleCancel" Size="Size.Small" Class="me-2">
-                        @if (ReadOnly)
-                        {
-                            @L["Close"]
-                        }
-                        else
-                        {
-                            @L["Cancel"]
-                        }
-                    </Button>
-                </Field>
-            </Fields>
-        </Validations>
-    </EditForm>*@
 }

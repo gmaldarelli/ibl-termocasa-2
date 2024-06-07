@@ -1,6 +1,7 @@
 using IBLTermocasa.Organizations;
 using IBLTermocasa.Contacts;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using IBLTermocasa.Common;
 using Volo.Abp.Data;
@@ -42,6 +43,7 @@ namespace IBLTermocasa.RequestForQuotations
                 quoteNumber: "6b08063686094e4f85272938a43c9067541d0a56587043f7a60bb94b357615878adbe6c2f",
                 workSite: "91754491a73344d5a15ed1a7dcae3e52e4148c0f807d49bb95c9d2fbe8a5",
                 city: "0dad859077014c528e0c5e17d422bcaaa452f78f77874ea483d887d03e5e1879c8326ff40fca4de3ae73f0a39218d32c",
+                agentProperty: new AgentProperty(),
                 organizationProperty: new OrganizationProperty(),
                 contactProperty: new ContactProperty(),
                 phoneInfo: new PhoneInfo(),
@@ -49,9 +51,8 @@ namespace IBLTermocasa.RequestForQuotations
                 discount: 376578900,
                 description: "3dd3810d82f0412197af9e3e295b446656d2847c0a89405",
                 status: default,
-                agentId: null,
-                contactId: null,
-                organizationId: null
+                dateDocument: new DateTime(2021, 10, 10),
+                requestForQuotationItems: new List<RequestForQuotationItem>()
             ));
 
             await _requestForQuotationRepository.InsertAsync(new RequestForQuotation
@@ -60,6 +61,7 @@ namespace IBLTermocasa.RequestForQuotations
                 quoteNumber: "4b29a9eb71844285a13a58228038266f1870be34e39f45b0aa05b2188b630919d6d54ce5afa34ab19a68cfca9e027e013",
                 workSite: "bce0c34b2d5a4935a055f4d0d775583bf57120f6030344219bfefc24a4",
                 city: "91f19e2afc604bb1a5576b91578ae2d5e4b7dcddc5a64e1c836cd5b4fa6732a9f9089dfe3b5242ee8be0",
+                agentProperty: new AgentProperty(),
                 organizationProperty: new OrganizationProperty(),
                 contactProperty: new ContactProperty(),
                 phoneInfo: new PhoneInfo(),
@@ -67,9 +69,8 @@ namespace IBLTermocasa.RequestForQuotations
                 discount: 2000374377,
                 description: "f6fcb38c9a3d4391838ed66db1ccb97b25e",
                 status: default,
-                agentId: null,
-                contactId: null,
-                organizationId: null
+                dateDocument: new DateTime(2021, 10, 10),
+                requestForQuotationItems: new List<RequestForQuotationItem>()
             ));
 
             await _unitOfWorkManager!.Current!.SaveChangesAsync();

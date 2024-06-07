@@ -33,14 +33,13 @@ namespace IBLTermocasa.RequestForQuotations
             var identityUser =
                 await ((await GetDbContextAsync(cancellationToken)).Database
                         .GetCollection<IdentityUser>(AbpIdentityDbProperties.DbTablePrefix + "Users").AsQueryable())
-                    .FirstOrDefaultAsync(e => e.Id == requestForQuotation.AgentId,
-                        cancellationToken: cancellationToken);
+                    .FirstOrDefaultAsync(e => e.Id == requestForQuotation.AgentProperty.Id, cancellationToken: cancellationToken);
             var contact =
                 await (await GetMongoQueryableAsync<Contact>(cancellationToken)).FirstOrDefaultAsync(
-                    e => e.Id == requestForQuotation.ContactId, cancellationToken: cancellationToken);
+                    e => e.Id == requestForQuotation.ContactProperty.Id, cancellationToken: cancellationToken);
             var organization =
                 await (await GetMongoQueryableAsync<Organization>(cancellationToken)).FirstOrDefaultAsync(
-                    e => e.Id == requestForQuotation.OrganizationId, cancellationToken: cancellationToken);
+                    e => e.Id == requestForQuotation.OrganizationProperty.Id, cancellationToken: cancellationToken);
 
             return new RequestForQuotationWithNavigationProperties
             {
@@ -57,6 +56,7 @@ namespace IBLTermocasa.RequestForQuotations
                 string? quoteNumber = null,
                 string? workSite = null,
                 string? city = null,
+                AgentProperty? agentProperty = null,
                 OrganizationProperty? organizationProperty = null,
                 ContactProperty? contactProperty = null,
                 PhoneInfo? phoneInfo = null,
@@ -65,17 +65,14 @@ namespace IBLTermocasa.RequestForQuotations
                 decimal? discountMax = null,
                 string? description = null,
                 Status? status = null,
-                Guid? agentId = null,
-                Guid? contactId = null,
-                Guid? organizationId = null,
                 string? sorting = null,
                 int maxResultCount = int.MaxValue,
                 int skipCount = 0,
                 CancellationToken cancellationToken = default)
         {
             var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, quoteNumber,
-                workSite, city, organizationProperty, contactProperty, phoneInfo, mailInfo, discountMin, discountMax,
-                description, status, agentId, contactId, organizationId);
+                workSite, city, agentProperty, organizationProperty, contactProperty, phoneInfo, mailInfo, discountMin, discountMax,
+                description, status);
             var requestForQuotations = await query.OrderBy(string.IsNullOrWhiteSpace(sorting)
                     ? RequestForQuotationConsts.GetDefaultSorting(false)
                     : sorting.Split('.').Last())
@@ -90,13 +87,13 @@ namespace IBLTermocasa.RequestForQuotations
                 IdentityUser =
                     ApplyDataFilters<IMongoQueryable<IdentityUser>, IdentityUser>(dbContext.Database
                             .GetCollection<IdentityUser>(AbpIdentityDbProperties.DbTablePrefix + "Users").AsQueryable())
-                        .FirstOrDefault(e => e.Id == s.AgentId),
+                        .FirstOrDefault(e => e.Id == s.AgentProperty.Id),
                 Contact =
                     ApplyDataFilters<IMongoQueryable<Contact>, Contact>(dbContext.Collection<Contact>().AsQueryable())
-                        .FirstOrDefault(e => e.Id == s.ContactId),
+                        .FirstOrDefault(e => e.Id == s.ContactProperty.Id),
                 Organization =
                     ApplyDataFilters<IMongoQueryable<Organization>, Organization>(dbContext.Collection<Organization>()
-                        .AsQueryable()).FirstOrDefault(e => e.Id == s.OrganizationId),
+                        .AsQueryable()).FirstOrDefault(e => e.Id == s.OrganizationProperty.Id),
             }).ToList();
         }
 
@@ -105,6 +102,7 @@ namespace IBLTermocasa.RequestForQuotations
             string? quoteNumber = null,
             string? workSite = null,
             string? city = null,
+            AgentProperty? agentProperty = null,
             OrganizationProperty? organizationProperty = null,
             ContactProperty? contactProperty = null,
             PhoneInfo? phoneInfo = null,
@@ -119,12 +117,12 @@ namespace IBLTermocasa.RequestForQuotations
             CancellationToken cancellationToken = default)
         {
             var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, quoteNumber,
-                workSite, city, organizationProperty, contactProperty, phoneInfo, mailInfo, discountMin, discountMax,
+                workSite, city, agentProperty, organizationProperty, contactProperty, phoneInfo, mailInfo, discountMin, discountMax,
                 description, status);
-            query = query.OrderBy(string.IsNullOrWhiteSpace(sorting)
-                ? RequestForQuotationConsts.GetDefaultSorting(false)
-                : sorting);
-            return await query.As<IMongoQueryable<RequestForQuotation>>()
+            return await query.OrderBy(string.IsNullOrWhiteSpace(sorting)
+                    ? RequestForQuotationConsts.GetDefaultSorting(false)
+                    : sorting.Split('.').Last())
+                .As<IMongoQueryable<RequestForQuotation>>()
                 .PageBy<RequestForQuotation, IMongoQueryable<RequestForQuotation>>(skipCount, maxResultCount)
                 .ToListAsync(GetCancellationToken(cancellationToken));
         }
@@ -134,6 +132,7 @@ namespace IBLTermocasa.RequestForQuotations
             string? quoteNumber = null,
             string? workSite = null,
             string? city = null,
+            AgentProperty? agentProperty = null,
             OrganizationProperty? organizationProperty = null,
             ContactProperty? contactProperty = null,
             PhoneInfo? phoneInfo = null,
@@ -142,14 +141,11 @@ namespace IBLTermocasa.RequestForQuotations
             decimal? discountMax = null,
             string? description = null,
             Status? status = null,
-            Guid? agentId = null,
-            Guid? contactId = null,
-            Guid? organizationId = null,
             CancellationToken cancellationToken = default)
         {
             var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, quoteNumber,
-                workSite, city, organizationProperty, contactProperty, phoneInfo, mailInfo, discountMin, discountMax,
-                description, status, agentId, contactId, organizationId);
+                workSite, city, agentProperty, organizationProperty, contactProperty, phoneInfo, mailInfo, discountMin, discountMax,
+                description, status);
             return await query.As<IMongoQueryable<RequestForQuotation>>()
                 .LongCountAsync(GetCancellationToken(cancellationToken));
         }
@@ -160,6 +156,7 @@ namespace IBLTermocasa.RequestForQuotations
             string? quoteNumber = null,
             string? workSite = null,
             string? city = null,
+            AgentProperty? agentProperty = null,
             OrganizationProperty? organizationProperty = null,
             ContactProperty? contactProperty = null,
             PhoneInfo? phoneInfo = null,
@@ -167,16 +164,14 @@ namespace IBLTermocasa.RequestForQuotations
             decimal? discountMin = null,
             decimal? discountMax = null,
             string? description = null,
-            Status? status = null,
-            Guid? agentId = null,
-            Guid? contactId = null,
-            Guid? organizationId = null)
+            Status? status = null)
         {
             return query
                 .WhereIf(!string.IsNullOrWhiteSpace(filterText), e =>
                     (e.QuoteNumber != null && e.QuoteNumber.Contains(filterText)) ||
                     (e.WorkSite != null && e.WorkSite.Contains(filterText)) ||
                     (e.City != null && e.City.Contains(filterText)) ||
+                    (e.AgentProperty != null && e.AgentProperty.Name.Contains(filterText)) ||
                     (e.OrganizationProperty != null && e.OrganizationProperty.Name.Contains(filterText)) ||
                     (e.ContactProperty != null && e.ContactProperty.Name.Contains(filterText)) ||
                     (e.PhoneInfo != null && e.PhoneInfo.PhoneItems.Any(item => item.Number.Contains(filterText))) ||
@@ -186,19 +181,24 @@ namespace IBLTermocasa.RequestForQuotations
                     e => e.QuoteNumber != null && e.QuoteNumber.Contains(quoteNumber))
                 .WhereIf(!string.IsNullOrWhiteSpace(workSite), e => e.WorkSite != null && e.WorkSite.Contains(workSite))
                 .WhereIf(!string.IsNullOrWhiteSpace(city), e => e.City != null && e.City.Contains(city))
-                .WhereIf(organizationProperty != null, e => e.OrganizationProperty != null && e.OrganizationProperty.Name.Contains(organizationProperty.Name))
-                .WhereIf(contactProperty != null, e => e.ContactProperty != null && e.ContactProperty.Name.Contains(contactProperty.Name))
-                .WhereIf(phoneInfo != null, e => e.PhoneInfo != null && e.PhoneInfo.PhoneItems.Any(item => item.Number.Contains(phoneInfo.PhoneItems.First().Number)))
-                .WhereIf(mailInfo != null, e => e.MailInfo != null && e.MailInfo.MailItems.Any(item => item.Email.Contains(mailInfo.MailItems.First().Email)))
+                .WhereIf(agentProperty != null,
+                    e => e.AgentProperty != null && e.AgentProperty.Name.Contains(agentProperty.Name))
+                .WhereIf(organizationProperty != null,
+                    e => e.OrganizationProperty != null &&
+                         e.OrganizationProperty.Name.Contains(organizationProperty.Name))
+                .WhereIf(contactProperty != null,
+                    e => e.ContactProperty != null && e.ContactProperty.Name.Contains(contactProperty.Name))
+                .WhereIf(phoneInfo != null,
+                    e => e.PhoneInfo != null && e.PhoneInfo.PhoneItems.Any(item =>
+                        item.Number.Contains(phoneInfo.PhoneItems.First().Number)))
+                .WhereIf(mailInfo != null,
+                    e => e.MailInfo != null &&
+                         e.MailInfo.MailItems.Any(item => item.Email.Contains(mailInfo.MailItems.First().Email)))
                 .WhereIf(discountMin.HasValue, e => e.Discount >= discountMin.Value)
                 .WhereIf(discountMax.HasValue, e => e.Discount <= discountMax.Value)
                 .WhereIf(!string.IsNullOrWhiteSpace(description),
                     e => e.Description != null && e.Description.Contains(description))
-                .WhereIf(status.HasValue, e => e.Status == status)
-                .WhereIf(agentId.HasValue && agentId != Guid.Empty, e => e.AgentId == agentId.Value)
-                .WhereIf(contactId.HasValue && contactId != Guid.Empty, e => e.ContactId == contactId.Value)
-                .WhereIf(organizationId.HasValue && organizationId != Guid.Empty,
-                    e => e.OrganizationId == organizationId.Value);
+                .WhereIf(status.HasValue, e => e.Status == status);
         }
     }
 }
