@@ -6,14 +6,10 @@ namespace IBLTermocasa.Products
 {
     public class ProductQuestionTemplate : Entity
     {
-
         public Guid ProductId { get;  set; }
-
         public Guid QuestionTemplateId { get; set; }
-
         [NotNull]
         public virtual int Order { get; set; }
-        
         [NotNull]
         public virtual string Name { get; set; }
         public virtual bool Mandatory { get; set; }

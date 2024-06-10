@@ -1,5 +1,4 @@
-@*@page "/rfq-create"
-@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+﻿@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
 @using Blazorise.Extensions
 @using IBLTermocasa.Blazor.Components
 @using IBLTermocasa.Catalogs
@@ -30,10 +29,10 @@
 </style>
 
 <h3>@L["CreateRequestForQuotation"]</h3>
-<EditForm Model="@NewRequestForQuotationDto" OnValidSubmit="HandleValidSubmit">
+<MudForm Model="@RequestForQuotation" Validation="HandleValidSubmit">
     <Validations @ref="@RequestForQuotationValidations"
                  Mode="ValidationMode.Auto"
-                 Model="@NewRequestForQuotationDto"
+                 Model="@RequestForQuotation"
                  ValidateOnLoad="false">
         <Steps @bind-SelectedStep="selectedStep" @ref="stepsRef">
             <Items>
@@ -59,6 +58,7 @@
                                                      Label="@L["Organization"]"
                                                      ValueChanged="@(org => UpdateValueOrganization(org))"
                                                      ToStringFunc="@(org => org?.DisplayName)"
+                                                     Value="selectedOrganizationLookupDto"
                                                      ResetValueOnEmptyText="true"
                                                      MaxItems="null"
                                                      SearchFunc="@SearchOrganization"/>
@@ -69,6 +69,7 @@
                                                      Label="@L["Contact"]"
                                                      ValueChanged="@(contact => UpdateValueContact(contact))"
                                                      ToStringFunc="@(contact => contact?.DisplayName)"
+                                                     Value="selectedContactLookupDto"
                                                      ResetValueOnEmptyText="true"
                                                      MaxItems="null"
                                                      SearchFunc="@SearchContact"
@@ -85,27 +86,27 @@
                                                      MaxItems="null"/>
                                 </MudItem>
                                 <MudItem xs="6">
-                                    <MudTextField @bind-Value="@NewRequestForQuotationDto.WorkSite" Label="@L["WorkSite"]"/>
+                                    <MudTextField @bind-Value="@RequestForQuotation.WorkSite" Label="@L["WorkSite"]"/>
                                 </MudItem>
                                 <MudItem xs="6">
                                     <MudInputLabel>@L["Email"]</MudInputLabel>
-                                    <MailInfoInput MailInfo="@NewRequestForQuotationDto.MailInfo"/>
+                                    <MailInfoInput MailInfo="@RequestForQuotation.MailInfo"/>
                                 </MudItem>
                                 <MudItem xs="6">
                                     <MudInputLabel>@L["Phone"]</MudInputLabel>
-                                    <PhoneInfoInput PhoneInfo="@NewRequestForQuotationDto.PhoneInfo"/>
+                                    <PhoneInfoInput PhoneInfo="@RequestForQuotation.PhoneInfo"/>
                                 </MudItem>
                                 <MudItem xs="6">
-                                    <MudTextField @bind-Value="@NewRequestForQuotationDto.City" Label="@L["City"]"/>
+                                    <MudTextField @bind-Value="@RequestForQuotation.City" Label="@L["City"]"/>
                                 </MudItem>
                                 <MudItem xs="6">
-                                    <MudDatePicker DateChanged="time => NewRequestForQuotationDto.DateDocument = time" Label="@L["Date"]" DisableToolbar="true"/>
+                                    <MudDatePicker DateChanged="time => RequestForQuotation.DateDocument = time" Label="@L["Date"]" DisableToolbar="true"/>
                                 </MudItem>
                                 <MudItem xs="6">
-                                    <MudNumericField T="decimal?" @bind-Value="@NewRequestForQuotationDto.Discount" Label="@L["Discount(%)"]"/>
+                                    <MudNumericField T="decimal?" @bind-Value="@RequestForQuotation.Discount" Label="@L["Discount(%)"]"/>
                                 </MudItem>
                                 <MudItem xs="6">
-                                    <MudTextField T="string" @bind-Text="@NewRequestForQuotationDto.QuoteNumber" Label="@L["QuoteNumber"]"/>
+                                    <MudTextField T="string" @bind-Text="@RequestForQuotation.QuoteNumber" Label="@L["QuoteNumber"]"/>
                                 </MudItem>
                             </MudGrid>
                         </MudCardContent>
@@ -262,7 +263,7 @@
                     <MudCard Class="scrollable-card">
                         <MudCardContent>
                             <MudItem xs="6">
-                                <MudTextField Immediate="true" MaxLength="300" Counter="300" Lines="15" Variant="Variant.Outlined" ShrinkLabel @bind-Value="NewRequestForQuotationDto.Description" Label="@L["Annotation"]"></MudTextField>
+                                <MudTextField Immediate="true" MaxLength="300" Counter="300" Lines="15" Variant="Variant.Outlined" ShrinkLabel @bind-Value="RequestForQuotation.Description" Label="@L["Annotation"]"></MudTextField>
                             </MudItem>
                         </MudCardContent>
                     </MudCard>
@@ -278,7 +279,7 @@
             </Content>
         </Steps>
     </Validations>
-</EditForm>
+</MudForm>
 <MudGrid>
     @if (selectedStep == "4")
     {
@@ -321,4 +322,4 @@
     private string maskDecimal = @"^(\d+,\d*|\d*)$";
     private IMask maskDate = new DateMask("dd/MM/yyyy");
     private MudList MudListRef { get; set; } = new MudList();
-}*@
+}

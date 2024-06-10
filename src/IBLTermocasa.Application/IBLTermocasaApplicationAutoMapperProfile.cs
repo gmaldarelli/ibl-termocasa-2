@@ -29,7 +29,6 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<Material, MaterialDto>();
         CreateMap<Material, MaterialExcelDto>();
 
-        CreateMap<Component, ComponentDto>();
         CreateMap<Component, ComponentExcelDto>();
         CreateMap<ComponentCreateDto, Component>();
         CreateMap<ComponentUpdateDto, Component>();
@@ -165,7 +164,6 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<ContactUpdateDto, Contact>();
         CreateMap<Contact, ContactCreateDto>();
         CreateMap<Contact, ContactUpdateDto>();
-        CreateMap<Contact, ContactDto>();
 
         CreateMap<Organization, OrganizationDto>();
         CreateMap<Organization, OrganizationExcelDto>();
@@ -173,10 +171,10 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<Industry, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Description));
         CreateMap<OrganizationPropertyDto, OrganizationProperty>();
         CreateMap<OrganizationProperty, OrganizationPropertyDto>();
+        CreateMap<AgentPropertyDto, AgentProperty>();
+        CreateMap<AgentProperty, AgentPropertyDto>();
         CreateMap<OrganizationUpdateDto, Organization>();
         CreateMap<OrganizationCreateDto, Organization>();
-        CreateMap<Organization, OrganizationDto>();
-        CreateMap<Organization, OrganizationExcelDto>();
         CreateMap<AddressDto, Address>();
         CreateMap<Address, AddressDto>();
         CreateMap<PhoneInfoDto, PhoneInfo>();
@@ -195,11 +193,7 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<Interaction, InteractionDto>();
         CreateMap<Interaction, InteractionExcelDto>();
         CreateMap<InteractionWithNavigationProperties, InteractionWithNavigationPropertiesDto>();
-        CreateMap<IdentityUser, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.NormalizedUserName));
         CreateMap<OrganizationUnit, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.DisplayName));
-        CreateMap<IdentityUser, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.NormalizedUserName));
-
-        CreateMap<IdentityUser, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.UserName));
         CreateMap<IdentityUser, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.UserName));
 
         CreateMap<QuestionTemplate, QuestionTemplateDto>();
@@ -209,7 +203,8 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<RequestForQuotationDto, RequestForQuotationCreateDto>();
         CreateMap<RequestForQuotationCreateDto, RequestForQuotation>()
             .ForMember(dest => dest.ContactProperty, opt => opt.MapFrom(src => src.ContactProperty))
-            .ForMember(dest => dest.OrganizationProperty, opt => opt.MapFrom(src => src.OrganizationProperty));
+            .ForMember(dest => dest.OrganizationProperty, opt => opt.MapFrom(src => src.OrganizationProperty))
+            .ForMember(dest => dest.AgentProperty, opt => opt.MapFrom(src => src.AgentProperty));
         CreateMap<RequestForQuotationItem, RequestForQuotationItemDto>();
         CreateMap<RequestForQuotationItemDto, RequestForQuotationItem>();
         CreateMap<RequestForQuotationUpdateDto, RequestForQuotation>();
@@ -218,10 +213,16 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<RequestForQuotation, RequestForQuotationDto>();
         CreateMap<RequestForQuotation, RequestForQuotationExcelDto>();
         CreateMap<RequestForQuotationWithNavigationProperties, RequestForQuotationWithNavigationPropertiesDto>();
-        CreateMap<Contact, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
+        CreateMap<ProductItemDto, ProductItem>();
+        CreateMap<ProductItem, ProductItemDto>();
+        CreateMap<AnswerDto, Answer>();
+        CreateMap<Answer, AnswerDto>();
+        CreateMap<Contact, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name + " " + src.Surname));
         CreateMap<Organization, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
-
-        CreateMap<Product, ProductDto>();
+        
+        CreateMap<Catalog, CatalogDto>();
+        CreateMap<Catalog, CatalogExcelDto>();
+        CreateMap<CatalogWithNavigationProperties, CatalogWithNavigationPropertiesDto>();
             /*
             .Ignore(x => x.ProductComponents).Ignore(x => x.ProductQuestionTemplates)
             .Ignore(x => x.ProductComponents)
@@ -241,9 +242,5 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<QuestionTemplate, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.QuestionText));
 
         CreateMap<Component, ComponentDto>().Ignore(x => x.ComponentItems);
-
-        CreateMap<Catalog, CatalogDto>();
-        CreateMap<Catalog, CatalogExcelDto>();
-        CreateMap<CatalogWithNavigationProperties, CatalogWithNavigationPropertiesDto>();
     }
 }

@@ -107,4 +107,10 @@ public partial class RequestForQuotationItemInput
         var question = QuestionTemplateNames.FirstOrDefault(item => item.Item1 == questionId);
         return question.Item2;
     }
+    
+    private string GetProductName(Guid productId)
+    {
+        var product = SelectedRequestForQuotationItem.ProductItems.FirstOrDefault(item => item.ProductId == productId);
+        return product?.ProductName ?? string.Empty;
+    }
 }

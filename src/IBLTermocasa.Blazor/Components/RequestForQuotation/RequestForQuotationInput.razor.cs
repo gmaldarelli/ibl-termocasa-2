@@ -114,9 +114,9 @@ public partial class RequestForQuotationInput
     
     private async Task InitializeSelectedValues()
     {
-        SelectedOrganization = Organizations.Items.FirstOrDefault(x => x.Id == InternalRequestForQuotation.OrganizationId);
-        SelectedContact = Contacts.Items.FirstOrDefault(x => x.Id == InternalRequestForQuotation.ContactId);
-        SelectedAgent = userLookUpDtos.FirstOrDefault(x => x.Id == InternalRequestForQuotation.AgentId);
+        SelectedOrganization = Organizations.Items.FirstOrDefault(x => x.Id == InternalRequestForQuotation.OrganizationProperty.Id);
+        SelectedContact = Contacts.Items.FirstOrDefault(x => x.Id == InternalRequestForQuotation.ContactProperty.Id);
+        SelectedAgent = userLookUpDtos.FirstOrDefault(x => x.Id == InternalRequestForQuotation.AgentProperty.Id);
     }
 
     private async Task HandleValidSubmit()
@@ -181,19 +181,19 @@ public partial class RequestForQuotationInput
     {
         if (SelectedOrganization == null)
         {
-            InternalRequestForQuotation.OrganizationId = Guid.Empty;
-            InternalRequestForQuotation.OrganizationPropertyDto = null;
+            InternalRequestForQuotation.OrganizationProperty = new OrganizationPropertyDto();
+            InternalRequestForQuotation.OrganizationProperty = null;
             InternalRequestForQuotation.MailInfo = new MailInfoDto();
             InternalRequestForQuotation.PhoneInfo = new PhoneInfoDto();
         }
         else
         {
-            InternalRequestForQuotation.OrganizationId = SelectedOrganization.Id;
+            InternalRequestForQuotation.OrganizationProperty = new OrganizationPropertyDto(SelectedOrganization.Id, SelectedOrganization.Name);
             var organization = Organizations.Items.FirstOrDefault(x => x.Id == SelectedOrganization.Id);
             SelectedOrganization = organization;
             InternalRequestForQuotation.MailInfo = organization.MailInfo != null ? organization.MailInfo : new MailInfoDto();
             InternalRequestForQuotation.PhoneInfo = organization.PhoneInfo != null ? organization.PhoneInfo : new PhoneInfoDto();
-            InternalRequestForQuotation.OrganizationPropertyDto =
+            InternalRequestForQuotation.OrganizationProperty =
                 new OrganizationPropertyDto(organization.Id, organization.Name);
         }
 
@@ -204,15 +204,15 @@ public partial class RequestForQuotationInput
     {
         if (SelectedContact == null)
         {
-            InternalRequestForQuotation.ContactId = Guid.Empty;
-            InternalRequestForQuotation.ContactPropertyDto = null;
+            InternalRequestForQuotation.ContactProperty = new ContactPropertyDto();
+            InternalRequestForQuotation.ContactProperty = null;
         }
         else
         {
-            InternalRequestForQuotation.ContactId = SelectedContact.Id;
+            InternalRequestForQuotation.ContactProperty = new ContactPropertyDto(SelectedContact.Id, SelectedContact.ToStringNameSurname());
             var contact = Contacts.Items.FirstOrDefault(x => x.Id == SelectedContact.Id);
             SelectedContact = contact;
-            InternalRequestForQuotation.ContactPropertyDto =
+            InternalRequestForQuotation.ContactProperty =
                 new ContactPropertyDto(contact.Id, contact.Name + " " + contact.Surname);
         }
 
@@ -223,11 +223,11 @@ public partial class RequestForQuotationInput
     {
         if (SelectedAgent == null)
         {
-            InternalRequestForQuotation.AgentId = Guid.Empty;
+            InternalRequestForQuotation.AgentProperty = new AgentPropertyDto();
         }
         else
         {
-            InternalRequestForQuotation.AgentId = SelectedAgent.Id;
+            InternalRequestForQuotation.AgentProperty = new AgentPropertyDto(SelectedAgent.Id, SelectedAgent.DisplayName);
             SelectedAgent = userLookUpDtos.FirstOrDefault(user => user.Id == SelectedAgent.Id);
         }
 

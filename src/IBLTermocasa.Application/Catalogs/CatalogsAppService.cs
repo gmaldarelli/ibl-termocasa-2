@@ -28,13 +28,14 @@ namespace IBLTermocasa.Catalogs
         protected IDistributedCache<CatalogExcelDownloadTokenCacheItem, string> _excelDownloadTokenCache;
         protected ICatalogRepository _catalogRepository;
         protected CatalogManager _catalogManager;
-        protected IRepository<Product, Guid> _productRepository;
+        protected IProductRepository _productRepository;
 
-        public CatalogsAppService(ICatalogRepository catalogRepository, CatalogManager catalogManager, IDistributedCache<CatalogExcelDownloadTokenCacheItem, string> excelDownloadTokenCache, IRepository<Product, Guid> productRepository)
+        public CatalogsAppService(ICatalogRepository catalogRepository, CatalogManager catalogManager, IDistributedCache<CatalogExcelDownloadTokenCacheItem, string> excelDownloadTokenCache, IProductRepository productRepository)
         {
             _excelDownloadTokenCache = excelDownloadTokenCache;
             _catalogRepository = catalogRepository;
-            _catalogManager = catalogManager; _productRepository = productRepository;
+            _catalogManager = catalogManager; 
+            _productRepository = productRepository;
         }
 
         public virtual async Task<PagedResultDto<CatalogWithNavigationPropertiesDto>> GetListAsync(GetCatalogsInput input)

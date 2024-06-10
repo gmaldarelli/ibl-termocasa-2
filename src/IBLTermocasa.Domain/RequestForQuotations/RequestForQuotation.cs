@@ -14,28 +14,26 @@ namespace IBLTermocasa.RequestForQuotations
     {
         public virtual Guid? TenantId { get; set; }
 
-        [NotNull] public virtual string QuoteNumber { get; set; }
+        public virtual string QuoteNumber { get; set; }
 
-        [CanBeNull] public virtual string? WorkSite { get; set; }
+        public virtual string? WorkSite { get; set; }
 
-        [CanBeNull] public virtual string? City { get; set; }
+        public virtual string? City { get; set; }
+        public virtual AgentProperty? AgentProperty { get; set; }
 
-        [CanBeNull] public virtual OrganizationProperty? OrganizationProperty { get; set; }
+        public virtual OrganizationProperty? OrganizationProperty { get; set; }
 
-        [CanBeNull] public virtual ContactProperty? ContactProperty { get; set; }
+        public virtual ContactProperty? ContactProperty { get; set; }
 
-        [CanBeNull] public virtual PhoneInfo? PhoneInfo { get; set; }
+        public virtual PhoneInfo? PhoneInfo { get; set; }
 
-        [CanBeNull] public virtual MailInfo? MailInfo { get; set; }
+        public virtual MailInfo? MailInfo { get; set; }
 
         public virtual decimal Discount { get; set; }
 
-        [CanBeNull] public virtual string? Description { get; set; }
+        public virtual string? Description { get; set; }
 
         public virtual Status Status { get; set; }
-        public Guid? AgentId { get; set; }
-        public Guid? ContactId { get; set; }
-        public Guid? OrganizationId { get; set; }
         public DateTime? DateDocument { get; set; }
         public List<RequestForQuotationItem>? RequestForQuotationItems { get; set; }
 
@@ -43,27 +41,23 @@ namespace IBLTermocasa.RequestForQuotations
         {
         }
 
-        public RequestForQuotation(Guid id, Guid? agentId, Guid? contactId, Guid? organizationId, string quoteNumber,
-            decimal discount, Status status, string? workSite = null, string? city = null,
-            OrganizationProperty? organizationProperty = null, ContactProperty? contactProperty = null,
-            PhoneInfo? phoneInfo = null, MailInfo? mailInfo = null, string? description = null,
-            DateTime? dateDocument = null, List<RequestForQuotationItem> requestForQuotationItems = null)
+        public RequestForQuotation(Guid id, string quoteNumber, string? workSite, string? city, AgentProperty? agentProperty,
+            OrganizationProperty? organizationProperty, ContactProperty? contactProperty, PhoneInfo? phoneInfo,
+            MailInfo? mailInfo, decimal discount, string? description, Status status, DateTime? dateDocument,
+            List<RequestForQuotationItem>? requestForQuotationItems)
         {
             Id = id;
-            Check.NotNull(quoteNumber, nameof(quoteNumber));
-            QuoteNumber = quoteNumber;
-            Discount = discount;
-            Status = status;
+            QuoteNumber = Check.NotNullOrWhiteSpace(quoteNumber, nameof(quoteNumber));
             WorkSite = workSite;
             City = city;
+            AgentProperty = agentProperty;
             OrganizationProperty = organizationProperty;
             ContactProperty = contactProperty;
             PhoneInfo = phoneInfo;
             MailInfo = mailInfo;
+            Discount = discount;
             Description = description;
-            AgentId = agentId;
-            ContactId = contactId;
-            OrganizationId = organizationId;
+            Status = status;
             DateDocument = dateDocument;
             RequestForQuotationItems = requestForQuotationItems;
         }

@@ -1,4 +1,4 @@
-/*using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -6,8 +6,6 @@ using System.Security.Principal;
 using System.Threading.Tasks;
 using AutoMapper;
 using Blazorise;
-using Blazorise.Components;
-using Blazorise.Extensions;
 using IBLTermocasa.Catalogs;
 using IBLTermocasa.Common;
 using IBLTermocasa.Contacts;
@@ -17,7 +15,6 @@ using IBLTermocasa.Products;
 using IBLTermocasa.QuestionTemplates;
 using IBLTermocasa.RequestForQuotations;
 using IBLTermocasa.Shared;
-using IBLTermocasa.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -27,9 +24,9 @@ using Volo.Abp.Identity;
 using Volo.Abp.Security.Claims;
 using BreadcrumbItem = Volo.Abp.BlazoriseUI.BreadcrumbItem;
 
-namespace IBLTermocasa.Blazor.Pages.Crm;
+namespace IBLTermocasa.Blazor.Components.RequestForQuotation;
 
-public partial class RequestForQuotationCreate
+public partial class RFQNewOrDraft
 {
     [Inject] private IMapper _mapper { get; set; }
     [Inject] public IIdentityUserAppService UserAppService { get; set; }
@@ -41,23 +38,29 @@ public partial class RequestForQuotationCreate
     [Inject] public ICurrentPrincipalAccessor CurrentPrincipalAccessor { get; set; }
     [Inject] public NavigationManager NavigationManager { get; set; }
     [Inject] public ICatalogsAppService CatalogsAppService { get; set; }
+    [Parameter] public RequestForQuotationDto RequestForQuotation { get; set; }
+    
+    
+    [Parameter] public EventCallback<RequestForQuotationDto> OnRequestForQuotationSaved { get; set; }
+    
+    [Parameter] public EventCallback<RequestForQuotationDto> OnRequestForQuotationCancel { get; set; }
+    
     protected List<BreadcrumbItem> BreadcrumbItems = new();
 
     private Validations RequestForQuotationValidations { get; set; } = new();
     private bool CanCreateRequestForQuotation { get; set; }
-    public RequestForQuotationDto NewRequestForQuotationDto = new();
+    private bool CanEditRequestForQuotation { get; set; }
     public RequestForQuotationCreateDto NewRequestForQuotation { get; set; }
     public CatalogWithNavigationPropertiesDto SelectedCatalog { get; set; } = new();
     private PagedResultDto<CatalogWithNavigationPropertiesDto> Catalogs { get; set; } = new();
     private List<RFQProductAndQuestionDto> RFQProductAndQuestions { get; set; } = new();
-
-    private LookupDto<Guid> selectedAgentLookupDto = new();
+    
     private bool disableContact = true;
     private int indexCatalog;
 
     private List<LookupDto<Guid>> userLookUpDtos = new();
-    public MudAutocomplete<CatalogDto> CatalogAutocompleteRef { get; set; }
-    private MudAutocomplete<LookupDto<Guid>> ContactsAutoCompleteRef { get; set; }
+    private MudAutocomplete<CatalogDto> CatalogAutocompleteRef { get; set; }
+    private MudAutocomplete<LookupDto<Guid>> ContactsAutoCompleteRef { set; get; }
     private ProductDto SelectedProduct { get; set; } = new();
     private List<ProductDto> SelectedCatalogProducts { get; set; }
 
@@ -74,23 +77,39 @@ public partial class RequestForQuotationCreate
     private List<LookupDto<Guid>> OrganizationsCollection { get; set; } = new();
     private List<LookupDto<Guid>> ContactsCollection { get; set; } = new();
     private List<LookupDto<Guid>> AgentsCollection { get; set; } = new();
-    private LookupDto<Guid> selectedOrganization;
+    private LookupDto<Guid> selectedOrganizationLookupDto = new();
+    private LookupDto<Guid> selectedContactLookupDto = new();
+    private LookupDto<Guid> selectedAgentLookupDto = new();
 
     protected override async Task OnInitializedAsync()
     {
         await SetPermissionsAsync();
+        if (RequestForQuotation.Id == Guid.Empty)
+        { 
+            RequestForQuotation = new RequestForQuotationDto();
+            AgentsCollection = (await RequestForQuotationsAppService.GetIdentityUserLookupAsync(new LookupRequestDto()))
+                .Items.ToList();
+            var mySelfId = CurrentPrincipalAccessor.Principal.FindUserId();
+            selectedAgentLookupDto = AgentsCollection.FirstOrDefault(x => x.Id == mySelfId);
+            RequestForQuotation.AgentProperty =
+                new AgentPropertyDto(selectedAgentLookupDto.Id, selectedAgentLookupDto.DisplayName);
+        }
+        else if (RequestForQuotation.Id != Guid.Empty)
+        {
+            selectedAgentLookupDto = new LookupDto<Guid>(RequestForQuotation.AgentProperty.Id,
+                RequestForQuotation.AgentProperty.Name);
+            selectedOrganizationLookupDto = new LookupDto<Guid>(RequestForQuotation.OrganizationProperty.Id,
+                RequestForQuotation.OrganizationProperty.Name);
+            selectedContactLookupDto = new LookupDto<Guid>(RequestForQuotation.ContactProperty.Id,
+                RequestForQuotation.ContactProperty.Name);
+            ListRequestForQuotationItems = RequestForQuotation.RequestForQuotationItems;
+        }
         OrganizationsCollection =
             (await RequestForQuotationsAppService.GetOrganizationLookupCustomerAsync(new LookupRequestDto())).Items
             .ToList();
         ContactsCollection = (await RequestForQuotationsAppService.GetContactLookupAsync(new LookupRequestDto())).Items
             .ToList();
-        AgentsCollection = (await RequestForQuotationsAppService.GetIdentityUserLookupAsync(new LookupRequestDto()))
-            .Items.ToList();
         Catalogs = await CatalogsAppService.GetListCatalogWithProducts(new GetCatalogsInput());
-        var mySelfId = CurrentPrincipalAccessor.Principal.FindUserId();
-        selectedAgentLookupDto = AgentsCollection.FirstOrDefault(x => x.Id == mySelfId);
-        NewRequestForQuotationDto.AgentProperty =
-            new AgentPropertyDto(selectedAgentLookupDto.Id, selectedAgentLookupDto.DisplayName);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -112,27 +131,29 @@ public partial class RequestForQuotationCreate
     {
         CanCreateRequestForQuotation =
             await AuthorizationService.IsGrantedAsync(IBLTermocasaPermissions.RequestForQuotations.Create);
+        CanEditRequestForQuotation =
+            await AuthorizationService.IsGrantedAsync(IBLTermocasaPermissions.RequestForQuotations.Edit);
     }
 
     private async void UpdateValueOrganization(LookupDto<Guid> arg)
     {
         if (arg == null)
         {
-            NewRequestForQuotationDto.OrganizationProperty = new OrganizationPropertyDto();
+            RequestForQuotation.OrganizationProperty = new OrganizationPropertyDto();
             disableContact = true;
-            NewRequestForQuotationDto.MailInfo = new MailInfoDto();
-            NewRequestForQuotationDto.PhoneInfo = new PhoneInfoDto();
+            RequestForQuotation.MailInfo = new MailInfoDto();
+            RequestForQuotation.PhoneInfo = new PhoneInfoDto();
             ContactsAutoCompleteRef.Clear();
         }
         else
         {
             disableContact = false;
             var organization = await OrganizationsAppService.GetAsync(arg.Id);
-            NewRequestForQuotationDto.MailInfo =
+            RequestForQuotation.MailInfo =
                 organization.MailInfo != null ? organization.MailInfo : new MailInfoDto();
-            NewRequestForQuotationDto.PhoneInfo =
+            RequestForQuotation.PhoneInfo =
                 organization.PhoneInfo != null ? organization.PhoneInfo : new PhoneInfoDto();
-            NewRequestForQuotationDto.OrganizationProperty =
+            RequestForQuotation.OrganizationProperty =
                 new OrganizationPropertyDto(organization.Id, organization.Name);
             //Bisogna mettere in attesa il thread per 100 millisecondi per evitare che il focus venga perso, perchè sulla stessa riga
             await Task.Delay(100);
@@ -146,12 +167,12 @@ public partial class RequestForQuotationCreate
     {
         if (arg == null)
         {
-            NewRequestForQuotationDto.ContactProperty = new ContactPropertyDto();
+            RequestForQuotation.ContactProperty = new ContactPropertyDto();
         }
         else
         {
             var contact = await ContactsAppService.GetAsync(arg.Id);
-            NewRequestForQuotationDto.ContactProperty =
+            RequestForQuotation.ContactProperty =
                 new ContactPropertyDto(contact.Id, contact.ToStringNameSurname());
         }
 
@@ -162,11 +183,11 @@ public partial class RequestForQuotationCreate
     {
         if (arg == null)
         {
-            NewRequestForQuotationDto.AgentProperty = new AgentPropertyDto();
+            RequestForQuotation.AgentProperty = new AgentPropertyDto();
         }
         else
         {
-            NewRequestForQuotationDto.AgentProperty = new AgentPropertyDto(arg.Id, arg.DisplayName);
+            RequestForQuotation.AgentProperty = new AgentPropertyDto(arg.Id, arg.DisplayName);
         }
 
         StateHasChanged();
@@ -486,12 +507,12 @@ public partial class RequestForQuotationCreate
         try
         {
             // Creazione di una nuova richiesta di preventivo
-            NewRequestForQuotationDto.RequestForQuotationItems = ListRequestForQuotationItems;
-            NewRequestForQuotationDto.Status = Status.NEW;
-            NewRequestForQuotationDto.ConcurrencyStamp = Guid.NewGuid().ToString();
+            RequestForQuotation.RequestForQuotationItems = ListRequestForQuotationItems;
+            RequestForQuotation.Status = Status.NEW;
+            RequestForQuotation.ConcurrencyStamp = Guid.NewGuid().ToString();
             NewRequestForQuotation =
-                _mapper.Map<RequestForQuotationDto, RequestForQuotationCreateDto>(NewRequestForQuotationDto);
-            Console.WriteLine(NewRequestForQuotationDto);
+                _mapper.Map<RequestForQuotationDto, RequestForQuotationCreateDto>(RequestForQuotation);
+            Console.WriteLine(RequestForQuotation);
             var result = await RequestForQuotationsAppService.CreateAsync(NewRequestForQuotation);
             NavigationManager.NavigateTo("/request-for-quotations");
 
@@ -511,11 +532,11 @@ public partial class RequestForQuotationCreate
     {
         try
         {
-            NewRequestForQuotationDto.ConcurrencyStamp = Guid.NewGuid().ToString();
-            NewRequestForQuotationDto.Status = Status.DRAFT;
+            RequestForQuotation.ConcurrencyStamp = Guid.NewGuid().ToString();
+            RequestForQuotation.Status = Status.DRAFT;
             NewRequestForQuotation =
-                _mapper.Map<RequestForQuotationDto, RequestForQuotationCreateDto>(NewRequestForQuotationDto);
-            Console.WriteLine(NewRequestForQuotationDto);
+                _mapper.Map<RequestForQuotationDto, RequestForQuotationCreateDto>(RequestForQuotation);
+            Console.WriteLine(RequestForQuotation);
             var result = await RequestForQuotationsAppService.CreateAsync(NewRequestForQuotation);
             StateHasChanged();
             NavigationManager.NavigateTo("/request-for-quotations");
@@ -600,4 +621,4 @@ public partial class RequestForQuotationCreate
         QuestionTemplateValues.Clear();
         RFQProductAndQuestions.Clear();
     }
-}*/
+}

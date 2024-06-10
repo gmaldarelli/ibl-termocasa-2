@@ -32,6 +32,13 @@ namespace IBLTermocasa.Controllers.RequestForQuotations
         {
             return _requestForQuotationsAppService.GetListAsync(input);
         }
+        
+        [HttpGet]
+        [Route("rfq-list")]
+        public virtual Task<PagedResultDto<RequestForQuotationDto>> GetListRFQAsync(GetRequestForQuotationsInput input)
+        {
+            return _requestForQuotationsAppService.GetListRFQAsync(input);
+        }
 
         [HttpGet]
         [Route("with-navigation-properties/{id}")]
@@ -66,6 +73,13 @@ namespace IBLTermocasa.Controllers.RequestForQuotations
         public virtual Task<PagedResultDto<LookupDto<Guid>>> GetOrganizationLookupAsync(LookupRequestDto input)
         {
             return _requestForQuotationsAppService.GetOrganizationLookupAsync(input);
+        }
+        
+        [HttpGet]
+        [Route("organization-customer-lookup")]
+        public virtual Task<PagedResultDto<LookupDto<Guid>>> GetOrganizationLookupCustomerAsync(LookupRequestDto input)
+        {
+            return _requestForQuotationsAppService.GetOrganizationLookupCustomerAsync(input);
         }
 
         [HttpPost]

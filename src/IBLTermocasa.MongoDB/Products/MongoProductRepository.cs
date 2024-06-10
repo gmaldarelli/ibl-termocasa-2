@@ -90,7 +90,7 @@ namespace IBLTermocasa.Products
                 Product = s,
                 Components = new List<Component>(),
                 QuestionTemplates = new List<QuestionTemplate>(),
-
+                //Subproducts = new List<Subproduct>(),
             }).ToList();
         }
 

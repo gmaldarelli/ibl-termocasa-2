@@ -1,19 +1,21 @@
 using System;
 using System.Collections.Generic;
+using Volo.Abp.Domain.Entities;
 
 namespace IBLTermocasa.RequestForQuotations;
 
-public class RequestForQuotationItem
+public class RequestForQuotationItem : Entity<Guid>
 {
-    public Guid ProductId { get; set; }
-    public List<Answer> Answers { get; set; } = new();
+    public int Order { get; set; } = 1;
     public int Quantity { get; set; } = 1;
+    public List<ProductItem> ProductItems { get; set; } = new();
 
-    public RequestForQuotationItem(Guid productId, List<Answer> answers, int quantity)
+    public RequestForQuotationItem(Guid id, int order, int quantity, List<ProductItem> productItems)
     {
-        ProductId = productId;
-        Answers = answers;
+        Id = id;
+        Order = order;
         Quantity = quantity;
+        ProductItems = productItems;
     }
 
     public RequestForQuotationItem()

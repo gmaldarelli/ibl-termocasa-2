@@ -14,8 +14,5 @@ namespace IBLTermocasa.RequestForQuotations
         public IdentityUser IdentityUser { get; set; } = null!;
         public Contact Contact { get; set; } = null!;
         public Organization Organization { get; set; } = null!;
-        
-
-        
     }
 }

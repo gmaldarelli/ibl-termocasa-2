@@ -8,9 +8,6 @@ namespace IBLTermocasa.Catalogs
     public  class CatalogWithNavigationProperties
     {
         public Catalog Catalog { get; set; } = null!;
-
-        
-
         public List<Product> Products { get; set; } = null!;
         
     }

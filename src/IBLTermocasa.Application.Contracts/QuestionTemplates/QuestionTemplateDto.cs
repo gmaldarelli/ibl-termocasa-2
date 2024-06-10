@@ -17,5 +17,9 @@ namespace IBLTermocasa.QuestionTemplates
         public string ConcurrencyStamp { get; set; } = null!;
 
         public List<string> ChoiceValues => string.IsNullOrEmpty(ChoiceValue) ? new List<string>() : new List<string>(ChoiceValue.Split(','));
+        
+        public QuestionTemplateDto()
+        {
+        }
     }
 }

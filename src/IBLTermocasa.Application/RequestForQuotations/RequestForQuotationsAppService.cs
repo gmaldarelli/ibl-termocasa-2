@@ -7,6 +7,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq.Dynamic.Core;
+using IBLTermocasa.Common;
 using Microsoft.AspNetCore.Authorization;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
@@ -22,6 +23,7 @@ using Volo.Abp.Authorization;
 using Volo.Abp.Caching;
 using Microsoft.Extensions.Caching.Distributed;
 using IBLTermocasa.Shared;
+using IBLTermocasa.Types;
 using Volo.Abp.Domain.Entities;
 
 namespace IBLTermocasa.RequestForQuotations
@@ -53,8 +55,8 @@ namespace IBLTermocasa.RequestForQuotations
 
         public virtual async Task<PagedResultDto<RequestForQuotationWithNavigationPropertiesDto>> GetListAsync(GetRequestForQuotationsInput input)
         {
-            var totalCount = await _requestForQuotationRepository.GetCountAsync(input.FilterText, input.QuoteNumber, input.WorkSite, input.City, input.OrganizationProperty, input.ContactProperty, input.PhoneInfo, input.MailInfo, input.DiscountMin, input.DiscountMax, input.Description, input.Status, input.AgentId, input.ContactId, input.OrganizationId);
-            var items = await _requestForQuotationRepository.GetListWithNavigationPropertiesAsync(input.FilterText, input.QuoteNumber, input.WorkSite, input.City, input.OrganizationProperty, input.ContactProperty, input.PhoneInfo, input.MailInfo, input.DiscountMin, input.DiscountMax, input.Description, input.Status, input.AgentId, input.ContactId, input.OrganizationId, input.Sorting, input.MaxResultCount, input.SkipCount);
+            var totalCount = await _requestForQuotationRepository.GetCountAsync(input.FilterText, input.QuoteNumber, input.WorkSite, input.City, input.AgentProperty, input.OrganizationProperty, input.ContactProperty, input.PhoneInfo, input.MailInfo, input.DiscountMin, input.DiscountMax, input.Description, input.Status);
+            var items = await _requestForQuotationRepository.GetListWithNavigationPropertiesAsync(input.FilterText, input.QuoteNumber, input.WorkSite, input.City, input.AgentProperty ,input.OrganizationProperty, input.ContactProperty, input.PhoneInfo, input.MailInfo, input.DiscountMin, input.DiscountMax, input.Description, input.Status, input.Sorting, input.MaxResultCount, input.SkipCount);
 
             return new PagedResultDto<RequestForQuotationWithNavigationPropertiesDto>
             {
@@ -62,7 +64,19 @@ namespace IBLTermocasa.RequestForQuotations
                 Items = ObjectMapper.Map<List<RequestForQuotationWithNavigationProperties>, List<RequestForQuotationWithNavigationPropertiesDto>>(items)
             };
         }
+        
+        public virtual async Task<PagedResultDto<RequestForQuotationDto>> GetListRFQAsync(GetRequestForQuotationsInput input)
+        {
+            var totalCount = await _requestForQuotationRepository.GetCountAsync(input.FilterText, input.QuoteNumber, input.WorkSite, input.City, input.AgentProperty, input.OrganizationProperty, input.ContactProperty, input.PhoneInfo, input.MailInfo, input.DiscountMin, input.DiscountMax, input.Description, input.Status);
+            var items = await _requestForQuotationRepository.GetListAsync(input.FilterText, input.QuoteNumber, input.WorkSite, input.City, input.AgentProperty ,input.OrganizationProperty, input.ContactProperty, input.PhoneInfo, input.MailInfo, input.DiscountMin, input.DiscountMax, input.Description, input.Status, input.Sorting, input.MaxResultCount, input.SkipCount);
 
+            return new PagedResultDto<RequestForQuotationDto>
+            {
+                TotalCount = totalCount,
+                Items = ObjectMapper.Map<List<RequestForQuotation>, List<RequestForQuotationDto>>(items)
+            };
+        }
+        
         public virtual async Task<RequestForQuotationWithNavigationPropertiesDto> GetWithNavigationPropertiesAsync(Guid id)
         {
             return ObjectMapper.Map<RequestForQuotationWithNavigationProperties, RequestForQuotationWithNavigationPropertiesDto>
@@ -95,7 +109,7 @@ namespace IBLTermocasa.RequestForQuotations
             var query = (await _contactRepository.GetQueryableAsync())
                 .WhereIf(!string.IsNullOrWhiteSpace(input.Filter),
                     x => x.Name != null &&
-                         x.Name.Contains(input.Filter));
+                         x.Name.Contains(input.Filter) || x.Surname != null && x.Surname.Contains(input.Filter));
 
             var lookupData = await query.PageBy(input.SkipCount, input.MaxResultCount).ToDynamicListAsync<Contact>();
             var totalCount = query.Count();
@@ -112,6 +126,22 @@ namespace IBLTermocasa.RequestForQuotations
                 .WhereIf(!string.IsNullOrWhiteSpace(input.Filter),
                     x => x.Name != null &&
                          x.Name.Contains(input.Filter));
+
+            var lookupData = await query.PageBy(input.SkipCount, input.MaxResultCount).ToDynamicListAsync<Organization>();
+            var totalCount = query.Count();
+            return new PagedResultDto<LookupDto<Guid>>
+            {
+                TotalCount = totalCount,
+                Items = ObjectMapper.Map<List<Organization>, List<LookupDto<Guid>>>(lookupData)
+            };
+        }
+        
+        public virtual async Task<PagedResultDto<LookupDto<Guid>>> GetOrganizationLookupCustomerAsync(LookupRequestDto input)
+        {
+            var query = (await _organizationRepository.GetQueryableAsync())
+                .WhereIf(!string.IsNullOrWhiteSpace(input.Filter),
+                    x => x.Name != null &&
+                         x.Name.Contains(input.Filter) && x.OrganizationType == OrganizationType.CUSTOMER);
 
             var lookupData = await query.PageBy(input.SkipCount, input.MaxResultCount).ToDynamicListAsync<Organization>();
             var totalCount = query.Count();
@@ -151,24 +181,20 @@ namespace IBLTermocasa.RequestForQuotations
                 throw new AbpAuthorizationException("Invalid download token: " + input.DownloadToken);
             }
 
-            var requestForQuotations = await _requestForQuotationRepository.GetListWithNavigationPropertiesAsync(input.FilterText, input.QuoteNumber, input.WorkSite, input.City, input.OrganizationProperty, input.ContactProperty, input.PhoneInfo, input.MailInfo, input.DiscountMin, input.DiscountMax, input.Description, input.Status, input.AgentId, input.ContactId, input.OrganizationId);
+            var requestForQuotations = await _requestForQuotationRepository.GetListWithNavigationPropertiesAsync(input.FilterText, input.QuoteNumber, input.WorkSite, input.City, input.AgentProperty, input.OrganizationProperty, input.ContactProperty, input.PhoneInfo, input.MailInfo, input.DiscountMin, input.DiscountMax, input.Description, input.Status);
             var items = requestForQuotations.Select(item => new
             {
                 QuoteNumber = item.RequestForQuotation.QuoteNumber,
                 WorkSite = item.RequestForQuotation.WorkSite,
                 City = item.RequestForQuotation.City,
+                AgentProperty = item.RequestForQuotation.AgentProperty,
                 OrganizationProperty = item.RequestForQuotation.OrganizationProperty,
                 ContactProperty = item.RequestForQuotation.ContactProperty,
                 PhoneInfo = item.RequestForQuotation.PhoneInfo,
                 MailInfo = item.RequestForQuotation.MailInfo,
                 Discount = item.RequestForQuotation.Discount,
                 Description = item.RequestForQuotation.Description,
-                Status = item.RequestForQuotation.Status,
-
-                Agent = item.IdentityUser?.UserName,
-                Contact = item.Contact?.Name,
-                Organization = item.Organization?.Name,
-
+                Status = item.RequestForQuotation.Status
             });
 
             var memoryStream = new MemoryStream();
@@ -210,7 +236,8 @@ namespace IBLTermocasa.RequestForQuotations
 
             // Prendo tutti i prodotti associati ai sotto-prodotti
             var products = await _productRepository.GetListAsync(p => listProductIds.Contains(p.Id));
-
+            products.Add(productPrincipal);
+            
             var listProduct = new List<RFQProductAndQuestionDto>();
 
             // Per ogni prodotto, prendo le domande associate
