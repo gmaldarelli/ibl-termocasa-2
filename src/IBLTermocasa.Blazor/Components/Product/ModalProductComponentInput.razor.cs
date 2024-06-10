@@ -31,8 +31,8 @@ public partial class ModalProductComponentInput
     public MudSelect<string> MudSelectComponent { get; set; }
 
     private bool _isModalOpen;
-    private string? _guidStringSelected;
-
+    private string? GuidStringSelected;
+    
     private void OpenModal()
     {
         _isModalOpen = true;
@@ -46,10 +46,14 @@ public partial class ModalProductComponentInput
         }
         else
         {
-            _guidStringSelected = ProductComponent?.ComponentId.ToString();
+            GuidStringSelected = ProductComponent?.ComponentId.ToString();
         }
-        ProductLabelSingle = L["Product"];
-        ProductLabelPlural = L["Products"];
+        if(GuidStringSelected == null || GuidStringSelected == Guid.Empty.ToString())
+        {
+            GuidStringSelected = null;
+        }
+        ProductLabelSingle = L["Component"];
+        ProductLabelPlural = L["Components"];
     }
 
     private string ResoverDisplayName(Guid id)
@@ -69,9 +73,9 @@ public partial class ModalProductComponentInput
     private async void OnModalSave(MouseEventArgs obj)
     {
 
-        if(_guidStringSelected !=null )
+        if(GuidStringSelected !=null )
         {
-            ProductComponent.ComponentId = Guid.Parse(_guidStringSelected);
+            ProductComponent.ComponentId = Guid.Parse(GuidStringSelected);
             Console.WriteLine("ProductComponent.ComponentId: " + ProductComponent.ComponentId);
         }
         else
@@ -102,7 +106,7 @@ public partial class ModalProductComponentInput
 
     private string GetMultiSelectionText(List<string> selectedValues)
     {
-        if (selectedValues.Count == 0)
+        if (selectedValues.Count == 0 || selectedValues[0] == Guid.Empty.ToString())
         {
             return L["NothingSelected"];
         }
@@ -115,5 +119,24 @@ public partial class ModalProductComponentInput
     private string ComponentName(string guidString)
     {
         return ComponentList.Where(x => x.Id.ToString().Equals(guidString)).Select(x => x.Name).FirstOrDefault();
+    }
+
+
+    public void InitializetModal(ProductComponentDto selectedProductComponent, IReadOnlyList<ComponentDto> componentList)
+    {
+        _isModalOpen = false;
+        ProductComponent = selectedProductComponent;
+        ComponentList = componentList;
+        _ = OnParametersSetAsync();
+        StateHasChanged();
+    }
+
+    private void OnGuidStringSelectedChanged(string obj)
+    {
+        GuidStringSelected = obj;
+        if(GuidStringSelected != null && GuidStringSelected != Guid.Empty.ToString() && ProductComponent.Name.IsNullOrEmpty())
+        {
+            ProductComponent.Name = ComponentName(GuidStringSelected);
+        }
     }
 }

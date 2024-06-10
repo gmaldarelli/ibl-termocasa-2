@@ -5,8 +5,9 @@ using Volo.Abp.Application.Dtos;
 
 namespace IBLTermocasa.Products;
 
-public class ProductComponentDto : EntityDto<Guid>
+public class ProductComponentDto
 {
+    [Required]
     public int Order { get; set; }
     [Required]
     public string Name { get; set; } = null!;

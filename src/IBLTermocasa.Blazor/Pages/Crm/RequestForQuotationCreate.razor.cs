@@ -207,7 +207,7 @@ public partial class RequestForQuotationCreate
             SelectedProduct = arg;
             if (!SelectedProduct.IsAssembled)
             {
-                var questionTemplateIds = SelectedProduct.ProductQuestionTemplates.Select(qt => qt.Id).ToList();
+                var questionTemplateIds = SelectedProduct.ProductQuestionTemplates.Select(qt => qt.QuestionTemplateId).ToList();
                 ListQuestionTemplateSingleProduct = await QuestionTemplatesAppService.GetListByGuidsAsync(questionTemplateIds);
                 RFQProductAndQuestions.Add(new RFQProductAndQuestionDto(SelectedProduct, ListQuestionTemplateSingleProduct));
                 foreach (var questionTemplate in ListQuestionTemplateSingleProduct)

@@ -10,11 +10,11 @@
         <ModalBody>
             <MudSelect @ref="MudSelectComponent"
                        MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
-                       @bind-Value="_guidStringSelected"
                        MultiSelection="IsMultiSelection"
-                       T="string" Label="@L["Component"]"
+                       T="string" Label="@ProductLabelSingle"
                        AdornmentIcon="@Icons.Material.Filled.Search"
                        AnchorOrigin="Origin.BottomCenter"
+                       ValueChanged="OnGuidStringSelectedChanged"
             >
                 @foreach (var GuidString in ComponentList.Select(x => x.Id.ToString()).ToList())
                 {

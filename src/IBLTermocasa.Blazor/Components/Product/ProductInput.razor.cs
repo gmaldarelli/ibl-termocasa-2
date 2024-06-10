@@ -57,6 +57,8 @@ public partial class ProductInput
     public ProductComponentDto SelectedProductComponent { get; set; } = new ProductComponentDto();
     public ProductQuestionTemplateDto  SelectedProductQuestionTemplate { get; set; } = new ProductQuestionTemplateDto();
     public MudDataGrid<ProductComponentDto> ProductComponentMudDataGrid { get; set; }
+    public MudDataGrid<ProductQuestionTemplateDto> ProductQuestionTemplateMudDataGrid { get; set; }
+    public MudDataGrid<SubProductDto> SubProductMudDataGrid { get; set; }
 
 
     protected override Task OnInitializedAsync()
@@ -92,30 +94,7 @@ public partial class ProductInput
         return base.OnAfterRenderAsync(firstRender);
     }
 
-    private void OnSelectedValue(MudBlazor.Position value)
-    {
-        switch (value)
-        {
-            case MudBlazor.Position.Top:
-                Position = MudBlazor.Position.Top;
-                break;
-            case MudBlazor.Position.Start:
-                Position = MudBlazor.Position.Start;
-                break;
-            case MudBlazor.Position.Left:
-                Position = MudBlazor.Position.Left;
-                break;
-            case MudBlazor.Position.Right:
-                Position = MudBlazor.Position.Right;
-                break;
-            case MudBlazor.Position.End:
-                Position = MudBlazor.Position.End;
-                break;
-            case MudBlazor.Position.Bottom:
-                Position = MudBlazor.Position.Bottom;
-                break;
-        }
-    }
+   
     
     private void CloseModalProductComponentAsync()
     {
@@ -131,21 +110,23 @@ public partial class ProductInput
     private void CloseModalSubProductInputAsync()
     {
         AddSubProductModal.Hide();
-        StateHasChanged();
+        InvokeAsync(StateHasChanged);
     }
 
-    private void SaveModalSubProductInputAsync(SubProductDto obj)
+    private async void SaveModalSubProductInputAsync(SubProductDto obj)
     {
         if(Product.SubProducts == null)
         {
             Product.SubProducts = new List<SubProductDto>();
         }
+        Product.SubProducts.RemoveAll(x => x.Id == obj.Id);
         Product.SubProducts.Add(obj);
-        AddSubProductModal.Hide();
-        StateHasChanged();
+        Product.SubProducts = Product.SubProducts.OrderBy(x => x.Order).ToList();
+        await SubProductMudDataGrid.ReloadServerData();
+        await InvokeAsync(StateHasChanged);
     }
 
-    private void SaveModalProductComponentInputAsync(ProductComponentDto obj)
+    private async void SaveModalProductComponentInputAsync(ProductComponentDto obj)
     {
 
         AddComponentModal.Hide();
@@ -153,30 +134,34 @@ public partial class ProductInput
         {
             Product.ProductComponents = new List<ProductComponentDto>();
         }
-        if(obj.Id == Guid.Empty)
-        {
-            obj.Id = Guid.NewGuid();
-        }
+        
+        Product.ProductComponents.RemoveAll(x => x.ComponentId == obj.ComponentId);
         Product.ProductComponents.Add(obj);
-        StateHasChanged();
+        Product.ProductComponents = Product.ProductComponents.OrderBy(x => x.Order).ToList();
+        await ProductComponentMudDataGrid.ReloadServerData();
+        await InvokeAsync(StateHasChanged);
+        
     }
     
-    private void SaveModalProductQuestionTemplateInputAsync(ProductQuestionTemplateDto obj)
+    private  async void SaveModalProductQuestionTemplateInputAsync(ProductQuestionTemplateDto obj)
     {
+        AddQuestionTemplateModal.Hide();
         if(Product.ProductQuestionTemplates == null)
         {
             Product.ProductQuestionTemplates = new List<ProductQuestionTemplateDto>();
         }
+
+        Product.ProductQuestionTemplates.RemoveAll(x => x.QuestionTemplateId == obj.QuestionTemplateId);
         Product.ProductQuestionTemplates.Add(obj);
-        AddSubProductModal.Hide();
-        StateHasChanged();
+        Product.ProductQuestionTemplates = Product.ProductQuestionTemplates.OrderBy(x => x.Order).ToList();
+        await ProductQuestionTemplateMudDataGrid.ReloadServerData();
+        await InvokeAsync(StateHasChanged);
     }
     
     
-    private void AddSubProductAsync(MouseEventArgs obj)
+    private async void AddSubProductAsync(MouseEventArgs obj)
     {
         SelectedSubProducts = new SubProductDto();
-        SelectedSubProducts.Id = Guid.NewGuid();
         SelectedSubProducts.Order = Product.SubProducts.Count + 1;
         AddSubProductModal.InitializetModal(SelectedSubProducts,  ProductList);
         AddSubProductModal.Show();
@@ -187,6 +172,8 @@ public partial class ProductInput
     {
         ComponentList = (await ComponentsAppService.GetListAsync(new GetComponentsInput())).Items;
         AddComponentModal.ComponentList = ComponentList;
+        SelectedProductComponent.Order = Product.ProductComponents.Count + 1;
+        AddComponentModal.InitializetModal(SelectedProductComponent,  ComponentList);
         AddComponentModal.Show();
     }
     
@@ -194,7 +181,11 @@ public partial class ProductInput
     private async Task AddQuestionTemplateAsync(MouseEventArgs obj)
     {
         QuestionTemplateList = (await QuestionTemplatesAppService.GetListAsync(new GetQuestionTemplatesInput())).Items;
+        ProductQuestionTemplateDto selectedProductQuestionTemplate = new ProductQuestionTemplateDto();
+        selectedProductQuestionTemplate.Order = Product.ProductQuestionTemplates.Count + 1;
+        AddQuestionTemplateModal.InitializeModal(selectedProductQuestionTemplate,  QuestionTemplateList);
         AddQuestionTemplateModal.Show();
+        StateHasChanged();
     }
 
     private void SaveProductAsync(MouseEventArgs obj)
@@ -229,9 +220,9 @@ public partial class ProductInput
         List<ProductComponentDto> sortedList = Product.ProductComponents.ToList();
         sortedList.ForEach(x =>
         {
-            if(!x.Id.Equals(obj.Id))
+            if(!x.ComponentId.Equals(obj.ComponentId))
             {
-                x.Order = x.Order < obj.Order ? x.Order : x.Order + 1;
+                x.Order = x.Order < obj.Order ? x.Order : (x.Order + 1 >= sortedList.Count ? sortedList.Count : x.Order + 1);
             }else
             {
                 x = obj;
@@ -264,15 +255,16 @@ public partial class ProductInput
         List<ProductQuestionTemplateDto> sortedList = Product.ProductQuestionTemplates.ToList();
         sortedList.ForEach(x =>
         {
-            if(!x.Id.Equals(obj.Id))
+            if(!x.QuestionTemplateId.Equals(obj.QuestionTemplateId))
             {
-                x.Order = x.Order < obj.Order ? x.Order : x.Order + 1;
+                x.Order = x.Order < obj.Order ? x.Order : (x.Order + 1 > sortedList.Count ? sortedList.Count : x.Order + 1);
             }else
             {
                 x = obj;
             }
         });
         Product.ProductQuestionTemplates = sortedList.OrderBy(x => x.Order).ToList();
+        ProductQuestionTemplateMudDataGrid.ReloadServerData();
         StateHasChanged();
     }
 
