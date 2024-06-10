@@ -56,9 +56,6 @@ public partial class RFQNewOrDraft
     private List<RFQProductAndQuestionDto> RFQProductAndQuestions { get; set; } = new();
     
     private bool disableContact = true;
-    private int indexCatalog;
-
-    private List<LookupDto<Guid>> userLookUpDtos = new();
     private MudAutocomplete<CatalogDto> CatalogAutocompleteRef { get; set; }
     private MudAutocomplete<LookupDto<Guid>> ContactsAutoCompleteRef { set; get; }
     private ProductDto SelectedProduct { get; set; } = new();
@@ -84,32 +81,24 @@ public partial class RFQNewOrDraft
     protected override async Task OnInitializedAsync()
     {
         await SetPermissionsAsync();
+        AgentsCollection = (await RequestForQuotationsAppService.GetIdentityUserLookupAsync(new LookupRequestDto())).Items.ToList();
+        OrganizationsCollection = (await RequestForQuotationsAppService.GetOrganizationLookupCustomerAsync(new LookupRequestDto())).Items.ToList();
+        ContactsCollection = (await RequestForQuotationsAppService.GetContactLookupAsync(new LookupRequestDto())).Items.ToList();
+        Catalogs = await CatalogsAppService.GetListCatalogWithProducts(new GetCatalogsInput());
         if (RequestForQuotation.Id == Guid.Empty)
         { 
             RequestForQuotation = new RequestForQuotationDto();
-            AgentsCollection = (await RequestForQuotationsAppService.GetIdentityUserLookupAsync(new LookupRequestDto()))
-                .Items.ToList();
             var mySelfId = CurrentPrincipalAccessor.Principal.FindUserId();
             selectedAgentLookupDto = AgentsCollection.FirstOrDefault(x => x.Id == mySelfId);
-            RequestForQuotation.AgentProperty =
-                new AgentPropertyDto(selectedAgentLookupDto.Id, selectedAgentLookupDto.DisplayName);
+            RequestForQuotation.AgentProperty = new AgentPropertyDto(selectedAgentLookupDto.Id, selectedAgentLookupDto.DisplayName);
         }
         else if (RequestForQuotation.Id != Guid.Empty)
         {
-            selectedAgentLookupDto = new LookupDto<Guid>(RequestForQuotation.AgentProperty.Id,
-                RequestForQuotation.AgentProperty.Name);
-            selectedOrganizationLookupDto = new LookupDto<Guid>(RequestForQuotation.OrganizationProperty.Id,
-                RequestForQuotation.OrganizationProperty.Name);
-            selectedContactLookupDto = new LookupDto<Guid>(RequestForQuotation.ContactProperty.Id,
-                RequestForQuotation.ContactProperty.Name);
+            selectedAgentLookupDto = new LookupDto<Guid>(RequestForQuotation.AgentProperty.Id, RequestForQuotation.AgentProperty.Name);
+            selectedOrganizationLookupDto = new LookupDto<Guid>(RequestForQuotation.OrganizationProperty.Id, RequestForQuotation.OrganizationProperty.Name);
+            selectedContactLookupDto = new LookupDto<Guid>(RequestForQuotation.ContactProperty.Id, RequestForQuotation.ContactProperty.Name);
             ListRequestForQuotationItems = RequestForQuotation.RequestForQuotationItems;
         }
-        OrganizationsCollection =
-            (await RequestForQuotationsAppService.GetOrganizationLookupCustomerAsync(new LookupRequestDto())).Items
-            .ToList();
-        ContactsCollection = (await RequestForQuotationsAppService.GetContactLookupAsync(new LookupRequestDto())).Items
-            .ToList();
-        Catalogs = await CatalogsAppService.GetListCatalogWithProducts(new GetCatalogsInput());
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -124,6 +113,7 @@ public partial class RFQNewOrDraft
     protected virtual ValueTask SetBreadcrumbItemsAsync()
     {
         BreadcrumbItems.Add(new BreadcrumbItem(L["Menu:RequestForQuotations"]));
+        StateHasChanged();
         return ValueTask.CompletedTask;
     }
 
@@ -149,10 +139,8 @@ public partial class RFQNewOrDraft
         {
             disableContact = false;
             var organization = await OrganizationsAppService.GetAsync(arg.Id);
-            RequestForQuotation.MailInfo =
-                organization.MailInfo != null ? organization.MailInfo : new MailInfoDto();
-            RequestForQuotation.PhoneInfo =
-                organization.PhoneInfo != null ? organization.PhoneInfo : new PhoneInfoDto();
+            RequestForQuotation.MailInfo = organization.MailInfo != null ? organization.MailInfo : new MailInfoDto();
+            RequestForQuotation.PhoneInfo = organization.PhoneInfo != null ? organization.PhoneInfo : new PhoneInfoDto();
             RequestForQuotation.OrganizationProperty =
                 new OrganizationPropertyDto(organization.Id, organization.Name);
             //Bisogna mettere in attesa il thread per 100 millisecondi per evitare che il focus venga perso, perchè sulla stessa riga
@@ -467,7 +455,6 @@ public partial class RFQNewOrDraft
 
         isSelecting = true;
         RequestForQuotationSelectingId = selectedItem.Id;
-        StateHasChanged();
     }
 
 
@@ -500,6 +487,7 @@ public partial class RFQNewOrDraft
     private void OnClickSelectSingleItem(RequestForQuotationItemDto item)
     {
         OnSelectedItemChanged(item);
+        StateHasChanged();
     }
 
     private async Task HandleValidSubmit()
@@ -515,15 +503,11 @@ public partial class RFQNewOrDraft
             Console.WriteLine(RequestForQuotation);
             var result = await RequestForQuotationsAppService.CreateAsync(NewRequestForQuotation);
             NavigationManager.NavigateTo("/request-for-quotations");
-
-            // Esegui le azioni necessarie dopo il salvataggio
-            // Ad esempio, puoi visualizzare un messaggio di conferma
             Console.WriteLine("Richiesta di preventivo salvata con successo!");
+            StateHasChanged();
         }
         catch (Exception ex)
         {
-            // Gestisci eventuali errori durante il salvataggio
-            // Ad esempio, puoi visualizzare un messaggio di errore
             Console.WriteLine($"Si è verificato un errore durante il salvataggio: {ex.Message}");
         }
     }
@@ -538,8 +522,8 @@ public partial class RFQNewOrDraft
                 _mapper.Map<RequestForQuotationDto, RequestForQuotationCreateDto>(RequestForQuotation);
             Console.WriteLine(RequestForQuotation);
             var result = await RequestForQuotationsAppService.CreateAsync(NewRequestForQuotation);
-            StateHasChanged();
             NavigationManager.NavigateTo("/request-for-quotations");
+            StateHasChanged();
         }
         catch (Exception ex)
         {
@@ -551,6 +535,7 @@ public partial class RFQNewOrDraft
     {
         // Reindirizzamento alla pagina /request-for-quotations
         NavigationManager.NavigateTo("/request-for-quotations");
+        StateHasChanged();
     }
 
     private async Task<IEnumerable<LookupDto<Guid>>> SearchOrganization(string value)
@@ -573,20 +558,18 @@ public partial class RFQNewOrDraft
         // Se il testo è null o vuoto, mostra l'elenco completo
         return string.IsNullOrEmpty(value)
             ? ContactsCollection.ToList()
-            : ContactsCollection.Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase))
-                .ToList();
+            : ContactsCollection.Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
 
-    private Task<IEnumerable<LookupDto<Guid>>> SearchAgent(string value)
+    private async Task<IEnumerable<LookupDto<Guid>>> SearchAgent(string value)
     {
-        if (userLookUpDtos == null || userLookUpDtos.Count == 0)
-            return Task.FromResult<IEnumerable<LookupDto<Guid>>>(new List<LookupDto<Guid>>());
+        if (AgentsCollection == null || AgentsCollection.Count == 0)
+            return new List<LookupDto<Guid>>();
 
         // Se il testo è null o vuoto, mostra l'elenco completo
         return string.IsNullOrEmpty(value)
-            ? Task.FromResult<IEnumerable<LookupDto<Guid>>>(userLookUpDtos)
-            : Task.FromResult(userLookUpDtos.Where(x =>
-                x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase)));
+            ? AgentsCollection.ToList()
+            : AgentsCollection.Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
 
     private Task<IEnumerable<CatalogDto>> SearchCatalog(string value)

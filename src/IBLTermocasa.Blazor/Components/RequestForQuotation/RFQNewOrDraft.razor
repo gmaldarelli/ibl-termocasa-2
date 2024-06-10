@@ -28,7 +28,6 @@
     }
 </style>
 
-<h3>@L["CreateRequestForQuotation"]</h3>
 <MudForm Model="@RequestForQuotation" Validation="HandleValidSubmit">
     <Validations @ref="@RequestForQuotationValidations"
                  Mode="ValidationMode.Auto"
@@ -58,7 +57,7 @@
                                                      Label="@L["Organization"]"
                                                      ValueChanged="@(org => UpdateValueOrganization(org))"
                                                      ToStringFunc="@(org => org?.DisplayName)"
-                                                     Value="selectedOrganizationLookupDto"
+                                                     bind-Value="@selectedOrganizationLookupDto"
                                                      ResetValueOnEmptyText="true"
                                                      MaxItems="null"
                                                      SearchFunc="@SearchOrganization"/>
@@ -69,7 +68,7 @@
                                                      Label="@L["Contact"]"
                                                      ValueChanged="@(contact => UpdateValueContact(contact))"
                                                      ToStringFunc="@(contact => contact?.DisplayName)"
-                                                     Value="selectedContactLookupDto"
+                                                     bind-Value="@selectedContactLookupDto"
                                                      ResetValueOnEmptyText="true"
                                                      MaxItems="null"
                                                      SearchFunc="@SearchContact"
@@ -80,7 +79,7 @@
                                                      Label="@L["Agent"]"
                                                      ValueChanged="@(agent => UpdateValueAgent(agent))"
                                                      ToStringFunc="@(agent => agent?.DisplayName)"
-                                                     Value="selectedAgentLookupDto"
+                                                     bind-Value="@selectedAgentLookupDto"
                                                      ResetValueOnEmptyText="true"
                                                      SearchFunc="@SearchAgent"
                                                      MaxItems="null"/>
@@ -314,7 +313,6 @@
         }
     }
 </MudGrid>
-<MudThemeProvider/>
 
 @code
 {

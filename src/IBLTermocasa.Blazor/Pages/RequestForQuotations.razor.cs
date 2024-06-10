@@ -97,9 +97,6 @@ namespace IBLTermocasa.Blazor.Pages
             await GetIdentityUserCollectionLookupAsync();
             await GetContactCollectionLookupAsync();
             await GetOrganizationCollectionLookupAsync();
-            OrganizationsList = (await RequestForQuotationsAppService.GetOrganizationLookupCustomerAsync(new LookupRequestDto())).Items.ToList();
-            ContactsList = (await RequestForQuotationsAppService.GetContactLookupAsync(new LookupRequestDto())).Items.ToList();
-            AgentsList = (await RequestForQuotationsAppService.GetIdentityUserLookupAsync(new LookupRequestDto())).Items.ToList();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -316,17 +313,20 @@ namespace IBLTermocasa.Blazor.Pages
             await SearchAsync();
         }
         
-        private async Task GetIdentityUserCollectionLookupAsync(string? newValue = null)
+        private async Task GetIdentityUserCollectionLookupAsync()
         {
-            IdentityUsersCollection = (await RequestForQuotationsAppService.GetIdentityUserLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
+            IdentityUsersCollection = (await RequestForQuotationsAppService.GetIdentityUserLookupAsync(new LookupRequestDto())).Items;
+            AgentsList = IdentityUsersCollection.ToList();
         }
-        private async Task GetContactCollectionLookupAsync(string? newValue = null)
+        private async Task GetContactCollectionLookupAsync()
         {
-            ContactsCollection = (await RequestForQuotationsAppService.GetContactLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
+            ContactsCollection = (await RequestForQuotationsAppService.GetContactLookupAsync(new LookupRequestDto())).Items;
+            ContactsList = ContactsCollection.ToList();
         }
-        private async Task GetOrganizationCollectionLookupAsync(string? newValue = null)
+        private async Task GetOrganizationCollectionLookupAsync()
         {
-            OrganizationsCollection = (await RequestForQuotationsAppService.GetOrganizationLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
+            OrganizationsCollection = (await RequestForQuotationsAppService.GetOrganizationLookupCustomerAsync(new LookupRequestDto())).Items;
+            OrganizationsList = OrganizationsCollection.ToList();
         }
 
 // Fine metodi per la gestione dei filtri
