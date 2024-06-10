@@ -1,26 +1,14 @@
-
-
 @page "/request-for-quotations"
 
 @attribute [Authorize(IBLTermocasaPermissions.RequestForQuotations.Default)]
-@using IBLTermocasa.RequestForQuotations
+@using IBLTermocasa.Blazor.Components.RequestForQuotation
 @using IBLTermocasa.Localization
-@using IBLTermocasa.Shared
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.Extensions.Localization
-@using Microsoft.AspNetCore.Components.Web
-@using Blazorise
-@using Blazorise.Components
-@using Blazorise.DataGrid
-@using Volo.Abp.BlazoriseUI
-@using Volo.Abp.BlazoriseUI.Components
-@using Volo.Abp.ObjectMapping
-@using Volo.Abp.AspNetCore.Components.Messages
-@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
-
 @using IBLTermocasa.Permissions
+@using IBLTermocasa.RequestForQuotations
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.AspNetCore.Components.Messages
 @using Volo.Abp.AspNetCore.Components.Web
-@using Microsoft.AspNetCore.Components
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
 @using Volo.Abp.Http.Client
 @inherits IBLTermocasaComponentBase
 @inject IRequestForQuotationsAppService RequestForQuotationsAppService
@@ -29,8 +17,6 @@
 @inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
 @inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
 @inject NavigationManager NavigationManager
-@using IBLTermocasa.RequestForQuotations
-@using IBLTermocasa.Blazor.Components.RequestForQuotation
 
 
 @* ************************* PAGE HEADER ************************* *@
@@ -57,102 +43,102 @@
                 </Addon>
             </Addons>
         </Form>
-        
-        <Row Class="mt-3 mb-3"> 
+
+        <Row Class="mt-3 mb-3">
             <div class="col-md-12">
                 <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
             </div>
         </Row>
-        
+
         <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
             <Row>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["QuoteNumber"]</FieldLabel>
-                        <TextEdit Text="@Filter.QuoteNumber" TextChanged="@OnQuoteNumberChangedAsync" />                       
+                        <TextEdit Text="@Filter.QuoteNumber" TextChanged="@OnQuoteNumberChangedAsync"/>
                     </Field>
                 </Column>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["WorkSite"]</FieldLabel>
-                        <TextEdit Text="@Filter.WorkSite" TextChanged="@OnWorkSiteChangedAsync" />                       
+                        <TextEdit Text="@Filter.WorkSite" TextChanged="@OnWorkSiteChangedAsync"/>
                     </Field>
                 </Column>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["City"]</FieldLabel>
-                        <TextEdit Text="@Filter.City" TextChanged="@OnCityChangedAsync" />                       
+                        <TextEdit Text="@Filter.City" TextChanged="@OnCityChangedAsync"/>
                     </Field>
                 </Column>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["AgentProperty"]</FieldLabel>
-                        <TextEdit TextChanged="@OnAgentPropertyChangedAsync" />
+                        <TextEdit TextChanged="@OnAgentPropertyChangedAsync"/>
                     </Field>
                 </Column>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["OrganizationProperty"]</FieldLabel>
-                        <TextEdit TextChanged="@OnOrganizationPropertyChangedAsync" />                       
+                        <TextEdit TextChanged="@OnOrganizationPropertyChangedAsync"/>
                     </Field>
                 </Column>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["ContactProperty"]</FieldLabel>
-                        <TextEdit TextChanged="@OnContactPropertyChangedAsync" />                       
+                        <TextEdit TextChanged="@OnContactPropertyChangedAsync"/>
                     </Field>
                 </Column>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["PhoneInfo"]</FieldLabel>
-                        <TextEdit TextChanged="@OnPhoneInfoChangedAsync" />                       
+                        <TextEdit TextChanged="@OnPhoneInfoChangedAsync"/>
                     </Field>
                 </Column>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["MailInfo"]</FieldLabel>
-                        <TextEdit TextChanged="@OnMailInfoChangedAsync" />                       
+                        <TextEdit TextChanged="@OnMailInfoChangedAsync"/>
                     </Field>
                 </Column>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["MinDiscount"]</FieldLabel>
-                        <NumericEdit TValue="decimal?" 
-                                     Value="@Filter.DiscountMin" 
-                                     ValueChanged="@OnDiscountMinChangedAsync" />                       
+                        <NumericEdit TValue="decimal?"
+                                     Value="@Filter.DiscountMin"
+                                     ValueChanged="@OnDiscountMinChangedAsync"/>
                     </Field>
                 </Column>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["MaxDiscount"]</FieldLabel>
-                        <NumericEdit TValue="decimal?" 
-                                     Value="@Filter.DiscountMax" 
-                                     ValueChanged="@OnDiscountMaxChangedAsync" />                       
+                        <NumericEdit TValue="decimal?"
+                                     Value="@Filter.DiscountMax"
+                                     ValueChanged="@OnDiscountMaxChangedAsync"/>
                     </Field>
                 </Column>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["Description"]</FieldLabel>
-                        <TextEdit Text="@Filter.Description" TextChanged="@OnDescriptionChangedAsync" />                       
+                        <TextEdit Text="@Filter.Description" TextChanged="@OnDescriptionChangedAsync"/>
                     </Field>
                 </Column>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["Status"]</FieldLabel>
-                        <Select TValue="Status?" 
-                                SelectedValue="@Filter.Status" 
+                        <Select TValue="Status?"
+                                SelectedValue="@Filter.Status"
                                 SelectedValueChanged="@OnStatusChangedAsync">
 
-                        <SelectItem></SelectItem>
+                            <SelectItem></SelectItem>
 
-                        @foreach(var item in OrganizationsCollection)
-                        {
-	                        <SelectItem TValue="Guid?" Value="@item.Id">
-		                        @item.DisplayName
-	                        </SelectItem>
-                        }
+                            @foreach (var item in OrganizationsCollection)
+                            {
+                                <SelectItem TValue="Guid?" Value="@item.Id">
+                                    @item.DisplayName
+                                </SelectItem>
+                            }
 
-                        </Select>                       
+                        </Select>
                     </Field>
                 </Column>
             </Row>
@@ -175,7 +161,12 @@
                   PageSize="PageSize"
                   Class="datagrid-detail">
             <DataGridColumns>
-
+                
+                <DataGridColumn TItem="RequestForQuotationDto"
+                                Field="QuoteNumber"
+                                Caption="@L["QuoteNumber"]">
+                </DataGridColumn>
+                
                 <DataGridColumn TItem="RequestForQuotationDto"
                                 Field="OrganizationProperty"
                                 Caption="@L["Organization"]">
@@ -201,11 +192,6 @@
                 </DataGridColumn>
 
                 <DataGridColumn TItem="RequestForQuotationDto"
-                                Field="QuoteNumber"
-                                Caption="@L["QuoteNumber"]">
-                </DataGridColumn>
-
-                <DataGridColumn TItem="RequestForQuotationDto"
                                 Field="WorkSite"
                                 Caption="@L["WorkSite"]">
                 </DataGridColumn>
@@ -216,13 +202,12 @@
                 </DataGridColumn>
 
                 <DataGridColumn TItem="RequestForQuotationDto"
-                                Field="Phones"
-                                Caption="@L["Phone"]">
-                </DataGridColumn>
-
-                <DataGridColumn TItem="RequestForQuotationDto"
-                                Field="Emails"
-                                Caption="@L["Email"]">
+                                Field="Status"
+                                Caption="@L["Status"]">
+                    <!-- Il testo visualizzato deve cambiare in base alla lingua -->
+                    <DisplayTemplate>
+                        @L[$"Enum:Status.{(int)context.Status}"]
+                    </DisplayTemplate>
                 </DataGridColumn>
             </DataGridColumns>
 
@@ -258,14 +243,14 @@
     <ModalContent Centered="true" Size="@ModalSize.ExtraLarge">
         <ModalHeader>
             <ModalTitle>@L["Update"] - @L["QuoteNumber"]-@RequestForQuotationInput.QuoteNumber</ModalTitle>
-            <CloseButton Clicked="CloseEditRequestForQuotationModalAsync" />
+            <CloseButton Clicked="CloseEditRequestForQuotationModalAsync"/>
         </ModalHeader>
         <ModalBody>
             <RequestForQuotationInput
                 DisplayReadOnly="true"
                 RequestForQuotation="@RequestForQuotationInput"
                 OnRequestForQuotationSaved="UpdateRequestForQuotationAsync"
-                OnRequestForQuotationCancel="CloseEditRequestForQuotationModalAsync">   
+                OnRequestForQuotationCancel="CloseEditRequestForQuotationModalAsync">
             </RequestForQuotationInput>
         </ModalBody>
         <ModalFooter>

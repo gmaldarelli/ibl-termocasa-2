@@ -15,11 +15,6 @@
 @inherits IBLTermocasaComponentBase
 
 <style>
-    .input-quantity {
-        width: 100%;
-        border-radius: 10px;
-    }
-
     .scrollable-card {
         height: 63vh;
         max-height: 63vh;
@@ -57,7 +52,7 @@
                                                      Label="@L["Organization"]"
                                                      ValueChanged="@(org => UpdateValueOrganization(org))"
                                                      ToStringFunc="@(org => org?.DisplayName)"
-                                                     bind-Value="@selectedOrganizationLookupDto"
+                                                     Value="selectedOrganizationLookupDto"
                                                      ResetValueOnEmptyText="true"
                                                      MaxItems="null"
                                                      SearchFunc="@SearchOrganization"/>
@@ -68,7 +63,7 @@
                                                      Label="@L["Contact"]"
                                                      ValueChanged="@(contact => UpdateValueContact(contact))"
                                                      ToStringFunc="@(contact => contact?.DisplayName)"
-                                                     bind-Value="@selectedContactLookupDto"
+                                                     Value="selectedContactLookupDto"
                                                      ResetValueOnEmptyText="true"
                                                      MaxItems="null"
                                                      SearchFunc="@SearchContact"
@@ -79,7 +74,7 @@
                                                      Label="@L["Agent"]"
                                                      ValueChanged="@(agent => UpdateValueAgent(agent))"
                                                      ToStringFunc="@(agent => agent?.DisplayName)"
-                                                     bind-Value="@selectedAgentLookupDto"
+                                                     Value="selectedAgentLookupDto"
                                                      ResetValueOnEmptyText="true"
                                                      SearchFunc="@SearchAgent"
                                                      MaxItems="null"/>

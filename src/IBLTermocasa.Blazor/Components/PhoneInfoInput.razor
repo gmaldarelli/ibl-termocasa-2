@@ -19,7 +19,7 @@
                 </MudSelect>
             </MudItem>
             <MudItem xs="4">
-                <InternationalPrefixSelector ReadOnly="@ReadOnly" SelectedPrefixChanged="value => phoneItem.Prefix = value"/>
+                <InternationalPrefixSelector ReadOnly="@ReadOnly" SelectedPrefix="@phoneItem.Prefix" SelectedPrefixChanged="@(value => phoneItem.Prefix = value)"/>
             </MudItem>
             <MudItem xs="4" Style="display: grid;">
                 <MudMask @bind-Value="phoneItem.Number" Label="@L["Phone"]" Mask="@phoneMask" Style="align-items: flex-end;"/>

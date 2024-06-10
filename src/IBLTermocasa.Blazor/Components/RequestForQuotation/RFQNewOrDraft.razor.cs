@@ -64,13 +64,13 @@ public partial class RFQNewOrDraft
     [Range(1, int.MaxValue)] private int SelectedCatalogItemQuantity { get; set; } = 1;
     private List<RequestForQuotationItemDto>? ListRequestForQuotationItems { get; set; } = new();
     private List<QuestionTemplateDto> ListQuestionTemplateSingleProduct { get; set; } = new();
-    private RequestForQuotationItemDto selectedListViewItem { get; set; }
+    private RequestForQuotationItemDto selectedListViewItem { get; set; } = new();
 
     private List<QuestionTemplateModel> QuestionTemplateValues = new();
     private string selectedStep = "1";
     private Steps stepsRef;
     private bool isSelecting = false;
-    private Guid RequestForQuotationSelectingId { get; set; }
+    private Guid RequestForQuotationSelectingId { get; set; } = Guid.Empty;
     private List<LookupDto<Guid>> OrganizationsCollection { get; set; } = new();
     private List<LookupDto<Guid>> ContactsCollection { get; set; } = new();
     private List<LookupDto<Guid>> AgentsCollection { get; set; } = new();
@@ -129,6 +129,7 @@ public partial class RFQNewOrDraft
     {
         if (arg == null)
         {
+            selectedOrganizationLookupDto = new LookupDto<Guid>();
             RequestForQuotation.OrganizationProperty = new OrganizationPropertyDto();
             disableContact = true;
             RequestForQuotation.MailInfo = new MailInfoDto();
@@ -137,6 +138,7 @@ public partial class RFQNewOrDraft
         }
         else
         {
+            selectedOrganizationLookupDto = arg;
             disableContact = false;
             var organization = await OrganizationsAppService.GetAsync(arg.Id);
             RequestForQuotation.MailInfo = organization.MailInfo != null ? organization.MailInfo : new MailInfoDto();
@@ -155,10 +157,13 @@ public partial class RFQNewOrDraft
     {
         if (arg == null)
         {
+            selectedContactLookupDto = new LookupDto<Guid>();
             RequestForQuotation.ContactProperty = new ContactPropertyDto();
+            ContactsAutoCompleteRef.Clear();
         }
         else
         {
+            selectedContactLookupDto = arg;
             var contact = await ContactsAppService.GetAsync(arg.Id);
             RequestForQuotation.ContactProperty =
                 new ContactPropertyDto(contact.Id, contact.ToStringNameSurname());
@@ -171,10 +176,12 @@ public partial class RFQNewOrDraft
     {
         if (arg == null)
         {
+            selectedAgentLookupDto = new LookupDto<Guid>();
             RequestForQuotation.AgentProperty = new AgentPropertyDto();
         }
         else
         {
+            selectedAgentLookupDto = arg;
             RequestForQuotation.AgentProperty = new AgentPropertyDto(arg.Id, arg.DisplayName);
         }
 
@@ -185,7 +192,7 @@ public partial class RFQNewOrDraft
     {
         if (arg == null)
         {
-            ClearAll();
+            ClearAllFor2Step();
         }
         else
         {
@@ -355,14 +362,14 @@ public partial class RFQNewOrDraft
 
         // Pulisce il campo di ricerca e aggiorna lo stato
         CatalogAutocompleteRef.Clear();
-        ClearAll();
+        ClearAllFor2Step();
         isSelecting = false;
         StateHasChanged();
     }
 
     private async Task OnSelectedItemChanged(RequestForQuotationItemDto selectedItem)
     {
-        ClearAll();
+        ClearAllFor2Step();
         QuestionTemplateValues.Clear();
         SelectedCatalogItemQuantity = selectedItem.Quantity;
         selectedListViewItem = selectedItem;
@@ -473,13 +480,13 @@ public partial class RFQNewOrDraft
             isSelecting = false;
         }
 
-        ClearAll();
+        ClearAllFor2Step();
         StateHasChanged();
     }
 
     private void AddNewItem()
     {
-        ClearAll();
+        ClearAllFor2Step();
         isSelecting = false;
         StateHasChanged();
     }
@@ -516,8 +523,9 @@ public partial class RFQNewOrDraft
     {
         try
         {
-            RequestForQuotation.ConcurrencyStamp = Guid.NewGuid().ToString();
+            RequestForQuotation.RequestForQuotationItems = ListRequestForQuotationItems;
             RequestForQuotation.Status = Status.DRAFT;
+            RequestForQuotation.ConcurrencyStamp = Guid.NewGuid().ToString();
             NewRequestForQuotation =
                 _mapper.Map<RequestForQuotationDto, RequestForQuotationCreateDto>(RequestForQuotation);
             Console.WriteLine(RequestForQuotation);
@@ -596,7 +604,7 @@ public partial class RFQNewOrDraft
                 x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)));
     }
 
-    private void ClearAll()
+    private void ClearAllFor2Step()
     {
         SelectedCatalog = new CatalogWithNavigationPropertiesDto();
         SelectedProduct = new ProductDto();

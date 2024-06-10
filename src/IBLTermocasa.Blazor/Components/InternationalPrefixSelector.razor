@@ -31,6 +31,12 @@
     
     [Parameter]
     public EventCallback<string> SelectedPrefixChanged { get; set; }
+    
+    private async Task OnSelectedPrefixChanged(string value)
+    {
+        SelectedPrefix = value;
+        await SelectedPrefixChanged.InvokeAsync(value);
+    }
 
     List<(string, string)> InternationalPrefixes = new()
     {
