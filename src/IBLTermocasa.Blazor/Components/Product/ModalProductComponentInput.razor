@@ -1,6 +1,44 @@
 ﻿@using IBLTermocasa.Blazor.Components.Selector
 @using MudBlazor
 @inherits IBLTermocasaComponentBase
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            @L["Product"]
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudSelect @ref="MudSelectComponent"
+                   MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                   MultiSelection="IsMultiSelection"
+                   T="string" Label="@ProductLabelSingle"
+                   AdornmentIcon="@Icons.Material.Filled.Search"
+                   AnchorOrigin="Origin.BottomCenter"
+                   ValueChanged="OnGuidStringSelectedChanged"
+        >
+            @foreach (var GuidString in ComponentList.Select(x => x.Id.ToString()).ToList())
+            {
+            <MudSelectItem T="string" Value="@GuidString">@ComponentName(@GuidString)</MudSelectItem>
+            }
+        </MudSelect>
+        <MudNumericField @bind-Value="@ProductComponent.Order" InvertMouseWheel="true"
+                         Label="@L["Order"]" Variant="Variant.Filled" Min="@OrderMinValue" Max="@OrderMaxValue" />
+        <MudTextField @bind-Value="@ProductComponent.Name" Label="@L["Name"]" Variant="Variant.Filled" />
+        <MudSwitch @bind-Checked="@ProductComponent.Mandatory"
+                   Class="mud-width-full"
+                   Color="MudBlazor.Color.Primary">
+            @L["Mandatory"]
+        </MudSwitch>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">@L["Cancel"]</MudButton>
+        <MudButton Color="MudBlazor.Color.Primary" OnClick="AddProductComponent">@L["Save"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+
 <Modal @ref="ProductComponentModal" Closing="@ProductComponentModal.CancelClosingModalWhenFocusLost">
     <ModalContent Centered="true" >
         <ModalHeader>
@@ -45,6 +83,24 @@
 </Modal>
 @code {
     
-    //
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    private void Cancel()
+    {
+        MudDialog.Cancel(); 
+    }
+
+    private void AddProductComponent()
+    {
+        if(GuidStringSelected !=null )
+        {
+            ProductComponent.ComponentId = Guid.Parse(GuidStringSelected);
+            Console.WriteLine("ProductQuestionTemplate.ComponentId: " + ProductComponent.ComponentId);
+            MudDialog.Close(DialogResult.Ok(ProductComponent));
+        }
+        else
+        {
+            //TODO: Show validation error
+        }
+    }
     
 }

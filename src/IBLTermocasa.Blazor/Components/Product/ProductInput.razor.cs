@@ -23,7 +23,8 @@ public partial class ProductInput
     
     [Inject]
     public IComponentsAppService ComponentsAppService { get; set; }
-    
+    [Inject]
+    public IDialogService DialogService { get; set; }
     [Parameter] public ProductDto Product { get; set; }
     
     [Parameter] public EventCallback<ProductDto> OnProductSaved { get; set; }
@@ -170,22 +171,80 @@ public partial class ProductInput
     
     private async Task AddComponentAsync(MouseEventArgs obj)
     {
+        /*
         ComponentList = (await ComponentsAppService.GetListAsync(new GetComponentsInput())).Items;
         AddComponentModal.ComponentList = ComponentList;
         SelectedProductComponent.Order = Product.ProductComponents.Count + 1;
         AddComponentModal.InitializetModal(SelectedProductComponent,  ComponentList);
         AddComponentModal.Show();
+        */
+        
+        
+        ComponentList = (await ComponentsAppService.GetListAsync(new GetComponentsInput())).Items;
+        ProductComponentDto selectedProductComponent = new ProductComponentDto();
+        selectedProductComponent.Order = Product.ProductQuestionTemplates.Count + 1;
+        var parameters = new DialogParameters<ModalProductComponentInput>
+        {
+            {x => x.ProductComponent, selectedProductComponent},
+            {x => x.ComponentList, ComponentList},
+            {x => x.OrderMinValue, 1},
+            {x => x.OrderMaxValue, Product.ProductComponents.Count + 1}
+        };
+        var dialog = await DialogService.ShowAsync<ModalProductComponentInput>("Select Product Components", parameters, new DialogOptions
+        {
+            Position = MudBlazor.DialogPosition.Center,
+            FullWidth = true,
+            MaxWidth = MaxWidth.Small
+        });
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            var productComponent = (ProductComponentDto)result.Data;
+            Product.ProductComponents.RemoveAll(x => x.ComponentId == productComponent.ComponentId);
+            Product.ProductComponents.Add(productComponent);
+            Product.ProductComponents = Product.ProductComponents.OrderBy(x => x.Order).ToList();
+            await ProductComponentMudDataGrid.ReloadServerData();
+            await InvokeAsync(StateHasChanged);
+        }
+        
+        
+        
     }
     
     
     private async Task AddQuestionTemplateAsync(MouseEventArgs obj)
     {
+
+        
         QuestionTemplateList = (await QuestionTemplatesAppService.GetListAsync(new GetQuestionTemplatesInput())).Items;
         ProductQuestionTemplateDto selectedProductQuestionTemplate = new ProductQuestionTemplateDto();
         selectedProductQuestionTemplate.Order = Product.ProductQuestionTemplates.Count + 1;
-        AddQuestionTemplateModal.InitializeModal(selectedProductQuestionTemplate,  QuestionTemplateList);
-        AddQuestionTemplateModal.Show();
-        StateHasChanged();
+        var parameters = new DialogParameters<ModalProductQuestionTemplateInput>
+        {
+            {x => x.ProductQuestionTemplate, selectedProductQuestionTemplate},
+            {x => x.ComponentList, QuestionTemplateList},
+            {x => x.OrderMinValue, 1},
+            {x => x.OrderMaxValue, Product.ProductQuestionTemplates.Count + 1}
+        };
+        var dialog = await DialogService.ShowAsync<ModalProductQuestionTemplateInput>("Select Question Template", parameters, new DialogOptions
+        {
+            Position = MudBlazor.DialogPosition.Center,
+            FullWidth = true,
+            MaxWidth = MaxWidth.Small
+        });
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            var productQuestionTemplate = (ProductQuestionTemplateDto)result.Data;
+            Product.ProductQuestionTemplates.RemoveAll(x => x.QuestionTemplateId == productQuestionTemplate.QuestionTemplateId);
+            Product.ProductQuestionTemplates.Add(productQuestionTemplate);
+            Product.ProductQuestionTemplates = Product.ProductQuestionTemplates.OrderBy(x => x.Order).ToList();
+            await ProductQuestionTemplateMudDataGrid.ReloadServerData();
+            await InvokeAsync(StateHasChanged);
+        }
+
+        
+        
     }
 
     private void SaveProductAsync(MouseEventArgs obj)
