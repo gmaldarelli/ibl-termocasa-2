@@ -62,7 +62,7 @@ namespace IBLTermocasa.RequestForQuotations
             RequestForQuotationItems = requestForQuotationItems;
         }
 
-        //generete static methot to fill all properties of the Organization except the Id using reflection with 2 variants source and destination
+        //generete static methot to fill all properties of the RequestForQuotation except the Id using reflection with 2 variants source and destination
         public static RequestForQuotation FillProperties(RequestForQuotation source, RequestForQuotation destination,
             IEnumerable<PropertyInfo> properties)
         {

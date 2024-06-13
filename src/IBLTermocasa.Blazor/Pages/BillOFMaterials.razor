@@ -1,0 +1,332 @@
+﻿
+
+@page "/bill-of-materials"
+
+@attribute [Authorize(IBLTermocasaPermissions.BillOFMaterials.Default)]
+@using IBLTermocasa.BillOFMaterials
+@using IBLTermocasa.Localization
+@using IBLTermocasa.Shared
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Components.Web
+@using Blazorise
+@using Blazorise.Components
+@using Blazorise.DataGrid
+@using Volo.Abp.BlazoriseUI
+@using Volo.Abp.BlazoriseUI.Components
+@using Volo.Abp.ObjectMapping
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+
+@using IBLTermocasa.Permissions
+@using Volo.Abp.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components
+@using Volo.Abp.Http.Client
+@inherits IBLTermocasaComponentBase
+@inject IBillOFMaterialsAppService BillOFMaterialsAppService
+
+@inject IUiMessageService UiMessageService
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["BillOFMaterials"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* SEARCH ************************* *@
+<Card>
+    <CardBody>
+
+        <Form id="BillOFMaterialSearchForm" class="mb-3">
+            <Addons>
+                <Addon AddonType="AddonType.Body">
+                    <TextEdit @bind-Text="@Filter.FilterText"
+                              Autofocus="true"
+                              Placeholder="@L["Search"]">
+                    </TextEdit>
+                </Addon>
+                <Addon AddonType="AddonType.End">
+                    <SubmitButton Form="BillOFMaterialSearchForm" Clicked="GetBillOFMaterialsAsync">
+                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
+                    </SubmitButton>
+                </Addon>
+            </Addons>
+        </Form>
+        
+        <Row Class="mt-3 mb-3"> 
+            <div class="col-md-12">
+                <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
+            </div>
+        </Row>
+        
+        <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
+            <Row>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Name"]</FieldLabel>
+                        <TextEdit Text="@Filter.Name" TextChanged="@OnNameChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["RequestForQuotation"]</FieldLabel>
+                        <TextEdit TextChanged="@OnRequestForQuotationIdChangedAsync"/>
+                    </Field>
+                </Column>
+            </Row>
+
+        </div>
+
+
+    </CardBody>
+</Card>
+
+@* ************************* DATA GRID ************************* *@
+<Card>
+    <CardBody>        
+        @if (SelectedBillOFMaterials.Any())
+        {
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                @if (AllBillOFMaterialsSelected)
+                {
+                    <p class="lead mb-0">
+                        @L["AllItemsAreSelected", TotalCount]
+                    </p>
+                }
+                else
+                {
+                    <p class="lead mb-0">
+                        @if (SelectedBillOFMaterials.Count > 1)
+                        {
+                            @L["NumberOfItemsOnThisPageAreSelected", SelectedBillOFMaterials.Count]
+                        }
+                        else
+                        {
+                            @L["OneItemOnThisPageIsSelected"]
+                        }
+                    </p>
+                }
+                    
+                <div>
+                    @if ((SelectedBillOFMaterials.Count == PageSize || SelectedBillOFMaterials.Count == BillOFMaterialList.Count) && TotalCount > SelectedBillOFMaterials.Count)
+                    {
+                        if (!AllBillOFMaterialsSelected)
+                        {
+                            <Button Clicked="SelectAllItems" Class="mx-1 btn-outline-secondary">@L["SelectAllItems", TotalCount]</Button>
+                        }
+                        else
+                        {
+                            <Button Clicked="ClearSelection" Class="mx-1 btn-outline-secondary">@L["ClearSelection"]</Button>
+                        }
+                    }
+                    
+                    <Button Color="Color.Danger" Class="mx-1" Size="Size.Medium" Clicked="DeleteSelectedBillOFMaterialsAsync">
+                        <Icon Name="@IconName.Delete" /> @L["Delete"]
+                    </Button>
+                </div>
+            </div>
+            
+            <hr class="my-1 mx-0"/>
+        }
+        <DataGrid TItem="BillOFMaterialDto"
+                  Data="BillOFMaterialList"
+                  
+                  SelectionMode="DataGridSelectionMode.Multiple"
+                  SelectedRows="SelectedBillOFMaterials"
+                  RowSelectable="@((args) => CanDeleteBillOFMaterial)"
+                  SelectedRowsChanged="SelectedBillOFMaterialRowsChanged"
+                  
+                  
+                  
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  Responsive="true"
+                  PageSize="PageSize"
+                  Class="datagrid-detail">
+            <DataGridColumns>
+                
+                @if (CanDeleteBillOFMaterial)
+                {
+                    <DataGridMultiSelectColumn TItem="BillOFMaterialDto" Width="30px" Displayable="@(BillOFMaterialList.Any())"></DataGridMultiSelectColumn>
+                }
+                
+                <DataGridEntityActionsColumn TItem="BillOFMaterialDto" @ref="@EntityActionsColumn">
+                    <DisplayTemplate>
+                        <EntityActions TItem="BillOFMaterialDto" EntityActionsColumn="@EntityActionsColumn">
+                            <EntityAction TItem="BillOFMaterialDto"
+                                          Visible="@CanEditBillOFMaterial"
+                                          Clicked="async () => await OpenEditBillOFMaterialModalAsync(context)"
+                                          Text="@L["Edit"]"></EntityAction>
+                            <EntityAction TItem="BillOFMaterialDto"
+                                          Visible="@CanDeleteBillOFMaterial"
+                                          Clicked="() => DeleteBillOFMaterialAsync(context)"
+                                          ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
+                                          Text="@L["Delete"]"></EntityAction>
+
+                        </EntityActions>
+                    </DisplayTemplate>
+                </DataGridEntityActionsColumn>
+               
+              <DataGridColumn TItem="BillOFMaterialDto"
+                      Field="Name"
+                      Caption="@L["Name"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="BillOFMaterialDto"
+                      Field="RequestForQuotationProperty.Name"
+                      Caption="@L["RequestForQuotation"]">
+              </DataGridColumn>
+
+              @*<DataGridColumn TItem="BillOFMaterialDto"
+                      Field="ListItems"
+                      Caption="@L["ListItems"]">
+              </DataGridColumn>*@
+
+            </DataGridColumns>
+            
+            
+        </DataGrid>
+    </CardBody>
+</Card>
+
+@* ************************* CREATE MODAL ************************* *@
+<Modal @ref="CreateBillOFMaterialModal" Closing="@CreateBillOFMaterialModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+
+        <Form id="CreateBillOFMaterialForm">
+            <ModalHeader>
+                <ModalTitle>@L["NewBillOFMaterial"]</ModalTitle>
+                <CloseButton Clicked="CloseCreateBillOFMaterialModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@NewBillOFMaterialValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@NewBillOFMaterial"
+                            ValidateOnLoad="false">
+                     
+                    
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Name"] *</FieldLabel>
+                            <TextEdit @bind-Text="@NewBillOFMaterial.Name"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["RequestForQuotation"] *</FieldLabel>
+                            <TextEdit @bind-Text="@NewBillOFMaterial.RequestForQuotationProperty.Name"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    @*<Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["ListItems"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewBillOFMaterial.ListItems."  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>*@
+
+
+                    
+                    
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseCreateBillOFMaterialModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="CreateBillOFMaterialForm" Clicked="CreateBillOFMaterialAsync" />
+
+            </ModalFooter>
+        </Form>
+
+    </ModalContent>
+</Modal>
+
+@* ************************* EDIT MODAL ************************* *@
+<Modal @ref="EditBillOFMaterialModal" Closing="@EditBillOFMaterialModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+
+        <Form id="EditBillOFMaterialForm">
+            <ModalHeader>
+                <ModalTitle>@L["Update"]</ModalTitle>
+                <CloseButton Clicked="CloseEditBillOFMaterialModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@EditingBillOFMaterialValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@EditingBillOFMaterial"
+                            ValidateOnLoad="false">
+                     
+                    
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Name"] *</FieldLabel>
+                            <TextEdit @bind-Text="@EditingBillOFMaterial.Name"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["RequestForQuotationId"] *</FieldLabel>
+                            <TextEdit @bind-Text="@EditingBillOFMaterial.RequestForQuotationProperty.Name"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    @*<Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["ListItems"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingBillOFMaterial.ListItems"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>*@
+
+
+                    
+                    
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseEditBillOFMaterialModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="EditBillOFMaterialForm" Clicked="UpdateBillOFMaterialAsync" />
+
+            </ModalFooter>
+        </Form>
+
+    </ModalContent>
+</Modal>
+

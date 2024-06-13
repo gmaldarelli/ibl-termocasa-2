@@ -10,6 +10,12 @@
 @using Volo.Abp.AspNetCore.Components.Web
 @using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
 @using Volo.Abp.Http.Client
+@using Color = MudBlazor.Color
+@using Icons = MudBlazor.Icons
+@using MudButtonGroup = MudBlazor.MudButtonGroup
+
+@using Row = Blazorise.Row
+
 @inherits IBLTermocasaComponentBase
 @inject IRequestForQuotationsAppService RequestForQuotationsAppService
 
@@ -214,7 +220,21 @@
 
             <RowOverlayTemplate >
                 <Div id="@context.Item.Id" class="justify-content-start bg-transparent">
-                    <Button Color="Color.Primary" Size="Size.ExtraSmall"
+                    <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+                        <MudIconButton Icon="@Icons.Material.Filled.PanoramaFishEye"
+                                       DisableElevation="@(CanEditRequestForQuotation)"
+                                       OnClick="() => OpenEditRequestForQuotationPageAsync(context.Item)"
+                                       Size="MudBlazor.Size.Small"/>
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       DisableElevation="@(CanEditRequestForQuotation)"
+                                       OnClick="async () => await OpenEditRequestForQuotationModalAsync(context.Item)"
+                                       Size="MudBlazor.Size.Small"/>
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       DisableElevation="@(CanEditRequestForQuotation)"
+                                       OnClick="async () => await DeleteRequestForQuotationAsync(context.Item)"
+                                       Size="MudBlazor.Size.Small"/>
+                    </MudButtonGroup>
+                    @*<Button Color="Color.Primary" Size="Size.ExtraSmall"
                             Visibility="@((CanEditRequestForQuotation) ? Visibility.Visible : Visibility.Invisible)"
                             Clicked="() => OpenEditRequestForQuotationPageAsync(context.Item)">
                         <Icon Name="IconName.Eye" IconSize="IconSize.ExtraSmall"/>
@@ -228,7 +248,7 @@
                             Visibility="@((CanDeleteRequestForQuotation) ? Visibility.Visible : Visibility.Invisible)"
                             Clicked="async () => await DeleteRequestForQuotationAsync(context.Item)">
                         <Icon Name="IconName.Delete" IconSize="IconSize.ExtraSmall"/>
-                    </Button>
+                    </Button>*@
                 </Div>
             </RowOverlayTemplate>
         </DataGrid>

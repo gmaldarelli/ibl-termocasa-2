@@ -1,3 +1,4 @@
+using IBLTermocasa.BillOFMaterials;
 using AutoMapper;
 using IBLTermocasa.Catalogs;
 using IBLTermocasa.Common;
@@ -50,13 +51,15 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<RequestForQuotationItemDto, RequestForQuotationItem>();
 
         CreateMap<ProductDto, ProductUpdateDto>();
-            /*.Ignore(x => x.SubProducts)
-            .AfterMap(
-                (src, dest) =>
-                {
-                    dest.SubProducts = src.SubProducts;
-                }
-            );*/
+        /*.Ignore(x => x.SubProducts)
+        .AfterMap(
+            (src, dest) =>
+            {
+                dest.SubProducts = src.SubProducts;
+
+        CreateMap<BillOFMaterialDto, BillOFMaterialUpdateDto>();
+        }
+        );*/
         CreateMap<ProductDto, ProductCreateDto>()/*.Ignore(x => x.SubProducts)
             .AfterMap(
                 (src, dest) =>
@@ -66,7 +69,7 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
             )*/;
 
         CreateMap<CatalogDto, CatalogUpdateDto>().Ignore(x => x.ProductIds);
-        
+
         CreateMap<AddressDto, Address>();
         CreateMap<Address, AddressDto>();
         CreateMap<PhoneInfoDto, PhoneInfo>();

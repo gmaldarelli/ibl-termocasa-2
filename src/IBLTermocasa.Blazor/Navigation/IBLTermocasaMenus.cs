@@ -28,4 +28,6 @@ public class IBLTermocasaMenus
 
     public const string Catalogs = Prefix + ".Catalogs";
 
+    public const string BillOFMaterials = Prefix + ".BillOFMaterials";
+
 }

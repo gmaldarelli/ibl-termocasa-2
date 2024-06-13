@@ -209,6 +209,15 @@ public class IBLTermocasaMenuContributor : IMenuContributor
                 icon: "fa fa-book",
                 requiredPermissionName: IBLTermocasaPermissions.Catalogs.Default)
         );
+
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                IBLTermocasaMenus.BillOFMaterials,
+                l["Menu:BillOFMaterials"],
+                url: "/bill-of-materials",
+                icon: "fa fa-file-invoice",
+                requiredPermissionName: IBLTermocasaPermissions.BillOFMaterials.Default)
+        );
         return Task.CompletedTask;
     }
 

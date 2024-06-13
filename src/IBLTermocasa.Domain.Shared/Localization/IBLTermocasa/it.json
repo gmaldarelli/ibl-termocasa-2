@@ -275,6 +275,12 @@
     "Discount(%)": "Sconto (%)",
     "Type": "Tipo",
     "Yes": "Si",
-    "No": "No"
+    "No": "No",
+    "Permission:BillOFMaterials": "Distinte Base",
+    "RequestForQuotation": "Richiesta di Preventivo",
+    "ListItems": "Lista Elementi",
+    "BillOFMaterials": "Distinte Base",
+    "NewBillOFMaterial": "Nuova Distinta Base",
+    "Menu:BillOFMaterials": "Distinte Base",
   }
 }
