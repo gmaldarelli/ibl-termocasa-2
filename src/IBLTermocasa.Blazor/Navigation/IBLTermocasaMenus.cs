@@ -10,6 +10,10 @@ public class IBLTermocasaMenus
     public const string TenantDashboard = Prefix + ".TenantDashboard";
     public const string Materials = Prefix + ".Materials";
 
+    public const string Crm = Prefix + ".Crm";
+    public const string Inventory = Prefix + ".Inventory";
+    public const string Production = Prefix + ".Production";
+    
     public const string Components = Prefix + ".Components";
 
     public const string Products = Prefix + ".Products";
@@ -30,4 +34,7 @@ public class IBLTermocasaMenus
 
     public const string BillOFMaterials = Prefix + ".BillOFMaterials";
 
+    public static int CrmOrder          = 10;
+    public static int InventoryOrder    = 20;
+    public static int ProductionOrder   = 30;
 }

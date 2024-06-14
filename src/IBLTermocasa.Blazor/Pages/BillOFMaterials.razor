@@ -5,25 +5,16 @@
 @attribute [Authorize(IBLTermocasaPermissions.BillOFMaterials.Default)]
 @using IBLTermocasa.BillOFMaterials
 @using IBLTermocasa.Localization
-@using IBLTermocasa.Shared
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.Extensions.Localization
-@using Microsoft.AspNetCore.Components.Web
-@using Blazorise
-@using Blazorise.Components
-@using Blazorise.DataGrid
-@using Volo.Abp.BlazoriseUI
-@using Volo.Abp.BlazoriseUI.Components
-@using Volo.Abp.ObjectMapping
-@using Volo.Abp.AspNetCore.Components.Messages
-@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
-
 @using IBLTermocasa.Permissions
+@using IBLTermocasa.RequestForQuotations
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.AspNetCore.Components.Messages
 @using Volo.Abp.AspNetCore.Components.Web
-@using Microsoft.AspNetCore.Components
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
 @using Volo.Abp.Http.Client
 @inherits IBLTermocasaComponentBase
 @inject IBillOFMaterialsAppService BillOFMaterialsAppService
+@inject IRequestForQuotationsAppService RequestForQuotationsAppService
 
 @inject IUiMessageService UiMessageService
 @inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
@@ -192,141 +183,5 @@
     </CardBody>
 </Card>
 
-@* ************************* CREATE MODAL ************************* *@
-<Modal @ref="CreateBillOFMaterialModal" Closing="@CreateBillOFMaterialModal.CancelClosingModalWhenFocusLost">
-    <ModalContent Centered="true">
 
-        <Form id="CreateBillOFMaterialForm">
-            <ModalHeader>
-                <ModalTitle>@L["NewBillOFMaterial"]</ModalTitle>
-                <CloseButton Clicked="CloseCreateBillOFMaterialModalAsync" />
-            </ModalHeader>
-            <ModalBody>
-                <Validations @ref="@NewBillOFMaterialValidations"
-                            Mode="ValidationMode.Auto"
-                            Model="@NewBillOFMaterial"
-                            ValidateOnLoad="false">
-                     
-                    
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Name"] *</FieldLabel>
-                            <TextEdit @bind-Text="@NewBillOFMaterial.Name"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["RequestForQuotation"] *</FieldLabel>
-                            <TextEdit @bind-Text="@NewBillOFMaterial.RequestForQuotationProperty.Name"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-
-
-                    @*<Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["ListItems"]</FieldLabel>
-                            <TextEdit @bind-Text="@NewBillOFMaterial.ListItems."  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>*@
-
-
-                    
-                    
-                </Validations>
-            </ModalBody>
-            <ModalFooter>
-                <Button Color="Color.Secondary"
-                        Clicked="CloseCreateBillOFMaterialModalAsync">
-                    @L["Cancel"]
-                </Button>
-                <SubmitButton Form="CreateBillOFMaterialForm" Clicked="CreateBillOFMaterialAsync" />
-
-            </ModalFooter>
-        </Form>
-
-    </ModalContent>
-</Modal>
-
-@* ************************* EDIT MODAL ************************* *@
-<Modal @ref="EditBillOFMaterialModal" Closing="@EditBillOFMaterialModal.CancelClosingModalWhenFocusLost">
-    <ModalContent Centered="true">
-
-        <Form id="EditBillOFMaterialForm">
-            <ModalHeader>
-                <ModalTitle>@L["Update"]</ModalTitle>
-                <CloseButton Clicked="CloseEditBillOFMaterialModalAsync" />
-            </ModalHeader>
-            <ModalBody>
-                <Validations @ref="@EditingBillOFMaterialValidations"
-                            Mode="ValidationMode.Auto"
-                            Model="@EditingBillOFMaterial"
-                            ValidateOnLoad="false">
-                     
-                    
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Name"] *</FieldLabel>
-                            <TextEdit @bind-Text="@EditingBillOFMaterial.Name"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["RequestForQuotationId"] *</FieldLabel>
-                            <TextEdit @bind-Text="@EditingBillOFMaterial.RequestForQuotationProperty.Name"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-
-
-                    @*<Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["ListItems"]</FieldLabel>
-                            <TextEdit @bind-Text="@EditingBillOFMaterial.ListItems"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>*@
-
-
-                    
-                    
-                </Validations>
-            </ModalBody>
-            <ModalFooter>
-                <Button Color="Color.Secondary"
-                        Clicked="CloseEditBillOFMaterialModalAsync">
-                    @L["Cancel"]
-                </Button>
-                <SubmitButton Form="EditBillOFMaterialForm" Clicked="UpdateBillOFMaterialAsync" />
-
-            </ModalFooter>
-        </Form>
-
-    </ModalContent>
-</Modal>
 

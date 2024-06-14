@@ -14,7 +14,11 @@ using IBLTermocasa.BillOFMaterials;
 using IBLTermocasa.Common;
 using IBLTermocasa.Permissions;
 using IBLTermocasa.Shared;
-
+using Microsoft.AspNetCore.Components;
+using MudBlazor;
+using Volo.Abp.AspNetCore.Components.Web.Theming.Toolbars;
+using Color = Blazorise.Color;
+using SortDirection = Blazorise.SortDirection;
 
 
 namespace IBLTermocasa.Blazor.Pages
@@ -32,13 +36,6 @@ namespace IBLTermocasa.Blazor.Pages
         private bool CanCreateBillOFMaterial { get; set; }
         private bool CanEditBillOFMaterial { get; set; }
         private bool CanDeleteBillOFMaterial { get; set; }
-        private BillOFMaterialCreateDto NewBillOFMaterial { get; set; }
-        private Validations NewBillOFMaterialValidations { get; set; } = new();
-        private BillOFMaterialUpdateDto EditingBillOFMaterial { get; set; }
-        private Validations EditingBillOFMaterialValidations { get; set; } = new();
-        private Guid EditingBillOFMaterialId { get; set; }
-        private Modal CreateBillOFMaterialModal { get; set; } = new();
-        private Modal EditBillOFMaterialModal { get; set; } = new();
         private GetBillOFMaterialsInput Filter { get; set; } = new();
         private DataGridEntityActionsColumn<BillOFMaterialDto> EntityActionsColumn { get; set; } = new();
         protected string SelectedCreateTab = "billOFMaterial-create-tab";
@@ -54,8 +51,6 @@ namespace IBLTermocasa.Blazor.Pages
         
         public BillOFMaterials()
         {
-            NewBillOFMaterial = new BillOFMaterialCreateDto();
-            EditingBillOFMaterial = new BillOFMaterialUpdateDto();
             Filter = new GetBillOFMaterialsInput
             {
                 MaxResultCount = PageSize,
@@ -91,15 +86,81 @@ namespace IBLTermocasa.Blazor.Pages
 
         protected virtual ValueTask SetToolbarItemsAsync()
         {
+            
+
+                
+            ToolbarButton buttonNewRfq = new ToolbarButton()
+            {
+                Color = Color.Primary,
+                Text = "Nuovi Preventivi",
+                Disabled = false,
+                Icon = IconName.Search,
+                Clicked = new Func<Task>(SearchAsync),
+            };
+            
+            RenderFragment renderFragment = (builder) =>
+            {
+                builder.OpenComponent<ToolbarButton>(0);
+                builder.AddAttribute(1, "Color", buttonNewRfq.Color);
+                builder.AddAttribute(2, "Text", buttonNewRfq.Text);
+                builder.AddAttribute(2, "Disabled", buttonNewRfq.Disabled);
+                builder.AddAttribute(2, "Icon", buttonNewRfq.Icon);
+                builder.AddAttribute(2, "Clicked", buttonNewRfq.Clicked);
+                builder.CloseComponent();
+            };
+           
+            MudBadge badge = new MudBadge()
+            {
+                Color = MudBlazor.Color.Primary,
+                Content = BadgeContent,
+                Max = 100,
+                Overlap = false,
+                Dot = false,
+                ChildContent = (builder) =>
+                {
+                    builder.AddContent(0, renderFragment);
+                },
+            };
+            SimplePageToolbarContributor badgeContributor = new SimplePageToolbarContributor(
+                badge.GetType(),
+                new Dictionary<string, object?>
+                {
+                    { "Icon", badge.Icon},
+                    { "Color", badge.Color},
+                    { "Content", BadgeContent},
+                    { "Max", badge.Max},
+                    { "Overlap", badge.Overlap},
+                    { "Class", badge.Class},
+                    { "ChildContent", badge.ChildContent},
+                },
+                5
+                );
+            
+            Toolbar.Contributors.Add(badgeContributor);
+            
             Toolbar.AddButton(L["ExportToExcel"], async () =>{ await DownloadAsExcelAsync(); }, IconName.Download);
             
             Toolbar.AddButton(L["NewBillOFMaterial"], async () =>
             {
                 await OpenCreateBillOFMaterialModalAsync();
             }, IconName.Add, requiredPolicyName: IBLTermocasaPermissions.BillOFMaterials.Create);
-
+            Toolbar.AddButton("Aumenta", async () =>
+            {
+                BadgeContent = new Random().Next(0, 100).ToString();
+                Toolbar.Contributors.Where(x => x.GetType() == typeof(SimplePageToolbarContributor)).ToList().ForEach(
+                    x =>
+                    {
+                        
+                    });
+                
+                await UiMessageService.Success("Badge content updated with random number: " + BadgeContent);
+                
+                StateHasChanged();
+            }, IconName.PlusCircle, requiredPolicyName: IBLTermocasaPermissions.BillOFMaterials.Create);
             return ValueTask.CompletedTask;
         }
+
+        public string? BadgeContent { get; set; } = "25";
 
         private async Task SetPermissionsAsync()
         {
@@ -159,90 +220,19 @@ namespace IBLTermocasa.Blazor.Pages
 
         private async Task OpenCreateBillOFMaterialModalAsync()
         {
-            NewBillOFMaterial = new BillOFMaterialCreateDto{
-                
-                
-            };
-            await NewBillOFMaterialValidations.ClearAll();
-            await CreateBillOFMaterialModal.Show();
+            //TODO: Add your business logic here.
         }
 
-        private async Task CloseCreateBillOFMaterialModalAsync()
-        {
-            NewBillOFMaterial = new BillOFMaterialCreateDto{
-                
-                
-            };
-            await CreateBillOFMaterialModal.Hide();
-        }
 
         private async Task OpenEditBillOFMaterialModalAsync(BillOFMaterialDto input)
         {
-            var billOFMaterial = await BillOFMaterialsAppService.GetAsync(input.Id);
-            
-            EditingBillOFMaterialId = billOFMaterial.Id;
-            EditingBillOFMaterial = ObjectMapper.Map<BillOFMaterialDto, BillOFMaterialUpdateDto>(billOFMaterial);
-            await EditingBillOFMaterialValidations.ClearAll();
-            await EditBillOFMaterialModal.Show();
+            //TODO: Add your business logic here.
         }
 
         private async Task DeleteBillOFMaterialAsync(BillOFMaterialDto input)
         {
             await BillOFMaterialsAppService.DeleteAsync(input.Id);
             await GetBillOFMaterialsAsync();
-        }
-
-        private async Task CreateBillOFMaterialAsync()
-        {
-            try
-            {
-                if (await NewBillOFMaterialValidations.ValidateAll() == false)
-                {
-                    return;
-                }
-
-                await BillOFMaterialsAppService.CreateAsync(NewBillOFMaterial);
-                await GetBillOFMaterialsAsync();
-                await CloseCreateBillOFMaterialModalAsync();
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
-        }
-
-        private async Task CloseEditBillOFMaterialModalAsync()
-        {
-            await EditBillOFMaterialModal.Hide();
-        }
-
-        private async Task UpdateBillOFMaterialAsync()
-        {
-            try
-            {
-                if (await EditingBillOFMaterialValidations.ValidateAll() == false)
-                {
-                    return;
-                }
-
-                await BillOFMaterialsAppService.UpdateAsync(EditingBillOFMaterialId, EditingBillOFMaterial);
-                await GetBillOFMaterialsAsync();
-                await EditBillOFMaterialModal.Hide();                
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
-        }
-
-        private void OnSelectedCreateTabChanged(string name)
-        {
-            SelectedCreateTab = name;
-        }
-
-        private void OnSelectedEditTabChanged(string name)
-        {
-            SelectedEditTab = name;
         }
 
         protected virtual async Task OnNameChangedAsync(string? name)

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using IBLTermocasa.Localization;
 using IBLTermocasa.Permissions;
+using Microsoft.Extensions.Localization;
 using Volo.Abp.Account.Localization;
 using Volo.Abp.AuditLogging.Blazor.Menus;
 using Volo.Abp.Identity.Pro.Blazor.Navigation;
@@ -120,105 +121,121 @@ public class IBLTermocasaMenuContributor : IMenuContributor
         //Administration->Settings
         administration.SetSubItemOrder(SettingManagementMenus.GroupName, 6);
 
+        GetCrmMenu(context, l);
+        GetInventoryMenu(context, l);
+        GetProductionMenu(context, l);
+        
+        return Task.CompletedTask;
+    }
+
+    private static void GetProductionMenu(MenuConfigurationContext context, IStringLocalizer l)
+    {
         context.Menu.AddItem(
             new ApplicationMenuItem(
-                IBLTermocasaMenus.Materials,
-                l["Menu:Materials"],
-                url: "/materials",
-                icon: "fa fa-file-alt",
-                requiredPermissionName: IBLTermocasaPermissions.Materials.Default)
-        );
-
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                IBLTermocasaMenus.Components,
-                l["Menu:Components"],
-                url: "/components",
-                icon: "fa fa-file-alt",
-                requiredPermissionName: IBLTermocasaPermissions.Components.Default)
-        );
-
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                IBLTermocasaMenus.Products,
-                l["Menu:Products"],
-                url: "/products",
-                icon: "fa fa-dolly",
-                requiredPermissionName: IBLTermocasaPermissions.Products.Default)
-        );
-
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                IBLTermocasaMenus.Industries,
-                l["Menu:Industries"],
-                url: "/industries",
-                icon: "fa fa-industry",
-                requiredPermissionName: IBLTermocasaPermissions.Industries.Default)
-        );
-
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                IBLTermocasaMenus.Contacts,
-                l["Menu:Contacts"],
-                url: "/contacts",
-                icon: "fa fa-id-card-alt",
-                requiredPermissionName: IBLTermocasaPermissions.Contacts.Default)
-        );
-
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                IBLTermocasaMenus.Organizations,
-                l["Menu:Organizations"],
-                url: "/organizations",
-                icon: "fa fa-building",
-                requiredPermissionName: IBLTermocasaPermissions.Organizations.Default)
-        );
-
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                IBLTermocasaMenus.Interactions,
-                l["Menu:Interactions"],
-                url: "/interactions",
-                icon: "fa fa-handshake",
-                requiredPermissionName: IBLTermocasaPermissions.Interactions.Default)
-        );
-
-        context.Menu.AddItem(
+                IBLTermocasaMenus.Production,
+                l["Menu:Production"],
+                icon: "fas fa-industry",
+                order: IBLTermocasaMenus.ProductionOrder).AddItem(
             new ApplicationMenuItem(
                 IBLTermocasaMenus.QuestionTemplates,
                 l["Menu:QuestionTemplates"],
                 url: "/question-templates",
                 icon: "fa fa-question-circle",
                 requiredPermissionName: IBLTermocasaPermissions.QuestionTemplates.Default)
-        );
+        ).AddItem(
+                new ApplicationMenuItem(
+                    IBLTermocasaMenus.BillOFMaterials,
+                    l["Menu:BillOFMaterials"],
+                    url: "/bill-of-materials",
+                    icon: "fa fa-file-invoice",
+                    requiredPermissionName: IBLTermocasaPermissions.BillOFMaterials.Default)
+            )
+            );
+    }
 
+    private static void GetInventoryMenu(MenuConfigurationContext context, IStringLocalizer l)
+    {
         context.Menu.AddItem(
+            new ApplicationMenuItem(
+                IBLTermocasaMenus.Inventory,
+                l["Menu:Inventory"],
+                icon: "fas fa-boxes",
+                order: IBLTermocasaMenus.InventoryOrder).AddItem(
+            new ApplicationMenuItem(
+                IBLTermocasaMenus.Materials,
+                l["Menu:Materials"],
+                url: "/materials",
+                icon: "fa fa-file-alt",
+                requiredPermissionName: IBLTermocasaPermissions.Materials.Default)
+        ).AddItem(
+            new ApplicationMenuItem(
+                IBLTermocasaMenus.Components,
+                l["Menu:Components"],
+                url: "/components",
+                icon: "fa fa-file-alt",
+                requiredPermissionName: IBLTermocasaPermissions.Components.Default)
+        ).AddItem(
+                new ApplicationMenuItem(
+                    IBLTermocasaMenus.Products,
+                    l["Menu:Products"],
+                    url: "/products",
+                    icon: "fa fa-dolly",
+                    requiredPermissionName: IBLTermocasaPermissions.Products.Default)
+            )
+            );
+    }
+
+    private static void GetCrmMenu(MenuConfigurationContext context, IStringLocalizer l)
+    {
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                IBLTermocasaMenus.Crm,
+                l["Menu:CRM"],
+                icon: "fas fa-handshake",
+                order: IBLTermocasaMenus.CrmOrder).AddItem(
+                new ApplicationMenuItem(
+                    IBLTermocasaMenus.Contacts,
+                    l["Menu:Contacts"],
+                    url: "/contacts",
+                    icon: "fa fa-id-card-alt",
+                    requiredPermissionName: IBLTermocasaPermissions.Contacts.Default)
+            ).AddItem(
+            new ApplicationMenuItem(
+                IBLTermocasaMenus.Organizations,
+                l["Menu:Organizations"],
+                url: "/organizations",
+                icon: "fa fa-building",
+                requiredPermissionName: IBLTermocasaPermissions.Organizations.Default)
+        ).AddItem(
+                new ApplicationMenuItem(
+                    IBLTermocasaMenus.Interactions,
+                    l["Menu:Interactions"],
+                    url: "/interactions",
+                    icon: "fa fa-handshake",
+                    requiredPermissionName: IBLTermocasaPermissions.Interactions.Default)
+            ).AddItem(
+                new ApplicationMenuItem(
+                    IBLTermocasaMenus.Industries,
+                    l["Menu:Industries"],
+                    url: "/industries",
+                    icon: "fa fa-industry",
+                    requiredPermissionName: IBLTermocasaPermissions.Industries.Default)
+            ).AddItem(
             new ApplicationMenuItem(
                 IBLTermocasaMenus.RequestForQuotations,
                 l["Menu:RequestForQuotations"],
                 url: "/request-for-quotations",
                 icon: "fa fa-file-alt",
                 requiredPermissionName: IBLTermocasaPermissions.RequestForQuotations.Default)
-        );
-
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                IBLTermocasaMenus.Catalogs,
-                l["Menu:Catalogs"],
-                url: "/catalogs",
-                icon: "fa fa-book",
-                requiredPermissionName: IBLTermocasaPermissions.Catalogs.Default)
-        );
-
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                IBLTermocasaMenus.BillOFMaterials,
-                l["Menu:BillOFMaterials"],
-                url: "/bill-of-materials",
-                icon: "fa fa-file-invoice",
-                requiredPermissionName: IBLTermocasaPermissions.BillOFMaterials.Default)
-        );
-        return Task.CompletedTask;
+        ).AddItem(
+                new ApplicationMenuItem(
+                    IBLTermocasaMenus.Catalogs,
+                    l["Menu:Catalogs"],
+                    url: "/catalogs",
+                    icon: "fa fa-book",
+                    requiredPermissionName: IBLTermocasaPermissions.Catalogs.Default)
+            )
+            );
     }
 
     private async Task ConfigureUserMenuAsync(MenuConfigurationContext context)
