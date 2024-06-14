@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Web;
 using Blazorise;
 using Blazorise.DataGrid;
+using Castle.Components.DictionaryAdapter.Xml;
 using Volo.Abp.BlazoriseUI.Components;
 using Microsoft.AspNetCore.Authorization;
 using Volo.Abp.Application.Dtos;
@@ -89,6 +90,36 @@ namespace IBLTermocasa.Blazor.Pages
             
 
                 
+            var badgeContributor = NewRfqBadgeContributor();
+
+            Toolbar.Contributors.Add(badgeContributor);
+            
+            Toolbar.AddButton(L["ExportToExcel"], async () =>{ await DownloadAsExcelAsync(); }, IconName.Download);
+            
+            Toolbar.AddButton(L["NewBillOFMaterial"], async () =>
+            {
+                await OpenCreateBillOFMaterialModalAsync();
+            }, IconName.Add, requiredPolicyName: IBLTermocasaPermissions.BillOFMaterials.Create);
+            Toolbar.AddButton("Aumenta", async () =>
+            {
+                BadgeContent = new Random().Next(0, 100).ToString();
+                Toolbar.Contributors.ToList().ForEach(
+                    x =>
+                    {
+                        Console.WriteLine($":::::::::::::::::::::::::::::::::::Component type: {x.GetComponentType()}");
+                        SimplePageToolbarContributor y = (SimplePageToolbarContributor)x;
+                       if (y.Arguments["Content"] == null) return;
+                        y.Arguments["Content"] = BadgeContent;
+                    });
+                await UiMessageService.Success("Badge content updated with random number: " + BadgeContent);
+                
+                StateHasChanged();
+            }, IconName.PlusCircle, requiredPolicyName: IBLTermocasaPermissions.BillOFMaterials.Create);
+            return ValueTask.CompletedTask;
+        }
+
+        private SimplePageToolbarContributor NewRfqBadgeContributor()
+        {
             ToolbarButton buttonNewRfq = new ToolbarButton()
             {
                 Color = Color.Primary,
@@ -116,6 +147,7 @@ namespace IBLTermocasa.Blazor.Pages
                 Max = 100,
                 Overlap = false,
                 Dot = false,
+                Bordered = true,
                 ChildContent = (builder) =>
                 {
                     builder.AddContent(0, renderFragment);
@@ -130,34 +162,14 @@ namespace IBLTermocasa.Blazor.Pages
                     { "Content", BadgeContent},
                     { "Max", badge.Max},
                     { "Overlap", badge.Overlap},
+                    {"Dot", badge.Dot}
+                    ,{"Bordered", badge.Bordered} ,
                     { "Class", badge.Class},
                     { "ChildContent", badge.ChildContent},
                 },
                 5
-                );
-            
-            Toolbar.Contributors.Add(badgeContributor);
-            
-            Toolbar.AddButton(L["ExportToExcel"], async () =>{ await DownloadAsExcelAsync(); }, IconName.Download);
-            
-            Toolbar.AddButton(L["NewBillOFMaterial"], async () =>
-            {
-                await OpenCreateBillOFMaterialModalAsync();
-            }, IconName.Add, requiredPolicyName: IBLTermocasaPermissions.BillOFMaterials.Create);
-            Toolbar.AddButton("Aumenta", async () =>
-            {
-                BadgeContent = new Random().Next(0, 100).ToString();
-                Toolbar.Contributors.Where(x => x.GetType() == typeof(SimplePageToolbarContributor)).ToList().ForEach(
-                    x =>
-                    {
-                        
-                    });
-                
-                await UiMessageService.Success("Badge content updated with random number: " + BadgeContent);
-                
-                StateHasChanged();
-            }, IconName.PlusCircle, requiredPolicyName: IBLTermocasaPermissions.BillOFMaterials.Create);
-            return ValueTask.CompletedTask;
+            );
+            return badgeContributor;
         }
 
         public string? BadgeContent { get; set; } = "25";
