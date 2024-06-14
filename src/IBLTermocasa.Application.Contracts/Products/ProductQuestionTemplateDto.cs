@@ -6,7 +6,7 @@ using Volo.Abp.Application.Dtos;
 
 namespace IBLTermocasa.Products
 {
-    public class ProductQuestionTemplateDto : EntityDto<Guid>
+    public class ProductQuestionTemplateDto 
     {
         public Guid QuestionTemplateId { get; set; }
         public int Order { get; set; }
