@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Blazorise;
-using IBLTermocasa.Blazor.Components.Selector;
-using IBLTermocasa.Components;
+using Force.DeepCloner;
 using IBLTermocasa.Products;
 using IBLTermocasa.QuestionTemplates;
-using IBLTermocasa.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using NUglify.Helpers;
+using MudBlazor;
 
 namespace IBLTermocasa.Blazor.Components.Product;
 
@@ -22,19 +20,19 @@ public partial class ModalProductQuestionTemplateInput
     [Parameter] public EventCallback<ProductQuestionTemplateDto> OnSave { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
 
-    [Parameter] public int MaxValue { get; set; } = 100;
-    [Parameter] public int MinValue { get; set; } = 1;
+    [Parameter] public int OrderMaxValue { get; set; } = 100;
+    [Parameter] public int OrderMinValue { get; set; } = 1;
     
     private bool IsMultiSelection = false;
     private string ProductLabelSingle = "";
     private string ProductLabelPlural = "";
     private string TextProperty = "Name";
     public Modal ProductQuestionTemplateModal { get; set; }
-    public ElementSelectorInput ElementSelectorInput { get; set; }
-    public IEnumerable<LookupDto<Guid>> ComponentListLookupDto { get; set; }
-    public IEnumerable<LookupDto<Guid>> SelectedComponentListLookupDto { get; set; }
+    
+    public MudSelect<string> MudSelectComponent { get; set; }
 
     private bool _isModalOpen;
+    private string? GuidStringSelected;
     
     private void OpenModal()
     {
@@ -49,25 +47,14 @@ public partial class ModalProductQuestionTemplateInput
         }
         else
         {
-            ComponentListLookupDto = ComponentList.Select(x => new LookupDto<Guid>()
-                {
-                    Id = x.Id,
-                    DisplayName = $"{x.QuestionText}"
-                }
-            );
-            SelectedComponentListLookupDto = new List<LookupDto<Guid>>();
-            
-            if(ProductQuestionTemplate.QuestionTemplateId != null)
-            {
-                new LookupDto<Guid>()
-                {
-                    Id = ProductQuestionTemplate.QuestionTemplateId,
-                    DisplayName = $"{ComponentListLookupDto.FirstOrDefault(y => y.Id.Equals(ProductQuestionTemplate.QuestionTemplateId))}"
-                };
-            };
+            GuidStringSelected = ProductQuestionTemplate?.QuestionTemplateId.ToString();
         }
-        ProductLabelSingle = L["Product"];
-        ProductLabelPlural = L["Products"];
+        if(GuidStringSelected == null || GuidStringSelected == Guid.Empty.ToString())
+        {
+            GuidStringSelected = null;
+        }
+        ProductLabelSingle = L["Component"];
+        ProductLabelPlural = L["Components"];
     }
 
     private string ResoverDisplayName(Guid id)
@@ -78,32 +65,31 @@ public partial class ModalProductQuestionTemplateInput
 
     private void OnModalCancel(MouseEventArgs obj)
     { 
+        _isModalOpen = false;
+        ProductQuestionTemplateModal.Hide();
         OnCancel.InvokeAsync();
         StateHasChanged();
     }
 
-    private void OnModalSave(MouseEventArgs obj)
+    private async void OnModalSave(MouseEventArgs obj)
     {
-        var updatedList = ComponentList.Where(x => ElementSelectorInput.OutputSelectedComponents()
-            .Select(y => y.Id).Contains(x.Id)).ToList();
-        if(updatedList.Count > 0)
+
+        if(GuidStringSelected !=null )
         {
-            ProductQuestionTemplate.QuestionTemplateId = updatedList.First().Id;
+            ProductQuestionTemplate.QuestionTemplateId = Guid.Parse(GuidStringSelected);
+            Console.WriteLine("ProductQuestionTemplate.ComponentId: " + ProductQuestionTemplate.QuestionTemplateId);
         }
         else
         {
             //TODO: Show validation error
         }
-        _isModalOpen = false;
-        OnSave.InvokeAsync(ProductQuestionTemplate);
-        StateHasChanged();
+        await OnSave.InvokeAsync(ProductQuestionTemplate);
     }
 
     public void Hide()
     {
         _isModalOpen = false;
         ProductQuestionTemplateModal.Hide();
-        StateHasChanged();
     }
     
     public void Show()
@@ -112,14 +98,50 @@ public partial class ModalProductQuestionTemplateInput
         ProductQuestionTemplateModal.Show();
         StateHasChanged();
     }
-    
-    private void OnElementSelectorInputSelectedComponentsChanged(IEnumerable<LookupDto<Guid>> selectedComponents)
-    {
-        SelectedComponentListLookupDto = selectedComponents;
-    }
+
 
     private void OnSelectorValueChanged(IEnumerable<Guid> selectedComponents)
     {
         StateHasChanged();
+    }
+
+    private string GetMultiSelectionText(List<string> selectedValues)
+    {
+        if (selectedValues.Count == 0 || selectedValues[0] == Guid.Empty.ToString())
+        {
+            return L["NothingSelected"];
+        }
+
+        var names = ComponentList.Where(x =>
+            selectedValues.Contains(x.Id.ToString())).Select(x => x.QuestionText).ToList();
+        return $"{string.Join(", ", names)}";
+    }
+
+    private string ComponentName(string guidString)
+    {
+        return ComponentList.Where(x => x.Id.ToString().Equals(guidString)).Select(x => x.QuestionText).FirstOrDefault();
+    }
+
+
+    public void InitializeModal(ProductQuestionTemplateDto selectedProductQuestionTemplate, IReadOnlyList<QuestionTemplateDto> componentList)
+    {
+        _isModalOpen = false;
+        GuidStringSelected = ProductQuestionTemplate.QuestionTemplateId.ToString();
+        ProductQuestionTemplate = selectedProductQuestionTemplate.DeepClone();
+        ComponentList = componentList;
+    
+        // Reset any other necessary fields
+        TextProperty = "Name";  // Example of resetting another property
+        StateHasChanged();
+     }
+    
+
+    private void OnGuidStringSelectedChanged(string obj)
+    {
+        GuidStringSelected = obj;
+        if(GuidStringSelected != null && GuidStringSelected != Guid.Empty.ToString() && ProductQuestionTemplate.Name.IsNullOrEmpty())
+        {
+            ProductQuestionTemplate.Name = ComponentName(GuidStringSelected);
+        }
     }
 }
