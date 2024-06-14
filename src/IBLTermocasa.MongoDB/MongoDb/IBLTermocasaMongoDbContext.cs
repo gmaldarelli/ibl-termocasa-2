@@ -1,4 +1,4 @@
-using IBLTermocasa.BillOFMaterials;
+using IBLTermocasa.BillOfMaterials;
 using IBLTermocasa.Catalogs;
 using IBLTermocasa.RequestForQuotations;
 using IBLTermocasa.QuestionTemplates;

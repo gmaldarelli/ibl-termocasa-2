@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using IBLTermocasa.Common;
 
-namespace IBLTermocasa.BillOFMaterials
+namespace IBLTermocasa.BillOfMaterials
 {
-    public class BillOFMaterialCreateDto
+    public class BillOfMaterialCreateDto
     {
         [Required]
         public string Name { get; set; }

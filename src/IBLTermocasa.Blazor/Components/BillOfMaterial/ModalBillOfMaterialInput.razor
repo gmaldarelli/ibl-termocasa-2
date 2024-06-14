@@ -1,0 +1,44 @@
+﻿@using IBLTermocasa.Shared
+@using MudBlazor
+@inherits IBLTermocasaComponentBase
+
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            @L["BillOfMaterial"]
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudItem xs="12">
+            <MudAutocomplete T="LookupDto<Guid>"
+                             Label="@L["RequestForQuotation"]"
+                             ValueChanged="@(rfq => UpdateValueRequestForQuotation(rfq))"
+                             ToStringFunc="@(rfq => rfq?.DisplayName)"
+                             Value="selectedRFQLookupDto"
+                             ResetValueOnEmptyText="true"
+                             MaxItems="null"
+                             SearchFunc="@SearchRFQ"/>
+        </MudItem>
+        
+        @if (selectedRFQLookupDto.Id != Guid.Empty)
+        {
+            <MudItem xs="12">
+                <MudTextField T="string" Value="SelectedRequestForQuotation.QuoteNumber" ReadOnly="true" Label="@L["QuoteNumber"]" Variant="Variant.Filled"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField T="string" Value="SelectedRequestForQuotation.ContactProperty.Name" ReadOnly="true" Label="@L["Contact"]" Variant="Variant.Filled"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField T="string" Value="SelectedRequestForQuotation.AgentProperty.Name" ReadOnly="true" Label="@L["Agent"]" Variant="Variant.Filled"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudDatePicker Date="SelectedRequestForQuotation.DateDocument" ReadOnly="true" Label="@L["Date"]" Variant="Variant.Filled"/>
+            </MudItem>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">@L["Cancel"]</MudButton>
+        <MudButton Color="MudBlazor.Color.Primary" OnClick="Generate">@L["GenerateBillOfMaterial"]</MudButton>
+    </DialogActions>
+</MudDialog>

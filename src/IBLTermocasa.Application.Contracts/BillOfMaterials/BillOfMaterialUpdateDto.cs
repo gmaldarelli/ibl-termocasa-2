@@ -1,18 +1,19 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using IBLTermocasa.Common;
-using Volo.Abp.Application.Dtos;
 using Volo.Abp.Domain.Entities;
 
-namespace IBLTermocasa.BillOFMaterials
+namespace IBLTermocasa.BillOfMaterials
 {
-    public class BillOFMaterialDto : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
+    public class BillOfMaterialUpdateDto : IHasConcurrencyStamp
     {
+        [Required]
         public string Name { get; set; } = null!;
-        public RequestForQuotationPropertyDto RequestForQuotationProperty { get; set; } = new();
+        [Required]
+        public RequestForQuotationPropertyDto RequestForQuotationProperty { get; set; } = null!;
         public List<BOMItemDto>? ListItems { get; set; } = new();
 
         public string ConcurrencyStamp { get; set; } = null!;
-
     }
 }

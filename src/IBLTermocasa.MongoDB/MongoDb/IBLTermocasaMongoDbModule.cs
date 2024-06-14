@@ -1,4 +1,4 @@
-using IBLTermocasa.BillOFMaterials;
+using IBLTermocasa.BillOfMaterials;
 using IBLTermocasa.Catalogs;
 using IBLTermocasa.RequestForQuotations;
 using IBLTermocasa.QuestionTemplates;
@@ -75,7 +75,7 @@ public class IBLTermocasaMongoDbModule : AbpModule
 
             options.AddRepository<Catalog, Catalogs.MongoCatalogRepository>();
 
-            options.AddRepository<BillOFMaterial, BillOFMaterials.MongoBillOFMaterialRepository>();
+            options.AddRepository<BillOFMaterial, BillOfMaterials.MongoBillOFMaterialRepository>();
 
         });
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Volo.Abp.Domain.Entities;
 
-namespace IBLTermocasa.BillOFMaterials;
+namespace IBLTermocasa.BillOfMaterials;
 
 public class BOMProductItem : Entity<Guid>
 {

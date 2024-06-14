@@ -119,7 +119,23 @@ namespace IBLTermocasa.RequestForQuotations
                 Items = ObjectMapper.Map<List<Contact>, List<LookupDto<Guid>>>(lookupData)
             };
         }
+        
+        public virtual async Task<PagedResultDto<LookupDto<Guid>>> GetRequestForQuotationLookupAsync(LookupRequestDto input)
+        {
+            var query = (await _requestForQuotationRepository.GetQueryableAsync())
+                .WhereIf(!string.IsNullOrWhiteSpace(input.Filter),
+                    x => x.QuoteNumber != null &&
+                        x.QuoteNumber.Contains(input.Filter));
 
+            var lookupData = await query.PageBy(input.SkipCount, input.MaxResultCount).ToDynamicListAsync<RequestForQuotation>();
+            var totalCount = query.Count();
+            return new PagedResultDto<LookupDto<Guid>>
+            {
+                TotalCount = totalCount,
+                Items = ObjectMapper.Map<List<RequestForQuotation>, List<LookupDto<Guid>>>(lookupData)
+            };
+        }
+        
         public virtual async Task<PagedResultDto<LookupDto<Guid>>> GetOrganizationLookupAsync(LookupRequestDto input)
         {
             var query = (await _organizationRepository.GetQueryableAsync())

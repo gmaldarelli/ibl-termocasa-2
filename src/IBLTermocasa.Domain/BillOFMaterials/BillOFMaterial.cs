@@ -11,7 +11,7 @@ using JetBrains.Annotations;
 
 using Volo.Abp;
 
-namespace IBLTermocasa.BillOFMaterials
+namespace IBLTermocasa.BillOfMaterials
 {
     public class BillOFMaterial : FullAuditedAggregateRoot<Guid>, IMultiTenant
     {

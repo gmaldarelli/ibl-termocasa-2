@@ -11,7 +11,8 @@ using Volo.Abp.BlazoriseUI.Components;
 using Microsoft.AspNetCore.Authorization;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
-using IBLTermocasa.BillOFMaterials;
+using IBLTermocasa.BillOfMaterials;
+using IBLTermocasa.Blazor.Components.BillOfMaterial;
 using IBLTermocasa.Common;
 using IBLTermocasa.Permissions;
 using IBLTermocasa.Shared;
@@ -26,10 +27,12 @@ namespace IBLTermocasa.Blazor.Pages
 {
     public partial class BillOFMaterials
     {
+        [Inject]
+        public IDialogService DialogService { get; set; }
         protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems = new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
         protected PageToolbar Toolbar {get;} = new PageToolbar();
         protected bool ShowAdvancedFilters { get; set; }
-        private IReadOnlyList<BillOFMaterialDto> BillOFMaterialList { get; set; } = new List<BillOFMaterialDto>();
+        private IReadOnlyList<BillOfMaterialDto> BillOFMaterialList { get; set; } = new List<BillOfMaterialDto>();
         private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
         private int CurrentPage { get; set; } = 1;
         private string CurrentSorting { get; set; } = string.Empty;
@@ -37,28 +40,25 @@ namespace IBLTermocasa.Blazor.Pages
         private bool CanCreateBillOFMaterial { get; set; }
         private bool CanEditBillOFMaterial { get; set; }
         private bool CanDeleteBillOFMaterial { get; set; }
-        private GetBillOFMaterialsInput Filter { get; set; } = new();
-        private DataGridEntityActionsColumn<BillOFMaterialDto> EntityActionsColumn { get; set; } = new();
+        private GetBillOfMaterialsInput Filter { get; set; } = new();
+        private DataGridEntityActionsColumn<BillOfMaterialDto> EntityActionsColumn { get; set; } = new();
         protected string SelectedCreateTab = "billOFMaterial-create-tab";
         protected string SelectedEditTab = "billOFMaterial-edit-tab";
-        private BillOFMaterialDto? SelectedBillOFMaterial;
+        private BillOfMaterialDto? SelectedBillOFMaterial;
+        private ModalBillOfMaterialInput AddBillOfMaterialModal { get; set; }
         
-        
-        
-        
-        
-        private List<BillOFMaterialDto> SelectedBillOFMaterials { get; set; } = new();
+        private List<BillOfMaterialDto> SelectedBillOFMaterials { get; set; } = new();
         private bool AllBillOFMaterialsSelected { get; set; }
         
         public BillOFMaterials()
         {
-            Filter = new GetBillOFMaterialsInput
+            Filter = new GetBillOfMaterialsInput
             {
                 MaxResultCount = PageSize,
                 SkipCount = (CurrentPage - 1) * PageSize,
                 Sorting = CurrentSorting
             };
-            BillOFMaterialList = new List<BillOFMaterialDto>();
+            BillOFMaterialList = new List<BillOfMaterialDto>();
             
             
         }
@@ -219,7 +219,7 @@ namespace IBLTermocasa.Blazor.Pages
             NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/bill-of-materials/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&Name={HttpUtility.UrlEncode(Filter.Name)}&RequestForQuotationId={HttpUtility.UrlEncode(Filter.RequestForQuotationProperty.Name)}", forceLoad: true);
         }
 
-        private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<BillOFMaterialDto> e)
+        private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<BillOfMaterialDto> e)
         {
             CurrentSorting = e.Columns
                 .Where(c => c.SortDirection != SortDirection.Default)
@@ -232,16 +232,22 @@ namespace IBLTermocasa.Blazor.Pages
 
         private async Task OpenCreateBillOFMaterialModalAsync()
         {
-            //TODO: Add your business logic here.
+                var dialog = await DialogService.ShowAsync<ModalBillOfMaterialInput>("Select Request For Quotation", new DialogOptions { CloseOnEscapeKey = true });
+                var result = await dialog.Result;
+                if (!result.Cancelled)
+                {
+                    var billOfMaterial = (BillOfMaterialDto)result.Data;
+                    await InvokeAsync(StateHasChanged);
+                }
         }
 
 
-        private async Task OpenEditBillOFMaterialModalAsync(BillOFMaterialDto input)
+        private async Task OpenEditBillOFMaterialModalAsync(BillOfMaterialDto input)
         {
             //TODO: Add your business logic here.
         }
 
-        private async Task DeleteBillOFMaterialAsync(BillOFMaterialDto input)
+        private async Task DeleteBillOFMaterialAsync(BillOfMaterialDto input)
         {
             await BillOFMaterialsAppService.DeleteAsync(input.Id);
             await GetBillOFMaterialsAsync();
@@ -313,6 +319,16 @@ namespace IBLTermocasa.Blazor.Pages
             await GetBillOFMaterialsAsync();
         }
 
-
+        private void CloseModalBillOfMaterialAsync()
+        {
+            AddBillOfMaterialModal.Hide();
+            InvokeAsync(StateHasChanged);
+        }
+        
+        private async void SaveModalBillOfMaterialInputAsync(BillOfMaterialDto obj)
+        {
+            AddBillOfMaterialModal.Hide();
+            await InvokeAsync(StateHasChanged);
+        }
     }
 }

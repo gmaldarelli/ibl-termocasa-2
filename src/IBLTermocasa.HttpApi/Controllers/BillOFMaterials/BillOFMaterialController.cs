@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.Application.Dtos;
-using IBLTermocasa.BillOFMaterials;
+using IBLTermocasa.BillOfMaterials;
 using Volo.Abp.Content;
 using IBLTermocasa.Shared;
 
@@ -17,37 +17,37 @@ namespace IBLTermocasa.Controllers.BillOFMaterials
     [ControllerName("BillOFMaterial")]
     [Route("api/app/bill-of-materials")]
 
-    public class BillOFMaterialController : AbpController, IBillOFMaterialsAppService
+    public class BillOFMaterialController : AbpController, IBillOfMaterialsAppService
     {
-        protected IBillOFMaterialsAppService _billOFMaterialsAppService;
+        protected IBillOfMaterialsAppService _billOFMaterialsAppService;
 
-        public BillOFMaterialController(IBillOFMaterialsAppService billOFMaterialsAppService)
+        public BillOFMaterialController(IBillOfMaterialsAppService billOFMaterialsAppService)
         {
             _billOFMaterialsAppService = billOFMaterialsAppService;
         }
 
         [HttpGet]
-        public virtual Task<PagedResultDto<BillOFMaterialDto>> GetListAsync(GetBillOFMaterialsInput input)
+        public virtual Task<PagedResultDto<BillOfMaterialDto>> GetListAsync(GetBillOfMaterialsInput input)
         {
             return _billOFMaterialsAppService.GetListAsync(input);
         }
 
         [HttpGet]
         [Route("{id}")]
-        public virtual Task<BillOFMaterialDto> GetAsync(Guid id)
+        public virtual Task<BillOfMaterialDto> GetAsync(Guid id)
         {
             return _billOFMaterialsAppService.GetAsync(id);
         }
 
         [HttpPost]
-        public virtual Task<BillOFMaterialDto> CreateAsync(BillOFMaterialCreateDto input)
+        public virtual Task<BillOfMaterialDto> CreateAsync(BillOfMaterialCreateDto input)
         {
             return _billOFMaterialsAppService.CreateAsync(input);
         }
 
         [HttpPut]
         [Route("{id}")]
-        public virtual Task<BillOFMaterialDto> UpdateAsync(Guid id, BillOFMaterialUpdateDto input)
+        public virtual Task<BillOfMaterialDto> UpdateAsync(Guid id, BillOfMaterialUpdateDto input)
         {
             return _billOFMaterialsAppService.UpdateAsync(id, input);
         }
@@ -61,7 +61,7 @@ namespace IBLTermocasa.Controllers.BillOFMaterials
 
         [HttpGet]
         [Route("as-excel-file")]
-        public virtual Task<IRemoteStreamContent> GetListAsExcelFileAsync(BillOFMaterialExcelDownloadDto input)
+        public virtual Task<IRemoteStreamContent> GetListAsExcelFileAsync(BillOfMaterialExcelDownloadDto input)
         {
             return _billOFMaterialsAppService.GetListAsExcelFileAsync(input);
         }
@@ -81,7 +81,7 @@ namespace IBLTermocasa.Controllers.BillOFMaterials
 
         [HttpDelete]
         [Route("all")]
-        public virtual Task DeleteAllAsync(GetBillOFMaterialsInput input)
+        public virtual Task DeleteAllAsync(GetBillOfMaterialsInput input)
         {
             return _billOFMaterialsAppService.DeleteAllAsync(input);
         }

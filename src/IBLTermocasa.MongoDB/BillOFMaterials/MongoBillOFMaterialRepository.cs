@@ -11,7 +11,7 @@ using Volo.Abp.MongoDB;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver;
 
-namespace IBLTermocasa.BillOFMaterials
+namespace IBLTermocasa.BillOfMaterials
 {
     public class MongoBillOFMaterialRepository : MongoDbRepository<IBLTermocasaMongoDbContext, BillOFMaterial, Guid>, IBillOFMaterialRepository
     {

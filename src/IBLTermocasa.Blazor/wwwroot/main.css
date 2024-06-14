@@ -56,3 +56,10 @@
     --logo: url(/images/logo/logo-image-tc.svg);
     --logo-reverse: url(/images/logo/logo-image-tc.svg);
 }
+
+.scrollable-card {
+    height: 63vh;
+    max-height: 63vh;
+    overflow-y: auto;
+    border-radius: 5px; /* Aggiungi bordi arrotondati per la card */
+}

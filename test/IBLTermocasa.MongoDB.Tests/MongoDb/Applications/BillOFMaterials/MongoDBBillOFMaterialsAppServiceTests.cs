@@ -1,4 +1,4 @@
-﻿using IBLTermocasa.BillOFMaterials;
+﻿using IBLTermocasa.BillOfMaterials;
 using Xunit;
 
 namespace IBLTermocasa.MongoDB.Applications.BillOFMaterials;

@@ -67,6 +67,13 @@ namespace IBLTermocasa.Controllers.RequestForQuotations
         {
             return _requestForQuotationsAppService.GetContactLookupAsync(input);
         }
+        
+        [HttpGet]
+        [Route("rfq-lookup")]
+        public virtual Task<PagedResultDto<LookupDto<Guid>>> GetRequestForQuotationLookupAsync(LookupRequestDto input)
+        {
+            return _requestForQuotationsAppService.GetRequestForQuotationLookupAsync(input);
+        }
 
         [HttpGet]
         [Route("organization-lookup")]

@@ -1,7 +1,7 @@
 ﻿using System;
 using Volo.Abp.Application.Dtos;
 
-namespace IBLTermocasa.BillOFMaterials;
+namespace IBLTermocasa.BillOfMaterials;
 
 public class BOMComponentDto : EntityDto<Guid>
 {

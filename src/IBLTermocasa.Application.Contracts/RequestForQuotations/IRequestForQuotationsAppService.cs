@@ -23,6 +23,8 @@ namespace IBLTermocasa.RequestForQuotations
 
         Task<PagedResultDto<LookupDto<Guid>>> GetContactLookupAsync(LookupRequestDto input);
 
+        Task<PagedResultDto<LookupDto<Guid>>> GetRequestForQuotationLookupAsync(LookupRequestDto input);
+
         Task<PagedResultDto<LookupDto<Guid>>> GetOrganizationLookupAsync(LookupRequestDto input);
         
         Task<PagedResultDto<LookupDto<Guid>>> GetOrganizationLookupCustomerAsync(LookupRequestDto input);

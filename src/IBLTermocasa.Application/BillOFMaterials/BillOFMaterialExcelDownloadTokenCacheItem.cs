@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace IBLTermocasa.BillOFMaterials;
+namespace IBLTermocasa.BillOfMaterials;
 
 [Serializable]
 public class BillOFMaterialExcelDownloadTokenCacheItem

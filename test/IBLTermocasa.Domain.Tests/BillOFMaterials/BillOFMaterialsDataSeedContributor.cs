@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Uow;
-using IBLTermocasa.BillOFMaterials;
+using IBLTermocasa.BillOfMaterials;
 using IBLTermocasa.Common;
 
-namespace IBLTermocasa.BillOFMaterials
+namespace IBLTermocasa.BillOfMaterials
 {
     public class BillOFMaterialsDataSeedContributor : IDataSeedContributor, ISingletonDependency
     {

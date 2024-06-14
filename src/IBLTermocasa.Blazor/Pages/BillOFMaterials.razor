@@ -1,9 +1,7 @@
-﻿
-
-@page "/bill-of-materials"
+﻿@page "/bill-of-materials"
 
 @attribute [Authorize(IBLTermocasaPermissions.BillOFMaterials.Default)]
-@using IBLTermocasa.BillOFMaterials
+@using IBLTermocasa.BillOfMaterials
 @using IBLTermocasa.Localization
 @using IBLTermocasa.Permissions
 @using IBLTermocasa.RequestForQuotations
@@ -12,8 +10,12 @@
 @using Volo.Abp.AspNetCore.Components.Web
 @using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
 @using Volo.Abp.Http.Client
+@using Color = MudBlazor.Color
+@using Margin = MudBlazor.Margin
+@using MudBlazor
+@using IBLTermocasa.Blazor.Components.BillOfMaterial
 @inherits IBLTermocasaComponentBase
-@inject IBillOFMaterialsAppService BillOFMaterialsAppService
+@inject IBillOfMaterialsAppService BillOFMaterialsAppService
 @inject IRequestForQuotationsAppService RequestForQuotationsAppService
 
 @inject IUiMessageService UiMessageService
@@ -27,55 +29,71 @@
 </PageHeader>
 
 @* ************************* SEARCH ************************* *@
-<Card>
-    <CardBody>
+<MudCard Class="bg-white mb-3 scrollable-card">
+    <MudCardContent>
+        <MudGrid>
+        <MudItem xs="12">
+            <MudTextField T="string"
+                          @bind-Value="Filter.FilterText"
+                          AutoFocus="true"
+                          Label="@L["Search"]"
+                          Immediate="true"
+                          Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Adornment="Adornment.End"
+                          AdornmentIcon="@Icons.Material.Outlined.Search"
+                          OnAdornmentClick="@GetBillOFMaterialsAsync">
+            </MudTextField>
+        </MudItem>
+        <MudItem xs="12">
+            <MudButton Variant="Variant.Text"
+                       Color="Color.Primary"
+                       OnClick="@(() => ShowAdvancedFilters = !ShowAdvancedFilters)">
+                @L["SeeAdvancedFilters"]
+            </MudButton>
+        </MudItem>
+        @if (ShowAdvancedFilters)
+        {
+            <MudItem xs="12" sm="3">
+                <MudTextField T="string"
+                              Label="@L["Name"]"
+                              Immediate="true"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              ValueChanged="@(s => OnNameChangedAsync(s))">
+                </MudTextField>
+            </MudItem>
+            <MudItem xs="12" sm="3">
+                <MudTextField T="string"
+                              Label="@L["RequestForQuotation"]"
+                              Immediate="true"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              ValueChanged="@(s => OnRequestForQuotationIdChangedAsync(s))">
+                </MudTextField>
+            </MudItem>
+        }
+        </MudGrid>
+    </MudCardContent>
+</MudCard>
 
-        <Form id="BillOFMaterialSearchForm" class="mb-3">
-            <Addons>
-                <Addon AddonType="AddonType.Body">
-                    <TextEdit @bind-Text="@Filter.FilterText"
-                              Autofocus="true"
-                              Placeholder="@L["Search"]">
-                    </TextEdit>
-                </Addon>
-                <Addon AddonType="AddonType.End">
-                    <SubmitButton Form="BillOFMaterialSearchForm" Clicked="GetBillOFMaterialsAsync">
-                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
-                    </SubmitButton>
-                </Addon>
-            </Addons>
-        </Form>
-        
-        <Row Class="mt-3 mb-3"> 
-            <div class="col-md-12">
-                <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
-            </div>
-        </Row>
-        
-        <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
-            <Row>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["Name"]</FieldLabel>
-                        <TextEdit Text="@Filter.Name" TextChanged="@OnNameChangedAsync" />                       
-                    </Field>
-                </Column>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["RequestForQuotation"]</FieldLabel>
-                        <TextEdit TextChanged="@OnRequestForQuotationIdChangedAsync"/>
-                    </Field>
-                </Column>
-            </Row>
-
-        </div>
-
-
-    </CardBody>
-</Card>
 
 @* ************************* DATA GRID ************************* *@
-<Card>
+
+<MudCard>
+    <MudCardContent>
+        <MudDataGrid Items="BillOFMaterialList">
+            <Columns>
+                <PropertyColumn Property="x => x.Name" Title="@L["Name"]"/>
+                <PropertyColumn Property="x => x.RequestForQuotationProperty.Name" Title="@L["RequestForQuotation"]"/>
+            </Columns>
+        </MudDataGrid>
+    </MudCardContent>
+</MudCard>
+
+<ModalBillOfMaterialInput @ref="AddBillOfMaterialModal"
+                          OnCancel="CloseModalBillOfMaterialAsync"
+                          OnSave="SaveModalBillOfMaterialInputAsync"/>
+
+
+@*<Card>
     <CardBody>        
         @if (SelectedBillOFMaterials.Any())
         {
@@ -171,17 +189,17 @@
                       Caption="@L["RequestForQuotation"]">
               </DataGridColumn>
 
-              @*<DataGridColumn TItem="BillOFMaterialDto"
+              <DataGridColumn TItem="BillOFMaterialDto"
                       Field="ListItems"
                       Caption="@L["ListItems"]">
-              </DataGridColumn>*@
+              </DataGridColumn>
 
             </DataGridColumns>
             
             
         </DataGrid>
     </CardBody>
-</Card>
-
+</Card>*@
+<MudThemeProvider/>
 
 

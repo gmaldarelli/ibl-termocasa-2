@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using IBLTermocasa.Common;
 using Volo.Abp.Domain.Repositories;
 
-namespace IBLTermocasa.BillOFMaterials
+namespace IBLTermocasa.BillOfMaterials
 {
     public interface IBillOFMaterialRepository : IRepository<BillOFMaterial, Guid>
     {

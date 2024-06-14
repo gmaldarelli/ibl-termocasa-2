@@ -8,17 +8,17 @@ using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Modularity;
 using Xunit;
 
-namespace IBLTermocasa.BillOFMaterials
+namespace IBLTermocasa.BillOfMaterials
 {
     public abstract class BillOFMaterialsAppServiceTests<TStartupModule> : IBLTermocasaApplicationTestBase<TStartupModule>
         where TStartupModule : IAbpModule
     {
-        private readonly IBillOFMaterialsAppService _billOFMaterialsAppService;
+        private readonly IBillOfMaterialsAppService _billOFMaterialsAppService;
         private readonly IRepository<BillOFMaterial, Guid> _billOFMaterialRepository;
 
         public BillOFMaterialsAppServiceTests()
         {
-            _billOFMaterialsAppService = GetRequiredService<IBillOFMaterialsAppService>();
+            _billOFMaterialsAppService = GetRequiredService<IBillOfMaterialsAppService>();
             _billOFMaterialRepository = GetRequiredService<IRepository<BillOFMaterial, Guid>>();
         }
 
@@ -26,7 +26,7 @@ namespace IBLTermocasa.BillOFMaterials
         public async Task GetListAsync()
         {
             // Act
-            var result = await _billOFMaterialsAppService.GetListAsync(new GetBillOFMaterialsInput());
+            var result = await _billOFMaterialsAppService.GetListAsync(new GetBillOfMaterialsInput());
 
             // Assert
             result.TotalCount.ShouldBe(2);
@@ -50,7 +50,7 @@ namespace IBLTermocasa.BillOFMaterials
         public async Task CreateAsync()
         {
             // Arrange
-            var input = new BillOFMaterialCreateDto
+            var input = new BillOfMaterialCreateDto
             {
                 Name = "a166121b4be946a58e4be696fdfb2a071bc9e74f7eca4b",
                 RequestForQuotationProperty = new RequestForQuotationPropertyDto(),
@@ -73,7 +73,7 @@ namespace IBLTermocasa.BillOFMaterials
         public async Task UpdateAsync()
         {
             // Arrange
-            var input = new BillOFMaterialUpdateDto()
+            var input = new BillOfMaterialUpdateDto()
             {
                 Name = "eb3faf122fa3407f9283db7c6fac7037490b07c82b0d4bf599e12ac52c5cba03b7bc16485f4845f88fcf8",
                 RequestForQuotationProperty = new RequestForQuotationPropertyDto(),

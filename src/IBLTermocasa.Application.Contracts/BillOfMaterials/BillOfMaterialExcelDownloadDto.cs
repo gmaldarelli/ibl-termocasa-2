@@ -2,9 +2,9 @@
 using System;
 using IBLTermocasa.Common;
 
-namespace IBLTermocasa.BillOFMaterials
+namespace IBLTermocasa.BillOfMaterials
 {
-    public class BillOFMaterialExcelDownloadDto
+    public class BillOfMaterialExcelDownloadDto
     {
         public string DownloadToken { get; set; } = null!;
 
@@ -13,7 +13,7 @@ namespace IBLTermocasa.BillOFMaterials
         public string? Name { get; set; }
         public RequestForQuotationProperty? RequestForQuotationId { get; set; }
 
-        public BillOFMaterialExcelDownloadDto()
+        public BillOfMaterialExcelDownloadDto()
         {
 
         }

@@ -1,7 +1,7 @@
 ﻿using System;
 using Volo.Abp.Domain.Entities;
 
-namespace IBLTermocasa.BillOFMaterials;
+namespace IBLTermocasa.BillOfMaterials;
 
 public class BOMComponent : Entity<Guid>
 {

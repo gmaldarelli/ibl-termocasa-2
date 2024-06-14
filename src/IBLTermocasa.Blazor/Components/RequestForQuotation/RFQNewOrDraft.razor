@@ -14,14 +14,6 @@
 @using Size = MudBlazor.Size
 @inherits IBLTermocasaComponentBase
 
-<style>
-    .scrollable-card {
-        height: 63vh;
-        max-height: 63vh;
-        overflow-y: auto;
-        border-radius: 5px; /* Aggiungi bordi arrotondati per la card */
-    }
-</style>
 
 <MudForm Model="@RequestForQuotation" Validation="HandleValidSubmit">
     <Validations @ref="@RequestForQuotationValidations"

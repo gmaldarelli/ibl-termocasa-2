@@ -1,4 +1,4 @@
-﻿namespace IBLTermocasa.BillOFMaterials
+﻿namespace IBLTermocasa.BillOfMaterials
 {
     public static class BillOFMaterialConsts
     {

@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace IBLTermocasa.BillOFMaterials
+namespace IBLTermocasa.BillOfMaterials
 {
-    public class BillOFMaterialExcelDto
+    public class BillOfMaterialExcelDto
     {
         public string Name { get; set; } = null!;
         public string RequestForQuotationId { get; set; } = null!;

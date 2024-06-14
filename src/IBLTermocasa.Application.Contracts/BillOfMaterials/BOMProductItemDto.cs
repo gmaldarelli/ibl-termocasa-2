@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Volo.Abp.Application.Dtos;
 
-namespace IBLTermocasa.BillOFMaterials;
+namespace IBLTermocasa.BillOfMaterials;
 
 public class BOMProductItemDto : EntityDto<Guid>
 {

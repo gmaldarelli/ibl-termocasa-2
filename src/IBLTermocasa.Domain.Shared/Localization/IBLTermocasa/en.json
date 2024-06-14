@@ -260,6 +260,7 @@
     "ListItems": "List Items",
     "BillOFMaterials": "Bill Of Materials",
     "NewBillOFMaterial": "New Bill Of Material",
-    "Menu:BillOFMaterials": "Bill Of Materials"
+    "Menu:BillOFMaterials": "Bill Of Materials",
+    "GenerateBillOfMaterial": "Generate Bill Of Material"
   }
 }
