@@ -3,64 +3,17 @@ using System.Numerics;
 
 namespace IBLTermocasa.Common;
 
-public class ViewElementPropertyDto
+public class ViewElementPropertyDto<T>(string name, T value)
 {
-    public string Name { get; set; }
+    public string Name { get; set; } = name;
 
-    public Object? Value { get; set; }
-    public Type? Type { get; set; }
-    
-    public ViewElementPropertyDto(string name, Object value, Type type)
-    {
-        Name = name;
-        Value = value;
-        Type = type;
-    }
-    public ViewElementPropertyDto(string name, Object value)
-    {
-        Name = name;
-        Value = value;
-        if (Value == null)
-        {
-            Type = typeof(Object);
-            return;
-        }
-        Type = value.GetType();
-    }
-    
-    public ViewElementPropertyDto(string name)
-    {
-        Name = name;
-        Value = null;
-        Type = typeof(Object);
-    }
-    
-    public ViewElementPropertyDto()
-    {
-        Name = "";
-        Value = null;
-        Type = typeof(Object);
-    }
-    
-    public string ValueToString()
-    {
-        if (Value == null)
-        {
-            return "";
-        }
+    public T Value { get; set; } = value;
 
-        switch (Type!.Name)
-        {
-            case "string":
-            {
-                return Value.ToString();
-            }
-            case "int":
-            {
-                return Value.ToString();
-            }
-             default:
-                return Value.ToString();
-        }
+    public ViewElementPropertyDto(string name) : this(name, default!)
+    {
+    }
+    
+    public ViewElementPropertyDto() : this("", default!)
+    {
     }
 }

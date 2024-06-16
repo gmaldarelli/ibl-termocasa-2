@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Volo.Abp.Domain.Entities;
+using Volo.Abp.Application.Dtos;
 
 namespace IBLTermocasa.BillOfMaterials;
 
-public class BOMItem : Entity<Guid>
+public class BomItemDto: EntityDto<Guid>
 {
     public Guid RequestForQuotationItemId { get; set; }
     public int Quantity { get; set; } = 1;
-    public List<BOMProductItem> BomProductItems { get; set; } = new();
+    public List<BomProductItemDto> BomProductItems { get; set; } = new();
 }

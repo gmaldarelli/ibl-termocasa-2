@@ -3,7 +3,7 @@
 namespace IBLTermocasa.BillOfMaterials;
 
 [Serializable]
-public class BillOFMaterialExcelDownloadTokenCacheItem
+public class BillOfMaterialExcelDownloadTokenCacheItem
 {
     public string Token { get; set; } = null!;
 }

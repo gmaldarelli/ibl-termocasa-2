@@ -7,6 +7,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq.Dynamic.Core;
+using DocumentFormat.OpenXml.Presentation;
 using IBLTermocasa.Common;
 using Microsoft.AspNetCore.Authorization;
 using Volo.Abp;
@@ -271,6 +272,15 @@ namespace IBLTermocasa.RequestForQuotations
             }
             
             return listProduct;
+        }
+
+
+        public virtual async Task<ViewElementPropertyDto<long>> GetNewRequestForQuotationCountAsync()
+        {
+            GetRequestForQuotationsInput input = new GetRequestForQuotationsInput();
+            input.Status = Status.NEW;
+            var result = await _requestForQuotationRepository.GetCountAsync(input.FilterText, input.QuoteNumber, input.WorkSite, input.City, input.AgentProperty, input.OrganizationProperty, input.ContactProperty, input.PhoneInfo, input.MailInfo, input.DiscountMin, input.DiscountMax, input.Description, input.Status);
+            return new ViewElementPropertyDto<long>("NewRequestForQuotationCount", result);
         }
     }
 }

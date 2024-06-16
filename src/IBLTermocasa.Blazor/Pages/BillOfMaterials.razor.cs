@@ -25,32 +25,30 @@ using SortDirection = Blazorise.SortDirection;
 
 namespace IBLTermocasa.Blazor.Pages
 {
-    public partial class BillOFMaterials
+    public partial class BillOfMaterials
     {
         [Inject]
         public IDialogService DialogService { get; set; }
         protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems = new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
         protected PageToolbar Toolbar {get;} = new PageToolbar();
-        protected bool ShowAdvancedFilters { get; set; }
-        private IReadOnlyList<BillOfMaterialDto> BillOFMaterialList { get; set; } = new List<BillOfMaterialDto>();
+        private IReadOnlyList<BillOfMaterialDto> BillOfMaterialList { get; set; } = new List<BillOfMaterialDto>();
         private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
         private int CurrentPage { get; set; } = 1;
         private string CurrentSorting { get; set; } = string.Empty;
         private int TotalCount { get; set; }
-        private bool CanCreateBillOFMaterial { get; set; }
-        private bool CanEditBillOFMaterial { get; set; }
-        private bool CanDeleteBillOFMaterial { get; set; }
+        private bool CanCreateBillOfMaterial { get; set; }
+        private bool CanEditBillOfMaterial { get; set; }
+        private bool CanDeleteBillOfMaterial { get; set; }
         private GetBillOfMaterialsInput Filter { get; set; } = new();
-        private DataGridEntityActionsColumn<BillOfMaterialDto> EntityActionsColumn { get; set; } = new();
-        protected string SelectedCreateTab = "billOFMaterial-create-tab";
-        protected string SelectedEditTab = "billOFMaterial-edit-tab";
-        private BillOfMaterialDto? SelectedBillOFMaterial;
+        protected string SelectedCreateTab = "billOfMaterial-create-tab";
+        protected string SelectedEditTab = "billOfMaterial-edit-tab";
+        private BillOfMaterialDto? SelectedBillOfMaterial;
         private ModalBillOfMaterialInput AddBillOfMaterialModal { get; set; }
         
-        private List<BillOfMaterialDto> SelectedBillOFMaterials { get; set; } = new();
-        private bool AllBillOFMaterialsSelected { get; set; }
+        private List<BillOfMaterialDto> SelectedBillOfMaterials { get; set; } = new();
+        private bool AllBillOfMaterialsSelected { get; set; }
         
-        public BillOFMaterials()
+        public BillOfMaterials()
         {
             Filter = new GetBillOfMaterialsInput
             {
@@ -58,7 +56,7 @@ namespace IBLTermocasa.Blazor.Pages
                 SkipCount = (CurrentPage - 1) * PageSize,
                 Sorting = CurrentSorting
             };
-            BillOFMaterialList = new List<BillOfMaterialDto>();
+            BillOfMaterialList = new List<BillOfMaterialDto>();
             
             
         }
@@ -66,8 +64,11 @@ namespace IBLTermocasa.Blazor.Pages
         protected override async Task OnInitializedAsync()
         {
             await SetPermissionsAsync();
-            
+            await NewRefqBadgeContributor();
+            await GetBillOfMaterialsAsync();
         }
+
+
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -81,40 +82,17 @@ namespace IBLTermocasa.Blazor.Pages
 
         protected virtual ValueTask SetBreadcrumbItemsAsync()
         {
-            BreadcrumbItems.Add(new Volo.Abp.BlazoriseUI.BreadcrumbItem(L["Menu:BillOFMaterials"]));
+            BreadcrumbItems.Add(new Volo.Abp.BlazoriseUI.BreadcrumbItem(L["Menu:BillOfMaterials"]));
             return ValueTask.CompletedTask;
         }
 
         protected virtual ValueTask SetToolbarItemsAsync()
         {
-            
-
-                
             var badgeContributor = NewRfqBadgeContributor();
 
             Toolbar.Contributors.Add(badgeContributor);
             
-            Toolbar.AddButton(L["ExportToExcel"], async () =>{ await DownloadAsExcelAsync(); }, IconName.Download);
-            
-            Toolbar.AddButton(L["NewBillOFMaterial"], async () =>
-            {
-                await OpenCreateBillOFMaterialModalAsync();
-            }, IconName.Add, requiredPolicyName: IBLTermocasaPermissions.BillOFMaterials.Create);
-            Toolbar.AddButton("Aumenta", async () =>
-            {
-                BadgeContent = new Random().Next(0, 100).ToString();
-                Toolbar.Contributors.ToList().ForEach(
-                    x =>
-                    {
-                        Console.WriteLine($":::::::::::::::::::::::::::::::::::Component type: {x.GetComponentType()}");
-                        SimplePageToolbarContributor y = (SimplePageToolbarContributor)x;
-                       if (y.Arguments["Content"] == null) return;
-                        y.Arguments["Content"] = BadgeContent;
-                    });
-                await UiMessageService.Success("Badge content updated with random number: " + BadgeContent);
-                
-                StateHasChanged();
-            }, IconName.PlusCircle, requiredPolicyName: IBLTermocasaPermissions.BillOFMaterials.Create);
+            Toolbar.AddButton(text: L["ExportToExcel"], clicked: async () =>{ await DownloadAsExcelAsync(); }, icon: IconName.Download, order: 1);
             return ValueTask.CompletedTask;
         }
 
@@ -126,7 +104,7 @@ namespace IBLTermocasa.Blazor.Pages
                 Text = "Nuovi Preventivi",
                 Disabled = false,
                 Icon = IconName.Search,
-                Clicked = new Func<Task>(SearchAsync),
+                Clicked = new Func<Task>(OpenDialogRfqChoiceAsync),
             };
             
             RenderFragment renderFragment = (builder) =>
@@ -172,28 +150,64 @@ namespace IBLTermocasa.Blazor.Pages
             return badgeContributor;
         }
 
-        public string? BadgeContent { get; set; } = "25";
+        private async Task OpenDialogRfqChoiceAsync()
+        {
+            var parameters = new DialogParameters<BillOfMaterialFromFrq>
+            {
+            };
+            var dialog = await DialogService.ShowAsync<BillOfMaterialFromFrq>("Seleziona un Preventivo", parameters, new DialogOptions
+            {
 
+                FullWidth= true,
+                MaxWidth=MaxWidth.Large,
+                CloseButton= true,
+                DisableBackdropClick= true,
+                NoHeader=false,
+                Position=DialogPosition.Center,
+                CloseOnEscapeKey=false
+            });
+            var result = await dialog.Result;
+            await NewRefqBadgeContributor();
+            await GetBillOfMaterialsAsync();
+        }
+
+        public string? BadgeContent { get; set; } = "0";
+        
+        private async Task NewRefqBadgeContributor()
+        {
+            var result = await RequestForQuotationsAppService.GetNewRequestForQuotationCountAsync();
+            BadgeContent = result.Value.ToString();
+            Toolbar.Contributors.ToList().ForEach(
+                x =>
+                {
+                    SimplePageToolbarContributor y = (SimplePageToolbarContributor)x;
+                    if (y.Arguments != null && y!.Arguments!.ContainsKey("Content"))
+                    {
+                        y.Arguments["Content"] = BadgeContent;
+                    }
+                });
+            StateHasChanged();
+        }
         private async Task SetPermissionsAsync()
         {
-            CanCreateBillOFMaterial = await AuthorizationService
-                .IsGrantedAsync(IBLTermocasaPermissions.BillOFMaterials.Create);
-            CanEditBillOFMaterial = await AuthorizationService
-                            .IsGrantedAsync(IBLTermocasaPermissions.BillOFMaterials.Edit);
-            CanDeleteBillOFMaterial = await AuthorizationService
-                            .IsGrantedAsync(IBLTermocasaPermissions.BillOFMaterials.Delete);
+            CanCreateBillOfMaterial = await AuthorizationService
+                .IsGrantedAsync(IBLTermocasaPermissions.BillOfMaterials.Create);
+            CanEditBillOfMaterial = await AuthorizationService
+                            .IsGrantedAsync(IBLTermocasaPermissions.BillOfMaterials.Edit);
+            CanDeleteBillOfMaterial = await AuthorizationService
+                            .IsGrantedAsync(IBLTermocasaPermissions.BillOfMaterials.Delete);
                             
                             
         }
 
-        private async Task GetBillOFMaterialsAsync()
+        private async Task GetBillOfMaterialsAsync()
         {
             Filter.MaxResultCount = PageSize;
             Filter.SkipCount = (CurrentPage - 1) * PageSize;
             Filter.Sorting = CurrentSorting;
 
-            var result = await BillOFMaterialsAppService.GetListAsync(Filter);
-            BillOFMaterialList = result.Items;
+            var result = await BillOfMaterialsAppService.GetListAsync(Filter);
+            BillOfMaterialList = result.Items;
             TotalCount = (int)result.TotalCount;
             
             await ClearSelection();
@@ -202,13 +216,13 @@ namespace IBLTermocasa.Blazor.Pages
         protected virtual async Task SearchAsync()
         {
             CurrentPage = 1;
-            await GetBillOFMaterialsAsync();
+            await GetBillOfMaterialsAsync();
             await InvokeAsync(StateHasChanged);
         }
 
         private async Task DownloadAsExcelAsync()
         {
-            var token = (await BillOFMaterialsAppService.GetDownloadTokenAsync()).Token;
+            var token = (await BillOfMaterialsAppService.GetDownloadTokenAsync()).Token;
             var remoteService = await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("IBLTermocasa") ?? await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
             var culture = CultureInfo.CurrentUICulture.Name ?? CultureInfo.CurrentCulture.Name;
             if(!culture.IsNullOrEmpty())
@@ -226,42 +240,15 @@ namespace IBLTermocasa.Blazor.Pages
                 .Select(c => c.Field + (c.SortDirection == SortDirection.Descending ? " DESC" : ""))
                 .JoinAsString(",");
             CurrentPage = e.Page;
-            await GetBillOFMaterialsAsync();
+            await GetBillOfMaterialsAsync();
             await InvokeAsync(StateHasChanged);
         }
 
-        private async Task OpenCreateBillOFMaterialModalAsync()
-        {
-                var dialog = await DialogService.ShowAsync<ModalBillOfMaterialInput>("Select Request For Quotation", new DialogOptions { CloseOnEscapeKey = true });
-                var result = await dialog.Result;
-                if (!result.Cancelled)
-                {
-                    var billOfMaterial = (BillOfMaterialDto)result.Data;
-                    await InvokeAsync(StateHasChanged);
-                }
-        }
 
-
-        private async Task OpenEditBillOFMaterialModalAsync(BillOfMaterialDto input)
+        private async Task DeleteBillOfMaterialAsync(BillOfMaterialDto input)
         {
-            //TODO: Add your business logic here.
-        }
-
-        private async Task DeleteBillOFMaterialAsync(BillOfMaterialDto input)
-        {
-            await BillOFMaterialsAppService.DeleteAsync(input.Id);
-            await GetBillOFMaterialsAsync();
-        }
-
-        protected virtual async Task OnNameChangedAsync(string? name)
-        {
-            Filter.Name = name;
-            await SearchAsync();
-        }
-        protected virtual async Task OnRequestForQuotationIdChangedAsync(string? requestForQuotationProperty)
-        {
-            Filter.RequestForQuotationProperty = new RequestForQuotationProperty(Guid.Empty, requestForQuotationProperty);
-            await SearchAsync();
+            await BillOfMaterialsAppService.DeleteAsync(input.Id);
+            await GetBillOfMaterialsAsync();
         }
 
         /*protected virtual async Task OnListItemsChangedAsync(string? listItems)
@@ -270,53 +257,46 @@ namespace IBLTermocasa.Blazor.Pages
             await SearchAsync();
         }*/
         
-        private Task SelectAllItems()
-        {
-            AllBillOFMaterialsSelected = true;
-            
-            return Task.CompletedTask;
-        }
-
         private Task ClearSelection()
         {
-            AllBillOFMaterialsSelected = false;
-            SelectedBillOFMaterials.Clear();
+            AllBillOfMaterialsSelected = false;
+            SelectedBillOfMaterials.Clear();
             
             return Task.CompletedTask;
         }
 
-        private Task SelectedBillOFMaterialRowsChanged()
+        private Task SelectedBillOfMaterialRowsChanged()
         {
-            if (SelectedBillOFMaterials.Count != PageSize)
+            if (SelectedBillOfMaterials.Count != PageSize)
             {
-                AllBillOFMaterialsSelected = false;
+                AllBillOfMaterialsSelected = false;
             }
             
             return Task.CompletedTask;
         }
 
-        private async Task DeleteSelectedBillOFMaterialsAsync()
+        private async Task DeleteSelectedBillOfMaterialsAsync()
         {
-            var message = AllBillOFMaterialsSelected ? L["DeleteAllRecords"].Value : L["DeleteSelectedRecords", SelectedBillOFMaterials.Count].Value;
+            var message = AllBillOfMaterialsSelected ? L["DeleteAllRecords"].Value : L["DeleteSelectedRecords", SelectedBillOfMaterials.Count].Value;
             
             if (!await UiMessageService.Confirm(message))
             {
                 return;
             }
 
-            if (AllBillOFMaterialsSelected)
+            if (AllBillOfMaterialsSelected)
             {
-                await BillOFMaterialsAppService.DeleteAllAsync(Filter);
+                await BillOfMaterialsAppService.DeleteAllAsync(Filter);
             }
             else
             {
-                await BillOFMaterialsAppService.DeleteByIdsAsync(SelectedBillOFMaterials.Select(x => x.Id).ToList());
+                await BillOfMaterialsAppService.DeleteByIdsAsync(SelectedBillOfMaterials.Select(x => x.Id).ToList());
             }
 
-            SelectedBillOFMaterials.Clear();
-            AllBillOFMaterialsSelected = false;
+            SelectedBillOfMaterials.Clear();
+            AllBillOfMaterialsSelected = false;
 
-            await GetBillOFMaterialsAsync();
+            await GetBillOfMaterialsAsync();
         }
 
         private void CloseModalBillOfMaterialAsync()

@@ -110,9 +110,9 @@ public static class IBLTermocasaPermissions
         public const string Delete = Default + ".Delete";
     }
 
-    public static class BillOFMaterials
+    public static class BillOfMaterials
     {
-        public const string Default = GroupName + ".BillOFMaterials";
+        public const string Default = GroupName + ".BillOfMaterials";
         public const string Edit = Default + ".Edit";
         public const string Create = Default + ".Create";
         public const string Delete = Default + ".Delete";

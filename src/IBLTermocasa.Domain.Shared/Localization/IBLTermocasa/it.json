@@ -279,12 +279,15 @@
     "Type": "Tipo",
     "Yes": "Si",
     "No": "No",
-    "Permission:BillOFMaterials": "Distinte Base",
+    "Permission:BillOfMaterials": "Distinte Base",
     "RequestForQuotation": "Richiesta di Preventivo",
     "ListItems": "Lista Elementi",
-    "BillOFMaterials": "Distinte Base",
-    "NewBillOFMaterial": "Nuova Distinta Base",
-    "Menu:BillOFMaterials": "Distinte Base",
-    "GenerateBillOfMaterial": "Genera Distinta Base"
+    "BillOfMaterials": "Distinte Base",
+    "NewBillOfMaterial": "Nuova Distinta Base",
+    "Menu:BillOfMaterials": "Distinte Base",
+    "GenerateBillOfMaterial": "Genera Distinta Base",
+    "ConfirmGenerationMudDialogTitle": "Generazione Distinta Base",
+    "ConfirmGenerationMudDialogMessage": "La distinta base è stata generata con successo con il numero {0}, vuoi visualizzarla?",
+    "Close": "Chiudi"
   }
 }

@@ -3,6 +3,7 @@ using Asp.Versioning;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using IBLTermocasa.Common;
 using Microsoft.AspNetCore.Mvc;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
@@ -128,6 +129,12 @@ namespace IBLTermocasa.Controllers.RequestForQuotations
         public virtual Task<IEnumerable<RFQProductAndQuestionDto>> GetRfqProductAndQuestionsAsync(Guid id)
         {
             return _requestForQuotationsAppService.GetRfqProductAndQuestionsAsync(id);
+        }
+        [HttpGet]
+        [Route("new-request-for-quotation-count")]
+        public virtual  Task<ViewElementPropertyDto<long>> GetNewRequestForQuotationCountAsync()
+        {
+            return _requestForQuotationsAppService.GetNewRequestForQuotationCountAsync();
         }
     }
 }

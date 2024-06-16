@@ -1,0 +1,38 @@
+﻿@using IBLTermocasa.BillOfMaterials
+@using IBLTermocasa.RequestForQuotations
+@using Volo.Abp.AspNetCore.Components.Messages
+@using MudBlazor
+@inject IUiMessageService UiMessageService
+@inject IBillOfMaterialsAppService BillOfMaterialsAppService
+@inject IRequestForQuotationsAppService RequestForQuotationsAppService
+@inject NavigationManager NavigationManager
+@inherits IBLTermocasaComponentBase
+<MudDialog>
+    <DialogContent>
+        <MudPaper Class="pa-4">
+            <MudDataGrid @ref="RequestForQuotationDataGrid" Items="RequestForQuotationList">
+                <Columns>
+                    <PropertyColumn Property="x => x.RequestForQuotation.QuoteNumber" Title="@L["QuoteNumber"]"/>
+                    <PropertyColumn Property="x => x.Organization.Name" Title="@L["Organization"]"/>
+                    <PropertyColumn Property="x => x.RequestForQuotation.DateDocument" Title="@L["Date"]" Format="dd/MM/yyyy"/>
+                    <TemplateColumn CellClass="d-flex justify-end">
+                        <CellTemplate>
+                            <MudButton Size="@MudBlazor.Size.Small" StartIcon="@Icons.Material.Filled.Engineering"  Variant="Variant.Filled" Color="MudBlazor.Color.Primary" OnClick="() => GenerateBillOfMaterial(context.Item)">
+                                Genera Distinta Materiali
+                            </MudButton>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+            </MudDataGrid>
+        </MudPaper>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CancelGeneration">@L["Close"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@*Nested inline dialog*@
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    void CancelGeneration() => MudDialog.Cancel();
+}

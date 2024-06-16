@@ -15,7 +15,7 @@ namespace IBLTermocasa.BillOfMaterials
 
         public GetBillOfMaterialsInput()
         {
-
+            RequestForQuotationProperty = new RequestForQuotationProperty();
         }
     }
 }

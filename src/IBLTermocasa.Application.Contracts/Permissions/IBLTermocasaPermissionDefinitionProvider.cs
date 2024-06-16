@@ -77,10 +77,10 @@ public class IBLTermocasaPermissionDefinitionProvider : PermissionDefinitionProv
         catalogPermission.AddChild(IBLTermocasaPermissions.Catalogs.Edit, L("Permission:Edit"));
         catalogPermission.AddChild(IBLTermocasaPermissions.Catalogs.Delete, L("Permission:Delete"));
 
-        var billOFMaterialPermission = myGroup.AddPermission(IBLTermocasaPermissions.BillOFMaterials.Default, L("Permission:BillOFMaterials"));
-        billOFMaterialPermission.AddChild(IBLTermocasaPermissions.BillOFMaterials.Create, L("Permission:Create"));
-        billOFMaterialPermission.AddChild(IBLTermocasaPermissions.BillOFMaterials.Edit, L("Permission:Edit"));
-        billOFMaterialPermission.AddChild(IBLTermocasaPermissions.BillOFMaterials.Delete, L("Permission:Delete"));
+        var billOfMaterialPermission = myGroup.AddPermission(IBLTermocasaPermissions.BillOfMaterials.Default, L("Permission:BillOfMaterials"));
+        billOfMaterialPermission.AddChild(IBLTermocasaPermissions.BillOfMaterials.Create, L("Permission:Create"));
+        billOfMaterialPermission.AddChild(IBLTermocasaPermissions.BillOfMaterials.Edit, L("Permission:Edit"));
+        billOfMaterialPermission.AddChild(IBLTermocasaPermissions.BillOfMaterials.Delete, L("Permission:Delete"));
     }
 
     private static LocalizableString L(string name)

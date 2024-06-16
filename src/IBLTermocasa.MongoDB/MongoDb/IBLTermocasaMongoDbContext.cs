@@ -21,7 +21,7 @@ namespace IBLTermocasa.MongoDB;
 [ConnectionStringName("Default")]
 public class IBLTermocasaMongoDbContext : AbpMongoDbContext
 {
-    public IMongoCollection<BillOFMaterial> BillOFMaterials => Collection<BillOFMaterial>();
+    public IMongoCollection<BillOfMaterial> BillOfMaterials => Collection<BillOfMaterial>();
     public IMongoCollection<Catalog> Catalogs => Collection<Catalog>();
     public IMongoCollection<RequestForQuotation> RequestForQuotations => Collection<RequestForQuotation>();
     public IMongoCollection<QuestionTemplate> QuestionTemplates => Collection<QuestionTemplate>();
@@ -72,6 +72,6 @@ public class IBLTermocasaMongoDbContext : AbpMongoDbContext
 
         modelBuilder.Entity<Catalog>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "Catalogs"; });
 
-        modelBuilder.Entity<BillOFMaterial>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "BillOFMaterials"; });
+        modelBuilder.Entity<BillOfMaterial>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "BillOfMaterials"; });
     }
 }

@@ -8,9 +8,9 @@ namespace IBLTermocasa.BillOfMaterials
     public class BillOfMaterialCreateDto
     {
         [Required]
-        public string Name { get; set; }
+        public string BomNumber { get; set; }
         [Required]
         public RequestForQuotationPropertyDto RequestForQuotationProperty { get; set; }
-        public List<BOMItemDto>? ListItems { get; set; } = new();
+        public List<BomItemDto>? ListItems { get; set; } = new();
     }
 }

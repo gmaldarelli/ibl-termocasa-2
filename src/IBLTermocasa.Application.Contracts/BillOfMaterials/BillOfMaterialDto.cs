@@ -8,9 +8,9 @@ namespace IBLTermocasa.BillOfMaterials
 {
     public class BillOfMaterialDto : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
     {
-        public string Name { get; set; } = null!;
+        public string BomNumber { get; set; } = null!;
         public RequestForQuotationPropertyDto RequestForQuotationProperty { get; set; } = new();
-        public List<BOMItemDto>? ListItems { get; set; } = new();
+        public List<BomItemDto>? ListItems { get; set; } = new();
 
         public string ConcurrencyStamp { get; set; } = null!;
 

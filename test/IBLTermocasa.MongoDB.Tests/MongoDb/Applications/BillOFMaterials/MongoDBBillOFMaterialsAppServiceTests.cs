@@ -1,9 +1,9 @@
 ﻿using IBLTermocasa.BillOfMaterials;
 using Xunit;
 
-namespace IBLTermocasa.MongoDB.Applications.BillOFMaterials;
+namespace IBLTermocasa.MongoDB.Applications.BillOfMaterials;
 
 [Collection(IBLTermocasaTestConsts.CollectionDefinitionName)]
-public class MongoDBBillOFMaterialsAppServiceTests : BillOFMaterialsAppServiceTests<IBLTermocasaMongoDbTestModule>
+public class MongoDBBillOfMaterialsAppServiceTests : BillOfMaterialsAppServiceTests<IBLTermocasaMongoDbTestModule>
 {
 }

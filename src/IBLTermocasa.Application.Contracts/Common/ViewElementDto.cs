@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace IBLTermocasa.Common;
 
 public class ViewElementDto
 {
-    List<ViewElementPropertyDto> Properties { get; set; }
+    List<ViewElementPropertyDto<Object>> Properties { get; set; }
 }

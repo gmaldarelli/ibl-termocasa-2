@@ -10,8 +10,8 @@ namespace IBLTermocasa.BillOfMaterials
 
         public string? FilterText { get; set; }
 
-        public string? Name { get; set; }
-        public RequestForQuotationProperty? RequestForQuotationId { get; set; }
+        public string? BomNumber { get; set; }
+        public RequestForQuotationProperty? RequestForQuotationId { get; set; } = new();
 
         public BillOfMaterialExcelDownloadDto()
         {

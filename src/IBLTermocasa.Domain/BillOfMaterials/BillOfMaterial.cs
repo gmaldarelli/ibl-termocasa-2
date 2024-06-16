@@ -13,34 +13,34 @@ using Volo.Abp;
 
 namespace IBLTermocasa.BillOfMaterials
 {
-    public class BillOFMaterial : FullAuditedAggregateRoot<Guid>, IMultiTenant
+    public class BillOfMaterial : FullAuditedAggregateRoot<Guid>, IMultiTenant
     {
         public virtual Guid? TenantId { get; set; }
 
-        [NotNull]
-        public virtual string Name { get; set; }
-
+        [NotNull] public virtual string BomNumber { get; set; }
         [NotNull] public virtual RequestForQuotationProperty RequestForQuotationProperty { get; set; } = new();
+        public virtual string Notes { get; set; }
 
-        public virtual List<BOMItem>? ListItems { get; set; } = new();
+        public virtual List<BomItem>? ListItems { get; set; } = new();
 
-        protected BillOFMaterial()
+        protected BillOfMaterial()
         {
 
         }
 
-        public BillOFMaterial(Guid id, string name, RequestForQuotationProperty requestForQuotationProperty, List<BOMItem> listItems = null)
+        public BillOfMaterial(Guid id, string bomNumber, RequestForQuotationProperty requestForQuotationProperty, List<BomItem> listItems = null, string? notes = null)
         {
 
             Id = id;
-            Check.NotNull(name, nameof(name));
-            Name = name;
+            Check.NotNull(bomNumber, nameof(bomNumber));
+            BomNumber = bomNumber;
             RequestForQuotationProperty = requestForQuotationProperty;
             ListItems = listItems;
-        }
+            Notes = notes;
+        }  
 
         //generete static methot to fill all properties of the RequestForQuotation except the Id using reflection with 2 variants source and destination
-        public static BillOFMaterial FillProperties(BillOFMaterial source, BillOFMaterial destination,
+        public static BillOfMaterial FillProperties(BillOfMaterial source, BillOfMaterial destination,
             IEnumerable<PropertyInfo> properties)
         {
             foreach (var property in properties)
@@ -52,18 +52,18 @@ namespace IBLTermocasa.BillOfMaterials
             return destination;
         }
 
-        public static BillOFMaterial FillPropertiesForInsert(BillOFMaterial source,
-            BillOFMaterial destination)
+        public static BillOfMaterial FillPropertiesForInsert(BillOfMaterial source,
+            BillOfMaterial destination)
         {
-            var properties = typeof(BillOFMaterial).GetProperties()
+            var properties = typeof(BillOfMaterial).GetProperties()
                 .Where(p => p.CanRead && p.CanWrite && p.Name != "Id" && p.Name != "ConcurrencyStamp");
             return FillProperties(source, destination, properties);
         }
 
-        public static BillOFMaterial FillPropertiesForUpdate(BillOFMaterial source,
-            BillOFMaterial destination)
+        public static BillOfMaterial FillPropertiesForUpdate(BillOfMaterial source,
+            BillOfMaterial destination)
         {
-            var properties = typeof(BillOFMaterial).GetProperties()
+            var properties = typeof(BillOfMaterial).GetProperties()
                 .Where(p => p.CanRead && p.CanWrite && p.Name != "Id");
             return FillProperties(source, destination, properties);
         }

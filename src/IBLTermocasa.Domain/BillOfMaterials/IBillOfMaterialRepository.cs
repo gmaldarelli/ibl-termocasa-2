@@ -7,7 +7,7 @@ using Volo.Abp.Domain.Repositories;
 
 namespace IBLTermocasa.BillOfMaterials
 {
-    public interface IBillOFMaterialRepository : IRepository<BillOFMaterial, Guid>
+    public interface IBillOfMaterialRepository : IRepository<BillOfMaterial, Guid>
     {
 
         Task DeleteAllAsync(
@@ -15,7 +15,7 @@ namespace IBLTermocasa.BillOfMaterials
             string? name = null,
             RequestForQuotationProperty? requestForQuotationId = null,
             CancellationToken cancellationToken = default);
-        Task<List<BillOFMaterial>> GetListAsync(
+        Task<List<BillOfMaterial>> GetListAsync(
                     string? filterText = null,
                     string? name = null,
                     RequestForQuotationProperty? requestForQuotationId = null,

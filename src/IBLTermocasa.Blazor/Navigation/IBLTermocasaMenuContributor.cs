@@ -144,11 +144,11 @@ public class IBLTermocasaMenuContributor : IMenuContributor
                 requiredPermissionName: IBLTermocasaPermissions.QuestionTemplates.Default)
         ).AddItem(
                 new ApplicationMenuItem(
-                    IBLTermocasaMenus.BillOFMaterials,
-                    l["Menu:BillOFMaterials"],
+                    IBLTermocasaMenus.BillOfMaterials,
+                    l["Menu:BillOfMaterials"],
                     url: "/bill-of-materials",
                     icon: "fa fa-file-invoice",
-                    requiredPermissionName: IBLTermocasaPermissions.BillOFMaterials.Default)
+                    requiredPermissionName: IBLTermocasaPermissions.BillOfMaterials.Default)
             )
             );
     }

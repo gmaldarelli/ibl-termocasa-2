@@ -2,6 +2,7 @@ using IBLTermocasa.Shared;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using IBLTermocasa.Common;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Content;
@@ -39,5 +40,6 @@ namespace IBLTermocasa.RequestForQuotations
 
         Task<DownloadTokenResultDto> GetDownloadTokenAsync();
         Task<IEnumerable<RFQProductAndQuestionDto>> GetRfqProductAndQuestionsAsync(Guid id);
+        Task<ViewElementPropertyDto<long>>  GetNewRequestForQuotationCountAsync();
     }
 }

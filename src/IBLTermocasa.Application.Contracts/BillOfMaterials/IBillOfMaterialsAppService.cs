@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using IBLTermocasa.Common;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Content;
@@ -26,5 +27,6 @@ namespace IBLTermocasa.BillOfMaterials
         Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync(); Task DeleteByIdsAsync(List<Guid> billofmaterialIds);
 
         Task DeleteAllAsync(GetBillOfMaterialsInput input);
+        Task<List<ViewElementPropertyDto<object>>> GenerateBillOfMaterial(Guid id);
     }
 }

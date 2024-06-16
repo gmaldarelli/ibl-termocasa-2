@@ -255,12 +255,12 @@
     "Type": "Type",
     "Yes": "Yes",
     "No": "No",
-    "Permission:BillOFMaterials": "Bill Of Materials",
+    "Permission:BillOfMaterials": "Bill Of Materials",
     "RequestForQuotation": "Request For Quotation",
     "ListItems": "List Items",
-    "BillOFMaterials": "Bill Of Materials",
-    "NewBillOFMaterial": "New Bill Of Material",
-    "Menu:BillOFMaterials": "Bill Of Materials",
+    "BillOfMaterials": "Bill Of Materials",
+    "NewBillOfMaterial": "New Bill Of Material",
+    "Menu:BillOfMaterials": "Bill Of Materials",
     "GenerateBillOfMaterial": "Generate Bill Of Material"
   }
 }

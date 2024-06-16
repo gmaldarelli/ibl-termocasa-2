@@ -75,7 +75,7 @@ public class IBLTermocasaMongoDbModule : AbpModule
 
             options.AddRepository<Catalog, Catalogs.MongoCatalogRepository>();
 
-            options.AddRepository<BillOFMaterial, BillOfMaterials.MongoBillOFMaterialRepository>();
+            options.AddRepository<BillOfMaterial, BillOfMaterials.MongoBillOfMaterialRepository>();
 
         });
 

@@ -9,10 +9,10 @@ namespace IBLTermocasa.BillOfMaterials
     public class BillOfMaterialUpdateDto : IHasConcurrencyStamp
     {
         [Required]
-        public string Name { get; set; } = null!;
+        public string BomNumber { get; set; } = null!;
         [Required]
         public RequestForQuotationPropertyDto RequestForQuotationProperty { get; set; } = null!;
-        public List<BOMItemDto>? ListItems { get; set; } = new();
+        public List<BomItemDto>? ListItems { get; set; } = new();
 
         public string ConcurrencyStamp { get; set; } = null!;
     }

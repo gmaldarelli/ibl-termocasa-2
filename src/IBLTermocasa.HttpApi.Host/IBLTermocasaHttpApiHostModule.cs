@@ -39,6 +39,7 @@ using Volo.Abp.Swashbuckle;
 using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.VirtualFileSystem;
 using Volo.Chat;
+using Volo.Abp.AspNetCore.SignalR;
 
 namespace IBLTermocasa;
 
@@ -55,6 +56,7 @@ namespace IBLTermocasa;
     typeof(AbpAspNetCoreSerilogModule)
     )]
 [DependsOn(typeof(ChatSignalRModule))]
+    [DependsOn(typeof(AbpAspNetCoreSignalRModule))]
     public class IBLTermocasaHttpApiHostModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)

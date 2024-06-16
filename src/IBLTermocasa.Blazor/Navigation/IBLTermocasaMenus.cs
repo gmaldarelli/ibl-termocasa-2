@@ -32,7 +32,7 @@ public class IBLTermocasaMenus
 
     public const string Catalogs = Prefix + ".Catalogs";
 
-    public const string BillOFMaterials = Prefix + ".BillOFMaterials";
+    public const string BillOfMaterials = Prefix + ".BillOfMaterials";
 
     public static int CrmOrder          = 10;
     public static int InventoryOrder    = 20;

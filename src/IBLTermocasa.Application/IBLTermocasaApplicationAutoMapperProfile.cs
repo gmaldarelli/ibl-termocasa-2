@@ -51,8 +51,8 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
                     {
                         Id = pc.ComponentId
 
-            CreateMap<BillOFMaterial, BillOFMaterialDto>();
-            CreateMap<BillOFMaterial, BillOFMaterialExcelDto>();
+            CreateMap<BillOfMaterial, BillOfMaterialDto>();
+            CreateMap<BillOfMaterial, BillOfMaterialExcelDto>();
 }
                 }).ToList();
                 dest.ProductQuestionTemplates = src.ProductQuestionTemplates.Select(pqt => new ProductQuestionTemplateDto
@@ -234,18 +234,18 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
 
         CreateMap<Component, ComponentDto>().Ignore(x => x.ComponentItems);
         
-        CreateMap<BillOFMaterial, BillOfMaterialDto>();
-        CreateMap<BillOfMaterialDto, BillOFMaterial>();
+        CreateMap<BillOfMaterial, BillOfMaterialDto>();
+        CreateMap<BillOfMaterialDto, BillOfMaterial>();
         CreateMap<BillOfMaterialDto, BillOfMaterialCreateDto>();
         CreateMap<BillOfMaterialCreateDto, BillOfMaterialDto>();
         CreateMap<BillOfMaterialUpdateDto, BillOfMaterialDto>();
         CreateMap<BillOfMaterialDto, BillOfMaterialUpdateDto>();
-        CreateMap<BOMItem, BOMItemDto>();
-        CreateMap<BOMItemDto, BOMItem>();
-        CreateMap<BOMComponent, BOMComponentDto>();
-        CreateMap<BOMComponentDto, BOMComponent>();
-        CreateMap<BOMProductItem, BOMProductItemDto>();
-        CreateMap<BOMProductItemDto, BOMProductItem>();
+        CreateMap<BomItem, BomItemDto>();
+        CreateMap<BomItemDto, BomItem>();
+        CreateMap<BomComponent, BomComponentDto>();
+        CreateMap<BomComponentDto, BomComponent>();
+        CreateMap<BomProductItem, BomProductItemDto>();
+        CreateMap<BomProductItemDto, BomProductItem>();
         
     }
 }

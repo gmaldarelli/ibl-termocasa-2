@@ -2,9 +2,9 @@
 
 public enum Status
 {
-    NEW,
-    IN_PROGRESS,
     DRAFT,
+    NEW,
+    IN_PROGRESS_BOM,
     ON_HOLD,
     PENDING_REVIEW,
     COMPLETED,

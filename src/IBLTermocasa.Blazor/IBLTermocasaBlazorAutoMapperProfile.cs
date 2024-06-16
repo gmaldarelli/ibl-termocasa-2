@@ -57,7 +57,7 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
             {
                 dest.SubProducts = src.SubProducts;
 
-        CreateMap<BillOFMaterialDto, BillOFMaterialUpdateDto>();
+        CreateMap<BillOfMaterialDto, BillOfMaterialUpdateDto>();
         }
         );*/
         CreateMap<ProductDto, ProductCreateDto>()/*.Ignore(x => x.SubProducts)
@@ -69,8 +69,8 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
             )*/;
 
         CreateMap<CatalogDto, CatalogUpdateDto>().Ignore(x => x.ProductIds);
-        CreateMap<BillOFMaterial, BillOfMaterialDto>();
-        CreateMap<BillOfMaterialDto, BillOFMaterial>();
+        CreateMap<BillOfMaterial, BillOfMaterialDto>();
+        CreateMap<BillOfMaterialDto, BillOfMaterial>();
         CreateMap<BillOfMaterialDto, BillOfMaterialCreateDto>();
         CreateMap<BillOfMaterialCreateDto, BillOfMaterialDto>();
 
@@ -100,11 +100,11 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<ProductItem, ProductItemDto>();
         CreateMap<AnswerDto, Answer>();
         CreateMap<Answer, AnswerDto>();
-        CreateMap<BOMItem, BOMItemDto>();
-        CreateMap<BOMItemDto, BOMItem>();
-        CreateMap<BOMComponent, BOMComponentDto>();
-        CreateMap<BOMComponentDto, BOMComponent>();
-        CreateMap<BOMProductItem, BOMProductItemDto>();
-        CreateMap<BOMProductItemDto, BOMProductItem>();
+        CreateMap<BomItem, BomItemDto>();
+        CreateMap<BomItemDto, BomItem>();
+        CreateMap<BomComponent, BomComponentDto>();
+        CreateMap<BomComponentDto, BomComponent>();
+        CreateMap<BomProductItem, BomProductItemDto>();
+        CreateMap<BomProductItemDto, BomProductItem>();
     }
 }

@@ -13,9 +13,9 @@ using MongoDB.Driver;
 
 namespace IBLTermocasa.BillOfMaterials
 {
-    public class MongoBillOFMaterialRepository : MongoDbRepository<IBLTermocasaMongoDbContext, BillOFMaterial, Guid>, IBillOFMaterialRepository
+    public class MongoBillOfMaterialRepository : MongoDbRepository<IBLTermocasaMongoDbContext, BillOfMaterial, Guid>, IBillOfMaterialRepository
     {
-        public MongoBillOFMaterialRepository(IMongoDbContextProvider<IBLTermocasaMongoDbContext> dbContextProvider)
+        public MongoBillOfMaterialRepository(IMongoDbContextProvider<IBLTermocasaMongoDbContext> dbContextProvider)
             : base(dbContextProvider)
         {
         }
@@ -32,7 +32,7 @@ namespace IBLTermocasa.BillOfMaterials
             await DeleteManyAsync(ids, cancellationToken: GetCancellationToken(cancellationToken));
         }
 
-        public virtual async Task<List<BillOFMaterial>> GetListAsync(
+        public virtual async Task<List<BillOfMaterial>> GetListAsync(
             string? filterText = null,
             string? name = null,
             RequestForQuotationProperty? requestForQuotationProperty = null,
@@ -42,9 +42,9 @@ namespace IBLTermocasa.BillOfMaterials
             CancellationToken cancellationToken = default)
         {
             var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, name, requestForQuotationProperty);
-            query = query.OrderBy(string.IsNullOrWhiteSpace(sorting) ? BillOFMaterialConsts.GetDefaultSorting(false) : sorting);
-            return await query.As<IMongoQueryable<BillOFMaterial>>()
-                .PageBy<BillOFMaterial, IMongoQueryable<BillOFMaterial>>(skipCount, maxResultCount)
+            query = query.OrderBy(string.IsNullOrWhiteSpace(sorting) ? BillOfMaterialConsts.GetDefaultSorting(false) : sorting);
+            return await query.As<IMongoQueryable<BillOfMaterial>>()
+                .PageBy<BillOfMaterial, IMongoQueryable<BillOfMaterial>>(skipCount, maxResultCount)
                 .ToListAsync(GetCancellationToken(cancellationToken));
         }
 
@@ -55,20 +55,31 @@ namespace IBLTermocasa.BillOfMaterials
             CancellationToken cancellationToken = default)
         {
             var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, name, requestForQuotationProperty);
-            return await query.As<IMongoQueryable<BillOFMaterial>>().LongCountAsync(GetCancellationToken(cancellationToken));
+            return await query.As<IMongoQueryable<BillOfMaterial>>().LongCountAsync(GetCancellationToken(cancellationToken));
         }
 
-        protected virtual IQueryable<BillOFMaterial> ApplyFilter(
-            IQueryable<BillOFMaterial> query,
+        protected virtual IQueryable<BillOfMaterial> ApplyFilter(
+            IQueryable<BillOfMaterial> query,
             string? filterText = null,
             string? name = null,
             RequestForQuotationProperty? requestForQuotationProperty = null)
         {
-            return query
-                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Name.Contains(filterText))
-                .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name))
-                .WhereIf(requestForQuotationProperty != null,
-                    e => e.RequestForQuotationProperty.Name.Contains(requestForQuotationProperty.Name));
+            if(!filterText.IsNullOrWhiteSpace())
+            {
+                query = query.Where(e => e.BomNumber.Contains(filterText));
+                query = query.Where(e => e.RequestForQuotationProperty.Name != null && e.RequestForQuotationProperty.Name.Contains(filterText));
+            }
+            if(!name.IsNullOrWhiteSpace())
+            {
+                query = query.Where(e => e.BomNumber.Contains(name));
+                query = query.Where(e => e.RequestForQuotationProperty.Name != null && e.RequestForQuotationProperty.Name.Contains(name));
+            }
+            if(requestForQuotationProperty is { Name: not null })
+            {
+                query = query.Where(e => requestForQuotationProperty.Name != null && e.RequestForQuotationProperty.Name != null && e.RequestForQuotationProperty.Name.Contains(requestForQuotationProperty.Name));
+            }
+            
+            return query;
         }
     }
 }
