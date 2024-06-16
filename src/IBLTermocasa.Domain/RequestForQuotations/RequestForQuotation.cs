@@ -33,7 +33,7 @@ namespace IBLTermocasa.RequestForQuotations
 
         public virtual string? Description { get; set; }
 
-        public virtual Status Status { get; set; }
+        public virtual RfqStatus Status { get; set; }
         public DateTime? DateDocument { get; set; }
         public List<RequestForQuotationItem>? RequestForQuotationItems { get; set; }
 
@@ -43,7 +43,7 @@ namespace IBLTermocasa.RequestForQuotations
 
         public RequestForQuotation(Guid id, string quoteNumber, string? workSite, string? city, AgentProperty? agentProperty,
             OrganizationProperty? organizationProperty, ContactProperty? contactProperty, PhoneInfo? phoneInfo,
-            MailInfo? mailInfo, decimal discount, string? description, Status status, DateTime? dateDocument,
+            MailInfo? mailInfo, decimal discount, string? description, RfqStatus status, DateTime? dateDocument,
             List<RequestForQuotationItem>? requestForQuotationItems)
         {
             Id = id;

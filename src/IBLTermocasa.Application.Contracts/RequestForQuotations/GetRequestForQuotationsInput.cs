@@ -21,7 +21,7 @@ namespace IBLTermocasa.RequestForQuotations
         public decimal? DiscountMin { get; set; }
         public decimal? DiscountMax { get; set; }
         public string? Description { get; set; }
-        public Status? Status { get; set; }
+        public RfqStatus? Status { get; set; }
 
         public GetRequestForQuotationsInput()
         {

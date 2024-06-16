@@ -7,6 +7,7 @@ using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.Application.Dtos;
 using IBLTermocasa.Components;
+using IBLTermocasa.Materials;
 using Volo.Abp.Content;
 using IBLTermocasa.Shared;
 
@@ -98,6 +99,12 @@ namespace IBLTermocasa.Controllers.Components
         public virtual Task<PagedResultDto<LookupDto<Guid>>> GetMaterialLookupAsync(LookupRequestDto input)
         {
             return _componentsAppService.GetMaterialLookupAsync(input);
+        }
+        [HttpGet]
+        [Route("component-materials")]
+        public Task<Dictionary<Guid, List<MaterialDto>>> GetMaterialDictionaryAsync(List<Guid> componentIds)
+        {
+            return _componentsAppService.GetMaterialDictionaryAsync(componentIds);
         }
     }
 }

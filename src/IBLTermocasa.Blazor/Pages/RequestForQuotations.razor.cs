@@ -228,7 +228,7 @@ namespace IBLTermocasa.Blazor.Pages
         private void OpenEditRequestForQuotationPageAsync(RequestForQuotationDto input)
         {
             //navigate to the page RequestForQuotationDetails
-            if (input.Status == Status.DRAFT)
+            if (input.Status == RfqStatus.DRAFT)
             {
                 NavigationManager.NavigateTo($"/rfq-draft/{input.Id}");
             }
@@ -307,7 +307,7 @@ namespace IBLTermocasa.Blazor.Pages
             Filter.Description = description;
             await SearchAsync();
         }
-        protected virtual async Task OnStatusChangedAsync(Status? status)
+        protected virtual async Task OnStatusChangedAsync(RfqStatus? status)
         {
             Filter.Status = status;
             await SearchAsync();

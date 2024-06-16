@@ -55,7 +55,7 @@ public partial class BillOfMaterialFromFrq
     private async Task LoadRequestForQuotations()
     {
 
-        RequestForQuotationList = (await RequestForQuotationsAppService.GetListAsync(new GetRequestForQuotationsInput(){Status = Status.NEW})).Items;
+        RequestForQuotationList = (await RequestForQuotationsAppService.GetListAsync(new GetRequestForQuotationsInput(){Status = RfqStatus.NEW})).Items;
         await RequestForQuotationDataGrid.ReloadServerData();
         StateHasChanged();
     }

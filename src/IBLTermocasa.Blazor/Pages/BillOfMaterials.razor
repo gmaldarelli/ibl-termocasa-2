@@ -37,7 +37,17 @@
         <MudDataGrid Items="BillOfMaterialList">
             <Columns>
                 <PropertyColumn Property="x => x.BomNumber" Title="@L["Name"]"/>
-                <PropertyColumn Property="x => x.RequestForQuotationProperty.Name" Title="@L["RequestForQuotation"]"/>
+                <PropertyColumn Property="x => x.Status" Title="@L["BomStatus"]"/>
+                <PropertyColumn Property="x => x.CreationTime" Title="@L["BomDate"]" Format="dd/MM/yyyy"/>
+                <PropertyColumn Property="x => x.RequestForQuotationProperty.RfqNumber" Title="@L["RfqNumber"]"/>
+                <PropertyColumn Property="x => x.RequestForQuotationProperty.OrganizationName" Title="@L["Organization"]"/>
+                <PropertyColumn Property="x => x.RequestForQuotationProperty.RfqDateDocument" Title="@L["RfqDateDocument"]" Format="dd/MM/yyyy"/>
+                <TemplateColumn CellClass="d-flex justify-end">
+                    <CellTemplate>
+                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Outlined.PanoramaFishEye" OnClick="() => OpenBillOfMaterialDetailAsync(context.Item)"/>
+                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Outlined.Remove" OnClick="() => RemoveBillOfMaterialDetailAsync(context.Item)"/>
+                    </CellTemplate>
+                </TemplateColumn>
             </Columns>
         </MudDataGrid>
     </MudCardContent>

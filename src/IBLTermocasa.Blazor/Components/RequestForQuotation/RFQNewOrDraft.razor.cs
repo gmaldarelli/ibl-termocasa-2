@@ -503,7 +503,7 @@ public partial class RFQNewOrDraft
         {
             // Creazione di una nuova richiesta di preventivo
             RequestForQuotation.RequestForQuotationItems = ListRequestForQuotationItems;
-            RequestForQuotation.Status = Status.NEW;
+            RequestForQuotation.Status = RfqStatus.NEW;
             RequestForQuotation.ConcurrencyStamp = Guid.NewGuid().ToString();
             NewRequestForQuotation =
                 _mapper.Map<RequestForQuotationDto, RequestForQuotationCreateDto>(RequestForQuotation);
@@ -524,7 +524,7 @@ public partial class RFQNewOrDraft
         try
         {
             RequestForQuotation.RequestForQuotationItems = ListRequestForQuotationItems;
-            RequestForQuotation.Status = Status.DRAFT;
+            RequestForQuotation.Status = RfqStatus.DRAFT;
             RequestForQuotation.ConcurrencyStamp = Guid.NewGuid().ToString();
             NewRequestForQuotation =
                 _mapper.Map<RequestForQuotationDto, RequestForQuotationCreateDto>(RequestForQuotation);

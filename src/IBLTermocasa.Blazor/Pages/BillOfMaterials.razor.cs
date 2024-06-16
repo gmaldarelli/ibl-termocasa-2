@@ -17,6 +17,7 @@ using IBLTermocasa.Common;
 using IBLTermocasa.Permissions;
 using IBLTermocasa.Shared;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using Volo.Abp.AspNetCore.Components.Web.Theming.Toolbars;
 using Color = Blazorise.Color;
@@ -309,6 +310,16 @@ namespace IBLTermocasa.Blazor.Pages
         {
             AddBillOfMaterialModal.Hide();
             await InvokeAsync(StateHasChanged);
+        }
+
+        private void OpenBillOfMaterialDetailAsync(BillOfMaterialDto contextItem)
+        {
+            NavigationManager.NavigateTo($"/bill-of-materials-detail/{contextItem.Id}");
+        }
+
+        private void RemoveBillOfMaterialDetailAsync(BillOfMaterialDto contextItem)
+        {
+            throw new NotImplementedException();
         }
     }
 }

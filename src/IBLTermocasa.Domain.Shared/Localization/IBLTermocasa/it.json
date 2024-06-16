@@ -288,6 +288,13 @@
     "GenerateBillOfMaterial": "Genera Distinta Base",
     "ConfirmGenerationMudDialogTitle": "Generazione Distinta Base",
     "ConfirmGenerationMudDialogMessage": "La distinta base è stata generata con successo con il numero {0}, vuoi visualizzarla?",
-    "Close": "Chiudi"
+    "Close": "Chiudi",
+    "BomNumber": "Numero",
+    "BomStatus": "Stato",
+    "RfqNumber": "Numero Preventivo",
+    "RfqDateDocument": "Data Preventivo",
+    "BomDate": "Data",
+    "BillOfMaterialsTab": "Distinte Base Materiali",
+    "SelectItemRequired": "Seleziona almeno un elemento",
   }
 }

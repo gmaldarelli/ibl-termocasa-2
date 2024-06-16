@@ -228,5 +228,27 @@ namespace IBLTermocasa.Components
                 Items = ObjectMapper.Map<List<Material>, List<LookupDto<Guid>>>(lookupData)
             };
         }
+
+        public virtual async Task<Dictionary<Guid, List<MaterialDto>>> GetMaterialDictionaryAsync(List<Guid> componentIds)
+        {
+            Dictionary<Guid, List<MaterialDto>> result = new Dictionary<Guid, List<MaterialDto>>();
+            var components = await _componentRepository.GetListAsync(x => componentIds.Contains(x.Id));
+            var marterialIds = components.SelectMany(x => x.ComponentItems.Select(y => y.MaterialId)).ToList();
+            var materials = await _materialRepository.GetListAsync(x => marterialIds.Contains(x.Id));
+            foreach (var component in components)
+            {
+                List<MaterialDto> componentMaterials = new List<MaterialDto>();
+                component.ComponentItems.ForEach(x =>
+                {
+                    var material = materials.FirstOrDefault(y => y.Id == x.MaterialId);
+                    if (material != null)
+                    {
+                        componentMaterials.Add(ObjectMapper.Map<Material, MaterialDto>(material));
+                    }
+                });
+                result.Add(component.Id, componentMaterials);
+            }
+            return result;
+        }
     }
 }

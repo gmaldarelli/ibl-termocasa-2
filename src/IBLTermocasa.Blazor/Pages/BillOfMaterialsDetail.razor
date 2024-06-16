@@ -1,0 +1,31 @@
+﻿@page "/bill-of-materials-detail/{id}"
+@using IBLTermocasa.BillOfMaterials
+@using IBLTermocasa.Localization
+@using IBLTermocasa.Permissions
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.Http.Client
+@using IBLTermocasa.Blazor.Components.BillOfMaterial
+@using MudBlazor
+
+@attribute [Authorize(IBLTermocasaPermissions.BillOfMaterials.Edit)]
+@inject NavigationManager NavigationManager
+@inject IUiMessageService UiMessageService
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject IBillOfMaterialsAppService BillOfMaterialsAppService
+@inherits IBLTermocasaComponentBase
+
+<PageHeader Title="@L["Products"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+</PageHeader>
+<BillOfMaterialsInput
+    @ref="BillOfMaterialsInputComponent"
+    BillOfMaterials="@BillOfMaterial"/>
+
+<MudThemeProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider />
+@code {
+    
+}

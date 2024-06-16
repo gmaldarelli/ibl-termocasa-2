@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using IBLTermocasa.Materials;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Content;
@@ -28,6 +29,7 @@ namespace IBLTermocasa.Components
         Task<ComponentDto> UpdateComponentItemAsync(Guid componentId, List<ComponentItemDto> componentItems);
         Task<ComponentDto> CreateComponentItemAsync(Guid componentId, List<ComponentItemDto> componentItems);
         Task<PagedResultDto<LookupDto<Guid>>> GetMaterialLookupAsync(LookupRequestDto lookupRequestDto);
+        Task<Dictionary<Guid,List<MaterialDto>>> GetMaterialDictionaryAsync(List<Guid> componentIds);
     }
 }
 

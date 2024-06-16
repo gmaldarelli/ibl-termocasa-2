@@ -1,6 +1,6 @@
 ﻿namespace IBLTermocasa.RequestForQuotations;
 
-public enum Status
+public enum RfqStatus
 {
     DRAFT,
     NEW,

@@ -1,0 +1,94 @@
+﻿@using IBLTermocasa.BillOfMaterials
+@using IBLTermocasa.Components
+@using DataGridEditMode = MudBlazor.DataGridEditMode
+@using MudBlazor
+@inherits IBLTermocasaComponentBase
+@inject IComponentsAppService ComponentsAppService
+@if(BillOfMaterials == null)
+{
+    <div class="text-center">
+        <MudProgressCircular>
+            <div class="text-center">
+                <MudTypography Variant="Variant.H6">@L["Loading"]</MudTypography>
+            </div>
+        </MudProgressCircular>
+    </div>
+    return;
+}
+
+<MudForm   @ref="formBillOfMaterials"
+           IsValid=" successValidationBillOfMaterials"
+           Errors="errorsValidationBillOfMaterials"
+           Model="BillOfMaterials" >
+    <MudGrid>
+        <MudItem xs="12" sm="12">
+            <MudPaper Class="pa-2 mt-12">
+                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" DisableElevation="true" OnClick="@(()=>formBillOfMaterials.Validate())">@L["Validate"]</MudButton>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="12">
+            @* ************************* Main Info on left side ************************* *@
+            <MudPaper Class="pa-4">
+                <MudTextField @bind-Value="BillOfMaterials.BomNumber"
+                              Label="@L["BomNumber"]"
+                              ReadOnly="true"/>
+                <MudTextField @bind-Value="BillOfMaterials.Status"
+                              Label="@L["BomStatus"]"
+                              ReadOnly="true"/>
+                <MudTextField @bind-Value="BillOfMaterials.CreationTime"
+                              Label="@L["BomDate"]" Format="dd/MM/yyyy"
+                              ReadOnly="true"/>
+                <MudTextField @bind-Value="BillOfMaterials.RequestForQuotationProperty.RfqNumber"
+                              Label="@L["RfqNumber"]"
+                              ReadOnly="true"/>
+                <MudTextField @bind-Value="BillOfMaterials.RequestForQuotationProperty.OrganizationName"
+                              Label="@L["Organization"]"
+                              ReadOnly="true"/>
+                <MudTextField @bind-Value="BillOfMaterials.RequestForQuotationProperty.RfqDateDocument"
+                              Label="@L["RfqDateDocument"]" Format="dd/MM/yyyy"
+                              ReadOnly="true"/>
+                <MudTextField @bind-Value="BillOfMaterials.RequestForQuotationProperty.RfqDateDocument"
+                              Label="@L["RfqDateDocument"]" 
+                              ReadOnly="true"/>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="12">
+            <MudPaper Class="pa-4">
+                @* ************************* Tab  on right side ************************* *@
+                <MudTabs Outlined="true" MudBlazor.Position="@MudTabsPosition" Rounded="true" Border="true"
+                         ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-2">
+                    <MudTabPanel Text="@L["BillOfMaterialsTab"]">
+                        <MudPaper>
+                            <MudDataGrid @ref="BillOfMaterialsMudDataGrid" T="BillOfMaterialsMudDataGridItem"  MultiSelection="false" Items="@BillOfMaterialsMudDataGridItems" Filterable="true"
+                                         Hideable="true" Groupable="true" GroupExpanded="false" GroupClassFunc="GroupClassFunc" EditMode="MudBlazor.DataGridEditMode.Cell" ReadOnly="false" CommittedItemChanges="@CommittedItemChanges">
+                                <Columns>
+                                    <PropertyColumn Property="x => x.RequestForQuotationItemQuantity" Title="@L["Quantity"]"  IsEditable="false"/>
+                                    <PropertyColumn Property="x => x.ProductItemName" Title="@L["Product"]"/>
+                                    <PropertyColumn Property="x => x.BomComponentName" Title="@L["Component"]"/>
+                                    <PropertyColumn Property="x => x.MaterialId" IsEditable="true"  Title="@L["Material"]">
+                                        <EditTemplate>
+                                            <MudSelect  Required RequiredError="@L["SelectItemRequired"]" Margin="@MudBlazor.Margin.Dense"   @bind-Value="@context.Item.MaterialId">
+                                                @foreach (var materialItem in MaterialDictionary[context.Item.BomComponentId])
+                                                {
+                                                    <MudSelectItem T="Guid" Value="@materialItem.Id">@materialItem.Name</MudSelectItem>
+                                                }
+                                            </MudSelect>
+                                        </EditTemplate>
+                                    </PropertyColumn>
+                                    <PropertyColumn Property="x => x.MaterialPrice" Title="@L["Price"]"  IsEditable="false" />
+                                    <PropertyColumn Property="x => x.MeasureUnit" Title="@L["MeasureUnit"]"  IsEditable="false"/>
+                                    <PropertyColumn Property="x => x.Quantity" Title="@L["Quantity"]"  IsEditable="false"/>
+                                    <PropertyColumn Property="x => x.Price" Title="@L["Price"]"  IsEditable="false"/>
+                                </Columns>
+                            </MudDataGrid>
+                        </MudPaper>
+                    </MudTabPanel>
+                </MudTabs>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudForm>
+
+@code {
+    
+}

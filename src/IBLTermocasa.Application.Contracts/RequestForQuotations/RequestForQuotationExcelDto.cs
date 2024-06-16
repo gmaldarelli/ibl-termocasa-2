@@ -14,6 +14,6 @@ namespace IBLTermocasa.RequestForQuotations
         public string? MailInfo { get; set; }
         public decimal? Discount { get; set; }
         public string? Description { get; set; }
-        public Status Status { get; set; }
+        public RfqStatus Status { get; set; }
     }
 }

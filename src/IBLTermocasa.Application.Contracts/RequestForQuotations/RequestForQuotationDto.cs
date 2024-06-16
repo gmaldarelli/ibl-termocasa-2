@@ -18,7 +18,7 @@ namespace IBLTermocasa.RequestForQuotations
         public MailInfoDto? MailInfo { get; set; } = new();
         public decimal? Discount { get; set; }
         public string? Description { get; set; }
-        public Status Status { get; set; }
+        public RfqStatus Status { get; set; }
 
         public List<RequestForQuotationItemDto>? RequestForQuotationItems { get; set; } = new();
         

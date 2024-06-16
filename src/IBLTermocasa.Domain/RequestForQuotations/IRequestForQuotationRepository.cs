@@ -28,7 +28,7 @@ namespace IBLTermocasa.RequestForQuotations
             decimal? discountMin = null,
             decimal? discountMax = null,
             string? description = null,
-            Status? status = null,
+            RfqStatus? status = null,
             string? sorting = null,
             int maxResultCount = int.MaxValue,
             int skipCount = 0,
@@ -48,7 +48,7 @@ namespace IBLTermocasa.RequestForQuotations
                     decimal? discountMin = null,
                     decimal? discountMax = null,
                     string? description = null,
-                    Status? status = null,
+                    RfqStatus? status = null,
                     string? sorting = null,
                     int maxResultCount = int.MaxValue,
                     int skipCount = 0,
@@ -68,7 +68,7 @@ namespace IBLTermocasa.RequestForQuotations
             decimal? discountMin = null,
             decimal? discountMax = null,
             string? description = null,
-            Status? status = null,
+            RfqStatus? status = null,
             CancellationToken cancellationToken = default);
     }
 }

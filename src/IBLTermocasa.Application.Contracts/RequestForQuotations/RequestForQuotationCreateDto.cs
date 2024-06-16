@@ -19,7 +19,7 @@ namespace IBLTermocasa.RequestForQuotations
         public MailInfoDto? MailInfo { get; set; }
         public decimal? Discount { get; set; }
         public string? Description { get; set; }
-        public Status Status { get; set; } = ((Status[])Enum.GetValues(typeof(Status)))[0];
+        public RfqStatus Status { get; set; } = ((RfqStatus[])Enum.GetValues(typeof(RfqStatus)))[0];
         public List<RequestForQuotationItemDto>? RequestForQuotationItems { get; set; } = new();
         public DateTime? DateDocument { get; set; } = DateTime.Now;
     }

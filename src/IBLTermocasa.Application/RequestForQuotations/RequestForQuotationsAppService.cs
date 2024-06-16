@@ -278,7 +278,7 @@ namespace IBLTermocasa.RequestForQuotations
         public virtual async Task<ViewElementPropertyDto<long>> GetNewRequestForQuotationCountAsync()
         {
             GetRequestForQuotationsInput input = new GetRequestForQuotationsInput();
-            input.Status = Status.NEW;
+            input.Status = RfqStatus.NEW;
             var result = await _requestForQuotationRepository.GetCountAsync(input.FilterText, input.QuoteNumber, input.WorkSite, input.City, input.AgentProperty, input.OrganizationProperty, input.ContactProperty, input.PhoneInfo, input.MailInfo, input.DiscountMin, input.DiscountMax, input.Description, input.Status);
             return new ViewElementPropertyDto<long>("NewRequestForQuotationCount", result);
         }

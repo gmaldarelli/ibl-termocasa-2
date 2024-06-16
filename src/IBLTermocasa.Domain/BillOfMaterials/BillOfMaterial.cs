@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using IBLTermocasa.Common;
+using IBLTermocasa.Types;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
@@ -21,14 +22,15 @@ namespace IBLTermocasa.BillOfMaterials
         [NotNull] public virtual RequestForQuotationProperty RequestForQuotationProperty { get; set; } = new();
         public virtual string Notes { get; set; }
 
-        public virtual List<BomItem>? ListItems { get; set; } = new();
+        [NotNull] public virtual BomStatus Status { get; set; } = BomStatus.CREATED;
+        public virtual List<BomItem> ListItems { get; set; } = new();
 
         protected BillOfMaterial()
         {
 
         }
 
-        public BillOfMaterial(Guid id, string bomNumber, RequestForQuotationProperty requestForQuotationProperty, List<BomItem> listItems = null, string? notes = null)
+        public BillOfMaterial(Guid id, string bomNumber, RequestForQuotationProperty requestForQuotationProperty, List<BomItem> listItems = null, string? notes = null, BomStatus status = BomStatus.CREATED)
         {
 
             Id = id;
@@ -37,6 +39,7 @@ namespace IBLTermocasa.BillOfMaterials
             RequestForQuotationProperty = requestForQuotationProperty;
             ListItems = listItems;
             Notes = notes;
+            Status = status;
         }  
 
         //generete static methot to fill all properties of the RequestForQuotation except the Id using reflection with 2 variants source and destination

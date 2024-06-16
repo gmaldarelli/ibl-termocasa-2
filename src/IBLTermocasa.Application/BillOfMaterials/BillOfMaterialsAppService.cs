@@ -161,7 +161,7 @@ namespace IBLTermocasa.BillOfMaterials
                 notes: ""
             );
              var saved = await _billOfMaterialManager.CreateAsync(billOfMaterial);
-             rfq.Status = Status.IN_PROGRESS_BOM;
+             rfq.Status = RfqStatus.IN_PROGRESS_BOM;
              await _requestForQuotationRepository.UpdateAsync(rfq);
              return
              [
