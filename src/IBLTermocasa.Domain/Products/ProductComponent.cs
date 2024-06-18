@@ -11,6 +11,7 @@ namespace IBLTermocasa.Products
 
         public virtual int Order { get; set; }
         
+        public virtual string Code { get; set; }
         public virtual string Name { get; set; }
         public virtual bool Mandatory { get; set; }
         private ProductComponent()
@@ -18,11 +19,12 @@ namespace IBLTermocasa.Products
 
         }
 
-        public ProductComponent(Guid productId, Guid componentId, int order, string name, bool mandatory)
+        public ProductComponent(Guid productId, Guid componentId, int order, string code, string name, bool mandatory)
         {
             ProductId = productId;
             ComponentId = componentId;
             Order = order;
+            Code = code;
             Name = name;
             Mandatory = mandatory;
         }  

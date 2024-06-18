@@ -127,7 +127,7 @@ namespace IBLTermocasa.Products
 
             foreach (var productComponent in productComponents)
             {
-                product.AddComponent(productComponent.ComponentId, productComponent.Order, productComponent.Name, productComponent.Mandatory);
+                product.AddComponent(productComponent.ComponentId, productComponent.Order, productComponent.Code, productComponent.Name, productComponent.Mandatory);
             }
         }
 

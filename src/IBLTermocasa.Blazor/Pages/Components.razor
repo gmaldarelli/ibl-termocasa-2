@@ -36,147 +36,98 @@
 <PageHeader Title="@L["Components"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
 
 </PageHeader>
-<CardDeck>
-    <Card>
-        <Row>
-                @* ************************* SEARCH ************************* *@
-                <Card>
-                    <CardBody>
-                        <Row>
-                            <Form id="ComponentSearchForm" class="mb-3">
-                                <Addons>
-                                    <Addon AddonType="AddonType.Body">
-                                        <TextEdit @bind-Text="@Filter.FilterText"
-                                                  Autofocus="true"
-                                                  Placeholder="@L["Search"]">
-                                        </TextEdit>
-                                    </Addon>
-                                    <Addon AddonType="AddonType.End">
-                                        <SubmitButton Form="ComponentSearchForm" Clicked="GetComponentsAsync">
-                                            <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
-                                        </SubmitButton>
-                                    </Addon>
-                                </Addons>
-                            </Form>
-                        </Row>
-                        <Row>
-                            @* ************************* DATA GRID ************************* *@
-                            <DataGrid
-                                        @ref="@ComponentDtoDataGrid"
-                                        TItem="ComponentDto"
-                                      Data="ComponentList"
-                                      RowClicked="@OnComponentDtoDataGridRowClickedAsync"
-                                      ReadData="OnDataGridReadAsync"
-                                      TotalItems="TotalCount"
-                                      SelectionMode="DataGridSelectionMode.Single"
-                                      ShowPager="true"
-                                      Responsive="true"
-                                      PageSize="PageSize"
-                                      Class="datagrid-detail" bind-PageSize="5">
-                                <DataGridColumns>
-                                    <DataGridColumn TItem="ComponentDto"
-                                                    Field="Name"
-                                                    Caption="@L["Name"]">
-                                    </DataGridColumn>
-                                </DataGridColumns>
-                                <RowOverlayTemplate>
-                                    <Div id="@context.Item.Name" class="justify-content-start">
-                                        <Button Color="Color.Primary" Size="Size.Default"
-                                                Visibility="@((CanEditComponent) ? Visibility.Visible : Visibility.Invisible)"
-                                                Clicked="() => OpenEditComponentModalAsync(context.Item)">
-                                            <Icon Name="IconName.Edit" IconSize="IconSize.Default"/>
-                                        </Button>
-                                        <Button Color="Color.Secondary" Size="Size.Default"
-                                                Visibility="@((CanDeleteComponent) ? Visibility.Visible : Visibility.Invisible)"
-                                                Clicked="async () => await DeleteComponentAsync(context.Item)">
-                                            <Icon Name="IconName.Delete" IconSize="IconSize.Default"/>
-                                        </Button>
-                                    </Div>
-                                </RowOverlayTemplate>
-                            </DataGrid>
-                        </Row>
-                    </CardBody>
-                </Card>
-        </Row>
-    </Card>
-    <Card>
-        <Row>
 
-            @* ************************* DATA GRID COMPONENT_ITEM************************* *@
-            <Card>
-                <CardBody>
-                    @if (_selectedComponent == null)
+<MudBlazor.MudGrid>
+    <MudBlazor.MudItem xs="12" sm="6">
+        @* ************************* Main Info on left side ************************* *@
+        <MudBlazor.MudPaper Class="pa-4">
+            <MudBlazor.MudDataGrid @ref="ComponentMudDataGrid" T="ComponentDto" 
+                                   Items="@ComponentList" ReadOnly="false" 
+                                   EditMode="MudBlazor.DataGridEditMode.Form" 
+                                   Hover="true" SelectedItemChanged="OnSelectedItemChanged"
+                                   EditTrigger="MudBlazor.DataGridEditTrigger.Manual"  
+                                   Bordered="true" Dense="true" Filterable="false" SortMode="MudBlazor.SortMode.Single"
+                                   CommittedItemChanges="@OnCommittedItemChanges"
+                                   >
+                <ToolBarContent>
+                    <MudBlazor.MudText Typo="MudBlazor.Typo.h6">@L["Components"]</MudBlazor.MudText>
+                    <MudBlazor.MudSpacer />
+                    <Button Color="Color.Primary" @onclick="CreateComponentAsync">@L["NewComponent"]</Button>
+                </ToolBarContent>
+                <Columns>
+                    <MudBlazor.PropertyColumn Property="x => x.Code" Title="@L["Code"]" IsEditable="true" Sortable="true" Filterable="true">
+                    </MudBlazor.PropertyColumn>
+                    <MudBlazor.PropertyColumn Property="x => x.Name" Title="@L["Name"]" IsEditable="true" Sortable="true" Filterable="true">
+                    </MudBlazor.PropertyColumn>
+                    <MudBlazor.TemplateColumn  CellClass="d-flex justify-center">
+                        <CellTemplate>
+                            <MudBlazor.MudIconButton Size="@MudBlazor.Size.Small"
+                                                     Icon="@MudBlazor.Icons.Material.Filled.Edit"
+                                                     Variant="@MudBlazor.Variant.Filled"
+                                                     OnClick="@context.Actions.StartEditingItemAsync"/>
+                            <MudBlazor.MudIconButton Size="@MudBlazor.Size.Small"
+                                                     Icon="@MudBlazor.Icons.Material.Filled.DeleteForever"
+                                                     Variant="@MudBlazor.Variant.Filled"
+                                                     OnClick="() => DeleteComponentAsync(context.Item)"/>
+                        </CellTemplate>
+                    </MudBlazor.TemplateColumn>
+                    
+                </Columns>
+            </MudBlazor.MudDataGrid>
+        </MudBlazor.MudPaper>
+    </MudBlazor.MudItem>
+
+    <MudBlazor.MudItem xs="12" sm="6">
+
+        @* ************************* Main Info on left side ************************* *@
+        <MudBlazor.MudPaper Class="pa-4">
+            <MudBlazor.MudDataGrid @ref="ComponentItemMudDataGrid" T="ComponentItemDto" Items="@ComponentItemList" ReadOnly="false" EditMode="MudBlazor.DataGridEditMode.Cell" Hover="true"
+                                   EditTrigger="MudBlazor.DataGridEditTrigger.OnRowClick"
+                                   Bordered="true" Dense="true" Filterable="false" SortMode="MudBlazor.SortMode.Single">
+                <ToolBarContent>
+                    <MudBlazor.MudText Typo="MudBlazor.Typo.h6">@L["ComponentItems"]</MudBlazor.MudText>
+                    <MudBlazor.MudSpacer />
+                    <Button Disabled="@ComponentSelected" Color="Color.Primary" @onclick="OpenCreateComponentItemModalAsync">@L["NewComponentItem"]</Button>
+                </ToolBarContent>
+                <Columns>
+                    <MudBlazor.PropertyColumn Property="x => x.IsDefault" Title="@L["IsDefault"]" IsEditable="true" Sortable="true" Filterable="true">
+                        <EditTemplate>
+                            <MudBlazor.MudCheckBox @bind-Checked="context.Item.IsDefault"/>
+                        </EditTemplate>
+                    </MudBlazor.PropertyColumn>
+                    <MudBlazor.PropertyColumn Property="x => x.MaterialCode" Title="@L["Code"]" IsEditable="false" Sortable="false" Filterable="false">
+                    </MudBlazor.PropertyColumn>
+                    <MudBlazor.PropertyColumn Property="x => x.MaterialName" Title="@L["Name"]" IsEditable="false" Sortable="false" Filterable="false">
+                    </MudBlazor.PropertyColumn>
+                    <MudBlazor.PropertyColumn Property="x => x.Id" Sortable="false" Filterable="false">
+                        <HeaderTemplate>
+                            <MudBlazor.MudSpacer></MudBlazor.MudSpacer>
+                        </HeaderTemplate>
+                        <EditTemplate>
+                            <MudBlazor.MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Filled.DeleteSweep" OnClick="() => DeleteComponentItemAsync(context.Item)"/>
+                        </EditTemplate>
+                    </MudBlazor.PropertyColumn>
+                </Columns>
+                <NoRecordsContent>
+                    <MudICons.MudIcon Icon="MudIcons.Material.Filled.Warning" Size="Large" Color="Color.Warning"/>
+                    @if (ComponentDtoDataGrid.SelectedRow == null)
                     {
-                    <EmptyData/>
+                        <MudBlazor.MudText>@L["NoDataSelected"]</MudBlazor.MudText>
                     }
                     else
                     {
-                    @if (CanCreateComponentItem)
-                    {
-                    <Row Class="mb-3">
-                        <Column Class="d-flex justify-content-start">
-                            <h5>@_selectedComponent.Name</h5>
-                        </Column>
-                        <Column Class="d-flex justify-content-end">
-                            <Button Color="Color.Primary" Clicked="async () => await OpenCreateComponentItemModalAsync(_selectedComponent.Id)">
-                                <i class="fas fa-plus me-1"></i>@L["NewComponentItem"]
-                            </Button>
-                        </Column>
-                    </Row>
+                        <MudBlazor.MudText>@L["NoData"]</MudBlazor.MudText>
+                        <MudBlazor.MudButton Color="MudBlazor.Color.Primary" @onclick="CreateComponentItemAsync">@L["NewComponentItem"]</MudBlazor.MudButton>
                     }
+                </NoRecordsContent>
+            </MudBlazor.MudDataGrid>
+        </MudBlazor.MudPaper>
+    </MudBlazor.MudItem>
+</MudBlazor.MudGrid>
 
-                    <DataGrid
-                        @ref="ComponentItemDataGrid"
-                        TItem="ComponentItemDto"
-                        Data="SelectedComponentItems"
-                        Sortable="false"
-                        ShowCaptions="true"
-                        ShowPager="true"
-                        Responsive="true"
-                        PageSize="ComponentItemPageSize">
-                        <DataGridColumns>
-                            <DataGridColumn TItem="ComponentItemDto"
-                                            Field="IsDefault"
-                                            Caption="@L["IsDefault"]">
-                                <DisplayTemplate Context="component_item_context">
-                                    @if (component_item_context.IsDefault)
-                                    {
-                                    <Icon TextColor="TextColor.Success" Name="@IconName.Check"/>
-                                    }
-                                    else
-                                    {
-                                    <Icon TextColor="TextColor.Danger" Name="@IconName.Times"/>
-                                    }
-                                </DisplayTemplate>
-                            </DataGridColumn>
-                            <DataGridColumn TItem="ComponentItemDto"
-                                            Field="MaterialCode"
-                                            Caption="@L["Material"]">
-                            </DataGridColumn>
-                            <DataGridColumn TItem="ComponentItemDto"
-                                            Field="MaterialName"
-                                            Caption="@L["Material"]">
-                            </DataGridColumn>
-                        </DataGridColumns>
-                        <RowOverlayTemplate>
-                            <Button Color="Color.Primary" Size="Size.ExtraLarge"
-                                    Visibility="@((CanEditComponent) ? Visibility.Visible : Visibility.Invisible)"
-                                    Clicked="() => OpenEditComponentItemModalAsync(context.Item)">
-                                <Icon Name="IconName.Edit" IconSize="IconSize.ExtraSmall"/>
-                            </Button>
-                            <Button Color="Color.Secondary" Size="Size.ExtraSmall"
-                                    Visibility="@((CanDeleteComponent) ? Visibility.Visible : Visibility.Invisible)"
-                                    Clicked="async () => await DeleteComponentItemAsync(context.Item)">
-                                <Icon Name="IconName.Delete" IconSize="IconSize.ExtraSmall"/>
-                            </Button>
-                        </RowOverlayTemplate>
-                    </DataGrid>
-                    }
-                </CardBody>
-            </Card>
-        </Row>
-    </Card>
-</CardDeck>
+<MudBlazor.MudThemeProvider/>
+<MudBlazor.MudDialogProvider/>
+<MudBlazor.MudSnackbarProvider />
 
 @* ************************* CREATE MODAL ************************* *@
 <Modal @ref="CreateComponentModal" Closing="@CreateComponentModal.CancelClosingModalWhenFocusLost">
@@ -188,25 +139,36 @@
             </ModalHeader>
             <ModalBody>
                 <Validations @ref="@NewComponentValidations"
-                            Mode="ValidationMode.Auto"
-                            Model="@NewComponent"
-                            ValidateOnLoad="false">
-                     
+                             Mode="ValidationMode.Auto"
+                             Model="@NewComponent"
+                             ValidateOnLoad="false">
                     
                     <Validation MessageLocalizer="@LH.Localize">
                         <Field>
-                            <FieldLabel>@L["Name"] *</FieldLabel>
-                            <TextEdit @bind-Text="@NewComponent.Name"  >
+                            <FieldLabel>@L["Code"] *</FieldLabel>
+                            <TextEdit @bind-Text="@NewComponent.Code">
                                 <Feedback>
-                                    <ValidationError />
+                                    <ValidationError/>
                                 </Feedback>
                             </TextEdit>
                         </Field>
                     </Validation>
 
 
-                    
-                    
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Name"] *</FieldLabel>
+                            <TextEdit @bind-Text="@NewComponent.Name">
+                                <Feedback>
+                                    <ValidationError/>
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+
+
                 </Validations>
             </ModalBody>
             <ModalFooter>
@@ -236,7 +198,18 @@
                             Mode="ValidationMode.Auto"
                             Model="@EditingComponent"
                             ValidateOnLoad="false">
-                     
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Code"] *</FieldLabel>
+                            <TextEdit @bind-Text="@EditingComponent.Code"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
                     
                     <Validation MessageLocalizer="@LH.Localize">
                         <Field>

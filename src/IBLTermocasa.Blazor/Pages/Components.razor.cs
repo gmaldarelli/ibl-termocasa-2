@@ -8,16 +8,21 @@ using System.Globalization;
 using System.Web;
 using Blazorise;
 using Blazorise.DataGrid;
+using IBLTermocasa.Blazor.Components.Component;
 using Volo.Abp.BlazoriseUI.Components;
 using Microsoft.AspNetCore.Authorization;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
 using IBLTermocasa.Components;
+using IBLTermocasa.Materials;
 using IBLTermocasa.Permissions;
 using IBLTermocasa.Shared;
+using Microsoft.AspNetCore.Components;
+using MudBlazor;
 using NUglify.Helpers;
 using Volo.Abp.AspNetCore.Components.Messages;
 using ComponentItemDto = IBLTermocasa.Components.ComponentItemDto;
+using SortDirection = Blazorise.SortDirection;
 
 
 namespace IBLTermocasa.Blazor.Pages
@@ -27,6 +32,7 @@ namespace IBLTermocasa.Blazor.Pages
         protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems =
             new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
 
+        [Inject] public IDialogService DialogService { get; set; }
         protected PageToolbar Toolbar { get; } = new PageToolbar();
         protected bool ShowAdvancedFilters { get; set; }
         private IReadOnlyList<ComponentDto> ComponentList { get; set; }
@@ -93,6 +99,7 @@ namespace IBLTermocasa.Blazor.Pages
         {
             await SetPermissionsAsync();
             await GetMaterialLookupAsync();
+            await GetComponentsAsync();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -212,7 +219,7 @@ namespace IBLTermocasa.Blazor.Pages
 
         private async Task OpenEditComponentModalAsync(ComponentDto input)
         {
-            var component = await ComponentsAppService.GetAsync(input.Id);
+            var component = input;
 
             EditingComponentId = component.Id;
             EditingComponent = ObjectMapper.Map<ComponentDto, ComponentUpdateDto>(component);
@@ -301,6 +308,10 @@ namespace IBLTermocasa.Blazor.Pages
         }
 
         public string SelectedChildTab { get; set; } = "componentitem-tab";
+        public MudDataGrid<ComponentDto> ComponentMudDataGrid { get; set; }
+        public MudDataGrid<ComponentItemDto> ComponentItemMudDataGrid { get; set; }
+        public IEnumerable<ComponentItemDto> ComponentItemList { get; set; } = new List<ComponentItemDto>();
+        public bool ComponentSelected { get; set; } = true;
 
 
         private async Task SetComponentItemsAsync(Guid componentId, int currentPage = 1, string? sorting = null)
@@ -380,8 +391,67 @@ namespace IBLTermocasa.Blazor.Pages
             }
         }
 
-        private async Task OpenCreateComponentItemModalAsync(Guid componentId)
+        private async Task OpenCreateComponentItemModalAsync()
         {
+            var exclusionIds = ComponentItemList.Select(x => x.Id).ToList();
+            var parameters = new DialogParameters<AddMaterialsInput>();
+            parameters.Add(nameof(AddMaterialsInput.ExclusionIds), exclusionIds);
+
+            var dialog = await DialogService.ShowAsync<AddMaterialsInput>(L["ConfirmGenerationMudDialogTitle"], 
+                parameters,
+                new DialogOptions
+                {
+
+                    FullWidth= true,
+                    MaxWidth=MaxWidth.Medium,
+                    CloseButton= true,
+                    DisableBackdropClick= true,
+                    NoHeader=false,
+                    Position=DialogPosition.Center,
+                    CloseOnEscapeKey=false
+                });
+            
+            var result = await dialog.Result;
+            if (result.Cancelled)
+            {
+                return;
+            }
+            else
+            {
+                var selectedItems = (List<MaterialDto>)result.Data;
+                if (selectedItems.Count == 0)
+                {
+                    return;
+                }
+                
+
+                selectedItems.ForEach(x =>
+                {
+                    ComponentMudDataGrid.SelectedItem.ComponentItems.Add(new ComponentItemDto
+                    {
+                        Id = Guid.NewGuid(),
+                        MaterialId = x.Id,
+                        MaterialCode = x.Code,
+                        MaterialName = x.Name,
+                        IsDefault = false
+                    });
+                });
+
+                var updated = await ComponentsAppService.UpdateAsync(
+                    ComponentMudDataGrid.SelectedItem.Id,
+                    ObjectMapper.Map<ComponentDto, ComponentUpdateDto>(ComponentMudDataGrid.SelectedItem)
+                );
+                ComponentList.ToList().ForEach(x => {
+                    if (x.Id == ComponentMudDataGrid.SelectedItem.Id) {
+                        x = updated;
+                    }
+                });
+                ComponentMudDataGrid.ReloadServerData();
+                
+                await NewComponentItemValidations.ClearAll();
+                await CreateComponentItemModal.Show();
+            }
+            
             NewComponentItem = new ComponentItemDto
             {
                 Id = Guid.NewGuid()
@@ -492,6 +562,25 @@ namespace IBLTermocasa.Blazor.Pages
             {
                 _isComponentRendered = true;
             }
+        }
+
+        private void OnSelectedItemChanged(ComponentDto obj)
+        {
+            ComponentItemList = new List<ComponentItemDto>();
+            if(obj.ComponentItems.Count > 0){
+                ComponentItemList = obj.ComponentItems;
+            }
+            ComponentSelected = false;
+            ComponentItemMudDataGrid.ReloadServerData();
+            StateHasChanged();
+        }
+
+        private async Task OnCommittedItemChanges(ComponentDto obj)
+        {
+            EditingComponent = ObjectMapper.Map<ComponentDto, ComponentUpdateDto>(obj);
+            var result =  await ComponentsAppService.UpdateAsync(obj.Id, EditingComponent);
+            await GetComponentsAsync();
+            StateHasChanged();
         }
     }
 }

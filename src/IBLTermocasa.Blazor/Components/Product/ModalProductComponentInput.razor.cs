@@ -118,9 +118,12 @@ public partial class ModalProductComponentInput
 
     private string ComponentName(string guidString)
     {
-        return ComponentList.Where(x => x.Id.ToString().Equals(guidString)).Select(x => x.Name).FirstOrDefault();
+        return ComponentList.Where(x => x.Id.ToString().Equals(guidString)).Select(x => x.Name).FirstOrDefault()!;
     }
-
+    private string ComponentCode(string guidString)
+    {
+        return ComponentList.Where(x => x.Id.ToString().Equals(guidString)).Select(x => x.Code).FirstOrDefault()!;
+    }
 
     public void InitializetModal(ProductComponentDto selectedProductComponent, IReadOnlyList<ComponentDto> componentList)
     {

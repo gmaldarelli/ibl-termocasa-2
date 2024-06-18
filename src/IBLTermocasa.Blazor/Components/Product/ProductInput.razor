@@ -62,6 +62,11 @@
                                 <Columns>
                                     <PropertyColumn Property="x => x.Order" Title="@L["Order"]" IsEditable="true" Sortable="false" Filterable="false">
                                     </PropertyColumn>
+                                    <PropertyColumn Property="x => x.Code" IsEditable="true" Title="@L["Code"]" Sortable="false" Filterable="false">
+                                        <EditTemplate>
+                                            <MudTextField @bind-Value="context.Item.Code"/>
+                                        </EditTemplate>
+                                    </PropertyColumn>
                                     <PropertyColumn Property="x => x.Name" IsEditable="true" Title="@L["Name"]" Sortable="false" Filterable="false">
                                         <EditTemplate>
                                             <MudTextField @bind-Value="context.Item.Name"/>

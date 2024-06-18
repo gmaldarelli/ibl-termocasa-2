@@ -26,20 +26,21 @@ namespace IBLTermocasa.Components
 
             var component = new Component(
                 id: GuidGenerator.Create(),
+                code: entityInput.Code,
                 name: entityInput.Name,
                 componentItems: entityInput.ComponentItems
              );
             return await _componentRepository.InsertAsync(component);
         }
 
-        public virtual async Task<Component> UpdateAsync(
-            Component entityInput
-        )
+        public virtual async Task<Component> UpdateAsync(Guid id, Component entityInput)
         {
             Check.NotNull(entityInput, nameof(entityInput));
+            Check.NotNullOrWhiteSpace(entityInput.Code, nameof(entityInput.Code));
             Check.NotNullOrWhiteSpace(entityInput.Name, nameof(entityInput.Name));
 
-            var component = await _componentRepository.GetAsync(entityInput.Id);
+            var component = await _componentRepository.GetAsync(id);
+            component = Component.FillPropertiesForUpdate(entityInput, component);
             component.Name = entityInput.Name;
             component.ComponentItems = entityInput.ComponentItems;
             component.SetConcurrencyStampIfNotNull(entityInput.ConcurrencyStamp);

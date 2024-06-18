@@ -7,7 +7,8 @@ namespace IBLTermocasa.Components
     {
 
         public string? FilterText { get; set; }
-
+        
+        public string? Code { get; set; }
         public string? Name { get; set; }
 
         public GetComponentsInput()

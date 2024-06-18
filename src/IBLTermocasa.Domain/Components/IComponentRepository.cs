@@ -10,6 +10,7 @@ namespace IBLTermocasa.Components
     {
         Task<List<Component>> GetListAsync(
             string? filterText = null,
+            string? code = null,
             string? name = null,
             string? sorting = null,
             int maxResultCount = int.MaxValue,
@@ -19,6 +20,7 @@ namespace IBLTermocasa.Components
 
         Task<long> GetCountAsync(
             string? filterText = null,
+            string? code = null,
             string? name = null,
             CancellationToken cancellationToken = default);
     }

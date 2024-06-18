@@ -39,7 +39,7 @@ namespace IBLTermocasa.Components
         public virtual async Task<PagedResultDto<ComponentDto>> GetListAsync(GetComponentsInput input)
         {
             var totalCount = await _componentRepository.GetCountAsync(input.FilterText, input.Name);
-            var items = await _componentRepository.GetListAsync(input.FilterText, input.Name, input.Sorting, input.MaxResultCount, input.SkipCount);
+            var items = await _componentRepository.GetListAsync(input.FilterText, input.Code,  input.Name, input.Sorting, input.MaxResultCount, input.SkipCount);
 
             List<ComponentDto> componentDtos = new List<ComponentDto>();
             items.ForEach(x =>
@@ -94,7 +94,7 @@ namespace IBLTermocasa.Components
         public virtual async Task<ComponentDto> UpdateAsync(Guid id, ComponentUpdateDto input)
         {
             var entityInput = ObjectMapper.Map<ComponentUpdateDto, Component>(input);
-            var entity = await _componentManager.UpdateAsync(
+            var entity = await _componentManager.UpdateAsync( id,
                 entityInput
             );
             var  dto =  ObjectMapper.Map<Component, ComponentDto>(entity);
@@ -111,7 +111,7 @@ namespace IBLTermocasa.Components
                 throw new AbpAuthorizationException("Invalid download token: " + input.DownloadToken);
             }
 
-            var items = await _componentRepository.GetListAsync(input.FilterText, input.Name);
+            var items = await _componentRepository.GetListAsync(input.FilterText,  input.Code, input.Name);
 
             var memoryStream = new MemoryStream();
             await memoryStream.SaveAsAsync(ObjectMapper.Map<List<Component>, List<ComponentExcelDto>>(items));

@@ -10,6 +10,8 @@ public class ProductComponentDto
     [Required]
     public int Order { get; set; }
     [Required]
+    public string Code { get; set; } = null!;
+    [Required]
     public string Name { get; set; } = null!;
     public bool Mandatory { get; set; }
     public Guid ComponentId { get;  set; }

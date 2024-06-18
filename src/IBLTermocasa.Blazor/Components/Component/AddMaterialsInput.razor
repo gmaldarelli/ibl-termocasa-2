@@ -1,0 +1,45 @@
+﻿@using IBLTermocasa.Materials
+@using Color = MudBlazor.Color
+@using MudBlazor
+@inherits IBLTermocasaComponentBase
+<MudDialog>
+    <DialogContent>
+        <MudDataGrid T="MaterialDto" @ref="MaterialMudDataGrid" Items="@_items" Virtualize="true"
+                     FixedHeader="true"
+                     Height="350px"
+                     MultiSelection="true"
+                     SelectedItem="@SelectedItem"
+                     QuickFilter="@_quickFilter">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">@L["Materials"]</MudText>
+                <MudSpacer/>
+                <MudTextField @bind-Value="_searchString" Placeholder="@L["Search"]" Adornment="Adornment.Start" Immediate="true"
+                              AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+            <Columns>
+                <SelectColumn T="MaterialDto">
+                </SelectColumn>
+                <PropertyColumn Property="x => x.Code"/>
+                <PropertyColumn Property="x => x.Name"/>
+                <PropertyColumn Property="x => x.MeasureUnit"/>
+                <PropertyColumn Property="x => x.LastModifierId"/>
+            </Columns>
+            <NoRecordsContent>
+                <MudListItem>
+                    <MudAlert Severity="Severity.Info">@L["NoData"]</MudAlert>
+                </MudListItem>
+            </NoRecordsContent>
+        </MudDataGrid>
+
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Primary">@L["Cancel"]</MudButton>
+        <MudButton OnClick="Submit" Color="Color.Primary">@L["Save"]</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+
+
+
+}
+

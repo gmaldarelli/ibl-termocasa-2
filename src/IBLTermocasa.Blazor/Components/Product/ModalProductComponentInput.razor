@@ -24,6 +24,7 @@
         </MudSelect>
         <MudNumericField @bind-Value="@ProductComponent.Order" InvertMouseWheel="true"
                          Label="@L["Order"]" Variant="Variant.Filled" Min="@OrderMinValue" Max="@OrderMaxValue" />
+        <MudTextField @bind-Value="@ProductComponent.Code" Label="@L["Code"]" Variant="Variant.Filled" />
         <MudTextField @bind-Value="@ProductComponent.Name" Label="@L["Name"]" Variant="Variant.Filled" />
         <MudSwitch @bind-Checked="@ProductComponent.Mandatory"
                    Class="mud-width-full"
@@ -94,7 +95,6 @@
         if(GuidStringSelected !=null )
         {
             ProductComponent.ComponentId = Guid.Parse(GuidStringSelected);
-            Console.WriteLine("ProductQuestionTemplate.ComponentId: " + ProductComponent.ComponentId);
             MudDialog.Close(DialogResult.Ok(ProductComponent));
         }
         else

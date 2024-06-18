@@ -21,13 +21,14 @@ namespace IBLTermocasa.Components
 
         public virtual async Task<List<Component>> GetListAsync(
             string? filterText = null,
+            string? code = null,
             string? name = null,
             string? sorting = null,
             int maxResultCount = int.MaxValue,
             int skipCount = 0,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, name);
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, code, name);
             query = query.OrderBy(string.IsNullOrWhiteSpace(sorting) ? ComponentConsts.GetDefaultSorting(false) : sorting);
             return await query.As<IMongoQueryable<Component>>()
                 .PageBy<Component, IMongoQueryable<Component>>(skipCount, maxResultCount)
@@ -36,21 +37,24 @@ namespace IBLTermocasa.Components
 
         public virtual async Task<long> GetCountAsync(
             string? filterText = null,
+            string? code = null,
             string? name = null,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, name);
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, code, name);
             return await query.As<IMongoQueryable<Component>>().LongCountAsync(GetCancellationToken(cancellationToken));
         }
 
         protected virtual IQueryable<Component> ApplyFilter(
             IQueryable<Component> query,
             string? filterText = null,
+            string? code = null,
             string? name = null)
         {
             return query
-                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Name!.Contains(filterText!))
-                    .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name));
+                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Name!.Contains(filterText!) || e.Code!.Contains(filterText!))
+                    .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name!))
+                .WhereIf(!string.IsNullOrWhiteSpace(code), e => e.Code.Contains(code!));
         }
     }
 }
