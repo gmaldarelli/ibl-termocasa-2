@@ -345,4 +345,30 @@ public partial class ProductInput
         Product.ProductQuestionTemplates.Remove(obj);
         StateHasChanged();
     }
+
+    private async Task OpenConsumeCalculator()
+    {
+        var parameters = new DialogParameters
+        {
+            { "Product", Product }
+        };
+        var dialog = DialogService.Show<ConsumeCalculator>("", parameters,
+            new DialogOptions
+            {
+                
+                FullWidth= true,
+                MaxWidth=MaxWidth.Large,
+                CloseButton= true,
+                DisableBackdropClick= true,
+                NoHeader=false,
+                Position=DialogPosition.Center,
+                CloseOnEscapeKey=false
+            });
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            Product = (ProductDto)result.Data;
+            StateHasChanged();
+        }
+    }
 }

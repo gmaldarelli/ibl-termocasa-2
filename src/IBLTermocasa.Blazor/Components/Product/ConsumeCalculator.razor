@@ -1,0 +1,62 @@
+﻿@using MudBlazor
+@inherits IBLTermocasaComponentBase
+@if(Product==null)
+{
+    <MudLinearProgress Indeterminate="true" />
+    return;
+}
+else
+{
+    <MudLayout>
+        <MudAppBar Elevation="1" Dense="@dense" >
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+            <MudFab Color="MudBlazor.Color.Primary" Size="MudBlazor.Size.Small" StartIcon="@Icons.Material.Filled.Add"/>
+            <MudFab Color="MudBlazor.Color.Secondary" Size="MudBlazor.Size.Small" StartIcon="@Icons.Material.Filled.Edit"/>
+            <MudFab Color="MudBlazor.Color.Tertiary" Size="MudBlazor.Size.Small" StartIcon="@Icons.Material.Filled.ShoppingCart" DisableElevation="true"/>
+            <MudFab StartIcon="@Icons.Material.Filled.Save" Size="MudBlazor.Size.Small" Disabled="true"/>
+            <MudSpacer/>
+            <MudIconButton Icon="@Icons.Material.Filled.Save" Color="MudBlazor.Color.Inherit" OnClick="() => MudDialog.Cancel()"/>
+        </MudAppBar>
+        <MudDrawer @bind-Open="@open" ClipMode="clipMode" 
+                   Breakpoint="MudBlazor.Breakpoint.Lg" PreserveOpenState="@preserveOpenState" 
+                   Elevation="1" Variant="@DrawerVariant.Mini">
+        <MudTreeView  T="TreeItemData"
+                      @ref="ProductMudTreeView" Items="TreeItems" MultiSelection="true"
+                      @bind-SelectedValues="SelectedValues"  >
+            <ItemTemplate>
+                <MudTreeViewItem @bind-Expanded="@context.IsExpanded" Items="@context.TreeItems">
+                    <Content>
+                        <MudTreeViewItemToggleButton @bind-Expanded="@context.IsExpanded" Visible="@(context.TreeItems.Count > 0)"/>
+                        <MudIcon Icon="@context.Icon" Class="ml-0 mr-2" Color="@MudBlazor.Color.Default"/>
+                        <MudText>@context.CodeAndName</MudText>
+                    </Content>
+                </MudTreeViewItem>
+            </ItemTemplate>
+        </MudTreeView>
+    </MudDrawer>
+    <MudMainContent Class="pt-16 px-16" >
+        <MudContainer Class="mt-6" >
+            <MudList >
+                @foreach (var item in Product.ProductComponents)
+                {
+                <MudListItem OnClick="() => SelectedProductComponent = item">
+                    <MudText Typo="Typo.h6">@item.Code - @item.Name</MudText>
+                    <MudTextField T="string" @bind-Value="@(formulas[item.Code])" Label="@L["Formula"]"/>
+                </MudListItem>
+                }
+            </MudList>
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+    
+    
+}
+
+<MudBlazor.MudThemeProvider/>
+<MudBlazor.MudDialogProvider/>
+<MudBlazor.MudSnackbarProvider/>
+@code {
+
+    //Fast code here otherwise into cs file
+
+}

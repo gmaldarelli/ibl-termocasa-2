@@ -13,6 +13,9 @@ using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
 using IBLTermocasa.Products;
 using IBLTermocasa.Permissions;
 using IBLTermocasa.Shared;
+using MudBlazor;
+using NUglify.Helpers;
+using SortDirection = Blazorise.SortDirection;
 
 
 namespace IBLTermocasa.Blazor.Pages.Crm;
@@ -40,6 +43,7 @@ public partial class Products
     protected string SelectedCreateTab = "product-create-tab";
     protected string SelectedEditTab = "product-edit-tab";
     private ProductDto? SelectedProduct;
+    private string _searchString;
     private IReadOnlyList<LookupDto<Guid>> Components { get; set; } = new List<LookupDto<Guid>>();
 
     private string SelectedComponentId { get; set; }
@@ -129,7 +133,58 @@ public partial class Products
         await ClearSelection();
     }
 
-    protected virtual async Task SearchAsync()
+    private async Task<GridData<ProductDto>> LoadGridData(GridState<ProductDto> state)
+    {
+        state.SortDefinitions.ForEach(sortDef =>
+        {
+            if (sortDef.Descending)
+            {
+                CurrentSorting = $" {sortDef.SortBy} DESC";
+            }
+            else
+            {
+                CurrentSorting = $" {sortDef.SortBy} ";
+            }
+        });
+        Filter.SkipCount = state.Page * state.PageSize;
+        Filter.Sorting = CurrentSorting;
+        Filter.MaxResultCount = state.PageSize;
+        Filter.FilterText = _searchString;
+        var firstOrDefault = ProductMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is { PropertyName: nameof(ProductDto.IsAssembled) });
+        if (firstOrDefault != null)
+        {
+            Filter.IsAssembled = (bool?)firstOrDefault.Value;
+        }
+        var firstOrDefault1 = ProductMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is { PropertyName: nameof(ProductDto.IsInternal) });
+        if (firstOrDefault1 != null)
+        {
+            Filter.IsInternal = (bool?)firstOrDefault1.Value;
+        }
+        var firstOrDefault2 = ProductMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is { PropertyName: nameof(ProductDto.Code) });
+        if (firstOrDefault2 != null)
+        {
+            Filter.Code = (string)firstOrDefault2.Value!;
+        }
+        var firstOrDefault3 = ProductMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is { PropertyName: nameof(ProductDto.Name) });
+        if (firstOrDefault3 != null)
+        {
+            Filter.Name = (string)firstOrDefault3.Value!;
+        }
+        var result = await ProductsAppService.GetListAsync(Filter);
+        ProductList = result.Items;
+        GridData<ProductDto> data = new()
+        {
+            Items = ProductList,
+            TotalItems = (int)result.TotalCount
+        };
+        return data;
+    }
+
+
+
+
+
+protected virtual async Task SearchAsync()
     {
         CurrentPage = 1;
         await GetProductsAsync();
@@ -273,6 +328,7 @@ public partial class Products
     }
 
     public string SelectedChildTab { get; set; } = "subproduct-tab";
+    public MudDataGrid<ProductDto> ProductMudDataGrid { get; set; }
 
     private Task OnSelectedChildTabChanged(string name)
     {
@@ -331,5 +387,37 @@ public partial class Products
         AllProductsSelected = false;
 
         await GetProductsAsync();
+    }
+
+    private Func<ProductDto, bool> _quickFilter => x =>
+    {   
+        
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        if (x.Code.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        
+        return false;
+    };
+
+    private async void SearchAsync1(string filterText)
+    {
+        _searchString = filterText;
+        if((_searchString.IsNullOrEmpty() || _searchString.Length < 3) &&  (ProductMudDataGrid.Items != null && ProductMudDataGrid.Items.Any()))
+        {
+            return;
+        }
+        await LoadGridData(new GridState<ProductDto>
+        {
+            Page = 0,
+            PageSize = PageSize,
+            SortDefinitions = ProductMudDataGrid.SortDefinitions.Values.ToList()
+        });
+        await ProductMudDataGrid.ReloadServerData();
+         StateHasChanged();
     }
 }

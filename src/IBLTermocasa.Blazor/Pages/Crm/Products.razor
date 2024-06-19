@@ -9,6 +9,7 @@
 @using Volo.Abp.AspNetCore.Components.Web
 @using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
 @using Volo.Abp.Http.Client
+@using MudBlazor
 @inherits IBLTermocasaComponentBase
 @inject IProductsAppService ProductsAppService
 
@@ -17,12 +18,88 @@
 @inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
 @inject NavigationManager NavigationManager
 
+
+
+
 @* ************************* PAGE HEADER ************************* *@
 <PageHeader Title="@L["Products"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
 
 </PageHeader>
 
-@* ************************* SEARCH ************************* *@
+
+<MudGrid>
+    <MudItem xs="12" sm="12">
+        <MudPaper Elevation="Int32.MinValue">
+            <MudDataGrid @ref="ProductMudDataGrid" T="ProductDto"
+                         ReadOnly="false"
+                         Virtualize="true" FixedHeader="true"
+                         Hover="true"
+                         Bordered="false" Dense="false"
+                         Filterable="true" RowsPerPage="5"
+                         SortMode="MudBlazor.SortMode.Multiple"
+                         ServerData="LoadGridData">
+                <ToolBarContent>
+                    <MudTextField T="string" Placeholder="@L["Search"]" Adornment="Adornment.Start" Immediate="true" ValueChanged="arg => SearchAsync1(arg)" DebounceInterval="1000"
+                                  AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0">
+                    </MudTextField>
+                    <MudBlazor.MudSpacer/>
+                    <Button Color="@Blazorise.Color.Primary" @onclick="OpenCreateProductPageAsync">@L["NewComponent"]</Button>
+                </ToolBarContent>
+                <Columns>
+                    <MudBlazor.PropertyColumn Property="x => x.Code" Title="@L["Code"]" Sortable="true" Filterable="true" Class="justify-content-center">
+                    </MudBlazor.PropertyColumn>
+                    <MudBlazor.PropertyColumn Property="x => x.Name" Title="@L["Name"]" Sortable="true" Filterable="true" Class="justify-content-center">
+                    </MudBlazor.PropertyColumn>
+                    <MudBlazor.PropertyColumn Property="x => x.IsAssembled" Title="@L["IsAssembled"]" Sortable="true" Filterable="true" Class="justify-content-center">
+                        <CellTemplate>
+                            @if (context.Item.IsAssembled)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Check" Color="MudBlazor.Color.Success"/>
+                            }
+                            else
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Close" Color="MudBlazor.Color.Secondary"/>
+                            }
+                        </CellTemplate>
+                    </MudBlazor.PropertyColumn>
+                    <MudBlazor.PropertyColumn Property="x => x.IsInternal" Title="@L["IsInternal"]" Sortable="true" Filterable="true">
+                        <CellTemplate>
+                            @if (context.Item.IsInternal)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Check" Color="MudBlazor.Color.Success"/>
+                            }
+                            else
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Close" Color="MudBlazor.Color.Secondary"/>
+                            }
+                        </CellTemplate>
+                    </MudBlazor.PropertyColumn>
+                    <MudBlazor.TemplateColumn CellClass="d-flex justify-center">
+                        <CellTemplate>
+                            <MudBlazor.MudIconButton Size="@MudBlazor.Size.Small"
+                                                     Icon="@MudBlazor.Icons.Material.Filled.Edit"
+                                                     Variant="@MudBlazor.Variant.Filled"
+                                                     OnClick="() => OpenEditProductAsync(context.Item)"/>
+                            <MudBlazor.MudIconButton Size="@MudBlazor.Size.Small"
+                                                     Icon="@MudBlazor.Icons.Material.Filled.DeleteForever"
+                                                     Variant="@MudBlazor.Variant.Filled"
+                                                     OnClick="() => DeleteProductAsync(context.Item)"/>
+                        </CellTemplate>
+                    </MudBlazor.TemplateColumn>
+                </Columns>
+                <PagerContent>
+                    <MudDataGridPager T="ProductDto" PageSizeOptions=@(new int[] { 10, 20, 50 })/>
+                </PagerContent>
+            </MudDataGrid>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+<MudBlazor.MudThemeProvider/>
+<MudBlazor.MudDialogProvider/>
+<MudBlazor.MudSnackbarProvider/>
+@*
+$1$ ************************* SEARCH ************************* #1#
 <Card>
     <CardBody>
 
@@ -104,7 +181,7 @@
     </CardBody>
 </Card>
 
-@* ************************* DATA GRID ************************* *@
+$1$ ************************* DATA GRID ************************* #1#
 <Card>
     <CardBody>        
         @if (SelectedProducts.Any())
@@ -232,3 +309,4 @@
         </DataGrid>
     </CardBody>
 </Card>
+*@

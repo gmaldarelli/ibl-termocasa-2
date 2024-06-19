@@ -12,10 +12,10 @@
     <MudGrid>
         <MudItem xs="12" sm="12">
             <MudPaper Class="pa-2 mt-12">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary"  DisableElevation="true" OnClick="@SaveProductAsync">@L["Save"]</MudButton>
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" DisableElevation="true" OnClick="@(()=>formProductInfo.Validate())">@L["Validate"]</MudButton>
                 <MudButton Variant="Variant.Filled" Color="Color.Secondary" DisableElevation="true" OnClick="@(()=>formProductInfo.ResetAsync())" Class="mx-2">@L["Reset"]</MudButton>
-                <MudButton Variant="Variant.Filled" DisableElevation="true" OnClick="@(()=>formProductInfo.ResetValidation())">@L["ResetValidation"]</MudButton>
-                <MudButton Variant="Variant.Filled" DisableElevation="true" OnClick="@SaveProductAsync">@L["ResetValidation"]</MudButton>
+                <MudButton Variant="Variant.Filled"  OnClick="@(()=>OpenConsumeCalculator())">Configura Consumi</MudButton>
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="4">
