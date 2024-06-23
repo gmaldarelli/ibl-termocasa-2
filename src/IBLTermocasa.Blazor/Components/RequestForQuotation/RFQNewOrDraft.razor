@@ -15,7 +15,7 @@
 @inherits IBLTermocasaComponentBase
 
 
-<MudForm Model="@RequestForQuotation" Validation="HandleValidSubmit">
+<MudForm Model="@RequestForQuotation" Validation="HandleValidSubmit()">
     <Validations @ref="@RequestForQuotationValidations"
                  Mode="ValidationMode.Auto"
                  Model="@RequestForQuotation"

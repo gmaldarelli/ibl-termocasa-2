@@ -74,9 +74,7 @@ namespace IBLTermocasa.Blazor.Pages
         {
             await SetPermissionsAsync();
             await GetProductLookupAsync();
-
-
-            
+            await GetCatalogsAsync();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)

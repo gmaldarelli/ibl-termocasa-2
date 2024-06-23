@@ -23,7 +23,7 @@
                 </MudSelect>
             </MudItem>
             <MudItem xs="1" Style="position: relative;">
-                <MudButton Color="Color.Secondary" OnClick="@(() => RemoveMailItem(mailItem))" Size="Size.Small" Style="position: absolute; bottom: 20%; left: 0;">
+                <MudButton Class="button-remove" Color="Color.Secondary" OnClick="@(() => RemoveMailItem(mailItem))" Size="Size.Small">
                     <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Delete"/>
                 </MudButton>
             </MudItem>

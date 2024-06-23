@@ -1,0 +1,154 @@
+@page "/request-for-quotations"
+
+@attribute [Authorize(IBLTermocasaPermissions.RequestForQuotations.Default)]
+@using IBLTermocasa.Blazor.Components.RequestForQuotation
+@using IBLTermocasa.Localization
+@using IBLTermocasa.Permissions
+@using IBLTermocasa.RequestForQuotations
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using Volo.Abp.Http.Client
+@using Color = MudBlazor.Color
+@using Size = MudBlazor.Size
+
+@inherits IBLTermocasaComponentBase
+@inject IRequestForQuotationsAppService RequestForQuotationsAppService
+
+@inject IUiMessageService UiMessageService
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["RequestForQuotations"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* SEARCH ************************* *@
+
+@*<MudGrid>
+    <MudItem xs="12" sm="12">
+        <MudPaper Elevation="10">
+            <MudDataGrid @ref="RequestForQuotationMudDataGrid" T="ProductDto"
+                         ReadOnly="false"
+                         Virtualize="true" FixedHeader="true"
+                         Hover="true"
+                         Bordered="false" Dense="false"
+                         Filterable="true" RowsPerPage="5"
+                         SortMode="SortMode.Multiple"
+                         ServerData="LoadGridData">
+                <ToolBarContent>
+                    <MudTextField T="string" Placeholder="@L["Search"]" Adornment="Adornment.Start" Immediate="true" ValueChanged="arg => SearchAsync1(arg)" DebounceInterval="1000"
+                                  AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0">
+                    </MudTextField>
+                    <MudSpacer/>
+                    <Button Color="@Blazorise.Color.Primary" @onclick="OpenCreateProductPageAsync">@L["NewComponent"]</Button>
+                </ToolBarContent>
+                <Columns>
+                    <PropertyColumn Property="x => x.Code" Title="@L["Code"]" Sortable="true" Filterable="true" Class="justify-content-center">
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.Name" Title="@L["Name"]" Sortable="true" Filterable="true" Class="justify-content-center">
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.IsAssembled" Title="@L["IsAssembled"]" Sortable="true" Filterable="true" Class="justify-content-center">
+                        <CellTemplate>
+                            @if (context.Item.IsAssembled)
+                            {
+                            <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Success"/>
+                            }
+                            else
+                            {
+                            <MudIcon Icon="@Icons.Material.Filled.Close" Color="Color.Secondary"/>
+                            }
+                        </CellTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.IsInternal" Title="@L["IsInternal"]" Sortable="true" Filterable="true">
+                        <CellTemplate>
+                            @if (context.Item.IsInternal)
+                            {
+                            <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Success"/>
+                            }
+                            else
+                            {
+                            <MudIcon Icon="@Icons.Material.Filled.Close" Color="Color.Secondary"/>
+                            }
+                        </CellTemplate>
+                    </PropertyColumn>
+                    <TemplateColumn CellClass="d-flex justify-center">
+                        <CellTemplate>
+                            <MudIconButton Size="@Size.Small"
+                                                     Icon="@Icons.Material.Filled.Edit"
+                                                     Variant="@Variant.Filled"
+                                                     OnClick="() => OpenEditProductAsync(context.Item)"/>
+                            <MudIconButton Size="@Size.Small"
+                                                     Icon="@Icons.Material.Filled.DeleteForever"
+                                                     Variant="@Variant.Filled"
+                                                     OnClick="() => DeleteProductAsync(context.Item)"/>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+                <PagerContent>
+                    <MudDataGridPager T="ProductDto" PageSizeOptions=@(new int[] { 10, 20, 50 })/>
+                </PagerContent>
+            </MudDataGrid>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+@* ************************* DATA GRID ************************* *@
+<style>
+    .mud-data-grid-custom .mud-data-grid-toolbar {
+        padding-bottom: 2rem; /* 8 * 0.25rem = 2rem */
+    }
+</style>
+<MudDataGrid @ref="RequestForQuotationMudDataGrid"
+             ServerData="LoadGridData" 
+             T="RequestForQuotationDto"
+             ReadOnly="false"
+             Virtualize="true" FixedHeader="true"
+             Hover="true"
+             Bordered="false" Dense="false"
+             Filterable="true" RowsPerPage="5"
+             SortMode="SortMode.Multiple"
+             Class="mud-data-grid-custom">
+    <ToolBarContent>
+        <MudTextField T="string" Placeholder="@L["Search"]" Adornment="Adornment.Start" Immediate="true" ValueChanged="arg => SearchAsync(arg)" DebounceInterval="1000"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 mb-2">
+        </MudTextField>
+        <MudSpacer/>
+        <MudButton Variant="Variant.Filled" Color="@Color.Primary" OnClick="OpenCreateRequestForQuotationPageAsync">@L["NewRequestForQuotation"]</MudButton>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.QuoteNumber" Title="@L["QuoteNumber"]"/>
+        <PropertyColumn Property="x => x.OrganizationProperty.Name" Title="@L["Organization"]"/>
+        <PropertyColumn Property="x => x.ContactProperty.Name" Title="@L["Contact"]"/>
+        <PropertyColumn Property="x => x.AgentProperty.Name" Title="@L["Agent"]"/>
+        <PropertyColumn Property="x => x.WorkSite" Title="@L["WorkSite"]"/>
+        <PropertyColumn Property="x => x.City" Title="@L["City"]"/>
+        <TemplateColumn Title="@L["Status"]">
+            <CellTemplate Context="context">
+                @L[$"Enum:Status.{context.Item.Status.GetDisplayName()}"]
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenReadOrEditRfq(context.Item))"/>
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteRequestForQuotationAsync(context.Item)"/>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+</MudDataGrid>
+
+@* ************************* READ AND EDIT MODAL ************************* *@
+<!-- da gestire la view e la edit -->
+<RequestForQuotationInput
+    DisplayReadOnly="true"
+    RequestForQuotation="@RequestForQuotationInput"
+    OnRequestForQuotationSaved="UpdateRequestForQuotationAsync"
+    OnRequestForQuotationCancel="CloseEditRequestForQuotationModalAsync">
+</RequestForQuotationInput>
+<MudThemeProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider />

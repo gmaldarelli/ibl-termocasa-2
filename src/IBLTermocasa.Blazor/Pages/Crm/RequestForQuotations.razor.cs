@@ -7,6 +7,7 @@ using System.Web;
 using Blazorise;
 using Blazorise.DataGrid;
 using DocumentFormat.OpenXml.Spreadsheet;
+using IBLTermocasa.Blazor.Components.RequestForQuotation;
 using IBLTermocasa.Common;
 using IBLTermocasa.Contacts;
 using IBLTermocasa.Organizations;
@@ -16,16 +17,21 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
 using IBLTermocasa.RequestForQuotations;
 using IBLTermocasa.Permissions;
+using IBLTermocasa.Products;
 using IBLTermocasa.Shared;
 
 using IBLTermocasa.RequestForQuotations;
 using IBLTermocasa.Types;
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
+using NUglify.Helpers;
 using Volo.Abp.Identity;
 using BreadcrumbItem = Volo.Abp.BlazoriseUI.BreadcrumbItem;
+using SortDirection = Blazorise.SortDirection;
 
 
-namespace IBLTermocasa.Blazor.Pages
+
+namespace IBLTermocasa.Blazor.Pages.Crm
 {
     public partial class RequestForQuotations
     {
@@ -59,7 +65,7 @@ namespace IBLTermocasa.Blazor.Pages
         private ModalSize ModalSize { get; set; } = ModalSize.Large;
         [Inject] private IOrganizationsAppService OrganizationsAppService { get; set; }
         [Inject] private IContactsAppService ContactsAppService { get; set; }
-
+        [Inject] public IDialogService DialogService { get; set; }
         [Inject] public IIdentityUserAppService UserAppService { get; set; }
 
         protected List<OrganizationDto> Organizations { get; set; } = new();
@@ -67,9 +73,13 @@ namespace IBLTermocasa.Blazor.Pages
         protected List<IdentityUserDto> Agents { get; set; } = new();
         protected Progress progressRef;
         protected int progress;
+        private string _searchString;
         private List<LookupDto<Guid>> OrganizationsList { get; set; } = new();
         private List<LookupDto<Guid>> ContactsList { get; set; } = new();
         private List<LookupDto<Guid>> AgentsList { get; set; } = new();
+        private MudDataGrid<RequestForQuotationDto> RequestForQuotationMudDataGrid { get; set; } = new();
+
+        
 // Variabili per la gestione dei filtri
         private IReadOnlyList<LookupDto<Guid>> IdentityUsersCollection { get; set; } = new List<LookupDto<Guid>>();
         private IReadOnlyList<LookupDto<Guid>> ContactsCollection { get; set; } = new List<LookupDto<Guid>>();
@@ -97,6 +107,7 @@ namespace IBLTermocasa.Blazor.Pages
             await GetIdentityUserCollectionLookupAsync();
             await GetContactCollectionLookupAsync();
             await GetOrganizationCollectionLookupAsync();
+            await GetRequestForQuotationsAsync();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -149,12 +160,77 @@ namespace IBLTermocasa.Blazor.Pages
             RequestForQuotationList = result.Items;
             TotalCount = (int)result.TotalCount;
         }
-
-        protected virtual async Task SearchAsync()
+        
+        private async void SearchAsync(string filterText)
         {
-            CurrentPage = 1;
-            await GetRequestForQuotationsAsync();
-            await InvokeAsync(StateHasChanged);
+            _searchString = filterText;
+            if((_searchString.IsNullOrEmpty() || _searchString.Length < 3) &&  (RequestForQuotationMudDataGrid.Items != null && RequestForQuotationMudDataGrid.Items.Any()))
+            {
+                return;
+            }
+            await LoadGridData(new GridState<RequestForQuotationDto>
+            {
+                Page = 0,
+                PageSize = PageSize,
+                SortDefinitions = RequestForQuotationMudDataGrid.SortDefinitions.Values.ToList()
+            });
+            await RequestForQuotationMudDataGrid.ReloadServerData();
+            StateHasChanged();
+        }
+        
+        private async Task<GridData<RequestForQuotationDto>> LoadGridData(GridState<RequestForQuotationDto> state)
+        {
+            state.SortDefinitions.ForEach(sortDef =>
+            {
+                CurrentSorting = sortDef.Descending ? $" {sortDef.SortBy} DESC" : $" {sortDef.SortBy} ";
+            });
+            Filter.SkipCount = state.Page * state.PageSize;
+            Filter.Sorting = CurrentSorting;
+            Filter.MaxResultCount = state.PageSize;
+            Filter.FilterText = _searchString;
+            var firstOrDefault = RequestForQuotationMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is { PropertyName: nameof(RequestForQuotationDto.QuoteNumber) });
+            if (firstOrDefault != null)
+            {
+                Filter.QuoteNumber = (string?)firstOrDefault.Value;
+            }
+            var firstOrDefault1 = RequestForQuotationMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is { PropertyName: nameof(RequestForQuotationDto.OrganizationProperty) });
+            if (firstOrDefault1 != null)
+            {
+                Filter.OrganizationProperty.Name = (string?)firstOrDefault1.Value;
+            }
+            var firstOrDefault2 = RequestForQuotationMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is { PropertyName: nameof(RequestForQuotationDto.ContactProperty) });
+            if (firstOrDefault2 != null)
+            {
+                Filter.ContactProperty.Name = (string)firstOrDefault2.Value!;
+            }
+            var firstOrDefault3 = RequestForQuotationMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is { PropertyName: nameof(RequestForQuotationDto.AgentProperty) });
+            if (firstOrDefault3 != null)
+            {
+                Filter.AgentProperty.Name = (string)firstOrDefault3.Value!;
+            }
+            var firstOrDefault4 = RequestForQuotationMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is { PropertyName: nameof(RequestForQuotationDto.WorkSite) });
+            if (firstOrDefault4 != null)
+            {
+                Filter.WorkSite = (string)firstOrDefault4.Value!;
+            }
+            var firstOrDefault5 = RequestForQuotationMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is { PropertyName: nameof(RequestForQuotationDto.City) });
+            if (firstOrDefault5 != null)
+            {
+                Filter.City = (string)firstOrDefault5.Value!;
+            }
+            var firstOrDefault6 = RequestForQuotationMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is { PropertyName: nameof(RequestForQuotationDto.Status) });
+            if (firstOrDefault6 != null)
+            {
+                Filter.Status = (RfqStatus)firstOrDefault6.Value!;
+            }
+            var result = await RequestForQuotationsAppService.GetListRFQAsync(Filter);
+            RequestForQuotationList = result.Items;
+            GridData<RequestForQuotationDto> data = new()
+            {
+                Items = RequestForQuotationList,
+                TotalItems = (int)result.TotalCount
+            };
+            return data;
         }
 
         private async Task DownloadAsExcelAsync()
@@ -168,30 +244,6 @@ namespace IBLTermocasa.Blazor.Pages
             }
             await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
             NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/request-for-quotations/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&QuoteNumber={HttpUtility.UrlEncode(Filter.QuoteNumber)}&WorkSite={HttpUtility.UrlEncode(Filter.WorkSite)}&City={HttpUtility.UrlEncode(Filter.City)}&OrganizationProperty={HttpUtility.UrlEncode(Filter.OrganizationProperty.ToString())}&ContactProperty={HttpUtility.UrlEncode(Filter.ContactProperty.ToString())}&PhoneInfo={HttpUtility.UrlEncode(Filter.PhoneInfo.ToString())}&MailInfo={HttpUtility.UrlEncode(Filter.MailInfo.ToString())}&DiscountMin={Filter.DiscountMin}&DiscountMax={Filter.DiscountMax}&Description={HttpUtility.UrlEncode(Filter.Description)}&Status={Filter.Status}", forceLoad: true);
-        }
-
-        private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<RequestForQuotationDto> e)
-        {
-            progress = 25;
-            await InvokeAsync(StateHasChanged);
-            CurrentSorting = e.Columns
-                .Where(c => c.SortDirection != SortDirection.Default)
-                .Select(c => c.Field + (c.SortDirection == SortDirection.Descending ? " DESC" : ""))
-                .JoinAsString(",");
-            progress = 50;
-            await InvokeAsync(StateHasChanged);
-            CurrentPage = e.Page;
-            progress = 75;
-            await InvokeAsync(StateHasChanged);
-            await GetRequestForQuotationsAsync();
-            progress = 100;
-            await InvokeAsync(StateHasChanged);
-        }
-
-        private async Task OpenEditRequestForQuotationModalAsync(RequestForQuotationDto input)
-        {
-            RequestForQuotationInput = input;
-            await EditRequestForQuotationModal.Show();
         }
 
         private async Task DeleteRequestForQuotationAsync(RequestForQuotationDto input)
@@ -225,17 +277,42 @@ namespace IBLTermocasa.Blazor.Pages
             }
         }
 
-        private void OpenEditRequestForQuotationPageAsync(RequestForQuotationDto input)
+        private async void OpenEditRequestForQuotationPageAsync(RequestForQuotationDto input)
         {
             //navigate to the page RequestForQuotationDetails
-            if (input.Status == RfqStatus.DRAFT)
+            // or RfqStatus.NEW
+            if (input.Status is RfqStatus.DRAFT)
             {
                 NavigationManager.NavigateTo($"/rfq-draft/{input.Id}");
             }
             else
             {
-                NavigationManager.NavigateTo($"/request-for-quotation/{input.Id}");
+                await OpenReadOrEditRfq(input);
             }
+        }
+        
+        
+        private async Task OpenReadOrEditRfq(RequestForQuotationDto input)
+        {
+            var parameters = new DialogParameters
+            {
+                { "RequestForQuotation", input }
+            };
+
+            var dialog = await DialogService.ShowAsync<RequestForQuotationInput>(L["RequestForQuotation"], parameters, new DialogOptions
+            {
+                Position = DialogPosition.Custom,
+                FullWidth = true,
+                MaxWidth = MaxWidth.Medium
+            });
+
+            var result = await dialog.Result;
+            if (!result.Cancelled)
+            {
+                // Eventuali azioni da eseguire quando il dialogo viene chiuso senza essere cancellato
+                // Ad esempio, ricaricare la lista delle richieste di preventivo
+            }
+            StateHasChanged();
         }
 
         private void OpenCreateRequestForQuotationPageAsync()
@@ -245,73 +322,6 @@ namespace IBLTermocasa.Blazor.Pages
         }
         
 // Metodi per la gestione dei filtri
-
-        protected virtual async Task OnQuoteNumberChangedAsync(string? quoteNumber)
-        {
-            Filter.QuoteNumber = quoteNumber;
-            await SearchAsync();
-        }
-        protected virtual async Task OnWorkSiteChangedAsync(string? workSite)
-        {
-            Filter.WorkSite = workSite;
-            await SearchAsync();
-        }
-        protected virtual async Task OnCityChangedAsync(string? city)
-        {
-            Filter.City = city;
-            await SearchAsync();
-        }
-        protected virtual async Task OnAgentPropertyChangedAsync(string? agentProperty)
-        {
-            Filter.AgentProperty = new AgentProperty(Guid.Empty, agentProperty);
-            await SearchAsync();
-        }
-        protected virtual async Task OnOrganizationPropertyChangedAsync(string? organizationProperty)
-        {
-            Filter.OrganizationProperty = new OrganizationProperty(Guid.Empty, organizationProperty);
-            await SearchAsync();
-        }
-        protected virtual async Task OnContactPropertyChangedAsync(string? contactProperty)
-        {
-            Filter.ContactProperty = new ContactProperty(Guid.Empty, contactProperty);
-            await SearchAsync();
-        }
-        protected virtual async Task OnPhoneInfoChangedAsync(string? phoneInfo)
-        {
-            PhoneInfo temp = new PhoneInfo();
-            temp.PhoneItems.Add(new PhoneItem());
-            temp.PhoneItems[0].Number = phoneInfo;
-            Filter.PhoneInfo = temp;
-            await SearchAsync();
-        }
-        protected virtual async Task OnMailInfoChangedAsync(string? mailInfo)
-        {
-            MailInfo temp = new MailInfo();
-            temp.MailItems.Add(new MailItem());
-            temp.MailItems[0].Email = mailInfo;
-            Filter.MailInfo = temp;
-            await SearchAsync();
-        }
-        protected virtual async Task OnDiscountMinChangedAsync(decimal? discountMin)
-        {
-            Filter.DiscountMin = discountMin;
-            await SearchAsync();
-        }
-        protected virtual async Task OnDiscountMaxChangedAsync(decimal? discountMax)
-        {
-            Filter.DiscountMax = discountMax;
-            await SearchAsync();
-        }
-        protected virtual async Task OnDescriptionChangedAsync(string? description)
-        {
-            Filter.Description = description;
-            await SearchAsync();
-        }
-        protected virtual async Task OnStatusChangedAsync(RfqStatus? status)
-        {
-            Filter.Status = status;
-            await SearchAsync();
-        }
         
         private async Task GetIdentityUserCollectionLookupAsync()
         {

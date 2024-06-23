@@ -44,7 +44,7 @@
                 <PropertyColumn Property="x => x.RequestForQuotationProperty.RfqDateDocument" Title="@L["RfqDateDocument"]" Format="dd/MM/yyyy"/>
                 <TemplateColumn CellClass="d-flex justify-end">
                     <CellTemplate>
-                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Outlined.PanoramaFishEye" OnClick="() => OpenBillOfMaterialDetailAsync(context.Item)"/>
+                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Outlined.RemoveRedEye" OnClick="() => OpenBillOfMaterialDetailAsync(context.Item)"/>
                         <MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Outlined.Remove" OnClick="() => RemoveBillOfMaterialDetailAsync(context.Item)"/>
                     </CellTemplate>
                 </TemplateColumn>

@@ -12,10 +12,12 @@ using IBLTermocasa.Common;
 using IBLTermocasa.Contacts;
 using IBLTermocasa.Organizations;
 using IBLTermocasa.Products;
+using IBLTermocasa.QuestionTemplates;
 using IBLTermocasa.RequestForQuotations;
 using IBLTermocasa.Shared;
 using IBLTermocasa.Types;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Identity;
 using Volo.Abp.Security.Claims;
@@ -25,7 +27,24 @@ namespace IBLTermocasa.Blazor.Components.RequestForQuotation;
 public partial class RequestForQuotationInput
 {
     private Validations RequestForQuotationValidations { get; set; } = new();
-
+    private Modal RequestForQuotationModal { get; set; }
+    private List<LookupDto<Guid>> OrganizationsCollection { get; set; } = new();
+    private List<LookupDto<Guid>> ContactsCollection { get; set; } = new();
+    private List<LookupDto<Guid>> AgentsCollection { get; set; } = new();
+    private LookupDto<Guid> selectedOrganizationLookupDto = new();
+    private LookupDto<Guid> selectedContactLookupDto = new();
+    private LookupDto<Guid> selectedAgentLookupDto = new();
+    [Inject] public IRequestForQuotationsAppService RequestForQuotationsAppService { get; set; }
+    [Inject] public IQuestionTemplatesAppService QuestionTemplatesAppService { get; set; }
+    
+    
+    
+    
+    
+    
+    
+    
+    
     private bool ReadOnly { get; set; } = false;
 
     private bool IsFullView { get; set; } = false;
@@ -59,7 +78,6 @@ public partial class RequestForQuotationInput
 
     List<Guid> listGuidCatalogItems = new();
     private List<LookupDto<Guid>> userLookUpDtos = new();
-    private LookupDto<Guid> selectedAgentLookupDto = new();
     
     private OrganizationDto SelectedOrganization { get; set; }
     private ContactDto SelectedContact { get; set; }
@@ -76,8 +94,10 @@ public partial class RequestForQuotationInput
             RequestForQuotation = new RequestForQuotationDto();
         }
         InternalRequestForQuotation = RequestForQuotation.DeepClone();
+        selectedOrganizationLookupDto = new LookupDto<Guid>(InternalRequestForQuotation.OrganizationProperty.Id, InternalRequestForQuotation.OrganizationProperty.Name);
+        selectedContactLookupDto = new LookupDto<Guid>(InternalRequestForQuotation.ContactProperty.Id, InternalRequestForQuotation.ContactProperty.Name);
+        selectedAgentLookupDto = new LookupDto<Guid>(InternalRequestForQuotation.AgentProperty.Id, InternalRequestForQuotation.AgentProperty.Name);
         await LoadData();
-        await InitializeSelectedValues();
 
         StateHasChanged();
     }
@@ -87,22 +107,10 @@ public partial class RequestForQuotationInput
         try
         {
             isLoading = true; // Imposta isLoading su true prima di iniziare il caricamento
-
             // Esegui le chiamate ai servizi per recuperare i dati necessari
-            Organizations =
-                await OrganizationsAppService.GetFilterTypeAsync(new GetOrganizationsInput(),
-                    OrganizationType.CUSTOMER);
-            Contacts = await ContactsAppService.GetListAsync(new GetContactsInput());
-            
-            Catalogs = await CatalogsAppService.GetListAsync(new GetCatalogsInput());
-
-            var mySelfId = CurrentPrincipalAccessor.Principal.FindUserId();
-            var userList = await UserAppService.GetListAsync(new GetIdentityUsersInput());
-            userLookUpDtos = userList.Items.Select(x => new LookupDto<Guid> { Id = x.Id, DisplayName = x.UserName })
-                .ToList();
-            selectedAgentLookupDto = userLookUpDtos.FirstOrDefault(x => x.Id == mySelfId)!;
-            
-
+            AgentsCollection = (await RequestForQuotationsAppService.GetIdentityUserLookupAsync(new LookupRequestDto())).Items.ToList();
+            OrganizationsCollection = (await RequestForQuotationsAppService.GetOrganizationLookupCustomerAsync(new LookupRequestDto())).Items.ToList();
+            ContactsCollection = (await RequestForQuotationsAppService.GetContactLookupAsync(new LookupRequestDto())).Items.ToList();
             isLoading = false; // Imposta isLoading su false una volta che i dati sono stati caricati
         }
         catch (Exception ex)
@@ -110,13 +118,6 @@ public partial class RequestForQuotationInput
             // Gestisci eventuali eccezioni qui
             Console.WriteLine($"Si è verificato un errore durante il caricamento dei dati: {ex.Message}");
         }
-    }
-    
-    private async Task InitializeSelectedValues()
-    {
-        SelectedOrganization = Organizations.Items.FirstOrDefault(x => x.Id == InternalRequestForQuotation.OrganizationProperty.Id);
-        SelectedContact = Contacts.Items.FirstOrDefault(x => x.Id == InternalRequestForQuotation.ContactProperty.Id);
-        SelectedAgent = userLookUpDtos.FirstOrDefault(x => x.Id == InternalRequestForQuotation.AgentProperty.Id);
     }
 
     private async Task HandleValidSubmit()
@@ -161,36 +162,27 @@ public partial class RequestForQuotationInput
         }
     }
 
-    protected override void OnParametersSet()
-    {
-        UpdateValueOrganization();
-        UpdateValueContact();
-        UpdateValueAgent();
-        StateHasChanged();
-    }
-
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
             _isComponentRendered = true;
         }
-    }
-
-    private void UpdateValueOrganization()
+    } 
+    
+    private async void UpdateValueOrganization(LookupDto<Guid> arg)
     {
-        if (SelectedOrganization == null)
+        if (arg == null)
         {
+            selectedOrganizationLookupDto = new LookupDto<Guid>();
             InternalRequestForQuotation.OrganizationProperty = new OrganizationPropertyDto();
-            InternalRequestForQuotation.OrganizationProperty = null;
             InternalRequestForQuotation.MailInfo = new MailInfoDto();
             InternalRequestForQuotation.PhoneInfo = new PhoneInfoDto();
         }
         else
         {
-            InternalRequestForQuotation.OrganizationProperty = new OrganizationPropertyDto(SelectedOrganization.Id, SelectedOrganization.Name);
-            var organization = Organizations.Items.FirstOrDefault(x => x.Id == SelectedOrganization.Id);
-            SelectedOrganization = organization;
+            selectedOrganizationLookupDto = arg;
+            var organization = await OrganizationsAppService.GetAsync(arg.Id);
             InternalRequestForQuotation.MailInfo = organization.MailInfo != null ? organization.MailInfo : new MailInfoDto();
             InternalRequestForQuotation.PhoneInfo = organization.PhoneInfo != null ? organization.PhoneInfo : new PhoneInfoDto();
             InternalRequestForQuotation.OrganizationProperty =
@@ -200,35 +192,35 @@ public partial class RequestForQuotationInput
         StateHasChanged();
     }
 
-    private void UpdateValueContact()
+    private async void UpdateValueContact(LookupDto<Guid> arg)
     {
-        if (SelectedContact == null)
+        if (arg == null)
         {
+            selectedContactLookupDto = new LookupDto<Guid>();
             InternalRequestForQuotation.ContactProperty = new ContactPropertyDto();
-            InternalRequestForQuotation.ContactProperty = null;
         }
         else
         {
-            InternalRequestForQuotation.ContactProperty = new ContactPropertyDto(SelectedContact.Id, SelectedContact.ToStringNameSurname());
-            var contact = Contacts.Items.FirstOrDefault(x => x.Id == SelectedContact.Id);
-            SelectedContact = contact;
+            selectedContactLookupDto = arg;
+            var contact = await ContactsAppService.GetAsync(arg.Id);
             InternalRequestForQuotation.ContactProperty =
-                new ContactPropertyDto(contact.Id, contact.Name + " " + contact.Surname);
+                new ContactPropertyDto(contact.Id, contact.ToStringNameSurname());
         }
 
         StateHasChanged();
     }
 
-    private void UpdateValueAgent()
+    private void UpdateValueAgent(LookupDto<Guid> arg)
     {
-        if (SelectedAgent == null)
+        if (arg == null)
         {
+            selectedAgentLookupDto = new LookupDto<Guid>();
             InternalRequestForQuotation.AgentProperty = new AgentPropertyDto();
         }
         else
         {
-            InternalRequestForQuotation.AgentProperty = new AgentPropertyDto(SelectedAgent.Id, SelectedAgent.DisplayName);
-            SelectedAgent = userLookUpDtos.FirstOrDefault(user => user.Id == SelectedAgent.Id);
+            selectedAgentLookupDto = arg;
+            InternalRequestForQuotation.AgentProperty = new AgentPropertyDto(arg.Id, arg.DisplayName);
         }
 
         StateHasChanged();
@@ -240,37 +232,37 @@ public partial class RequestForQuotationInput
         return catalogItem.Item2;
     }
     
-    private Task<IEnumerable<OrganizationDto>> SearchOrganization(string value)
+    private async Task<IEnumerable<LookupDto<Guid>>> SearchOrganization(string value)
     {
-        if (Organizations == null || Organizations.TotalCount == 0)
-            return new Task<IEnumerable<OrganizationDto>>(() => new List<OrganizationDto>());
+        if (OrganizationsCollection == null || OrganizationsCollection.Count == 0)
+            return new List<LookupDto<Guid>>();
 
         // Se il testo è null o vuoto, mostra l'elenco completo
         return string.IsNullOrEmpty(value)
-            ? Task.FromResult<IEnumerable<OrganizationDto>>(Organizations.Items.ToList())
-            : Task.FromResult<IEnumerable<OrganizationDto>>(Organizations.Items.Where(x => x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList());
+            ? OrganizationsCollection.ToList()
+            : OrganizationsCollection
+                .Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
 
-    private Task<IEnumerable<ContactDto>> SearchContact(string value)
+    private async Task<IEnumerable<LookupDto<Guid>>> SearchContact(string value)
     {
-        if (Contacts == null || Contacts.Items.Count == 0)
-            return new Task<IEnumerable<ContactDto>>(() => new List<ContactDto>());
+        if (ContactsCollection == null || ContactsCollection.Count == 0)
+            return new List<LookupDto<Guid>>();
 
         // Se il testo è null o vuoto, mostra l'elenco completo
         return string.IsNullOrEmpty(value)
-            ? Task.FromResult<IEnumerable<ContactDto>>(Contacts.Items.ToList())
-            : Task.FromResult<IEnumerable<ContactDto>>(Contacts.Items.Where(x => x.ToStringNameSurname().Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList());
+            ? ContactsCollection.ToList()
+            : ContactsCollection.Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
 
-    private Task<IEnumerable<LookupDto<Guid>>> SearchAgent(string value)
+    private async Task<IEnumerable<LookupDto<Guid>>> SearchAgent(string value)
     {
-        if (userLookUpDtos == null || userLookUpDtos.Count == 0)
-            return Task.FromResult<IEnumerable<LookupDto<Guid>>>(new List<LookupDto<Guid>>());
+        if (AgentsCollection == null || AgentsCollection.Count == 0)
+            return new List<LookupDto<Guid>>();
 
         // Se il testo è null o vuoto, mostra l'elenco completo
         return string.IsNullOrEmpty(value)
-            ? Task.FromResult<IEnumerable<LookupDto<Guid>>>(userLookUpDtos.ToList())
-            : Task.FromResult<IEnumerable<LookupDto<Guid>>>(userLookUpDtos.Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList());
+            ? AgentsCollection.ToList()
+            : AgentsCollection.Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
-    
 }

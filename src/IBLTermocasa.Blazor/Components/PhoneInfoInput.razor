@@ -25,7 +25,7 @@
                 <MudMask @bind-Value="phoneItem.Number" Label="@L["Phone"]" Mask="@phoneMask" Style="align-items: flex-end;"/>
             </MudItem>
             <MudItem xs="1" Class="position-relative">
-                <MudButton Color="Color.Secondary" OnClick="@(() => RemovePhoneItem(phoneItem))" Size="Size.Small" Style="position: absolute; bottom: 20%; left: 0;">
+                <MudButton Class="button-remove" Color="Color.Secondary" OnClick="@(() => RemovePhoneItem(phoneItem))" Size="Size.Small">
                     <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Delete"/>
                 </MudButton>
             </MudItem>

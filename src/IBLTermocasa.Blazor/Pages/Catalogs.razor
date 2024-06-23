@@ -143,6 +143,28 @@
 </Card>
 
 @* ************************* DATA GRID ************************* *@
+<MudBlazor.MudCard>
+    <MudBlazor.MudCardContent>
+        <MudBlazor.MudDataGrid Dense="true" Striped="@true" Bordered="true" Items="CatalogList">
+            <Columns>
+                <MudBlazor.PropertyColumn Property="x => x.Catalog.Name" Title="@L["Name"]"/>
+                <MudBlazor.PropertyColumn Property="x => x.Catalog.From" Title="@L["From"]" Format="dd/MM/yyyy"/>
+                <MudBlazor.PropertyColumn Property="x => x.Catalog.To" Title="@L["To"]" Format="dd/MM/yyyy"/>
+                <MudBlazor.PropertyColumn Property="x => x.Catalog.Description" Title="@L["Description"]"/>
+                <MudBlazor.TemplateColumn CellClass="d-flex justify-end">
+                    <CellTemplate>
+                        <MudBlazor.MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Outlined.RemoveRedEye" OnClick="() => OpenEditCatalogModalAsync(context.Item)"/>
+                        <MudBlazor.MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Outlined.Remove" OnClick="() => DeleteCatalogAsync(context.Item)"/>
+                    </CellTemplate>
+                </MudBlazor.TemplateColumn>
+            </Columns>
+        </MudBlazor.MudDataGrid>
+    </MudBlazor.MudCardContent>
+</MudBlazor.MudCard>
+<MudBlazor.MudThemeProvider/>
+<MudBlazor.MudDialogProvider/>
+
+@*
 <Card>
     <CardBody>
         <DataGrid TItem="CatalogWithNavigationPropertiesDto"
@@ -208,7 +230,7 @@
             
         </DataGrid>
     </CardBody>
-</Card>
+</Card>*@
 
 @* ************************* CREATE MODAL ************************* *@
 <Modal @ref="CreateCatalogModal" Closing="@CreateCatalogModal.CancelClosingModalWhenFocusLost">

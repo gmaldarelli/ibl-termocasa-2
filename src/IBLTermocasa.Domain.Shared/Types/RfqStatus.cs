@@ -10,3 +10,21 @@ public enum RfqStatus
     COMPLETED,
     CANCELED
 }
+
+public static class EnumExtensions
+{
+    public static string GetDisplayName(this RfqStatus status)
+    {
+        return status switch
+        {
+            RfqStatus.DRAFT => "DRAFT",
+            RfqStatus.NEW => "NEW",
+            RfqStatus.IN_PROGRESS_BOM => "IN_PROGRESS_BOM",
+            RfqStatus.ON_HOLD => "ON_HOLD",
+            RfqStatus.PENDING_REVIEW => "PENDING_REVIEW",
+            RfqStatus.COMPLETED => "COMPLETED",
+            RfqStatus.CANCELED => "CANCELED",
+            _ => status.ToString()
+        };
+    }
+}
