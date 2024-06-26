@@ -28,6 +28,7 @@ public partial class ConsumeCalculator
     
     [Parameter] public ProductDto Product { get; set; }
     public HashSet<TreeItemData> TreeItems { get; set; }
+    public TreeItemData RootItem { get; set; }
     public HashSet<TreeItemData> SelectedValues { get; set; }
     public MudTreeView<TreeItemData> ProductMudTreeView { get; set; }
     public ProductComponentDto SelectedProductComponent { get; set; }
@@ -63,6 +64,7 @@ public partial class ConsumeCalculator
             typeof(ProductDto), 
             Product.Code, 
             Product.Name, 
+            prefix: "P",
             parent: null,
             icon: MudBlazor.Icons.Material.Filled.GifBox, 
             isExpanded: true, 
@@ -70,6 +72,7 @@ public partial class ConsumeCalculator
          var childs = await GenerateSubTreeItems(Product.SubProducts, Product.ProductComponents, Product.ProductQuestionTemplates, treeItemData);
          treeItemData.TreeItems = childs;
         TreeItems.Add(treeItemData);
+        RootItem = treeItemData;
     }
 
     private async Task<HashSet<TreeItemData>> GenerateSubTreeItems(List<SubProductDto> productSubProducts,
@@ -86,8 +89,9 @@ public partial class ConsumeCalculator
                 var subProduct = await ProductService.GetAsync(id);
                 var treeItemData = new TreeItemData(Guid.NewGuid(),
                     typeof(SubProductDto),
+                    subProduct.Code,
                     subProduct.Name,
-                    subProduct.Name,
+                    prefix: "P",
                     parent: parent,
                     icon: MudBlazor.Icons.Material.Filled.GifBox,
                     isExpanded: false,
@@ -106,8 +110,9 @@ public partial class ConsumeCalculator
                 var component = await ComponentsAppService.GetAsync(id);
                 var treeItemData = new TreeItemData(Guid.NewGuid(),
                     typeof(ProductComponentDto),
+                    component.Code,
                     component.Name,
-                    component.Name,
+                    prefix: "C",
                     parent: parent,
                     icon: MudBlazor.Icons.Material.Filled.Compost,
                     isExpanded: false,
@@ -127,6 +132,7 @@ public partial class ConsumeCalculator
                     typeof(ProductQuestionTemplateDto),
                     questionTemplate.Code,
                     name: questionTemplate.QuestionText,
+                    prefix: "Q",
                     parent: parent,
                     icon: MudBlazor.Icons.Material.Filled.QuestionAnswer,
                     isExpanded: false,
@@ -142,12 +148,50 @@ public partial class ConsumeCalculator
     {
         open = !open;
     }
+
+    private Task OnSelectedFormula(ProductComponentDto item)
+    {
+        SelectedFormula = item;
+        return Task.CompletedTask;
+    }
+
+    public ProductComponentDto? SelectedFormula { get; set; }
+
+    private Task AddToSelectedFormula(TreeItemData item)
+    {
+        if(SelectedFormula != null)
+        {
+            string formula = $"{this.CodeSequence(item)}";
+            formula = "{" + formula + "}";
+            if (!formulas[SelectedFormula.Code].IsNullOrEmpty())
+            {
+                formula = formulas[SelectedFormula.Code]  + " " + formula;
+            }
+            Console.WriteLine("::::::::::::::::::::::::::::::::::::::Selected formula code: " + SelectedFormula.Code);
+            formulas[SelectedFormula.Code] = formula;
+            StateHasChanged();
+        }
+        Console.WriteLine("::::::::::::::::::::::::::::::::::::::Selected formula is null");
+        return Task.CompletedTask;
+    }
+
+    private string CodeSequence(TreeItemData item)
+    {
+        if (item.Parent != null)
+        {
+            return CodeSequence(item.Parent) + "." + item.Prefix + "[" + item.Code + "]";
+        } else
+        {
+            return item.Prefix + "[" + item.Code + "]";
+        }
+    }
 }
 public class TreeItemData
 {
     public Guid Id { get; set; }
     public string Code { get; set; }
     public string Name { get; set; }
+    public string Prefix { get; set; }
     public string Icon { get; set; }
     public Type Type { get; set; }
     public bool IsExpanded { get; set; }
@@ -160,12 +204,13 @@ public class TreeItemData
     {
         Id = id;
     }
-    public TreeItemData(Guid id, Type type, string code, string name, TreeItemData? parent, string icon = null,  bool isExpanded = false, HashSet<TreeItemData>? treeItems = null)
+    public TreeItemData(Guid id, Type type, string code, string name, string prefix,  TreeItemData? parent, string icon = null,  bool isExpanded = false, HashSet<TreeItemData>? treeItems = null)
     {
         Id = id;
         Type = type;
         Code = code;
         Name = name;
+        Prefix = prefix;
         Parent = parent;
         Icon = icon;
         IsExpanded = isExpanded;

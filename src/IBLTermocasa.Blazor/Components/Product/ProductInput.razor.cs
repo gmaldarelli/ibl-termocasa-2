@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Blazorise;
 using IBLTermocasa.Blazor.Components.Selector;
+using IBLTermocasa.Common;
 using IBLTermocasa.Components;
 using IBLTermocasa.Products;
 using IBLTermocasa.QuestionTemplates;
@@ -181,6 +182,59 @@ public partial class ProductInput
         
         
         ComponentList = (await ComponentsAppService.GetListAsync(new GetComponentsInput())).Items;
+        List<ExtendedLookUpDto<Guid>>? ElementListLookupDto  = new List<ExtendedLookUpDto<Guid>>();
+        ComponentList.ToList().ForEach(x =>
+        {
+            ElementListLookupDto.Add(new ExtendedLookUpDto<Guid>
+            {
+                DisplayName = x.Name,
+                Id = x.Id,
+                ViewElementDto = new ViewElementDto
+                {
+                    Properties = new List<ViewElementPropertyDto<object>>
+                    {
+                        new ViewElementPropertyDto<object>("Code", x.Code),
+                        new ViewElementPropertyDto<object>("ElementType", typeof(ProductComponentDto))
+                    }
+                }
+            });
+        });
+        var componentDialog = await DialogService.ShowAsync<ProductSubItemInput>("Seleziona Componente", new DialogParameters
+        {
+            { "ElementListLookupDto", ElementListLookupDto },
+            { "DialogTitle", "Seleziona Componente" },
+            { "ElementName", "Componente" },
+            { "OrderMaxValue", Product.ProductComponents.Count + 1 },
+            { "OrderMinValue", 1 },
+            { "ElementType",  typeof(ProductComponentDto) },
+        }, new DialogOptions
+        {
+            Position = MudBlazor.DialogPosition.Center,
+            FullWidth = true,
+            MaxWidth = MaxWidth.Large
+        });
+        var componentDialogResult = await componentDialog.Result;
+        if(!componentDialogResult.Canceled)
+        {
+            var selectedComponent = (ExtendedLookUpDto<Guid>)componentDialogResult.Data;
+            var productComponent = new ProductComponentDto
+            {
+                ComponentId = selectedComponent.Id,
+                Code = selectedComponent.ViewElementDto.Properties.FirstOrDefault(x => x.Name == "Code")?.Value.ToString() ?? "",
+                Name = selectedComponent.DisplayName,
+                Order = selectedComponent.ViewElementDto.Properties.FirstOrDefault(x => x.Name == "Order")?.Value as int? ?? Product.ProductComponents.Count + 1,
+                Mandatory = selectedComponent.ViewElementDto.Properties.FirstOrDefault(x => x.Name == "IsMandatory")?.Value as bool? ?? false
+            };
+            Product.ProductComponents.RemoveAll(x => x.ComponentId == productComponent.ComponentId);
+            Product.ProductComponents.Add(productComponent);
+            Product.ProductComponents = Product.ProductComponents.OrderBy(x => x.Order).ToList();
+            await ProductComponentMudDataGrid.ReloadServerData();
+            await InvokeAsync(StateHasChanged);
+        }
+        
+        
+        
+        /*
         ProductComponentDto selectedProductComponent = new ProductComponentDto();
         selectedProductComponent.Order = Product.ProductQuestionTemplates.Count + 1;
         var parameters = new DialogParameters<ModalProductComponentInput>
@@ -205,7 +259,7 @@ public partial class ProductInput
             Product.ProductComponents = Product.ProductComponents.OrderBy(x => x.Order).ToList();
             await ProductComponentMudDataGrid.ReloadServerData();
             await InvokeAsync(StateHasChanged);
-        }
+        }*/
         
         
         
@@ -352,7 +406,7 @@ public partial class ProductInput
         {
             { "Product", Product }
         };
-        var dialog = DialogService.Show<ConsumeCalculator>("", parameters,
+        var dialog = await DialogService.ShowAsync<ConsumeCalculator>("", parameters,
             new DialogOptions
             {
                 

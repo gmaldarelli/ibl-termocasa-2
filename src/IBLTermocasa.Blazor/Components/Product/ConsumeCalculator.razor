@@ -1,60 +1,101 @@
 ﻿@using MudBlazor
 @inherits IBLTermocasaComponentBase
-@if(Product==null)
+@if (Product == null)
 {
-    <MudLinearProgress Indeterminate="true" />
-    return;
+    <MudDialog >
+        <DialogContent>
+            <MudContainer Style="min-height: 400px; max-height: 600px; overflow-y: scroll">
+                <MudLinearProgress Indeterminate="true"/>
+                return;
+            </MudContainer>
+        </DialogContent>
+    </MudDialog>
 }
 else
 {
-    <MudLayout>
-        <MudAppBar Elevation="1" Dense="@dense" >
-            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
-            <MudFab Color="MudBlazor.Color.Primary" Size="MudBlazor.Size.Small" StartIcon="@Icons.Material.Filled.Add"/>
-            <MudFab Color="MudBlazor.Color.Secondary" Size="MudBlazor.Size.Small" StartIcon="@Icons.Material.Filled.Edit"/>
-            <MudFab Color="MudBlazor.Color.Tertiary" Size="MudBlazor.Size.Small" StartIcon="@Icons.Material.Filled.ShoppingCart" DisableElevation="true"/>
-            <MudFab StartIcon="@Icons.Material.Filled.Save" Size="MudBlazor.Size.Small" Disabled="true"/>
-            <MudSpacer/>
-            <MudIconButton Icon="@Icons.Material.Filled.Save" Color="MudBlazor.Color.Inherit" OnClick="() => MudDialog.Cancel()"/>
-        </MudAppBar>
-        <MudDrawer @bind-Open="@open" ClipMode="clipMode" 
-                   Breakpoint="MudBlazor.Breakpoint.Lg" PreserveOpenState="@preserveOpenState" 
-                   Elevation="1" Variant="@DrawerVariant.Mini">
-        <MudTreeView  T="TreeItemData"
-                      @ref="ProductMudTreeView" Items="TreeItems" MultiSelection="true"
-                      @bind-SelectedValues="SelectedValues"  >
-            <ItemTemplate>
-                <MudTreeViewItem @bind-Expanded="@context.IsExpanded" Items="@context.TreeItems">
-                    <Content>
-                        <MudTreeViewItemToggleButton @bind-Expanded="@context.IsExpanded" Visible="@(context.TreeItems.Count > 0)"/>
-                        <MudIcon Icon="@context.Icon" Class="ml-0 mr-2" Color="@MudBlazor.Color.Default"/>
-                        <MudText>@context.CodeAndName</MudText>
-                    </Content>
-                </MudTreeViewItem>
-            </ItemTemplate>
-        </MudTreeView>
-    </MudDrawer>
-    <MudMainContent Class="pt-16 px-16" >
-        <MudContainer Class="mt-6" >
-            <MudList >
-                @foreach (var item in Product.ProductComponents)
-                {
-                <MudListItem OnClick="() => SelectedProductComponent = item">
-                    <MudText Typo="Typo.h6">@item.Code - @item.Name</MudText>
-                    <MudTextField T="string" @bind-Value="@(formulas[item.Code])" Label="@L["Formula"]"/>
-                </MudListItem>
-                }
-            </MudList>
-        </MudContainer>
-    </MudMainContent>
-</MudLayout>
-    
-    
+    <MudDialog >
+        <DialogContent >
+            <MudContainer Style="min-height: 400px; max-height: 600px; overflow-y: scroll">
+                <MudLayout >
+                    <MudAppBar Elevation="1" Dense="@dense">
+                        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer"/>
+                        <MudFab Color="MudBlazor.Color.Primary" Size="MudBlazor.Size.Small" StartIcon="@Icons.Material.Filled.Add"/>
+                        <MudFab Color="MudBlazor.Color.Secondary" Size="MudBlazor.Size.Small" StartIcon="@Icons.Material.Filled.Edit"/>
+                        <MudFab Color="MudBlazor.Color.Tertiary" Size="MudBlazor.Size.Small" StartIcon="@Icons.Material.Filled.ShoppingCart" DisableElevation="true"/>
+                        <MudFab StartIcon="@Icons.Material.Filled.Save" Size="MudBlazor.Size.Small" Disabled="true"/>
+                        <MudSpacer/>
+                        <MudIconButton Icon="@Icons.Material.Filled.Save" Color="MudBlazor.Color.Inherit" OnClick="() => MudDialog.Cancel()"/>
+                    </MudAppBar>
+                    <MudDrawer @bind-Open="@open" ClipMode="clipMode"
+                               Breakpoint="MudBlazor.Breakpoint.Lg" PreserveOpenState="@preserveOpenState"
+                               Elevation="1" Variant="@DrawerVariant.Responsive">
+                        <MudNavMenu Class="py-3" Width="250px">
+                            <MudNavGroup Title="@RootItem.CodeAndName" Icon="@Icons.Material.Filled.ShoppingCartCheckout" Expanded="true">
+                                @foreach (var item in RootItem.TreeItems)
+                                {
+                                    @if (item.TreeItems.Count > 0)
+                                    {
+                                        <MudNavGroup Title="@item.CodeAndName" Icon="@item.Icon" Expanded="true">
+                                            @foreach (var subItem in item.TreeItems)
+                                            {
+                                                @if (subItem.TreeItems.Count > 0)
+                                                {
+                                                    <MudNavGroup Title="@subItem.CodeAndName" Icon="@subItem.Icon" Expanded="true">
+                                                        @foreach (var subSubItem in subItem.TreeItems)
+                                                        {
+                                                            <MudNavLink OnClick="() => AddToSelectedFormula(subSubItem)" Icon="@subSubItem.Icon">@subSubItem.CodeAndName</MudNavLink>
+                                                        }
+                                                    </MudNavGroup>
+                                                }
+                                                else
+                                                {
+                                                    <MudNavLink OnClick="() => AddToSelectedFormula(subItem)" Icon="@subItem.Icon">@subItem.CodeAndName</MudNavLink>
+                                                }
+                                            }
+                                        </MudNavGroup>
+                                    }
+                                    else
+                                    {
+                                        <MudNavLink OnClick="() => AddToSelectedFormula(item)" Icon="@item.Icon">@item.CodeAndName</MudNavLink>
+                                    }
+                                }
+                            </MudNavGroup>
+                        </MudNavMenu>
+                    </MudDrawer>
+                    <MudMainContent>
+                        <MudContainer Style="min-height: 400px; max-height: 600px; overflow-y: scroll">
+                            @if (Product.ProductComponents.Count == 0)
+                            {
+                                <MudPaper Elevation="1" Class="p-6" MinHeight="500px">
+                                    <MudText Typo="Typo.h6">@L["ProductComponents"]</MudText>
+                                </MudPaper>
+                            }
+                            else
+                            {
+                                <MudList Style="min-width:400px;">
+                                    @foreach (var item in Product.ProductComponents)
+                                    {
+                                        <MudListItem OnClick="() => SelectedProductComponent = item">
+                                            <MudText Typo="Typo.h6">@item.Code - @item.Name</MudText>
+                                            <MudTextField T="string" @bind-Value="@(formulas[item.Code])" Label="@L["Formula"]"
+                                                          @onclick="() => OnSelectedFormula(item)"/>
+                                        </MudListItem>
+                                    }
+                                </MudList>
+                            }
+                        </MudContainer>
+                    </MudMainContent>
+                </MudLayout>
+            </MudContainer>
+        </DialogContent>
+    </MudDialog>
+}
 }
 
 <MudBlazor.MudThemeProvider/>
 <MudBlazor.MudDialogProvider/>
 <MudBlazor.MudSnackbarProvider/>
+
 @code {
 
     //Fast code here otherwise into cs file
