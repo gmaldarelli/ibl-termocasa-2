@@ -47,19 +47,13 @@ namespace IBLTermocasa.Blazor.Pages.Crm
         private bool CanEditRequestForQuotation { get; set; }
         private bool CanDeleteRequestForQuotation { get; set; }
         private RequestForQuotationCreateDto NewRequestForQuotation { get; set; }
-        private Validations NewRequestForQuotationValidations { get; set; } = new();
         private RequestForQuotationUpdateDto EditingRequestForQuotation { get; set; }
 
         private Validations EditingRequestForQuotationValidations { get; set; } = new();
         private Guid EditingRequestForQuotationId { get; set; }
-        private Modal CreateRequestForQuotationModal { get; set; } = new();
         private Modal EditRequestForQuotationModal { get; set; } = new();
-
-        private Modal EditAttributeModal { get; set; } = new();
         private GetRequestForQuotationsInput Filter { get; set; }
         private RequestForQuotationDto? SelectedRequestForQuotation;
-        private RequestForQuotationDto RequestForQuotationInput { get; set; }
-        private Dictionary<string, bool> buttonVisibility = new();
         private bool isAttributeModalOpen;
         
         private ModalSize ModalSize { get; set; } = ModalSize.Large;
@@ -67,12 +61,6 @@ namespace IBLTermocasa.Blazor.Pages.Crm
         [Inject] private IContactsAppService ContactsAppService { get; set; }
         [Inject] public IDialogService DialogService { get; set; }
         [Inject] public IIdentityUserAppService UserAppService { get; set; }
-
-        protected List<OrganizationDto> Organizations { get; set; } = new();
-        protected List<ContactDto> Contacts { get; set; } = new();
-        protected List<IdentityUserDto> Agents { get; set; } = new();
-        protected Progress progressRef;
-        protected int progress;
         private string _searchString;
         private List<LookupDto<Guid>> OrganizationsList { get; set; } = new();
         private List<LookupDto<Guid>> ContactsList { get; set; } = new();
@@ -115,7 +103,6 @@ namespace IBLTermocasa.Blazor.Pages.Crm
             if (firstRender)
             {
                 await SetBreadcrumbItemsAsync();
-                await SetToolbarItemsAsync();
                 StateHasChanged();
             }
         }  
@@ -123,20 +110,6 @@ namespace IBLTermocasa.Blazor.Pages.Crm
         protected virtual ValueTask SetBreadcrumbItemsAsync()
         {
             BreadcrumbItems.Add(new BreadcrumbItem(L["Menu:RequestForQuotations"]));
-            return ValueTask.CompletedTask;
-        }
-
-        protected virtual ValueTask SetToolbarItemsAsync()
-        {
-            Toolbar.AddButton(L["ExportToExcel"], async () => { await DownloadAsExcelAsync(); }, IconName.Download);
-
-            Toolbar.AddButton(L["NewRequestForQuotation"], () =>
-                {
-                    OpenCreateRequestForQuotationPageAsync();
-                    return Task.CompletedTask;
-                }, IconName.Add,
-                requiredPolicyName: IBLTermocasaPermissions.RequestForQuotations.Create);
-
             return ValueTask.CompletedTask;
         }
 
@@ -250,31 +223,6 @@ namespace IBLTermocasa.Blazor.Pages.Crm
         {
             await RequestForQuotationsAppService.DeleteAsync(input.Id);
             await GetRequestForQuotationsAsync();
-        }
-        
-        private async Task CloseEditRequestForQuotationModalAsync()
-        {
-            await EditRequestForQuotationModal.Hide();
-        }
-
-        private async Task UpdateRequestForQuotationAsync()
-        {
-            try
-            {
-                if (await EditingRequestForQuotationValidations.ValidateAll() == false)
-                {
-                    return;
-                }
-
-                await RequestForQuotationsAppService.UpdateAsync(EditingRequestForQuotationId,
-                    EditingRequestForQuotation);
-                await GetRequestForQuotationsAsync();
-                await EditRequestForQuotationModal.Hide();
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
         }
         
         private async Task OpenReadOrEditRfq(RequestForQuotationDto input, bool isReadOnly)

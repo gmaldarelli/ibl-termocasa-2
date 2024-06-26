@@ -49,7 +49,8 @@
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 mb-2">
         </MudTextField>
         <MudSpacer/>
-        <MudButton Variant="Variant.Filled" Color="@Color.Primary" OnClick="OpenCreateRequestForQuotationPageAsync">@L["NewRequestForQuotation"]</MudButton>
+        <MudButton Class="mr-2" StartIcon="@Icons.Material.Outlined.FileDownload" Size="Size.Small" Variant="Variant.Filled" Color="@Color.Primary" OnClick="DownloadAsExcelAsync">@L["ExportToExcel"]</MudButton>
+        <MudButton StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" Variant="Variant.Filled" Color="@Color.Primary" OnClick="OpenCreateRequestForQuotationPageAsync">@L["NewRequestForQuotation"]</MudButton>
     </ToolBarContent>
     <Columns>
         <PropertyColumn Property="x => x.QuoteNumber" Title="@L["QuoteNumber"]"/>
