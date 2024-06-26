@@ -1,0 +1,46 @@
+﻿@using IBLTermocasa.Common
+@using IBLTermocasa.Products
+@using IBLTermocasa.Shared
+@using MudBlazor
+@inherits IBLTermocasaComponentBase
+<MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            @DialogTitle
+        </MudText>
+    </TitleContent>    
+    <DialogContent>
+        <MudAutocomplete T="ExtendedLookUpDto<Guid>" Label="@ElementName" ValueChanged="@OnItemSelected" SearchFunc="@SearchElement"
+                         ResetValueOnEmptyText="@true"
+                         CoerceText="true" CoerceValue="true"
+                         ToStringFunc="@((ExtendedLookUpDto<Guid> x) => x.DisplayName)"
+                         Required="true">
+                <ItemTemplate Context="e">
+                    <MudText Typo="Typo.body1"  Style="">@e.DisplayName</MudText>
+                </ItemTemplate>
+        </MudAutocomplete>
+            <MudNumericField @bind-Value="@SelectedOrder" InvertMouseWheel="true"
+                             Label="@L["Order"]" Variant="Variant.Filled" Min="@OrderMinValue" Max="@OrderMaxValue"
+                             Required="true"/>
+            <MudTextField @bind-Value="@SelectedCode" Label="@L["Code"]" Variant="Variant.Filled"
+                          Required="true"/>
+            <MudTextField @bind-Value="@SelectedName" Label="@L["Name"]" Variant="Variant.Filled"
+                          Required="true"/>
+            <MudSwitch Value="@SelectedIsMandatory"
+                       Class="mud-width-full"
+                       Color="MudBlazor.Color.Primary">
+                @L["Mandatory"]
+            </MudSwitch>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">@L["Cancel"]</MudButton>
+        <MudButton  Color="MudBlazor.Color.Primary" OnClick="OnValidSubmit">@L["Save"]</MudButton>
+    </DialogActions>
+</MudDialog>
+</MudForm>
+
+
+@code {
+
+}
