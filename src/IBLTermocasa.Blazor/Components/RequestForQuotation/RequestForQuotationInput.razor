@@ -15,12 +15,19 @@
         font-weight: 600;
         letter-spacing: 0.5px;
     }
+    
     .mud-dialog-custom {
-        margin: 0 auto;
         display: flex;
-        position: fixed;
         align-items: center;
-        justify-content: start;
+        justify-content: center;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .navbar-open .mud-dialog-custom {
+        left: calc(50% + 264px); /* 264 è stato messo, perchè indica la larghezza della navbar */
     }
 </style>
 

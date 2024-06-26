@@ -207,11 +207,12 @@ public partial class ProductInput
             { "OrderMaxValue", Product.ProductComponents.Count + 1 },
             { "OrderMinValue", 1 },
             { "ElementType",  typeof(ProductComponentDto) },
+            { "ElementListExisted", Product.ProductComponents }
         }, new DialogOptions
         {
-            Position = MudBlazor.DialogPosition.Center,
+            Position = DialogPosition.Custom,
             FullWidth = true,
-            MaxWidth = MaxWidth.Large
+            MaxWidth = MaxWidth.Medium
         });
         var componentDialogResult = await componentDialog.Result;
         if(!componentDialogResult.Canceled)

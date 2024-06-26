@@ -22,12 +22,14 @@ public partial class ProductSubItemInput
     [Parameter] public int? OrderMinValue { get; set; } = 1;
     [Parameter] public Type? ElementType { get; set; } 
     [Parameter] public IEnumerable<ExtendedLookUpDto<Guid>>? ElementListLookupDto { get; set; }
+    [Parameter] public List<ProductComponentDto>? ElementListExisted { get; set; }
     
     private ExtendedLookUpDto<Guid>? SelectedElement { get; set; }
     protected MudSelect<ExtendedLookUpDto<Guid>>? MudSelectElement { get; set; }
     public int? SelectedOrder { get; set; }
     public string? SelectedCode { get; set; }
     public string? SelectedName { get; set; }
+    public static List<ProductComponentDto>? SelectedElementListExisted = new();
     public bool? SelectedIsMandatory { get; set; }
     public MudForm form { get; set; } = new MudForm();
     public bool success { get; set; }
@@ -35,11 +37,11 @@ public partial class ProductSubItemInput
 
     protected override Task OnParametersSetAsync()
     {
-        if(ElementListLookupDto == null)
+        if (ElementListExisted != null)
         {
-            return base.OnParametersSetAsync();
+            SelectedElementListExisted = ElementListExisted;
         }
-        return Task.CompletedTask;
+        return ElementListLookupDto == null ? base.OnParametersSetAsync() : Task.CompletedTask;
     }
 
 

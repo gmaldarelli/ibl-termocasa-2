@@ -1,8 +1,24 @@
 ﻿@using IBLTermocasa.Common
-@using IBLTermocasa.Products
-@using IBLTermocasa.Shared
 @using MudBlazor
 @inherits IBLTermocasaComponentBase
+
+<style>
+
+    .mud-dialog-custom {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    
+    .navbar-open .mud-dialog-custom {
+        left: calc(50% + 264px); /* 264 è stato messo, perchè indica la larghezza della navbar */
+    }
+</style>
+
 <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
 <MudDialog>
     <TitleContent>
@@ -15,10 +31,15 @@
                          ResetValueOnEmptyText="@true"
                          CoerceText="true" CoerceValue="true"
                          ToStringFunc="@((ExtendedLookUpDto<Guid> x) => x.DisplayName)"
-                         Required="true">
-                <ItemTemplate Context="e">
-                    <MudText Typo="Typo.body1"  Style="">@e.DisplayName</MudText>
-                </ItemTemplate>
+                         Required="true"
+                         Strict="false"
+                         ItemDisabledFunc="@ItemDisabledFunc">
+            <ItemTemplate Context="item">
+                <MudText>@item.DisplayName</MudText>
+            </ItemTemplate>
+            <ItemDisabledTemplate Context="item">
+                <MudText>@item.DisplayName</MudText>
+            </ItemDisabledTemplate>
         </MudAutocomplete>
             <MudNumericField @bind-Value="@SelectedOrder" InvertMouseWheel="true"
                              Label="@L["Order"]" Variant="Variant.Filled" Min="@OrderMinValue" Max="@OrderMaxValue"
@@ -43,4 +64,6 @@
 
 @code {
 
+    private Func<ExtendedLookUpDto<Guid>, bool> ItemDisabledFunc = (ExtendedLookUpDto<Guid> value) => SelectedElementListExisted != null && value.Id.Equals(SelectedElementListExisted.First().ComponentId);
+    
 }
