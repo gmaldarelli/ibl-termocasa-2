@@ -24,113 +24,122 @@
     }
 </style>
 
+@if (_isComponentRendered)
+{
+    <MudDialog>
+        <DialogContent>
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudPaper Class="pa-4">
+                        <MudForm ReadOnly="@DisplayReadOnly">
+                            <MudGrid>
+                                <MudItem xs="12" sm="6">
+                                    <MudAutocomplete T="LookupDto<Guid>"
+                                                     Label="@L["Organization"]"
+                                                     ValueChanged="@(org => UpdateValueOrganization(org))"
+                                                     ToStringFunc="@(org => org?.DisplayName)"
+                                                     Value="selectedOrganizationLookupDto"
+                                                     ResetValueOnEmptyText="true"
+                                                     MaxItems="null"
+                                                     SearchFunc="@SearchOrganization"/>
+                                </MudItem>
+                                <MudItem xs="12" sm="6">
+                                    <MudAutocomplete T="LookupDto<Guid>"
+                                                     Label="@L["Contact"]"
+                                                     ValueChanged="@(contact => UpdateValueContact(contact))"
+                                                     ToStringFunc="@(contact => contact?.DisplayName)"
+                                                     Value="selectedContactLookupDto"
+                                                     ResetValueOnEmptyText="true"
+                                                     MaxItems="null"
+                                                     SearchFunc="@SearchContact"/>
+                                </MudItem>
+                                <MudItem xs="12" sm="6">
+                                    <MudAutocomplete T="LookupDto<Guid>"
+                                                     Label="@L["Agent"]"
+                                                     ValueChanged="@(agent => UpdateValueAgent(agent))"
+                                                     ToStringFunc="@(agent => agent?.DisplayName)"
+                                                     Value="selectedAgentLookupDto"
+                                                     ResetValueOnEmptyText="true"
+                                                     SearchFunc="@SearchAgent"
+                                                     MaxItems="null"/>
+                                </MudItem>
+                                <MudItem xs="12" sm="6">
+                                    <MudTextField @bind-Value="@InternalRequestForQuotation.WorkSite" Label="@L["WorkSite"]"/>
+                                </MudItem>
+                                <MudItem xs="12" sm="6">
+                                    <MudInputLabel>@L["Email"]</MudInputLabel>
+                                    <MailInfoInput MailInfo="@InternalRequestForQuotation.MailInfo" ReadOnly="DisplayReadOnly"/>
+                                </MudItem>
+                                <MudItem xs="12" sm="6">
+                                    <MudInputLabel>@L["Phone"]</MudInputLabel>
+                                    <PhoneInfoInput PhoneInfo="@InternalRequestForQuotation.PhoneInfo" ReadOnly="DisplayReadOnly"/>
+                                </MudItem>
+                                <MudItem xs="12" sm="6">
+                                    <MudTextField @bind-Value="@InternalRequestForQuotation.City" Label="@L["City"]"/>
+                                </MudItem>
+                                <MudItem xs="12" sm="6">
+                                    <MudDatePicker @bind-Date="@InternalRequestForQuotation.DateDocument" Label="@L["Date"]" DisableToolbar="true"/>
+                                </MudItem>
+                                <MudItem xs="12" sm="6">
+                                    <MudNumericField T="decimal?" @bind-Value="@InternalRequestForQuotation.Discount" Label="@L["Discount(%)"]"/>
+                                </MudItem>
+                                <MudItem xs="12" sm="6">
+                                    <MudTextField T="string" @bind-Text="@InternalRequestForQuotation.QuoteNumber" Label="@L["QuoteNumber"]"/>
+                                </MudItem>
+                            </MudGrid>
 
-<MudDialog>
-    <DialogContent>
-        <MudGrid>
-            <MudItem xs="12">
-                <MudPaper Class="pa-4">
-                    <MudGrid>
-                        <MudItem xs="12" sm="6">
-                            <MudAutocomplete T="LookupDto<Guid>"
-                                             Label="@L["Organization"]"
-                                             ValueChanged="@(org => UpdateValueOrganization(org))"
-                                             ToStringFunc="@(org => org?.DisplayName)"
-                                             Value="selectedOrganizationLookupDto"
-                                             ResetValueOnEmptyText="true"
-                                             MaxItems="null"
-                                             SearchFunc="@SearchOrganization"/>
-                        </MudItem>
-                        <MudItem xs="12" sm="6">
-                            <MudAutocomplete T="LookupDto<Guid>"
-                                             Label="@L["Contact"]"
-                                             ValueChanged="@(contact => UpdateValueContact(contact))"
-                                             ToStringFunc="@(contact => contact?.DisplayName)"
-                                             Value="selectedContactLookupDto"
-                                             ResetValueOnEmptyText="true"
-                                             MaxItems="null"
-                                             SearchFunc="@SearchContact"/>
-                        </MudItem>
-                        <MudItem xs="12" sm="6">
-                            <MudAutocomplete T="LookupDto<Guid>"
-                                             Label="@L["Agent"]"
-                                             ValueChanged="@(agent => UpdateValueAgent(agent))"
-                                             ToStringFunc="@(agent => agent?.DisplayName)"
-                                             Value="selectedAgentLookupDto"
-                                             ResetValueOnEmptyText="true"
-                                             SearchFunc="@SearchAgent"
-                                             MaxItems="null"/>
-                        </MudItem>
-                        <MudItem xs="12" sm="6">
-                            <MudTextField @bind-Value="@InternalRequestForQuotation.WorkSite" Label="@L["WorkSite"]"/>
-                        </MudItem>
-                        <MudItem xs="12" sm="6">
-                            <MudInputLabel>@L["Email"]</MudInputLabel>
-                            <MailInfoInput MailInfo="@InternalRequestForQuotation.MailInfo"/>
-                        </MudItem>
-                        <MudItem xs="12" sm="6">
-                            <MudInputLabel>@L["Phone"]</MudInputLabel>
-                            <PhoneInfoInput PhoneInfo="@InternalRequestForQuotation.PhoneInfo"/>
-                        </MudItem>
-                        <MudItem xs="12" sm="6">
-                            <MudTextField @bind-Value="@InternalRequestForQuotation.City" Label="@L["City"]"/>
-                        </MudItem>
-                        <MudItem xs="12" sm="6">
-                            <MudDatePicker DateChanged="time => InternalRequestForQuotation.DateDocument = time" Label="@L["Date"]" DisableToolbar="true"/>
-                        </MudItem>
-                        <MudItem xs="12" sm="6">
-                            <MudNumericField T="decimal?" @bind-Value="@InternalRequestForQuotation.Discount" Label="@L["Discount(%)"]"/>
-                        </MudItem>
-                        <MudItem xs="12" sm="6">
-                            <MudTextField T="string" @bind-Text="@InternalRequestForQuotation.QuoteNumber" Label="@L["QuoteNumber"]"/>
-                        </MudItem>
-                    </MudGrid>
-                </MudPaper>
-                <MudPaper Class="pa-4">
-                    <MudExpansionPanels MultiExpansion="true" Elevation="10">
-                        @foreach (var item in InternalRequestForQuotation.RequestForQuotationItems)
-                        {
-                            var parentProduct = item.ProductItems.Find(x => x.ParentId == null);
-                            <MudExpansionPanel Text="@parentProduct.ProductName">
-                                <MudTextField @bind-Value="@item.Quantity" Label="@L["Quantity"]"></MudTextField>
-                                @foreach (var answerParent in parentProduct.Answers)
-                                {
-                                    @RenderAnswerField(answerParent)
-                                }
-                                <div style="height: 1.5rem;"></div>
-                                <MudExpansionPanels MultiExpansion="true" Elevation="10">
-                                    @foreach (var product in item.ProductItems)
+                            @if (InternalRequestForQuotation.RequestForQuotationItems is { Count: > 0 })
+                            {
+                                <MudExpansionPanels MultiExpansion="true" Elevation="10" Class="mt-4">
+                                    @foreach (var item in InternalRequestForQuotation.RequestForQuotationItems)
                                     {
-                                        if (product.ParentId != null)
-                                        {
-                                            <MudExpansionPanel Text="@product.ProductName">
-                                                @foreach (var answerSubproduct in product.Answers)
-                                                {
-                                                    @RenderAnswerField(answerSubproduct)
-                                                }
-                                            </MudExpansionPanel>
+                                        var parentProduct = item.ProductItems.Find(x => x.ParentId == null);
+                                        <MudExpansionPanel Text="@parentProduct.ProductName">
+                                            <MudTextField @bind-Value="@item.Quantity" Label="@L["Quantity"]"></MudTextField>
+                                            @foreach (var answerParent in parentProduct.Answers)
+                                            {
+                                                @RenderAnswerField(answerParent)
+                                            }
                                             <div style="height: 1.5rem;"></div>
-                                        }
+                                            <MudExpansionPanels MultiExpansion="true" Elevation="10">
+                                                @foreach (var product in item.ProductItems)
+                                                {
+                                                    if (product.ParentId != null)
+                                                    {
+                                                        <MudExpansionPanel Text="@product.ProductName">
+                                                            @foreach (var answerSubproduct in product.Answers)
+                                                            {
+                                                                @RenderAnswerField(answerSubproduct)
+                                                            }
+                                                        </MudExpansionPanel>
+                                                        <div style="height: 1.5rem;"></div>
+                                                    }
+                                                }
+                                            </MudExpansionPanels>
+                                        </MudExpansionPanel>
                                     }
                                 </MudExpansionPanels>
-                            </MudExpansionPanel>
-                        }
-                    </MudExpansionPanels>
-                </MudPaper>
-                <MudPaper Class="pa-4">
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => HandleValidSubmit()">@L["Save"]</MudButton>
-                    <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="() => HandleCancel()">@L["Cancel"]</MudButton>
-                </MudPaper>
-            </MudItem>
-        </MudGrid>
-    </DialogContent>
-</MudDialog>
+                            }
+                        </MudForm>
+                        <div style="height: 1.5rem;"></div>
+                        <MudItem Class="d-flex justify-space-around flex-grow-1 gap-4">
+                            <MudItem xs="12" sm="2">
+                                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="HandleCancel">@L[GetButtonText()]</MudButton>
+                            </MudItem>
+                            <MudItem xs="12" sm="2">
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => HandleValidSubmit()" Style="@(DisplayReadOnly ? "display: none;" : "display: initial;")">@L["Save"]</MudButton>
+                            </MudItem>
+                        </MudItem>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </DialogContent>
+    </MudDialog>
+}
 
 @code {
-    private string maskDecimal = @"^(\d+,\d*|\d*)$";
-    private IMask maskDate = new DateMask("dd/MM/yyyy");
 
-    private RenderFragment RenderAnswerField(AnswerDto answer) => 
+    private RenderFragment RenderAnswerField(AnswerDto answer) =>
         @<MudItem xs="12" Style="padding-bottom: 16px">
             @switch (answer.AnswerType)
             {
@@ -165,5 +174,6 @@
                     <MudTextField @bind-Value="answer.AnswerValue" Label="@answer.QuestionText"></MudTextField>
                     break;
             }
-            </MudItem>;
+        </MudItem>;
+
 }

@@ -77,9 +77,11 @@ public partial class RFQNewOrDraft
     private LookupDto<Guid> selectedOrganizationLookupDto = new();
     private LookupDto<Guid> selectedContactLookupDto = new();
     private LookupDto<Guid> selectedAgentLookupDto = new();
+    private bool _isLoading = true;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
+        _isLoading = true;
         await SetPermissionsAsync();
         AgentsCollection = (await RequestForQuotationsAppService.GetIdentityUserLookupAsync(new LookupRequestDto())).Items.ToList();
         OrganizationsCollection = (await RequestForQuotationsAppService.GetOrganizationLookupCustomerAsync(new LookupRequestDto())).Items.ToList();
@@ -96,9 +98,14 @@ public partial class RFQNewOrDraft
         {
             selectedAgentLookupDto = new LookupDto<Guid>(RequestForQuotation.AgentProperty.Id, RequestForQuotation.AgentProperty.Name);
             selectedOrganizationLookupDto = new LookupDto<Guid>(RequestForQuotation.OrganizationProperty.Id, RequestForQuotation.OrganizationProperty.Name);
+            if (selectedOrganizationLookupDto.Id != Guid.Empty)
+            {
+                disableContact = false;
+            }
             selectedContactLookupDto = new LookupDto<Guid>(RequestForQuotation.ContactProperty.Id, RequestForQuotation.ContactProperty.Name);
             ListRequestForQuotationItems = RequestForQuotation.RequestForQuotationItems;
         }
+        _isLoading = false;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -462,6 +469,7 @@ public partial class RFQNewOrDraft
 
         isSelecting = true;
         RequestForQuotationSelectingId = selectedItem.Id;
+        StateHasChanged();
     }
 
 

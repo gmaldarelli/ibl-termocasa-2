@@ -276,45 +276,53 @@ namespace IBLTermocasa.Blazor.Pages.Crm
                 await HandleErrorAsync(ex);
             }
         }
-
-        private async void OpenEditRequestForQuotationPageAsync(RequestForQuotationDto input)
+        
+        private async Task OpenReadOrEditRfq(RequestForQuotationDto input, bool isReadOnly)
         {
-            //navigate to the page RequestForQuotationDetails
-            // or RfqStatus.NEW
             if (input.Status is RfqStatus.DRAFT)
             {
                 NavigationManager.NavigateTo($"/rfq-draft/{input.Id}");
             }
             else
             {
-                await OpenReadOrEditRfq(input);
-            }
-        }
-        
-        
-        private async Task OpenReadOrEditRfq(RequestForQuotationDto input)
-        {
-            var parameters = new DialogParameters
-            {
-                { "RequestForQuotation", input }
-            };
+                var parameters = new DialogParameters
+                {
+                    { "RequestForQuotation", input },
+                    { "DisplayReadOnly", isReadOnly }
+                };
 
-            var dialog = await DialogService.ShowAsync<RequestForQuotationInput>(L["RequestForQuotation"], parameters, new DialogOptions
-            {
-                Position = DialogPosition.Custom,
-                FullWidth = true,
-                MaxWidth = MaxWidth.Medium
-            });
+                var dialog = await DialogService.ShowAsync<RequestForQuotationInput>(L["RequestForQuotation"], parameters, new DialogOptions
+                {
+                    Position = DialogPosition.Custom,
+                    FullWidth = true,
+                    MaxWidth = MaxWidth.Medium
+                });
 
-            var result = await dialog.Result;
-            if (!result.Cancelled)
-            {
-                // Eventuali azioni da eseguire quando il dialogo viene chiuso senza essere cancellato
-                // Ad esempio, ricaricare la lista delle richieste di preventivo
+                var result = await dialog.Result;
+                if (!result.Cancelled)
+                {
+
+                    List<RequestForQuotationDto> _tempList = new List<RequestForQuotationDto>();
+                    RequestForQuotationList.ForEach(rfq =>
+                    {
+                        if (rfq.Id == input.Id)
+                        {
+                            _tempList.Add((RequestForQuotationDto)result.Data);
+                        }
+                        else
+                        {
+                            _tempList.Add(rfq);
+                        }
+                    });
+                    RequestForQuotationList = _tempList;
+                    await RequestForQuotationMudDataGrid.ReloadServerData();
+                    StateHasChanged();
+
+                }
+                
             }
             StateHasChanged();
         }
-
         private void OpenCreateRequestForQuotationPageAsync()
         {
             //navigate to the page RequestForQuotationCreate

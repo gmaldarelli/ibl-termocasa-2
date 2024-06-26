@@ -23,13 +23,13 @@
                 </MudSelect>
             </MudItem>
             <MudItem xs="1" Style="position: relative;">
-                <MudButton Class="button-remove" Color="Color.Secondary" OnClick="@(() => RemoveMailItem(mailItem))" Size="Size.Small">
+                <MudButton Class="button-remove" Color="Color.Secondary" OnClick="@(() => RemoveMailItem(mailItem))" Size="Size.Small" Disabled="ReadOnly">
                     <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Delete"/>
                 </MudButton>
             </MudItem>
         </MudGrid>
     }
-    <MudButton Color="Color.Primary" OnClick="@AddNewMailItem" Size="Size.Small" Class="mt-2">
+    <MudButton Color="Color.Primary" OnClick="@AddNewMailItem" Size="Size.Small" Class="mt-2" Disabled="ReadOnly">
         <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Add"/>
     </MudButton>
 </MudForm>

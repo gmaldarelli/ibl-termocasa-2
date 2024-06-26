@@ -14,258 +14,280 @@
 @using Size = MudBlazor.Size
 @inherits IBLTermocasaComponentBase
 
-
-<MudForm Model="@RequestForQuotation" Validation="HandleValidSubmit()">
-    <Validations @ref="@RequestForQuotationValidations"
-                 Mode="ValidationMode.Auto"
-                 Model="@RequestForQuotation"
-                 ValidateOnLoad="false">
-        <Steps @bind-SelectedStep="selectedStep" @ref="stepsRef">
-            <Items>
-                <Step Name="1">@L["Details"]</Step>
-                <Step Name="2">@L["Products"]</Step>
-                <Step Name="3">@L["Annotation"]</Step>
-                <Step Name="4">
-                    <Marker>
-                        <Icon Name="IconName.Flag"/>
-                    </Marker>
-                    <Caption>
-                        @L["Finish"]
-                    </Caption>
-                </Step>
-            </Items>
-            <Content>
-                <StepPanel Name="1">
-                    <MudCard Class="scrollable-card">
-                        <MudCardContent>
-                            <MudGrid>
-                                <MudItem xs="6">
-                                    <MudAutocomplete T="LookupDto<Guid>"
-                                                     Label="@L["Organization"]"
-                                                     ValueChanged="@(org => UpdateValueOrganization(org))"
-                                                     ToStringFunc="@(org => org?.DisplayName)"
-                                                     Value="selectedOrganizationLookupDto"
-                                                     ResetValueOnEmptyText="true"
-                                                     MaxItems="null"
-                                                     SearchFunc="@SearchOrganization"/>
-                                </MudItem>
-                                <MudItem xs="6">
-                                    <MudAutocomplete T="LookupDto<Guid>"
-                                                     @ref="ContactsAutoCompleteRef"
-                                                     Label="@L["Contact"]"
-                                                     ValueChanged="@(contact => UpdateValueContact(contact))"
-                                                     ToStringFunc="@(contact => contact?.DisplayName)"
-                                                     Value="selectedContactLookupDto"
-                                                     ResetValueOnEmptyText="true"
-                                                     MaxItems="null"
-                                                     SearchFunc="@SearchContact"
-                                                     Disabled="@disableContact"/>
-                                </MudItem>
-                                <MudItem xs="6">
-                                    <MudAutocomplete T="LookupDto<Guid>"
-                                                     Label="@L["Agent"]"
-                                                     ValueChanged="@(agent => UpdateValueAgent(agent))"
-                                                     ToStringFunc="@(agent => agent?.DisplayName)"
-                                                     Value="selectedAgentLookupDto"
-                                                     ResetValueOnEmptyText="true"
-                                                     SearchFunc="@SearchAgent"
-                                                     MaxItems="null"/>
-                                </MudItem>
-                                <MudItem xs="6">
-                                    <MudTextField @bind-Value="@RequestForQuotation.WorkSite" Label="@L["WorkSite"]"/>
-                                </MudItem>
-                                <MudItem xs="6">
-                                    <MudInputLabel>@L["Email"]</MudInputLabel>
-                                    <MailInfoInput MailInfo="@RequestForQuotation.MailInfo"/>
-                                </MudItem>
-                                <MudItem xs="6">
-                                    <MudInputLabel>@L["Phone"]</MudInputLabel>
-                                    <PhoneInfoInput PhoneInfo="@RequestForQuotation.PhoneInfo"/>
-                                </MudItem>
-                                <MudItem xs="6">
-                                    <MudTextField @bind-Value="@RequestForQuotation.City" Label="@L["City"]"/>
-                                </MudItem>
-                                <MudItem xs="6">
-                                    <MudDatePicker DateChanged="time => RequestForQuotation.DateDocument = time" Label="@L["Date"]" DisableToolbar="true"/>
-                                </MudItem>
-                                <MudItem xs="6">
-                                    <MudNumericField T="decimal?" @bind-Value="@RequestForQuotation.Discount" Label="@L["Discount(%)"]"/>
-                                </MudItem>
-                                <MudItem xs="6">
-                                    <MudTextField T="string" @bind-Text="@RequestForQuotation.QuoteNumber" Label="@L["QuoteNumber"]"/>
-                                </MudItem>
-                            </MudGrid>
-                        </MudCardContent>
-                    </MudCard>
-                </StepPanel>
+<style>
+    .loading-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.8);
+        z-index: 9999;
+    }
+</style>
 
 
-                <StepPanel Name="2">
-                    <MudCard Class="scrollable-card">
-                        <MudCardContent>
-                            <MudGrid>
-                                <MudItem xs="12" sm="6">
-                                    <MudGrid>
-                                        <MudItem xs="12">
-                                            <MudAutocomplete T="CatalogDto"
-                                                             @ref="CatalogAutocompleteRef"
-                                                             Label="@L["Catalog"]"
-                                                             ValueChanged="@(catalog => UpdateValueCatalog(catalog))"
-                                                             ToStringFunc="@(catalog => catalog.Name)"
-                                                             SearchFunc="@SearchCatalog"
-                                                             ResetValueOnEmptyText="true"
-                                                             MaxItems="null"
-                                                             Value="SelectedCatalog.Catalog"
-                                                             Disabled="@isSelecting"/>
-                                        </MudItem>
-                                        @if (SelectedCatalog != null && !SelectedCatalog.Products.IsNullOrEmpty())
-                                        {
-                                            <MudItem xs="9">
-                                                <MudAutocomplete T="ProductDto"
-                                                                 Label="@L["Product"]"
-                                                                 ValueChanged="@(product => UpdateValueProduct(product))"
-                                                                 ToStringFunc="@(product => product.Name)"
-                                                                 SearchFunc="@SearchProduct"
+@if (_isLoading) {
+    <div class="loading-container" style="@(_isLoading ? "display: flex;" : "display: none;")">
+        <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" />
+    </div>
+}
+else
+{
+    <MudForm Model="@RequestForQuotation">
+        <Validations @ref="@RequestForQuotationValidations"
+                     Mode="ValidationMode.Auto"
+                     Model="@RequestForQuotation"
+                     ValidateOnLoad="false">
+            <Steps @bind-SelectedStep="selectedStep" @ref="stepsRef">
+                <Items>
+                    <Step Name="1">@L["Details"]</Step>
+                    <Step Name="2">@L["Products"]</Step>
+                    <Step Name="3">@L["Annotation"]</Step>
+                    <Step Name="4">
+                        <Marker>
+                            <Icon Name="IconName.Flag"/>
+                        </Marker>
+                        <Caption>
+                            @L["Finish"]
+                        </Caption>
+                    </Step>
+                </Items>
+                <Content>
+                    <StepPanel Name="1">
+                        <MudCard Class="scrollable-card">
+                            <MudCardContent>
+                                <MudGrid>
+                                    <MudItem xs="6">
+                                        <MudAutocomplete T="LookupDto<Guid>"
+                                                         Label="@L["Organization"]"
+                                                         ValueChanged="@(org => UpdateValueOrganization(org))"
+                                                         ToStringFunc="@(org => org?.DisplayName)"
+                                                         Value="selectedOrganizationLookupDto"
+                                                         ResetValueOnEmptyText="true"
+                                                         MaxItems="null"
+                                                         SearchFunc="@SearchOrganization"/>
+                                    </MudItem>
+                                    <MudItem xs="6">
+                                        <MudAutocomplete T="LookupDto<Guid>"
+                                                         @ref="ContactsAutoCompleteRef"
+                                                         Label="@L["Contact"]"
+                                                         ValueChanged="@(contact => UpdateValueContact(contact))"
+                                                         ToStringFunc="@(contact => contact?.DisplayName)"
+                                                         Value="selectedContactLookupDto"
+                                                         ResetValueOnEmptyText="true"
+                                                         MaxItems="null"
+                                                         SearchFunc="@SearchContact"
+                                                         Disabled="@disableContact"/>
+                                    </MudItem>
+                                    <MudItem xs="6">
+                                        <MudAutocomplete T="LookupDto<Guid>"
+                                                         Label="@L["Agent"]"
+                                                         ValueChanged="@(agent => UpdateValueAgent(agent))"
+                                                         ToStringFunc="@(agent => agent?.DisplayName)"
+                                                         Value="selectedAgentLookupDto"
+                                                         ResetValueOnEmptyText="true"
+                                                         SearchFunc="@SearchAgent"
+                                                         MaxItems="null"/>
+                                    </MudItem>
+                                    <MudItem xs="6">
+                                        <MudTextField @bind-Value="@RequestForQuotation.WorkSite" Label="@L["WorkSite"]"/>
+                                    </MudItem>
+                                    <MudItem xs="6">
+                                        <MudInputLabel>@L["Email"]</MudInputLabel>
+                                        <MailInfoInput MailInfo="@RequestForQuotation.MailInfo"/>
+                                    </MudItem>
+                                    <MudItem xs="6">
+                                        <MudInputLabel>@L["Phone"]</MudInputLabel>
+                                        <PhoneInfoInput PhoneInfo="@RequestForQuotation.PhoneInfo"/>
+                                    </MudItem>
+                                    <MudItem xs="6">
+                                        <MudTextField @bind-Value="@RequestForQuotation.City" Label="@L["City"]"/>
+                                    </MudItem>
+                                    <MudItem xs="6">
+                                        <MudDatePicker @bind-Date="@RequestForQuotation.DateDocument" Label="@L["Date"]" DisableToolbar="true"/>
+                                    </MudItem>
+                                    <MudItem xs="6">
+                                        <MudNumericField T="decimal?" @bind-Value="@RequestForQuotation.Discount" Label="@L["Discount(%)"]"/>
+                                    </MudItem>
+                                    <MudItem xs="6">
+                                        <MudTextField T="string" @bind-Text="@RequestForQuotation.QuoteNumber" Label="@L["QuoteNumber"]"/>
+                                    </MudItem>
+                                </MudGrid>
+                            </MudCardContent>
+                        </MudCard>
+                    </StepPanel>
+
+
+                    <StepPanel Name="2">
+                        <MudCard Class="scrollable-card">
+                            <MudCardContent>
+                                <MudGrid>
+                                    <MudItem xs="12" sm="6">
+                                        <MudGrid>
+                                            <MudItem xs="12">
+                                                <MudAutocomplete T="CatalogDto"
+                                                                 @ref="CatalogAutocompleteRef"
+                                                                 Label="@L["Catalog"]"
+                                                                 ValueChanged="@(catalog => UpdateValueCatalog(catalog))"
+                                                                 ToStringFunc="@(catalog => catalog.Name)"
+                                                                 SearchFunc="@SearchCatalog"
                                                                  ResetValueOnEmptyText="true"
                                                                  MaxItems="null"
-                                                                 Value="SelectedProduct"
+                                                                 Value="SelectedCatalog.Catalog"
                                                                  Disabled="@isSelecting"/>
                                             </MudItem>
-                                            <MudItem xs="3">
-                                                <MudNumericField T="int" @bind-Value="@SelectedCatalogItemQuantity" Label="@L["Quantity"]"/>
-                                            </MudItem>
-                                        }
+                                            @if (SelectedCatalog != null && !SelectedCatalog.Products.IsNullOrEmpty())
+                                            {
+                                                <MudItem xs="9">
+                                                    <MudAutocomplete T="ProductDto"
+                                                                     Label="@L["Product"]"
+                                                                     ValueChanged="@(product => UpdateValueProduct(product))"
+                                                                     ToStringFunc="@(product => product.Name)"
+                                                                     SearchFunc="@SearchProduct"
+                                                                     ResetValueOnEmptyText="true"
+                                                                     MaxItems="null"
+                                                                     Value="SelectedProduct"
+                                                                     Disabled="@isSelecting"/>
+                                                </MudItem>
+                                                <MudItem xs="3">
+                                                    <MudNumericField T="int" @bind-Value="@SelectedCatalogItemQuantity" Label="@L["Quantity"]"/>
+                                                </MudItem>
+                                            }
 
-                                        <!-- QUI VA IL PRODUCT SELEZIONATO -->
+                                            <!-- QUI VA IL PRODUCT SELEZIONATO -->
 
-                                        @if (!SelectedProduct.IsEqual(new ProductDto()) && !SelectedCatalog.Products.IsNullOrEmpty() && !RFQProductAndQuestions.IsNullOrEmpty())
-                                        {
-                                            @foreach (var productAndQuestion in RFQProductAndQuestions)
+                                            @if (!SelectedProduct.IsEqual(new ProductDto()) && !SelectedCatalog.Products.IsNullOrEmpty() && !RFQProductAndQuestions.IsNullOrEmpty())
+                                            {
+                                                @foreach (var productAndQuestion in RFQProductAndQuestions)
+                                                {
+                                                    <MudItem xs="12">
+                                                        <MudPaper Style="background-color: lavender; padding: 0.5rem" Elevation="0">
+                                                            <MudItem xs="12">
+                                                                <MudText Typo="Typo.h6">@productAndQuestion.Product.Name</MudText>
+                                                            </MudItem>
+                                                            @foreach (var questionTemplate in productAndQuestion.QuestionTemplates)
+                                                            {
+                                                                <MudItem xs="12" Style="padding-bottom: 16px">
+                                                                    @switch (questionTemplate.AnswerType)
+                                                                    {
+                                                                        case AnswerType.TEXT:
+                                                                            <MudTextField @bind-Value="QuestionTemplateValues.FirstOrDefault(q => q.QuestionId == questionTemplate.Id && q.ProductId == productAndQuestion.Product.Id)!.AnswerValue" Label="@questionTemplate.QuestionText"></MudTextField>
+                                                                            break;
+                                                                        case AnswerType.NUMBER:
+                                                                            <MudTextField Mask="@(new RegexMask(maskDecimal))" @bind-Value="QuestionTemplateValues.FirstOrDefault(q => q.QuestionId == questionTemplate.Id && q.ProductId == productAndQuestion.Product.Id)!.AnswerValue" Label="@questionTemplate.QuestionText" Variant="Variant.Text" Clearable/>
+                                                                            break;
+                                                                        case AnswerType.DATE:
+                                                                            <MudTextField Mask="@maskDate" HelperText="@maskDate.Mask" InputType="InputType.Date" @bind-Value="QuestionTemplateValues.FirstOrDefault(q => q.QuestionId == questionTemplate.Id && q.ProductId == productAndQuestion.Product.Id)!.AnswerValue" Variant="@Variant.Text" Label="@questionTemplate.QuestionText" Clearable/>
+                                                                            break;
+                                                                        case AnswerType.BOOLEAN:
+                                                                            <MudSelect T="string" @bind-Value="QuestionTemplateValues.FirstOrDefault(q => q.QuestionId == questionTemplate.Id && q.ProductId == productAndQuestion.Product.Id)!.AnswerValue" Label="@questionTemplate.QuestionText">
+                                                                                <MudSelectItem Value="true.ToString()">@L["Yes"]</MudSelectItem>
+                                                                                <MudSelectItem Value="false.ToString()">@L["No"]</MudSelectItem>
+                                                                            </MudSelect>
+                                                                            break;
+                                                                        case AnswerType.LARGE_TEXT:
+                                                                            <MudTextField Lines="30" @bind-Value="QuestionTemplateValues.FirstOrDefault(q => q.QuestionId == questionTemplate.Id && q.ProductId == productAndQuestion.Product.Id)!.AnswerValue" Label="@questionTemplate.QuestionText"></MudTextField>
+                                                                            break;
+                                                                        case AnswerType.CHOICE:
+                                                                            <MudSelect @bind-Value="QuestionTemplateValues.FirstOrDefault(q => q.QuestionId == questionTemplate.Id && q.ProductId == productAndQuestion.Product.Id)!.AnswerValue" Label="@questionTemplate.QuestionText" Placeholder="@L["Select an option"]">
+                                                                                @foreach (var choiceValue in questionTemplate.ChoiceValues)
+                                                                                {
+                                                                                    <MudSelectItem T="string" Value="@choiceValue">@choiceValue</MudSelectItem>
+                                                                                }
+                                                                            </MudSelect>
+                                                                            break;
+                                                                        default:
+                                                                            <MudTextField @bind-Value="QuestionTemplateValues.FirstOrDefault(q => q.QuestionId == questionTemplate.Id && q.ProductId == productAndQuestion.Product.Id)!.AnswerValue" Label="@questionTemplate.QuestionText"></MudTextField>
+                                                                            break;
+                                                                    }
+                                                                </MudItem>
+                                                            }
+                                                        </MudPaper>
+                                                    </MudItem>
+                                                }
+                                            }
+                                            @if (SelectedProduct != null && !QuestionTemplateValues.IsNullOrEmpty())
                                             {
                                                 <MudItem xs="12">
-                                                    <MudPaper Style="background-color: lavender; padding: 0.5rem" Elevation="0">
-                                                        <MudItem xs="12">
-                                                            <MudText Typo="Typo.h6">@productAndQuestion.Product.Name</MudText>
-                                                        </MudItem>
-                                                        @foreach (var questionTemplate in productAndQuestion.QuestionTemplates)
-                                                        {
-                                                            <MudItem xs="12" Style="padding-bottom: 16px">
-                                                                @switch (questionTemplate.AnswerType)
+                                                    <MudButton Color="Color.Primary" OnClick="SaveAnswerForRFQ" Size="Size.Small" Class="m-2" IconSize="Size.Small" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save">
+                                                        @L["Save"]
+                                                    </MudButton>
+                                                </MudItem>
+                                            }
+                                        </MudGrid>
+                                    </MudItem>
+                                    <MudItem xs="12" sm="6">
+                                        <MudGrid>
+                                            @if (!ListRequestForQuotationItems.IsNullOrEmpty())
+                                            {
+                                                <MudItem xs="12">
+                                                    <MudPaper MaxWidth="300">
+                                                        <MudText Align="Align.Left" Typo="Typo.h5" Class="p-2">@L["Products List"]</MudText>
+                                                        <MudList @ref="MudListRef" Clickable="true">
+                                                            @foreach (var rfqItem in ListRequestForQuotationItems)
+                                                            {
+                                                                if (rfqItem.ProductItems.Any(productItem => productItem.ParentId != null))
                                                                 {
-                                                                    case AnswerType.TEXT:
-                                                                        <MudTextField @bind-Value="QuestionTemplateValues.FirstOrDefault(q => q.QuestionId == questionTemplate.Id && q.ProductId == productAndQuestion.Product.Id)!.AnswerValue" Label="@questionTemplate.QuestionText"></MudTextField>
-                                                                        break;
-                                                                    case AnswerType.NUMBER:
-                                                                        <MudTextField Mask="@(new RegexMask(maskDecimal))" @bind-Value="QuestionTemplateValues.FirstOrDefault(q => q.QuestionId == questionTemplate.Id && q.ProductId == productAndQuestion.Product.Id)!.AnswerValue" Label="@questionTemplate.QuestionText" Variant="Variant.Text" Clearable/>
-                                                                        break;
-                                                                    case AnswerType.DATE:
-                                                                        <MudTextField Mask="@maskDate" HelperText="@maskDate.Mask" InputType="InputType.Date" @bind-Value="QuestionTemplateValues.FirstOrDefault(q => q.QuestionId == questionTemplate.Id && q.ProductId == productAndQuestion.Product.Id)!.AnswerValue" Variant="@Variant.Text" Label="@questionTemplate.QuestionText" Clearable/>
-                                                                        break;
-                                                                    case AnswerType.BOOLEAN:
-                                                                        <MudSelect T="string" @bind-Value="QuestionTemplateValues.FirstOrDefault(q => q.QuestionId == questionTemplate.Id && q.ProductId == productAndQuestion.Product.Id)!.AnswerValue" Label="@questionTemplate.QuestionText">
-                                                                            <MudSelectItem Value="true.ToString()">@L["Yes"]</MudSelectItem>
-                                                                            <MudSelectItem Value="false.ToString()">@L["No"]</MudSelectItem>
-                                                                        </MudSelect>
-                                                                        break;
-                                                                    case AnswerType.LARGE_TEXT:
-                                                                        <MudTextField Lines="30" @bind-Value="QuestionTemplateValues.FirstOrDefault(q => q.QuestionId == questionTemplate.Id && q.ProductId == productAndQuestion.Product.Id)!.AnswerValue" Label="@questionTemplate.QuestionText"></MudTextField>
-                                                                        break;
-                                                                    case AnswerType.CHOICE:
-                                                                        <MudSelect @bind-Value="QuestionTemplateValues.FirstOrDefault(q => q.QuestionId == questionTemplate.Id && q.ProductId == productAndQuestion.Product.Id)!.AnswerValue" Label="@questionTemplate.QuestionText" Placeholder="@L["Select an option"]">
-                                                                            @foreach (var choiceValue in questionTemplate.ChoiceValues)
-                                                                            {
-                                                                                <MudSelectItem T="string" Value="@choiceValue">@choiceValue</MudSelectItem>
-                                                                            }
-                                                                        </MudSelect>
-                                                                        break;
-                                                                    default:
-                                                                        <MudTextField @bind-Value="QuestionTemplateValues.FirstOrDefault(q => q.QuestionId == questionTemplate.Id && q.ProductId == productAndQuestion.Product.Id)!.AnswerValue" Label="@questionTemplate.QuestionText"></MudTextField>
-                                                                        break;
+                                                                    var rfqParent = rfqItem.ProductItems.FirstOrDefault(prdItemParent => prdItemParent.ParentId == null);
+                                                                    <MudListItem OnClick="() => OnClickSelectSingleItem(rfqItem)"
+                                                                                 Text="@rfqParent.ProductName">
+                                                                    </MudListItem>
                                                                 }
+                                                                else
+                                                                {
+                                                                    @foreach (var productItem in rfqItem.ProductItems)
+                                                                    {
+                                                                        <MudListItem OnClick="() => OnClickSelectSingleItem(rfqItem)"
+                                                                                     Text="@productItem.ProductName">
+                                                                        </MudListItem>
+                                                                    }
+                                                                }
+                                                            }
+                                                            <MudItem Class="m-2 d-flex justify-content-between">
+                                                                <MudButton Color="Color.Primary" OnClick="AddNewItem" Size="Size.Small" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" IconSize="Size.Small" Class="mt-2">
+                                                                    @L["Add"]
+                                                                </MudButton>
+                                                                <MudButton Color="Color.Secondary" OnClick="DeleteSelectedItem" Size="Size.Small" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" IconSize="Size.Small" Class="mt-2">
+                                                                    @L["Delete"]
+                                                                </MudButton>
                                                             </MudItem>
-                                                        }
+                                                        </MudList>
                                                     </MudPaper>
                                                 </MudItem>
                                             }
-                                        }
-                                        @if (SelectedProduct != null && !QuestionTemplateValues.IsNullOrEmpty())
-                                        {
-                                            <MudItem xs="12">
-                                                <MudButton Color="Color.Primary" OnClick="SaveAnswerForRFQ" Size="Size.Small" Class="m-2" IconSize="Size.Small" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save">
-                                                @L["Save"]
-                                                </MudButton>
-                                            </MudItem>
-                                        }
-                                    </MudGrid>
+                                        </MudGrid>
+                                    </MudItem>
+                                </MudGrid>
+                            </MudCardContent>
+                        </MudCard>
+                    </StepPanel>
+
+
+                    <StepPanel Name="3">
+                        <MudCard Class="scrollable-card">
+                            <MudCardContent>
+                                <MudItem xs="6">
+                                    <MudTextField Immediate="true" MaxLength="300" Counter="300" Lines="15" Variant="Variant.Outlined" ShrinkLabel @bind-Value="RequestForQuotation.Description" Label="@L["Annotation"]"></MudTextField>
                                 </MudItem>
-                                <MudItem xs="12" sm="6">
-                                    <MudGrid>
-                                        @if (!ListRequestForQuotationItems.IsNullOrEmpty())
-                                        {
-                                        <MudItem xs="12">
-                                            <MudPaper MaxWidth="300">
-                                                <MudText Align="Align.Left" Typo="Typo.h5" Class="p-2">@L["Products List"]</MudText>
-                                                <MudList @ref="MudListRef" Clickable="true">
-                                                    @foreach (var rfqItem in ListRequestForQuotationItems)
-                                                    {
-                                                            if (rfqItem.ProductItems.Any(productItem => productItem.ParentId != null))
-                                                            {
-                                                                var rfqParent = rfqItem.ProductItems.FirstOrDefault(prdItemParent => prdItemParent.ParentId == null);
-                                                                <MudListItem OnClick="() => OnClickSelectSingleItem(rfqItem)"
-                                                                             Text="@rfqParent.ProductName">
-                                                                </MudListItem>
-                                                            }
-                                                            else
-                                                            {
-                                                                @foreach (var productItem in rfqItem.ProductItems)
-                                                                {
-                                                                    <MudListItem OnClick="() => OnClickSelectSingleItem(rfqItem)"
-                                                                                 Text="@productItem.ProductName">
-                                                                    </MudListItem>
-                                                                }
-                                                            }
-                                                    }
-                                                    <MudItem Class="m-2 d-flex justify-content-between">
-                                                        <MudButton Color="Color.Primary" OnClick="AddNewItem" Size="Size.Small" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" IconSize="Size.Small" Class="mt-2">
-                                                            @L["Add"]
-                                                        </MudButton>
-                                                        <MudButton Color="Color.Secondary" OnClick="DeleteSelectedItem" Size="Size.Small" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" IconSize="Size.Small" Class="mt-2">
-                                                            @L["Delete"]
-                                                        </MudButton>
-                                                    </MudItem>
-                                                </MudList>
-                                            </MudPaper>
-                                        </MudItem>
-                                        }
-                                    </MudGrid>
-                                </MudItem>
-                            </MudGrid>
-                        </MudCardContent>
-                    </MudCard>
-                </StepPanel>
+                            </MudCardContent>
+                        </MudCard>
+                    </StepPanel>
 
 
-                <StepPanel Name="3">
-                    <MudCard Class="scrollable-card">
-                        <MudCardContent>
-                            <MudItem xs="6">
-                                <MudTextField Immediate="true" MaxLength="300" Counter="300" Lines="15" Variant="Variant.Outlined" ShrinkLabel @bind-Value="RequestForQuotation.Description" Label="@L["Annotation"]"></MudTextField>
-                            </MudItem>
-                        </MudCardContent>
-                    </MudCard>
-                </StepPanel>
-
-
-                <StepPanel Name="4">
-                    <MudCard Class="scrollable-card">
-                        <MudCardContent>
-                        </MudCardContent>
-                    </MudCard>
-                </StepPanel>
-            </Content>
-        </Steps>
-    </Validations>
-</MudForm>
+                    <StepPanel Name="4">
+                        <MudCard Class="scrollable-card">
+                            <MudCardContent>
+                            </MudCardContent>
+                        </MudCard>
+                    </StepPanel>
+                </Content>
+            </Steps>
+        </Validations>
+    </MudForm>
+}
 <MudGrid>
     @if (selectedStep == "4")
     {

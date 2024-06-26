@@ -18,6 +18,7 @@ using IBLTermocasa.Shared;
 using IBLTermocasa.Types;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using MudBlazor;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Identity;
 using Volo.Abp.Security.Claims;
@@ -26,7 +27,6 @@ namespace IBLTermocasa.Blazor.Components.RequestForQuotation;
 
 public partial class RequestForQuotationInput
 {
-    private Validations RequestForQuotationValidations { get; set; } = new();
     private Modal RequestForQuotationModal { get; set; }
     private List<LookupDto<Guid>> OrganizationsCollection { get; set; } = new();
     private List<LookupDto<Guid>> ContactsCollection { get; set; } = new();
@@ -34,24 +34,7 @@ public partial class RequestForQuotationInput
     private LookupDto<Guid> selectedOrganizationLookupDto = new();
     private LookupDto<Guid> selectedContactLookupDto = new();
     private LookupDto<Guid> selectedAgentLookupDto = new();
-    [Inject] public IRequestForQuotationsAppService RequestForQuotationsAppService { get; set; }
-    [Inject] public IQuestionTemplatesAppService QuestionTemplatesAppService { get; set; }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    private bool ReadOnly { get; set; } = false;
-
-    private bool IsFullView { get; set; } = false;
-    private RequestForQuotationCreateDto NewRequestForQuotation { get; set; } = new();
-
-    private RequestForQuotationUpdateDto EditingRequestForQuotation { get; set; } = new();
-
+    [CascadingParameter] MudDialogInstance Dialog { get; set; }
     [Parameter] public RequestForQuotationDto RequestForQuotation { get; set; } = new();
     [Parameter] public EventCallback<RequestForQuotationDto> OnRequestForQuotationSaved { get; set; }
     [Parameter] public EventCallback<RequestForQuotationDto> OnRequestForQuotationCancel { get; set; }
@@ -59,34 +42,25 @@ public partial class RequestForQuotationInput
     [Inject] private IMapper _mapper { get; set; }
     [Inject] public IOrganizationsAppService OrganizationsAppService { get; set; }
     [Inject] public IContactsAppService ContactsAppService { get; set; }
-    [Inject] public ICatalogsAppService CatalogsAppService { get; set; }
-    [Inject] public ICurrentPrincipalAccessor CurrentPrincipalAccessor { get; set; }
-    [Inject] public IIdentityUserAppService UserAppService { get; set; }
-    [Inject] public NavigationManager NavigationManager { get; set; }
-
-
+    [Inject] public IRequestForQuotationsAppService RequestForQuotationsAppService { get; set; }
+    [Inject] public IDialogService DialogService { get; set; }
+    [Inject] public IQuestionTemplatesAppService QuestionTemplatesAppService { get; set; }
+    
+    private bool _isComponentRendered;
+    private string maskDecimal = @"^(\d+,\d*|\d*)$";
+    private IMask maskDate = new DateMask("dd/MM/yyyy");
+    
+    private RequestForQuotationUpdateDto EditingRequestForQuotation { get; set; } = new();
     private RequestForQuotationDto InternalRequestForQuotation = new();
-    private PagedResultDto<CatalogWithNavigationPropertiesDto> Catalogs { get; set; } = new();
-    private PagedResultDto<OrganizationDto> Organizations { get; set; } = new();
-    private PagedResultDto<ContactDto> Contacts { get; set; } = new();
     public RequestForQuotationItemDto selectedRequestForQuotationItem { get; set; }
     public DataGrid<RequestForQuotationItemDto> RequestForQuotationItemsDataGrid { get; set; }
     
-    private List<ProductDto> CatalogItemFilter { get; set; } = new();
-    public List<(Guid, string?)> ListQuestionTemplate = new();
-    private List<(Guid, string)> ListProductName = new();
-
-    List<Guid> listGuidCatalogItems = new();
-    private List<LookupDto<Guid>> userLookUpDtos = new();
-    
-    private OrganizationDto SelectedOrganization { get; set; }
-    private ContactDto SelectedContact { get; set; }
-    private LookupDto<Guid> SelectedAgent { get; set; }
-
-    private bool isLoading = true;
-    private bool _isComponentRendered = false;
-    
     //è importante sapere che OnParametersSetAsync viene chiamato prima di tutti, anche di OnInitializedAsync()
+    
+    private string GetButtonText()
+    {
+        return DisplayReadOnly ? "Back" : "Cancel";
+    }
     protected override async Task OnParametersSetAsync()
     {
         if (RequestForQuotation == null)
@@ -106,12 +80,10 @@ public partial class RequestForQuotationInput
     {
         try
         {
-            isLoading = true; // Imposta isLoading su true prima di iniziare il caricamento
             // Esegui le chiamate ai servizi per recuperare i dati necessari
             AgentsCollection = (await RequestForQuotationsAppService.GetIdentityUserLookupAsync(new LookupRequestDto())).Items.ToList();
             OrganizationsCollection = (await RequestForQuotationsAppService.GetOrganizationLookupCustomerAsync(new LookupRequestDto())).Items.ToList();
             ContactsCollection = (await RequestForQuotationsAppService.GetContactLookupAsync(new LookupRequestDto())).Items.ToList();
-            isLoading = false; // Imposta isLoading su false una volta che i dati sono stati caricati
         }
         catch (Exception ex)
         {
@@ -122,11 +94,6 @@ public partial class RequestForQuotationInput
 
     private async Task HandleValidSubmit()
     {
-        if (await RequestForQuotationValidations.ValidateAll() == false)
-        {
-            return;
-        }
-
         Console.WriteLine("RequestForQuotationInput: RequestForQuotationValidations");
         // copy RequestForQuotation properties to EditingRequestForQuotation with mapper
 
@@ -143,23 +110,15 @@ public partial class RequestForQuotationInput
         RequestForQuotation = _mapper.Map<RequestForQuotationDto>(result);
         InternalRequestForQuotation = RequestForQuotation.DeepClone();
 
-        if (_isComponentRendered)
-        {
-            await OnRequestForQuotationSaved.InvokeAsync(RequestForQuotation);
-            Console.WriteLine("RequestForQuotationInput: InvokeAsync");
-        }
+        await OnRequestForQuotationSaved.InvokeAsync();
+        Dialog.Close(DialogResult.Ok(result));
+        StateHasChanged();
     }
 
-    private async Task HandleCancel()
-    {
-        if (ReadOnly)
-        {
-            NavigationManager.NavigateTo("/request-for-quotations");
-        }
-        else
-        {
-            await OnRequestForQuotationCancel.InvokeAsync(RequestForQuotation);
-        }
+    private void HandleCancel()
+    { 
+        Dialog.Cancel();
+        StateHasChanged();
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -224,12 +183,6 @@ public partial class RequestForQuotationInput
         }
 
         StateHasChanged();
-    }
-    
-    private string GetCatalogItemName(Guid catalogItemId)
-    {
-        var catalogItem = ListProductName.FirstOrDefault(item => item.Item1 == catalogItemId);
-        return catalogItem.Item2;
     }
     
     private async Task<IEnumerable<LookupDto<Guid>>> SearchOrganization(string value)

@@ -28,75 +28,6 @@
 
 </PageHeader>
 
-@* ************************* SEARCH ************************* *@
-
-@*<MudGrid>
-    <MudItem xs="12" sm="12">
-        <MudPaper Elevation="10">
-            <MudDataGrid @ref="RequestForQuotationMudDataGrid" T="ProductDto"
-                         ReadOnly="false"
-                         Virtualize="true" FixedHeader="true"
-                         Hover="true"
-                         Bordered="false" Dense="false"
-                         Filterable="true" RowsPerPage="5"
-                         SortMode="SortMode.Multiple"
-                         ServerData="LoadGridData">
-                <ToolBarContent>
-                    <MudTextField T="string" Placeholder="@L["Search"]" Adornment="Adornment.Start" Immediate="true" ValueChanged="arg => SearchAsync1(arg)" DebounceInterval="1000"
-                                  AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0">
-                    </MudTextField>
-                    <MudSpacer/>
-                    <Button Color="@Blazorise.Color.Primary" @onclick="OpenCreateProductPageAsync">@L["NewComponent"]</Button>
-                </ToolBarContent>
-                <Columns>
-                    <PropertyColumn Property="x => x.Code" Title="@L["Code"]" Sortable="true" Filterable="true" Class="justify-content-center">
-                    </PropertyColumn>
-                    <PropertyColumn Property="x => x.Name" Title="@L["Name"]" Sortable="true" Filterable="true" Class="justify-content-center">
-                    </PropertyColumn>
-                    <PropertyColumn Property="x => x.IsAssembled" Title="@L["IsAssembled"]" Sortable="true" Filterable="true" Class="justify-content-center">
-                        <CellTemplate>
-                            @if (context.Item.IsAssembled)
-                            {
-                            <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Success"/>
-                            }
-                            else
-                            {
-                            <MudIcon Icon="@Icons.Material.Filled.Close" Color="Color.Secondary"/>
-                            }
-                        </CellTemplate>
-                    </PropertyColumn>
-                    <PropertyColumn Property="x => x.IsInternal" Title="@L["IsInternal"]" Sortable="true" Filterable="true">
-                        <CellTemplate>
-                            @if (context.Item.IsInternal)
-                            {
-                            <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Success"/>
-                            }
-                            else
-                            {
-                            <MudIcon Icon="@Icons.Material.Filled.Close" Color="Color.Secondary"/>
-                            }
-                        </CellTemplate>
-                    </PropertyColumn>
-                    <TemplateColumn CellClass="d-flex justify-center">
-                        <CellTemplate>
-                            <MudIconButton Size="@Size.Small"
-                                                     Icon="@Icons.Material.Filled.Edit"
-                                                     Variant="@Variant.Filled"
-                                                     OnClick="() => OpenEditProductAsync(context.Item)"/>
-                            <MudIconButton Size="@Size.Small"
-                                                     Icon="@Icons.Material.Filled.DeleteForever"
-                                                     Variant="@Variant.Filled"
-                                                     OnClick="() => DeleteProductAsync(context.Item)"/>
-                        </CellTemplate>
-                    </TemplateColumn>
-                </Columns>
-                <PagerContent>
-                    <MudDataGridPager T="ProductDto" PageSizeOptions=@(new int[] { 10, 20, 50 })/>
-                </PagerContent>
-            </MudDataGrid>
-        </MudPaper>
-    </MudItem>
-</MudGrid>
 @* ************************* DATA GRID ************************* *@
 <style>
     .mud-data-grid-custom .mud-data-grid-toolbar {
@@ -134,21 +65,15 @@
         </TemplateColumn>
         <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
-                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenReadOrEditRfq(context.Item))"/>
-                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteRequestForQuotationAsync(context.Item)"/>
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" Disabled="context.Item.Status == RfqStatus.IN_PROGRESS_BOM" OnClick="@(() => OpenReadOrEditRfq(context.Item, true))"/>
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Disabled="context.Item.Status == RfqStatus.IN_PROGRESS_BOM" OnClick="@(() => OpenReadOrEditRfq(context.Item, false))"/>
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" Disabled="context.Item.Status == RfqStatus.IN_PROGRESS_BOM" OnClick="() => DeleteRequestForQuotationAsync(context.Item)"/>
             </CellTemplate>
         </TemplateColumn>
     </Columns>
 </MudDataGrid>
 
 @* ************************* READ AND EDIT MODAL ************************* *@
-<!-- da gestire la view e la edit -->
-<RequestForQuotationInput
-    DisplayReadOnly="true"
-    RequestForQuotation="@RequestForQuotationInput"
-    OnRequestForQuotationSaved="UpdateRequestForQuotationAsync"
-    OnRequestForQuotationCancel="CloseEditRequestForQuotationModalAsync">
-</RequestForQuotationInput>
 <MudThemeProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider />
