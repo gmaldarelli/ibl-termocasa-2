@@ -33,7 +33,7 @@
                          ToStringFunc="@((ExtendedLookUpDto<Guid> x) => x.DisplayName)"
                          Required="true"
                          Strict="false"
-                         ItemDisabledFunc="@ItemDisabledFunc">
+                         ItemDisabledFunc="@ItemDisabledFunc1">
             <ItemTemplate Context="item">
                 <MudText>@item.DisplayName</MudText>
             </ItemTemplate>
@@ -64,6 +64,6 @@
 
 @code {
 
-    private Func<ExtendedLookUpDto<Guid>, bool> ItemDisabledFunc = (ExtendedLookUpDto<Guid> value) => SelectedElementListExisted != null && value.Id.Equals(SelectedElementListExisted.First().ComponentId);
+    private Func<ExtendedLookUpDto<Guid>, bool> ItemDisabledFunc = (ExtendedLookUpDto<Guid> value) => SelectedElementListExisted != null && value.Id.Equals(SelectedElementListExisted.First().Id);
     
 }

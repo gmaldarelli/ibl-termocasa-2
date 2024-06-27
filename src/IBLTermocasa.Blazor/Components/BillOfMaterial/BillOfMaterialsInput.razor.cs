@@ -6,6 +6,7 @@ using IBLTermocasa.BillOfMaterials;
 using IBLTermocasa.Materials;
 using IBLTermocasa.Types;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 
 namespace IBLTermocasa.Blazor.Components.BillOfMaterial;
@@ -95,7 +96,7 @@ public partial class BillOfMaterialsInput
         StateHasChanged();
     }
 
-    private Task OnMaterialIdChanged(BillOfMaterialsMudDataGridItem contextItem)
+    private Task OnMaterialChanged(BillOfMaterialsMudDataGridItem contextItem)
     {
         contextItem.MaterialPrice = MaterialDictionary[contextItem.BomComponentId].FirstOrDefault(x => x.Id == contextItem.MaterialId)!.StandardPrice;
         contextItem.MeasureUnit = MaterialDictionary[contextItem.BomComponentId].FirstOrDefault(x => x.Id == contextItem.MaterialId)!.MeasureUnit;
@@ -106,6 +107,7 @@ public partial class BillOfMaterialsInput
 
     private void CommittedItemChanges(BillOfMaterialsMudDataGridItem contextItem)
     {
+        Console.WriteLine("::::::::::::::::::::::::::::::::CommittedItemChanges");
         contextItem.MaterialPrice = MaterialDictionary[contextItem.BomComponentId].FirstOrDefault(x => x.Id == contextItem.MaterialId)!.StandardPrice;
         contextItem.MeasureUnit = MaterialDictionary[contextItem.BomComponentId].FirstOrDefault(x => x.Id == contextItem.MaterialId)!.MeasureUnit;
         contextItem.Price = contextItem.Quantity * contextItem.MaterialPrice;
@@ -124,6 +126,27 @@ public partial class BillOfMaterialsInput
 
         BillOfMaterialsMudDataGrid.ReloadServerData();
         StateHasChanged();
+    }
+
+    private void OnCalculateConsumption(MouseEventArgs obj)
+    {
+        Console.WriteLine("::::::::::::::::::::::::::::::::Calculate consumption");
+        
+    }
+
+    private Task OnMaterialChanged2(BillOfMaterialsMudDataGridItem contextItem)
+    {
+        contextItem.MaterialPrice = MaterialDictionary[contextItem.BomComponentId].FirstOrDefault(x => x.Id == contextItem.MaterialId)!.StandardPrice;
+        contextItem.MeasureUnit = MaterialDictionary[contextItem.BomComponentId].FirstOrDefault(x => x.Id == contextItem.MaterialId)!.MeasureUnit;
+        contextItem.Price = contextItem.Quantity * contextItem.MaterialPrice;
+        return Task.CompletedTask;
+    }
+
+    private void OnMaterialChanged3(BillOfMaterialsMudDataGridItem contextItem)
+    {
+        contextItem.MaterialPrice = MaterialDictionary[contextItem.BomComponentId].FirstOrDefault(x => x.Id == contextItem.MaterialId)!.StandardPrice;
+        contextItem.MeasureUnit = MaterialDictionary[contextItem.BomComponentId].FirstOrDefault(x => x.Id == contextItem.MaterialId)!.MeasureUnit;
+        contextItem.Price = contextItem.Quantity * contextItem.MaterialPrice;
     }
 }
 

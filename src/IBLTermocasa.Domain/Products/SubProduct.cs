@@ -14,6 +14,8 @@ namespace IBLTermocasa.Products
         [NotNull]
         public virtual int Order { get; set; }
         [NotNull]
+        public virtual string Code { get; set; }
+        [NotNull]
         public virtual string Name { get; set; }
 
         public virtual bool IsSingleProduct { get; set; }
@@ -24,15 +26,17 @@ namespace IBLTermocasa.Products
         {
         }
 
-        public SubProduct( Guid id, ICollection<Guid> productIds, int order, string name, bool isSingleProduct, bool mandatory)
+        public SubProduct( Guid id, ICollection<Guid> productIds, int order, string code, string name, bool isSingleProduct, bool mandatory)
         {
 
+            Check.NotNull(code, nameof(code));
             Check.NotNull(name, nameof(name));
             Check.NotNull(id, nameof(id));
             Check.NotNull(productIds, nameof(productIds));
             Id = id;
             ProductIds = productIds;
             Order = order;
+            Code = code;
             Name = name;
             IsSingleProduct = isSingleProduct;
             Mandatory = mandatory;

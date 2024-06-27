@@ -10,6 +10,8 @@ namespace IBLTermocasa.Products
         [Required]
         public int Order { get; set; }
         [Required]
+        public virtual string Code { get; set; }
+        [Required]
         public string Name { get; set; } = null!;
         public bool IsSingleProduct { get; set; }
         public bool Mandatory { get; set; }

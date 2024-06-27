@@ -1,7 +1,9 @@
-﻿@using IBLTermocasa.BillOfMaterials
+﻿@using System.Globalization
+@using IBLTermocasa.BillOfMaterials
 @using IBLTermocasa.Components
 @using DataGridEditMode = MudBlazor.DataGridEditMode
 @using MudBlazor
+@using IBLTermocasa.Blazor.Components.Product
 @inherits IBLTermocasaComponentBase
 @inject IComponentsAppService ComponentsAppService
 @if(BillOfMaterials == null)
@@ -58,27 +60,26 @@
                 <MudTabs Outlined="true" MudBlazor.Position="@MudTabsPosition" Rounded="true" Border="true"
                          ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-2">
                     <MudTabPanel Text="@L["BillOfMaterialsTab"]">
+
+                        <MudPaper Class="pa-2 mt-12">
+                            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" DisableElevation="true" OnClick="@OnCalculateConsumption">Calcola Consumi</MudButton>
+                        </MudPaper>
                         <MudPaper>
-                            <MudDataGrid @ref="BillOfMaterialsMudDataGrid" T="BillOfMaterialsMudDataGridItem"  MultiSelection="false" Items="@BillOfMaterialsMudDataGridItems" Filterable="true"
+                            <MudDataGrid @ref="BillOfMaterialsMudDataGrid" T="BillOfMaterialsMudDataGridItem" MultiSelection="false" Items="@BillOfMaterialsMudDataGridItems" Filterable="true"
                                          Hideable="true" Groupable="true" GroupExpanded="false" GroupClassFunc="GroupClassFunc" EditMode="MudBlazor.DataGridEditMode.Cell" ReadOnly="false" CommittedItemChanges="@CommittedItemChanges">
                                 <Columns>
-                                    <PropertyColumn Property="x => x.RequestForQuotationItemQuantity" Title="@L["Quantity"]"  IsEditable="false"/>
+                                    <PropertyColumn Property="x => x.RequestForQuotationItemQuantity" Title="@L["Quantity"]" IsEditable="false"/>
                                     <PropertyColumn Property="x => x.ProductItemName" Title="@L["Product"]"/>
                                     <PropertyColumn Property="x => x.BomComponentName" Title="@L["Component"]"/>
-                                    <PropertyColumn Property="x => x.MaterialId" IsEditable="true"  Title="@L["Material"]">
+                                    <TemplateColumn Title="Position">
                                         <EditTemplate>
-                                            <MudSelect  Required RequiredError="@L["SelectItemRequired"]" Margin="@MudBlazor.Margin.Dense"   @bind-Value="@context.Item.MaterialId">
-                                                @foreach (var materialItem in MaterialDictionary[context.Item.BomComponentId])
-                                                {
-                                                    <MudSelectItem T="Guid" Value="@materialItem.Id">@materialItem.Name</MudSelectItem>
-                                                }
-                                            </MudSelect>
+                                            <MudSelectMaterial Context="@context" MaterialList="MaterialDictionary[context.Item.BomComponentId]" />
                                         </EditTemplate>
-                                    </PropertyColumn>
-                                    <PropertyColumn Property="x => x.MaterialPrice" Title="@L["Price"]"  IsEditable="false" />
-                                    <PropertyColumn Property="x => x.MeasureUnit" Title="@L["MeasureUnit"]"  IsEditable="false"/>
-                                    <PropertyColumn Property="x => x.Quantity" Title="@L["Quantity"]"  IsEditable="false"/>
-                                    <PropertyColumn Property="x => x.Price" Title="@L["Price"]"  IsEditable="false"/>
+                                    </TemplateColumn>
+                                    <PropertyColumn Property="x => x.MaterialPrice" Title="@L["Price"]" IsEditable="false"  Format="C2" Culture="@(L.)"/>
+                                    <PropertyColumn Property="x => x.MeasureUnit" Title="@L["MeasureUnitShort"]" IsEditable="false"/>
+                                    <PropertyColumn Property="x => x.Quantity" Title="@L["Quantity"]" IsEditable="true"   Format="0.##"/>
+                                    <PropertyColumn Property="x => x.Price" Title="@L["Price"]" IsEditable="false"  Format="F2"/>
                                 </Columns>
                             </MudDataGrid>
                         </MudPaper>
@@ -90,5 +91,7 @@
 </MudForm>
 
 @code {
-    
+
+
+
 }

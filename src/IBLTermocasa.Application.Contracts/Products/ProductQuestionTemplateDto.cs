@@ -11,7 +11,10 @@ namespace IBLTermocasa.Products
         public Guid QuestionTemplateId { get; set; }
         public int Order { get; set; }
         [Required]
+        public virtual string Code { get; set; }
+        [Required]
         public string Name { get; set; } = null!;
-        public bool Mandatory { get; set; }
+        public bool Mandatory { get; set; }        
+        public string? ValidationFormula { get; set; }
     }
 }

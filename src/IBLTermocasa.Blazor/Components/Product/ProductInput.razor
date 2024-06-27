@@ -74,7 +74,17 @@
                                     </PropertyColumn>
                                     <PropertyColumn Property="x => x.Mandatory" Title="@L["Mandatory"]" Sortable="false" Filterable="false">
                                         <EditTemplate>
-                                            <MudCheckBox T="bool" @bind-Value="context.Item.Mandatory"/>
+                                            <MudCheckBox T="bool" @bind-Value="context.Item.Mandatory" Color="MudBlazor.Color.Success"/>
+                                        </EditTemplate>
+                                    </PropertyColumn>
+                                    <PropertyColumn Property="x => x.ConsumptionCalculation" Title="@L["Consumption"]" Sortable="false" Filterable="false">
+                                        <EditTemplate >
+                                            @if(context.Item.ConsumptionCalculation.IsNullOrWhiteSpace())
+                                            {
+                                                <MudIconButton Icon="@Icons.Material.Filled.Warning" Color="MudBlazor.Color.Warning"/>
+                                            }else{
+                                                <MudIconButton Icon="@Icons.Material.Filled.Check" Color="MudBlazor.Color.Success"/>
+                                            }
                                         </EditTemplate>
                                     </PropertyColumn>
                                     <PropertyColumn Property="x => x.ComponentId" Sortable="false" Filterable="false">
@@ -98,6 +108,11 @@
                                 <PropertyColumn Property="x => x.Order" Title="@L["Order"]" >
                                     <EditTemplate>
                                         <MudNumericField @bind-Value="context.Item.Order"  Min="1" Max="(Product.SubProducts.Count + 1)" />
+                                    </EditTemplate>
+                                </PropertyColumn>
+                                <PropertyColumn Property="x => x.Code" IsEditable="true" Title="@L["Code"]" Sortable="false" Filterable="false">
+                                    <EditTemplate>
+                                        <MudTextField @bind-Value="context.Item.Code"/>
                                     </EditTemplate>
                                 </PropertyColumn>
                                 <PropertyColumn Property="x => x.Name" IsEditable="true" Title="@L["Name"]">
@@ -137,6 +152,11 @@
                                         <MudNumericField @bind-Value="context.Item.Order"  Min="1" Max="(Product.SubProducts.Count + 1)" />
                                     </EditTemplate>
                                 </PropertyColumn>
+                                <PropertyColumn Property="x => x.Code" IsEditable="true" Title="@L["Code"]" Sortable="false" Filterable="false">
+                                    <EditTemplate>
+                                        <MudTextField @bind-Value="context.Item.Code"/>
+                                    </EditTemplate>
+                                </PropertyColumn>
                                 <PropertyColumn Property="x => x.Name" IsEditable="true" Title="@L["Name"]">
                                     <EditTemplate>
                                         <MudTextField @bind-Value="context.Item.Name"/>
@@ -162,26 +182,7 @@
             </MudPaper>
         </MudItem>
     </MudGrid>
-</MudForm>
-
-<ModalProductComponentInput @ref="AddComponentModal"
-                    ComponentList="@ComponentList"
-                    ProductComponent="SelectedProductComponent"
-                    OnCancel="CloseModalProductComponentAsync"
-                    OnSave="SaveModalProductComponentInputAsync"
-                    />
-<ModalSubProductInput @ref="AddSubProductModal"
-                      ProductList="@ProductList"
-                      Subproduct="@SelectedSubProducts"
-                      OnCancel="CloseModalSubProductInputAsync"
-                      OnSave="SaveModalSubProductInputAsync"
-                      />
-<ModalProductQuestionTemplateInput @ref="AddQuestionTemplateModal"
-                            ComponentList="@QuestionTemplateList"
-                            ProductQuestionTemplate="SelectedProductQuestionTemplate"
-                            OnCancel="CloseModalProductQuestionTemplateAsync"
-                            OnSave="SaveModalProductQuestionTemplateInputAsync"
-/>                      
+</MudForm> 
 @code {
 
     private string _searchComponentString;

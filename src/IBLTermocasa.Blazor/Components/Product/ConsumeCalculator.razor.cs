@@ -27,12 +27,12 @@ public partial class ConsumeCalculator
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     
     [Parameter] public ProductDto Product { get; set; }
+    [Parameter] public Dictionary<string,string> Formulas { get; set; } 
     public HashSet<TreeItemData> TreeItems { get; set; }
     public TreeItemData RootItem { get; set; }
     public HashSet<TreeItemData> SelectedValues { get; set; }
     public MudTreeView<TreeItemData> ProductMudTreeView { get; set; }
     public ProductComponentDto SelectedProductComponent { get; set; }
-    public Dictionary<string,string> formulas { get; set; } = new Dictionary<string, string>();
     public bool dense { get; set; } = true;
     public bool open { get; set; } = true;
     public DrawerClipMode clipMode { get; set; } = DrawerClipMode.Never;
@@ -40,20 +40,23 @@ public partial class ConsumeCalculator
 
     protected override async Task OnParametersSetAsync()
     {
-        if(Product != null)
+        if(Product != null && Formulas != null)
         {
             Console.WriteLine("Product is not null proceeding to generate tree items");
-            await FIllFormulas();
+            //await FIllFormulas();
             await GenerateTreeItems();
+            ReadyToRendered = true;
             StateHasChanged();
         }
     }
+
+    public bool ReadyToRendered { get; set; }
 
     private async Task FIllFormulas()
     {
         Product.ProductComponents.ForEach(component =>
         {
-            formulas.Add(component.Code, "");
+            Formulas.Add(component.Code, "");
         });
     }
 
@@ -69,49 +72,62 @@ public partial class ConsumeCalculator
             icon: MudBlazor.Icons.Material.Filled.GifBox, 
             isExpanded: true, 
             treeItems: new HashSet<TreeItemData>());
-         var childs = await GenerateSubTreeItems(Product.SubProducts, Product.ProductComponents, Product.ProductQuestionTemplates, treeItemData);
-         treeItemData.TreeItems = childs;
+         var children = await GenerateSubTreeItems(Product.SubProducts, Product.ProductComponents, Product.ProductQuestionTemplates, treeItemData);
+         treeItemData.TreeItems = children;
         TreeItems.Add(treeItemData);
         RootItem = treeItemData;
     }
 
     private async Task<HashSet<TreeItemData>> GenerateSubTreeItems(List<SubProductDto> productSubProducts,
         List<ProductComponentDto> productProductComponents,
-        List<ProductQuestionTemplateDto> productProductQuestionTemplates, TreeItemData parent)
+        List<ProductQuestionTemplateDto> productProductQuestionTemplates, TreeItemData? parent)
     {
         Console.WriteLine("Generating sub tree items"); 
         var _treeItems = new HashSet<TreeItemData>();
-        if (productSubProducts.Count > 0)
+        if (productSubProducts is { Count: > 0 })
         {
             var subProductIds = productSubProducts.SelectMany(subProduct => subProduct.ProductIds).ToList();
+            Console.WriteLine("Generating sub tree items1"); 
             foreach (var id in subProductIds)
             {
+                Console.WriteLine($"Generating sub tree items1.2 {id}"); 
                 var subProduct = await ProductService.GetAsync(id);
+                if(subProduct == null)
+                {
+                    
+                    Console.WriteLine($"Generating sub tree items1.2.1 {id} subProduct is null"); 
+                    continue;
+                }
+                Console.WriteLine("Generating sub tree items1.3"); 
                 var treeItemData = new TreeItemData(Guid.NewGuid(),
                     typeof(SubProductDto),
                     subProduct.Code,
                     subProduct.Name,
                     prefix: "P",
-                    parent: parent,
+                    parent: parent ?? null,
                     icon: MudBlazor.Icons.Material.Filled.GifBox,
                     isExpanded: false,
                     treeItems: new HashSet<TreeItemData>());
-                treeItemData.TreeItems =await GenerateSubTreeItems(subProduct.SubProducts, subProduct.ProductComponents,
+                Console.WriteLine("Generating sub tree items1.4"); 
+                treeItemData.TreeItems = await GenerateSubTreeItems(subProduct.SubProducts, subProduct.ProductComponents,
                     subProduct.ProductQuestionTemplates, treeItemData);
+                
+                Console.WriteLine("Generating sub tree items2"); 
                 _treeItems.Add(treeItemData);
             }
         }
 
-        if (productProductComponents.Count > 0)
+        if (productProductComponents is { Count: > 0 })
         {
             var componentIds = productProductComponents.Select(component => component.ComponentId).ToList();
             foreach (var id in componentIds)
             {
-                var component = await ComponentsAppService.GetAsync(id);
+                //var component = await ComponentsAppService.GetAsync(id);
+                var productComponent = productProductComponents.FirstOrDefault(c => c.ComponentId == id);
                 var treeItemData = new TreeItemData(Guid.NewGuid(),
                     typeof(ProductComponentDto),
-                    component.Code,
-                    component.Name,
+                    productComponent!.Code,
+                    productComponent.Name,
                     prefix: "C",
                     parent: parent,
                     icon: MudBlazor.Icons.Material.Filled.Compost,
@@ -121,17 +137,18 @@ public partial class ConsumeCalculator
             }
         }
 
-        if (productProductQuestionTemplates.Count > 0)
+        if (productProductQuestionTemplates is { Count: > 0 })
         {
             var questionTemplateIds = productProductQuestionTemplates
                 .Select(questionTemplate => questionTemplate.QuestionTemplateId).ToList();
             foreach (var id in questionTemplateIds)
             {
-                var questionTemplate = await QuestionTemplatesAppService.GetAsync(id);
+                //var questionTemplate = await QuestionTemplatesAppService.GetAsync(id);
+                var productQuestionTemplate = productProductQuestionTemplates.FirstOrDefault(q => q.QuestionTemplateId == id);
                 var treeItemData = new TreeItemData(Guid.NewGuid(),
                     typeof(ProductQuestionTemplateDto),
-                    questionTemplate.Code,
-                    name: questionTemplate.QuestionText,
+                    productQuestionTemplate!.Code,
+                    name: productQuestionTemplate.Name,
                     prefix: "Q",
                     parent: parent,
                     icon: MudBlazor.Icons.Material.Filled.QuestionAnswer,
@@ -163,12 +180,12 @@ public partial class ConsumeCalculator
         {
             string formula = $"{this.CodeSequence(item)}";
             formula = "{" + formula + "}";
-            if (!formulas[SelectedFormula.Code].IsNullOrEmpty())
+            if (!Formulas[SelectedFormula.Code].IsNullOrEmpty())
             {
-                formula = formulas[SelectedFormula.Code]  + " " + formula;
+                formula = Formulas[SelectedFormula.Code]  + " " + formula;
             }
             Console.WriteLine("::::::::::::::::::::::::::::::::::::::Selected formula code: " + SelectedFormula.Code);
-            formulas[SelectedFormula.Code] = formula;
+            Formulas[SelectedFormula.Code] = formula;
             StateHasChanged();
         }
         Console.WriteLine("::::::::::::::::::::::::::::::::::::::Selected formula is null");
@@ -184,6 +201,11 @@ public partial class ConsumeCalculator
         {
             return item.Prefix + "[" + item.Code + "]";
         }
+    }
+
+    private void Save(MouseEventArgs obj)
+    {
+        MudDialog.Close(DialogResult.Ok(Formulas));
     }
 }
 public class TreeItemData
@@ -204,7 +226,7 @@ public class TreeItemData
     {
         Id = id;
     }
-    public TreeItemData(Guid id, Type type, string code, string name, string prefix,  TreeItemData? parent, string icon = null,  bool isExpanded = false, HashSet<TreeItemData>? treeItems = null)
+    public TreeItemData(Guid id, Type type, string code, string name, string prefix,  TreeItemData? parent, string icon,  bool isExpanded = false, HashSet<TreeItemData>? treeItems = null)
     {
         Id = id;
         Type = type;

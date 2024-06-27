@@ -1,12 +1,27 @@
 ﻿@using MudBlazor
 @inherits IBLTermocasaComponentBase
-@if (Product == null)
+<style>
+
+    .mud-dialog-custom {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .navbar-open .mud-dialog-custom {
+        left: calc(50% + 264px); /* 264 è stato messo, perchè indica la larghezza della navbar */
+    }
+</style>
+@if (!ReadyToRendered)
 {
     <MudDialog >
         <DialogContent>
             <MudContainer Style="min-height: 400px; max-height: 600px; overflow-y: scroll">
                 <MudLinearProgress Indeterminate="true"/>
-                return;
             </MudContainer>
         </DialogContent>
     </MudDialog>
@@ -24,7 +39,8 @@ else
                         <MudFab Color="MudBlazor.Color.Tertiary" Size="MudBlazor.Size.Small" StartIcon="@Icons.Material.Filled.ShoppingCart" DisableElevation="true"/>
                         <MudFab StartIcon="@Icons.Material.Filled.Save" Size="MudBlazor.Size.Small" Disabled="true"/>
                         <MudSpacer/>
-                        <MudIconButton Icon="@Icons.Material.Filled.Save" Color="MudBlazor.Color.Inherit" OnClick="() => MudDialog.Cancel()"/>
+                        <MudIconButton Icon="@Icons.Material.Filled.Cancel" Color="MudBlazor.Color.Inherit" OnClick="() => MudDialog.Cancel()"/>
+                        <MudIconButton Icon="@Icons.Material.Filled.Save" Color="MudBlazor.Color.Inherit" OnClick="@Save"/>
                     </MudAppBar>
                     <MudDrawer @bind-Open="@open" ClipMode="clipMode"
                                Breakpoint="MudBlazor.Breakpoint.Lg" PreserveOpenState="@preserveOpenState"
@@ -77,7 +93,7 @@ else
                                     {
                                         <MudListItem OnClick="() => SelectedProductComponent = item">
                                             <MudText Typo="Typo.h6">@item.Code - @item.Name</MudText>
-                                            <MudTextField T="string" @bind-Value="@(formulas[item.Code])" Label="@L["Formula"]"
+                                            <MudTextField T="string" @bind-Value="@(Formulas[item.Code])" Label="@L["Formula"]"
                                                           @onclick="() => OnSelectedFormula(item)"/>
                                         </MudListItem>
                                     }

@@ -1,0 +1,35 @@
+﻿@using IBLTermocasa.Blazor.Components.BillOfMaterial
+@using IBLTermocasa.Materials
+@using MudBlazor
+@using Margin = Blazorise.Margin
+<MudSelect T="Guid" Value="MaterialId" ValueChanged="HandleValueChanged" 
+           Required RequiredError="You must select a Position!!!" Margin="@MudBlazor.Margin.Dense">
+                <MudSelectItem T="Guid" Value="@Guid.Empty">Seleziona Mat.</MudSelectItem>
+            @foreach (var materialItem in MaterialList)
+            {
+                <MudSelectItem T="Guid" Value="@materialItem.Id">@materialItem.Name</MudSelectItem>
+            }
+</MudSelect>
+
+@code{
+    [Parameter]
+    [EditorRequired]
+    public CellContext<BillOfMaterialsMudDataGridItem> Context { get; set; } = default!;
+    [Parameter]
+    [EditorRequired]  
+    public List<MaterialDto> MaterialList { get; set; } = default!;
+    [CascadingParameter]
+    public MudDataGrid<BillOfMaterialsMudDataGridItem> DataGrid { get; set; } = default!;
+
+    private Guid MaterialId
+    {
+        get => Context.Item.MaterialId;
+
+    }
+
+    private async Task HandleValueChanged(Guid newMaterialId)
+    {
+        Context.Item.MaterialId = newMaterialId;
+        await DataGrid.CommittedItemChanges.InvokeAsync(Context.Item);
+    }
+}

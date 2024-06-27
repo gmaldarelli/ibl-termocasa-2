@@ -14,12 +14,13 @@ namespace IBLTermocasa.Products
         public virtual string Code { get; set; }
         public virtual string Name { get; set; }
         public virtual bool Mandatory { get; set; }
+        public virtual string? ConsumptionCalculation { get; set; }
         private ProductComponent()
         {
 
         }
 
-        public ProductComponent(Guid productId, Guid componentId, int order, string code, string name, bool mandatory)
+        public ProductComponent(Guid productId, Guid componentId, int order, string code, string name, bool mandatory, string consumptionCalculation)
         {
             ProductId = productId;
             ComponentId = componentId;
@@ -27,6 +28,7 @@ namespace IBLTermocasa.Products
             Code = code;
             Name = name;
             Mandatory = mandatory;
+            ConsumptionCalculation = consumptionCalculation;
         }  
 
         public override object[] GetKeys()

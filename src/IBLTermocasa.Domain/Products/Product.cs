@@ -51,7 +51,7 @@ namespace IBLTermocasa.Products
             ProductQuestionTemplates = new Collection<ProductQuestionTemplate>();
             SubProducts = (subProducts is null) ? new Collection<SubProduct>() : new Collection<SubProduct>(subProducts);
         }
-        public virtual void AddComponent(Guid componentId, int order, string code, string name, bool mandatory)
+        public virtual void AddComponent(Guid componentId, int order, string code, string name, bool mandatory, string consumptionCalculation)
         {
             Check.NotNull(componentId, nameof(componentId));
 
@@ -60,7 +60,7 @@ namespace IBLTermocasa.Products
                 return;
             }
 
-            ProductComponents.Add(new ProductComponent(Id, componentId, order, code, name, mandatory));
+            ProductComponents.Add(new ProductComponent(Id, componentId, order, code, name, mandatory, consumptionCalculation));
         }
         
 

@@ -22,14 +22,14 @@ public partial class ProductSubItemInput
     [Parameter] public int? OrderMinValue { get; set; } = 1;
     [Parameter] public Type? ElementType { get; set; } 
     [Parameter] public IEnumerable<ExtendedLookUpDto<Guid>>? ElementListLookupDto { get; set; }
-    [Parameter] public List<ProductComponentDto>? ElementListExisted { get; set; }
+    [Parameter] public List<ExtendedLookUpDto<Guid>>? ElementListExisted { get; set; }
     
     private ExtendedLookUpDto<Guid>? SelectedElement { get; set; }
     protected MudSelect<ExtendedLookUpDto<Guid>>? MudSelectElement { get; set; }
     public int? SelectedOrder { get; set; }
     public string? SelectedCode { get; set; }
     public string? SelectedName { get; set; }
-    public static List<ProductComponentDto>? SelectedElementListExisted = new();
+    public static List<ExtendedLookUpDto<Guid>>? SelectedElementListExisted = new();
     public bool? SelectedIsMandatory { get; set; }
     public MudForm form { get; set; } = new MudForm();
     public bool success { get; set; }
@@ -93,5 +93,14 @@ public partial class ProductSubItemInput
         ];
         MudDialog.Close(DialogResult.Ok(SelectedElement));
 
+    }
+
+    private bool ItemDisabledFunc1(ExtendedLookUpDto<Guid> arg)
+    {
+        if(SelectedElementListExisted == null)
+        {
+            return false;
+        }
+        return SelectedElementListExisted.Any(x => x.Id.Equals(arg.Id));
     }
 }

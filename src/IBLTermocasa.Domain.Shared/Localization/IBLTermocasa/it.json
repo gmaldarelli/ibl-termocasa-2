@@ -88,6 +88,7 @@
     "Code": "Codice",
     "Name": "Nome",
     "MeasureUnit": "Unità di Misura",
+    "MeasureUnitShort": "U.M.",
     "Quantity": "Quantità",
     "Lifo": "Lifo",
     "StandardPrice": "Prezzo Standard",

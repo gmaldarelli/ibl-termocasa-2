@@ -63,16 +63,6 @@ public partial class ProductInput
     public MudDataGrid<SubProductDto> SubProductMudDataGrid { get; set; }
 
 
-    protected override Task OnInitializedAsync()
-    {
-        InitializeComponentAsync();
-        return base.OnInitializedAsync();
-    }
-
-    private async void InitializeComponentAsync()
-    {
-        //TODO: Implement this method
-    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -90,97 +80,74 @@ public partial class ProductInput
         Product = await ProductService.GetAsync(id);
         
     }
-
-    protected override Task OnAfterRenderAsync(bool firstRender)
-    {
-        return base.OnAfterRenderAsync(firstRender);
-    }
-
-   
-    
-    private void CloseModalProductComponentAsync()
-    {
-        AddComponentModal.Hide();
-        InvokeAsync(StateHasChanged);
-    }
-    private void CloseModalProductQuestionTemplateAsync()
-    {
-        AddQuestionTemplateModal.Hide();
-        InvokeAsync(StateHasChanged);
-    }
-
-    private void CloseModalSubProductInputAsync()
-    {
-        AddSubProductModal.Hide();
-        InvokeAsync(StateHasChanged);
-    }
-
-    private async void SaveModalSubProductInputAsync(SubProductDto obj)
-    {
-        if(Product.SubProducts == null)
-        {
-            Product.SubProducts = new List<SubProductDto>();
-        }
-        Product.SubProducts.RemoveAll(x => x.Id == obj.Id);
-        Product.SubProducts.Add(obj);
-        Product.SubProducts = Product.SubProducts.OrderBy(x => x.Order).ToList();
-        await SubProductMudDataGrid.ReloadServerData();
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async void SaveModalProductComponentInputAsync(ProductComponentDto obj)
-    {
-
-        AddComponentModal.Hide();
-        if(Product.ProductComponents == null)
-        {
-            Product.ProductComponents = new List<ProductComponentDto>();
-        }
-        
-        Product.ProductComponents.RemoveAll(x => x.ComponentId == obj.ComponentId);
-        Product.ProductComponents.Add(obj);
-        Product.ProductComponents = Product.ProductComponents.OrderBy(x => x.Order).ToList();
-        await ProductComponentMudDataGrid.ReloadServerData();
-        await InvokeAsync(StateHasChanged);
-        
-    }
-    
-    private  async void SaveModalProductQuestionTemplateInputAsync(ProductQuestionTemplateDto obj)
-    {
-        AddQuestionTemplateModal.Hide();
-        if(Product.ProductQuestionTemplates == null)
-        {
-            Product.ProductQuestionTemplates = new List<ProductQuestionTemplateDto>();
-        }
-
-        Product.ProductQuestionTemplates.RemoveAll(x => x.QuestionTemplateId == obj.QuestionTemplateId);
-        Product.ProductQuestionTemplates.Add(obj);
-        Product.ProductQuestionTemplates = Product.ProductQuestionTemplates.OrderBy(x => x.Order).ToList();
-        await ProductQuestionTemplateMudDataGrid.ReloadServerData();
-        await InvokeAsync(StateHasChanged);
-    }
-    
     
     private async void AddSubProductAsync(MouseEventArgs obj)
     {
-        SelectedSubProducts = new SubProductDto();
-        SelectedSubProducts.Order = Product.SubProducts.Count + 1;
-        AddSubProductModal.InitializetModal(SelectedSubProducts,  ProductList);
-        AddSubProductModal.Show();
+        ProductList = (await ProductService.GetListAsync(new GetProductsInput())).Items;
+        List<ExtendedLookUpDto<Guid>>? ElementListLookupDto  = new List<ExtendedLookUpDto<Guid>>();
+        ProductList.ToList().ForEach(x =>
+        {
+            ElementListLookupDto.Add(new ExtendedLookUpDto<Guid>
+            {
+                DisplayName = x.Name,
+                Id = x.Id,
+                ViewElementDto = new ViewElementDto
+                {
+                    Properties = new List<ViewElementPropertyDto<object>>
+                    {
+                        new ViewElementPropertyDto<object>("Code", x.Code),
+                        new ViewElementPropertyDto<object>("ElementType", typeof(SubProductDto))
+                    }
+                }
+            });
+        });
+        
+        var elementListExisted = Product.SubProducts.Select(x => new ExtendedLookUpDto<Guid>
+        {
+            DisplayName = x.Name,
+            Id = x.Id,
+            ViewElementDto = new ViewElementDto()
+        }).ToList();
+        
+        var subProductDialog = await DialogService.ShowAsync<ProductSubItemInput>("Seleziona Prodotto", new DialogParameters
+        {
+            { "ElementListLookupDto", ElementListLookupDto },
+            { "DialogTitle", "Seleziona Prodotto" },
+            { "ElementName", "Prodotto" },
+            { "OrderMaxValue", Product.SubProducts.Count + 1 },
+            { "OrderMinValue", 1 },
+            { "ElementType",  typeof(SubProductDto) },
+            { "ElementListExisted", elementListExisted }
+        }, new DialogOptions
+        {
+            Position = DialogPosition.Custom,
+            FullWidth = true,
+            MaxWidth = MaxWidth.Medium
+        });
+        
+        var subProductDialogResult = await subProductDialog.Result;
+        if(!subProductDialogResult.Canceled)
+        {
+            var selectedProduct = (ExtendedLookUpDto<Guid>)subProductDialogResult.Data;
+            var subProduct = new SubProductDto
+            {
+                Id = selectedProduct.Id,
+                Code = selectedProduct.ViewElementDto.Properties.FirstOrDefault(x => x.Name == "Code")?.Value.ToString() ?? "",
+                Name = selectedProduct.DisplayName,
+                Order = selectedProduct.ViewElementDto.Properties.FirstOrDefault(x => x.Name == "Order")?.Value as int? ?? Product.SubProducts.Count + 1,
+                Mandatory = selectedProduct.ViewElementDto.Properties.FirstOrDefault(x => x.Name == "IsMandatory")?.Value as bool? ?? false
+            };
+            Product.SubProducts.RemoveAll(x => x.Id == subProduct.Id);
+            Product.SubProducts.Add(subProduct);
+            Product.SubProducts = Product.SubProducts.OrderBy(x => x.Order).ToList();
+            await SubProductMudDataGrid.ReloadServerData();
+            await InvokeAsync(StateHasChanged);
+        }
     }
     
     
     private async Task AddComponentAsync(MouseEventArgs obj)
     {
-        /*
-        ComponentList = (await ComponentsAppService.GetListAsync(new GetComponentsInput())).Items;
-        AddComponentModal.ComponentList = ComponentList;
-        SelectedProductComponent.Order = Product.ProductComponents.Count + 1;
-        AddComponentModal.InitializetModal(SelectedProductComponent,  ComponentList);
-        AddComponentModal.Show();
-        */
-        
-        
         ComponentList = (await ComponentsAppService.GetListAsync(new GetComponentsInput())).Items;
         List<ExtendedLookUpDto<Guid>>? ElementListLookupDto  = new List<ExtendedLookUpDto<Guid>>();
         ComponentList.ToList().ForEach(x =>
@@ -199,6 +166,12 @@ public partial class ProductInput
                 }
             });
         });
+        var elementListExisted = Product.ProductComponents.Select(x => new ExtendedLookUpDto<Guid>
+        {
+            DisplayName = x.Name,
+            Id = x.ComponentId,
+            ViewElementDto = new ViewElementDto()
+        }).ToList();
         var componentDialog = await DialogService.ShowAsync<ProductSubItemInput>("Seleziona Componente", new DialogParameters
         {
             { "ElementListLookupDto", ElementListLookupDto },
@@ -207,7 +180,7 @@ public partial class ProductInput
             { "OrderMaxValue", Product.ProductComponents.Count + 1 },
             { "OrderMinValue", 1 },
             { "ElementType",  typeof(ProductComponentDto) },
-            { "ElementListExisted", Product.ProductComponents }
+            { "ElementListExisted", elementListExisted }
         }, new DialogOptions
         {
             Position = DialogPosition.Custom,
@@ -233,72 +206,71 @@ public partial class ProductInput
             await InvokeAsync(StateHasChanged);
         }
         
-        
-        
-        /*
-        ProductComponentDto selectedProductComponent = new ProductComponentDto();
-        selectedProductComponent.Order = Product.ProductQuestionTemplates.Count + 1;
-        var parameters = new DialogParameters<ModalProductComponentInput>
-        {
-            {x => x.ProductComponent, selectedProductComponent},
-            {x => x.ComponentList, ComponentList},
-            {x => x.OrderMinValue, 1},
-            {x => x.OrderMaxValue, Product.ProductComponents.Count + 1}
-        };
-        var dialog = await DialogService.ShowAsync<ModalProductComponentInput>("Select Product Components", parameters, new DialogOptions
-        {
-            Position = MudBlazor.DialogPosition.Center,
-            FullWidth = true,
-            MaxWidth = MaxWidth.Small
-        });
-        var result = await dialog.Result;
-        if (!result.Cancelled)
-        {
-            var productComponent = (ProductComponentDto)result.Data;
-            Product.ProductComponents.RemoveAll(x => x.ComponentId == productComponent.ComponentId);
-            Product.ProductComponents.Add(productComponent);
-            Product.ProductComponents = Product.ProductComponents.OrderBy(x => x.Order).ToList();
-            await ProductComponentMudDataGrid.ReloadServerData();
-            await InvokeAsync(StateHasChanged);
-        }*/
-        
-        
-        
     }
     
     
     private async Task AddQuestionTemplateAsync(MouseEventArgs obj)
     {
-
-        
         QuestionTemplateList = (await QuestionTemplatesAppService.GetListAsync(new GetQuestionTemplatesInput())).Items;
-        ProductQuestionTemplateDto selectedProductQuestionTemplate = new ProductQuestionTemplateDto();
-        selectedProductQuestionTemplate.Order = Product.ProductQuestionTemplates.Count + 1;
-        var parameters = new DialogParameters<ModalProductQuestionTemplateInput>
+        List<ExtendedLookUpDto<Guid>>? ElementListLookupDto  = new List<ExtendedLookUpDto<Guid>>();
+        QuestionTemplateList.ToList().ForEach(x =>
         {
-            {x => x.ProductQuestionTemplate, selectedProductQuestionTemplate},
-            {x => x.ComponentList, QuestionTemplateList},
-            {x => x.OrderMinValue, 1},
-            {x => x.OrderMaxValue, Product.ProductQuestionTemplates.Count + 1}
-        };
-        var dialog = await DialogService.ShowAsync<ModalProductQuestionTemplateInput>("Select Question Template", parameters, new DialogOptions
-        {
-            Position = MudBlazor.DialogPosition.Center,
-            FullWidth = true,
-            MaxWidth = MaxWidth.Small
+            ElementListLookupDto.Add(new ExtendedLookUpDto<Guid>
+            {
+                DisplayName = x.QuestionText,
+                Id = x.Id,
+                ViewElementDto = new ViewElementDto
+                {
+                    Properties = new List<ViewElementPropertyDto<object>>
+                    {
+                        new ViewElementPropertyDto<object>("Code", x.Code),
+                        new ViewElementPropertyDto<object>("ElementType", typeof(ProductQuestionTemplateDto))
+                    }
+                }
+            });
         });
-        var result = await dialog.Result;
-        if (!result.Cancelled)
+        
+        var elementListExisted = Product.ProductQuestionTemplates.Select(x => new ExtendedLookUpDto<Guid>
         {
-            var productQuestionTemplate = (ProductQuestionTemplateDto)result.Data;
+            DisplayName = x.Name,
+            Id = x.QuestionTemplateId,
+            ViewElementDto = new ViewElementDto()
+        }).ToList();
+        
+        var questionTemplateDialog = await DialogService.ShowAsync<ProductSubItemInput>("Seleziona Template Domanda", new DialogParameters
+        {
+            { "ElementListLookupDto", ElementListLookupDto },
+            { "DialogTitle", "Seleziona Template Domanda" },
+            { "ElementName", "Template Domanda" },
+            { "OrderMaxValue", Product.ProductQuestionTemplates.Count + 1 },
+            { "OrderMinValue", 1 },
+            { "ElementType",  typeof(ProductQuestionTemplateDto) },
+            { "ElementListExisted", elementListExisted }
+        }, new DialogOptions
+        {
+            Position = DialogPosition.Custom,
+            FullWidth = true,
+            MaxWidth = MaxWidth.Medium
+        });
+        
+        var questionTemplateDialogResult = await questionTemplateDialog.Result;
+        if(!questionTemplateDialogResult.Canceled)
+        {
+            var selectedQuestionTemplate = (ExtendedLookUpDto<Guid>)questionTemplateDialogResult.Data;
+            var productQuestionTemplate = new ProductQuestionTemplateDto
+            {
+                QuestionTemplateId = selectedQuestionTemplate.Id,
+                Code = selectedQuestionTemplate.ViewElementDto.Properties.FirstOrDefault(x => x.Name == "Code")?.Value.ToString() ?? "",
+                Name = selectedQuestionTemplate.DisplayName,
+                Order = selectedQuestionTemplate.ViewElementDto.Properties.FirstOrDefault(x => x.Name == "Order")?.Value as int? ?? Product.ProductQuestionTemplates.Count + 1,
+                Mandatory = selectedQuestionTemplate.ViewElementDto.Properties.FirstOrDefault(x => x.Name == "IsMandatory")?.Value as bool? ?? false
+            };
             Product.ProductQuestionTemplates.RemoveAll(x => x.QuestionTemplateId == productQuestionTemplate.QuestionTemplateId);
             Product.ProductQuestionTemplates.Add(productQuestionTemplate);
             Product.ProductQuestionTemplates = Product.ProductQuestionTemplates.OrderBy(x => x.Order).ToList();
             await ProductQuestionTemplateMudDataGrid.ReloadServerData();
             await InvokeAsync(StateHasChanged);
         }
-
-        
         
     }
 
@@ -403,26 +375,31 @@ public partial class ProductInput
 
     private async Task OpenConsumeCalculator()
     {
+        Dictionary<string,string> inputFormulas = new();
+        Product.ProductComponents.ForEach(component =>
+        {
+            inputFormulas.Add(component.Code, component.ConsumptionCalculation ?? "");
+        });
         var parameters = new DialogParameters
         {
-            { "Product", Product }
+            { "Product", Product },
+            { "Formulas", inputFormulas }
         };
         var dialog = await DialogService.ShowAsync<ConsumeCalculator>("", parameters,
             new DialogOptions
             {
-                
-                FullWidth= true,
-                MaxWidth=MaxWidth.Large,
-                CloseButton= true,
-                DisableBackdropClick= true,
-                NoHeader=false,
-                Position=DialogPosition.Center,
-                CloseOnEscapeKey=false
+                Position = DialogPosition.Custom,
+                FullWidth = true,
+                MaxWidth = MaxWidth.Large
             });
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
-            Product = (ProductDto)result.Data;
+            Dictionary<string,string> formulas = (Dictionary<string, string>)result.Data;
+            Product.ProductComponents.ForEach(component =>
+            {
+                component.ConsumptionCalculation = formulas[component.Code];
+            });
             StateHasChanged();
         }
     }

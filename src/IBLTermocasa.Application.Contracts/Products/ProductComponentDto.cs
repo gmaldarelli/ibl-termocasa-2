@@ -14,5 +14,6 @@ public class ProductComponentDto
     [Required]
     public string Name { get; set; } = null!;
     public bool Mandatory { get; set; }
-    public Guid ComponentId { get;  set; }
+    public Guid ComponentId { get;  set; }       
+    public string? ConsumptionCalculation { get; set; }
 }
