@@ -48,7 +48,7 @@ public partial class BillOfMaterialFromFrq
             StateHasChanged();
         }else
         {
-            NavigationManager.NavigateTo($"/BillOfMaterials/{bomNumber}");
+            NavigationManager.NavigateTo($"/bill-of-materials-detail/{bomNumber}");
         }
     }
 

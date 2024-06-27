@@ -81,9 +81,10 @@ public partial class ProductSubItemInput
         {
             return;
         }
+        var selectedElementId = SelectedElement.Id;
         SelectedElement = new ExtendedLookUpDto<Guid>();
         SelectedElement.DisplayName = SelectedName;
-        SelectedElement.Id = Guid.NewGuid();
+        SelectedElement.Id = selectedElementId;
         SelectedElement.ViewElementDto.Properties =
         [
             new ViewElementPropertyDto<object>("Code", SelectedCode),
@@ -95,9 +96,9 @@ public partial class ProductSubItemInput
 
     }
 
-    private bool ItemDisabledFunc1(ExtendedLookUpDto<Guid> arg)
+    private bool ItemDisabledFunc(ExtendedLookUpDto<Guid> arg)
     {
-        if(SelectedElementListExisted == null)
+        if(SelectedElementListExisted.IsNullOrEmpty())
         {
             return false;
         }
