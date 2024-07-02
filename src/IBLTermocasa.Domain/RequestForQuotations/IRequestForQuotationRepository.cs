@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using IBLTermocasa.Common;
+using IBLTermocasa.Types;
 using Volo.Abp.Domain.Repositories;
 
 namespace IBLTermocasa.RequestForQuotations

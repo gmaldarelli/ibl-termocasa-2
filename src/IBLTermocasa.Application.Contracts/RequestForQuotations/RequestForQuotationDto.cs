@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using IBLTermocasa.Common;
+using IBLTermocasa.Types;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Domain.Entities;
 

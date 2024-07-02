@@ -58,6 +58,9 @@
   <ItemGroup>
     <AdditionalFiles Include="Pages\Crm\Products.razor" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Pages\Profiles.razor.cs" />
+  </ItemGroup>
   <PropertyGroup>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
   </PropertyGroup>

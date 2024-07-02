@@ -38,6 +38,16 @@
     <Compile Remove="Subproducts\SubproductDto.Extended.cs" />
     <Compile Remove="Subproducts\SubproductUpdateDto.Extended.cs" />
     <Compile Remove="Subproducts\SubproductWithNavigationPropertiesDto.Extended.cs" />
+    <Compile Remove="Profiles\ProfileUpdateDto.cs" />
+    <Compile Remove="Profiles\ProfileExcelDto.cs" />
+    <Compile Remove="Profiles\ProfileExcelDownloadDto.cs" />
+    <Compile Remove="Profiles\ProfileDto.cs" />
+    <Compile Remove="Profiles\ProfileCreateDto.cs" />
+    <Compile Remove="Profiles\IProfilesAppService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Profiles\" />
   </ItemGroup>
 
 </Project>

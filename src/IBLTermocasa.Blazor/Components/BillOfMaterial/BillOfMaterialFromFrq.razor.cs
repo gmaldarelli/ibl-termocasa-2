@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IBLTermocasa.RequestForQuotations;
+using IBLTermocasa.Types;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using Volo.Abp.BlazoriseUI.Components;
