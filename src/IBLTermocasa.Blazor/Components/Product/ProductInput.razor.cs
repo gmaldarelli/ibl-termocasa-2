@@ -105,7 +105,7 @@ public partial class ProductInput
         var elementListExisted = Product.SubProducts.Select(x => new ExtendedLookUpDto<Guid>
         {
             DisplayName = x.Name,
-            Id = x.Id,
+            Id = x.ProductIds[0],
             ViewElementDto = new ViewElementDto()
         }).ToList();
         
@@ -131,7 +131,8 @@ public partial class ProductInput
             var selectedProduct = (ExtendedLookUpDto<Guid>)subProductDialogResult.Data;
             var subProduct = new SubProductDto
             {
-                Id = selectedProduct.Id,
+                Id = Guid.NewGuid(),
+                ProductIds= [selectedProduct.Id],
                 Code = selectedProduct.ViewElementDto.Properties.FirstOrDefault(x => x.Name == "Code")?.Value.ToString() ?? "",
                 Name = selectedProduct.DisplayName,
                 Order = selectedProduct.ViewElementDto.Properties.FirstOrDefault(x => x.Name == "Order")?.Value as int? ?? Product.SubProducts.Count + 1,
