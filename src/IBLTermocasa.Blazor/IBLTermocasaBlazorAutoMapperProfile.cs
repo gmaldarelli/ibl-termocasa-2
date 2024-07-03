@@ -1,3 +1,4 @@
+using IBLTermocasa.ProfessionalProfiles;
 using IBLTermocasa.BillOfMaterials;
 using AutoMapper;
 using IBLTermocasa.Catalogs;
@@ -51,22 +52,7 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<RequestForQuotationItemDto, RequestForQuotationItem>();
 
         CreateMap<ProductDto, ProductUpdateDto>();
-        /*.Ignore(x => x.SubProducts)
-        .AfterMap(
-            (src, dest) =>
-            {
-                dest.SubProducts = src.SubProducts;
-
-        CreateMap<BillOfMaterialDto, BillOfMaterialUpdateDto>();
-        }
-        );*/
-        CreateMap<ProductDto, ProductCreateDto>()/*.Ignore(x => x.SubProducts)
-            .AfterMap(
-                (src, dest) =>
-                {
-                    dest.SubProducts = src.SubProducts;
-                }
-            )*/;
+        CreateMap<ProductDto, ProductCreateDto>();
 
         CreateMap<CatalogDto, CatalogUpdateDto>().Ignore(x => x.ProductIds);
         CreateMap<BillOfMaterial, BillOfMaterialDto>();
@@ -106,5 +92,12 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<BomComponentDto, BomComponent>();
         CreateMap<BomProductItem, BomProductItemDto>();
         CreateMap<BomProductItemDto, BomProductItem>();
+        
+        CreateMap<ProfessionalProfile, ProfessionalProfileDto>();
+        CreateMap<ProfessionalProfileCreateDto, ProfessionalProfileDto>();
+        CreateMap<ProfessionalProfileUpdateDto, ProfessionalProfileDto>();
+        CreateMap<ProfessionalProfileDto, ProfessionalProfile>();
+        CreateMap<ProfessionalProfileDto, ProfessionalProfileCreateDto>();
+        CreateMap<ProfessionalProfileDto, ProfessionalProfileUpdateDto>();
     }
 }

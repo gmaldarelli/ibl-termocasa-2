@@ -67,7 +67,7 @@
         </TemplateColumn>
         <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
-                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" Disabled="context.Item.Status == RfqStatus.IN_PROGRESS_BOM" OnClick="@(() => OpenReadOrEditRfq(context.Item, true))"/>
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenReadOrEditRfq(context.Item, true))"/>
                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Disabled="context.Item.Status == RfqStatus.IN_PROGRESS_BOM" OnClick="@(() => OpenReadOrEditRfq(context.Item, false))"/>
                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" Disabled="context.Item.Status == RfqStatus.IN_PROGRESS_BOM" OnClick="() => DeleteRequestForQuotationAsync(context.Item)"/>
             </CellTemplate>

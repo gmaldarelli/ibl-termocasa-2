@@ -117,4 +117,12 @@ public static class IBLTermocasaPermissions
         public const string Create = Default + ".Create";
         public const string Delete = Default + ".Delete";
     }
+
+    public static class ProfessionalProfiles
+    {
+        public const string Default = GroupName + ".ProfessionalProfiles";
+        public const string Edit = Default + ".Edit";
+        public const string Create = Default + ".Create";
+        public const string Delete = Default + ".Delete";
+    }
 }

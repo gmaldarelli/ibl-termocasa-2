@@ -42,7 +42,7 @@ namespace IBLTermocasa.BillOfMaterials
             Status = status;
         }  
 
-        //generete static methot to fill all properties of the RequestForQuotation except the Id using reflection with 2 variants source and destination
+        //generate static method to fill all properties of the RequestForQuotation except the Id using reflection with 2 variants source and destination
         public static BillOfMaterial FillProperties(BillOfMaterial source, BillOfMaterial destination,
             IEnumerable<PropertyInfo> properties)
         {

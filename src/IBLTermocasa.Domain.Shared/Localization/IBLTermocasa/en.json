@@ -262,6 +262,10 @@
     "BillOfMaterials": "Bill Of Materials",
     "NewBillOfMaterial": "New Bill Of Material",
     "Menu:BillOfMaterials": "Bill Of Materials",
-    "GenerateBillOfMaterial": "Generate Bill Of Material"
+    "GenerateBillOfMaterial": "Generate Bill Of Material",
+    "Permission:ProfessionalProfiles": "Professional Profiles",
+    "ProfessionalProfiles": "Professional Profiles",
+    "NewProfessionalProfile": "New Professional Profile",
+    "Menu:ProfessionalProfiles": "Professional Profiles"
   }
 }

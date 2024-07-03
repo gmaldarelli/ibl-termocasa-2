@@ -129,11 +129,11 @@
                             }
                         </MudForm>
                         <div style="height: 1.5rem;"></div>
-                        <MudItem Class="d-flex justify-space-around flex-grow-1 gap-4">
-                            <MudItem xs="12" sm="2">
+                        <MudItem Class="d-flex justify-content-between flex-grow-1 gap-4">
+                            <MudItem xs="12" sm="1">
                                 <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="HandleCancel">@L[GetButtonText()]</MudButton>
                             </MudItem>
-                            <MudItem xs="12" sm="2">
+                            <MudItem xs="12" sm="1">
                                 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => HandleValidSubmit()" Style="@(DisplayReadOnly ? "display: none;" : "display: initial;")">@L["Save"]</MudButton>
                             </MudItem>
                         </MudItem>
