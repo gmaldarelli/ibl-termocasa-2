@@ -27,7 +27,6 @@ namespace IBLTermocasa.Blazor.Components.RequestForQuotation;
 
 public partial class RequestForQuotationInput
 {
-    private Modal RequestForQuotationModal { get; set; }
     private List<LookupDto<Guid>> OrganizationsCollection { get; set; } = new();
     private List<LookupDto<Guid>> ContactsCollection { get; set; } = new();
     private List<LookupDto<Guid>> AgentsCollection { get; set; } = new();

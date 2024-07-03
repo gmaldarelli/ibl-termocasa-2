@@ -300,6 +300,10 @@
     "BomDate": "Data",
     "BillOfMaterialsTab": "Distinte Base Materiali",
     "SelectItemRequired": "Seleziona almeno un elemento",
-    "Action": "Azioni"
+    "Action": "Azioni",
+    "Permission:ProfessionalProfiles": "Profili Professionali",
+    "ProfessionalProfiles": "Profili Professionali",
+    "NewProfessionalProfile": "Nuovo Profilo Professionale",
+    "Menu:ProfessionalProfiles": "Profili Professionali",
   }
 }

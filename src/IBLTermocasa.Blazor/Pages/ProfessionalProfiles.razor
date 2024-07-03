@@ -1,0 +1,67 @@
+@page "/professional-profiles"
+
+@attribute [Authorize(IBLTermocasaPermissions.ProfessionalProfiles.Default)]
+@using IBLTermocasa.Localization
+@using IBLTermocasa.Permissions
+@using IBLTermocasa.ProfessionalProfiles
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using Volo.Abp.Http.Client
+@using Color = MudBlazor.Color
+@using Size = MudBlazor.Size
+
+@inherits IBLTermocasaComponentBase
+@inject IProfessionalProfilesAppService ProfessionalProfilesAppService
+
+@inject IUiMessageService UiMessageService
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["ProfessionalProfiles"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+<style>
+    .mud-data-grid-custom .mud-data-grid-toolbar {
+        padding-bottom: 2rem; /* 8 * 0.25rem = 2rem */
+    }
+</style>
+<MudDataGrid @ref="ProfessionalProfileMudDataGrid"
+             ServerData="LoadGridData"
+             T="ProfessionalProfileDto"
+             ReadOnly="false"
+             Virtualize="true" FixedHeader="true"
+             Hover="true"
+             Bordered="false" Dense="false"
+             Filterable="true" RowsPerPage="5"
+             SortMode="SortMode.Multiple"
+             Class="mud-data-grid-custom">
+    <ToolBarContent>
+        <MudTextField T="string" Placeholder="@L["Search"]" Adornment="Adornment.Start" Immediate="true" ValueChanged="arg => SearchAsync(arg)" DebounceInterval="1000"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 mb-2">
+        </MudTextField>
+        <MudSpacer/>
+        <MudButton Class="mr-2" StartIcon="@Icons.Material.Outlined.FileDownload" Size="Size.Small" Variant="Variant.Filled" Color="@Color.Primary" OnClick="DownloadAsExcelAsync">@L["ExportToExcel"]</MudButton>
+        <MudButton StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" Variant="Variant.Filled" Color="@Color.Primary" OnClick="() => OpenNewOrReadOrEditProfessionalProfile(new ProfessionalProfileDto(), false, true)">@L["NewRequestForQuotation"]</MudButton>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.Name" Title="@L["Name"]"/>
+        <PropertyColumn Property="x => x.StandardPrice" Title="@L["StandardPrice"]"/>
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenNewOrReadOrEditProfessionalProfile(context.Item, true, false))"/>
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(() => OpenNewOrReadOrEditProfessionalProfile(context.Item, false, false))"/>
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteProfessionalProfileAsync(context.Item)"/>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+</MudDataGrid>
+
+<MudThemeProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>

@@ -124,7 +124,15 @@ public class IBLTermocasaMenuContributor : IMenuContributor
         GetCrmMenu(context, l);
         GetInventoryMenu(context, l);
         GetProductionMenu(context, l);
-        
+
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                IBLTermocasaMenus.ProfessionalProfiles,
+                l["Menu:ProfessionalProfiles"],
+                url: "/professional-profiles",
+                icon: "fa fa-user-tie",
+                requiredPermissionName: IBLTermocasaPermissions.ProfessionalProfiles.Default)
+        );
         return Task.CompletedTask;
     }
 

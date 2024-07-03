@@ -1,0 +1,66 @@
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@using IBLTermocasa.Localization
+@using IBLTermocasa.ProfessionalProfiles
+@using IBLTermocasa.Shared
+@using IBLTermocasa.Types
+@using MudBlazor
+@using Volo.Abp.AspNetCore.Components.Web
+@using Color = MudBlazor.Color
+@inherits IBLTermocasaComponentBase
+
+<style>
+    .datagrid-question tr.table-primary.table-row-selectable,
+    .datagrid-question tr.table-row-selectable {
+        background: linear-gradient(90deg, rgba(194, 223, 243, 0.5) 40%, rgba(140, 202, 246, 0.3) 60%);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    
+    .mud-dialog-custom {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        padding: 10px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .navbar-open .mud-dialog-custom {
+        left: calc(50% + 264px); /* 264 è stato messo, perchè indica la larghezza della navbar */
+    }
+</style>
+
+    <MudDialog>
+        <DialogContent>
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudPaper Class="pa-4">
+                        <MudForm ReadOnly="@DisplayReadOnly">
+                            <MudGrid>
+                                <MudItem xs="12">
+                                    <MudTextField @bind-Value="@InternalProfessionalProfile.Name" Label="@L["Name"]"/>
+                                </MudItem>
+                                <MudItem xs="12">
+                                    <MudTextField T="double" @bind-Value="@InternalProfessionalProfile.StandardPrice" Label="@L["StandardPrice"]"/>
+                                </MudItem>
+                            </MudGrid>
+                        </MudForm>
+                        <div style="height: 1.5rem;"></div>
+                        <MudItem Class="d-flex justify-content-between flex-grow-1 gap-4">
+                            <MudItem xs="12" sm="1">
+                                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="HandleCancel">@L[GetButtonText()]</MudButton>
+                            </MudItem>
+                            <MudItem xs="12" sm="1">
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => HandleValidSubmit()" Style="@(DisplayReadOnly ? "display: none;" : "display: initial;")">@L["Save"]</MudButton>
+                            </MudItem>
+                        </MudItem>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </DialogContent>
+    </MudDialog>
+
+@code {
+}

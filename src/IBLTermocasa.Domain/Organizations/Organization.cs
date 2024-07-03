@@ -92,7 +92,7 @@ namespace IBLTermocasa.Organizations
         }
         
         
-        //generete static methot to fill all properties of the Organization except the Id using reflection with 2 variants source and destination
+        //generate static method to fill all properties of the Organization except the Id using reflection with 2 variants source and destination
         public static Organization FillProperties(Organization source, Organization destination,
             IEnumerable<PropertyInfo> properties)
         {

@@ -1,3 +1,4 @@
+using IBLTermocasa.ProfessionalProfiles;
 using IBLTermocasa.BillOfMaterials;
 using IBLTermocasa.Catalogs;
 using IBLTermocasa.RequestForQuotations;
@@ -38,123 +39,19 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<ComponentWithNavigationProperties, ComponentItemDto>();
         CreateMap<Material, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
 
-        CreateMap<Product, ProductDto>()/*
-            .Ignore(x => x.ProductComponents).Ignore(x => x.ProductQuestionTemplates).Ignore(x => x.SubProducts)
-            .AfterMap((src, dest) => 
-            {
-                dest.ProductComponents = src.ProductComponents.Select(pc => new ProductComponentDto 
-                {
-                    Id = Guid.NewGuid(),
-                    Order = pc.Order,
-                    Mandatory = pc.Mandatory,
-                    Component = new ComponentDto
-                    {
-                        Id = pc.ComponentId
-
-            CreateMap<BillOfMaterial, BillOfMaterialDto>();
-            CreateMap<BillOfMaterial, BillOfMaterialExcelDto>();
-}
-                }).ToList();
-                dest.ProductQuestionTemplates = src.ProductQuestionTemplates.Select(pqt => new ProductQuestionTemplateDto
-                {
-                    Id = Guid.NewGuid(),
-                    QuestionTemplate = new QuestionTemplateDto
-                    {
-                        Id = pqt.QuestionTemplateId
-                    }
-                }).ToList();
-            })*/;
-        /*
-        .Ignore(x => x.ProductComponents).Ignore(x => x.ProductQuestionTemplates)
-        .Ignore(x => x.ProductComponents)
-        .AfterMap((src, dest) => 
-        {
-            dest.ProductComponents = src.ProductComponents.Select(c => new ComponentDto 
-            {
-                Id = c.ComponentId
-            }).ToList();
-            dest.ProductQuestionTemplates = src.ProductQuestionTemplates.Select(qt => new QuestionTemplateDto
-            {
-                // Mappatura delle proprietà di QuestionTemplateDto
-                // Ad esempio, se QuestionTemplateDto ha una proprietà "Id", potrebbe essere mappata così:
-                Id = qt.QuestionTemplateId
-            }).ToList();
-        });
-        */
+        CreateMap<Product, ProductDto>();
         CreateMap<ProductDto, Product>()
             .Ignore(x => x.SubProducts).Ignore(x => x.ProductComponents).Ignore(x => x.ProductQuestionTemplates);
-        /*.AfterMap((src, dest) =>
-        {
-            src.ProductComponents.Select(pc => new ProductComponent(
-                pc.Id,
-                pc.Component.Id,
-                pc.Order,
-                pc.Mandatory
-            )).ToList().ForEach(x => dest.ProductComponents.Add(x));
-            src.ProductQuestionTemplates.Select(pqt => new ProductQuestionTemplate(
-                pqt.Id,
-                pqt.QuestionTemplate.Id,
-                pqt.Order,
-                pqt.Mandatory
-            )).ToList().ForEach(x => dest.ProductQuestionTemplates.Add(x));
-            src.SubProducts.Select(sp => new SubProduct(
-                sp.ParentId,
-                sp.Products.Select(x => x.Id).ToList(),
-                sp.Order,
-                sp.Name,
-                sp.IsSingleProduct,
-                sp.Mandatory
-            )).ToList().ForEach(x => dest.SubProducts.Add(x));
-        });*/
         CreateMap<Product, ProductExcelDto>();
         CreateMap<Component, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
 
         CreateMap<SubProduct, SubProductDto>();
-        /*.Ignore(x => x.Products)
-        .AfterMap((src, dest) =>
-        {
-            dest.Id = Guid.NewGuid();
-            dest.Products = src.ProductIds.Select(p => new ProductDto
-            {
-                Id = p
-            }).ToList();
-        });*/
         CreateMap<SubProductDto, SubProduct>();
-        /*.Ignore(x => x.ProductIds)
-        .AfterMap((src, dest) =>
-        {
-            src.Products.Select(p => p.Id).ToList().ForEach(x => dest.ProductIds.Add(x));
-        });*/
-        CreateMap<ProductComponent, ProductComponentDto>()
-            /*.Ignore(x => x.Component)
-            .AfterMap((src, dest) =>
-            {
-                dest.Id = Guid.NewGuid();
-                dest.Component = new ComponentDto
-                {
-                    Id = src.ComponentId
-                };
-            })*/;
-        CreateMap<ProductComponentDto, ProductComponent>()/*.Ignore(x => x.ComponentId)
-            .AfterMap((src, dest) =>
-            {
-                dest.ComponentId = src.Component.Id;
-            })*/;
+        CreateMap<ProductComponent, ProductComponentDto>();
+        CreateMap<ProductComponentDto, ProductComponent>();
 
-        CreateMap<ProductQuestionTemplate, ProductQuestionTemplateDto>()/*.Ignore(x => x.QuestionTemplate)
-            .AfterMap((src, dest) =>
-            {
-                dest.Id = Guid.NewGuid();
-                dest.QuestionTemplate = new QuestionTemplateDto
-                {
-                    Id = src.QuestionTemplateId
-                };
-            })*/;
-        CreateMap<ProductQuestionTemplateDto, ProductQuestionTemplate>()/*.Ignore(x => x.QuestionTemplateId)
-            .AfterMap((src, dest) =>
-            {
-                dest.QuestionTemplateId = src.QuestionTemplate.Id;
-            })*/;
+        CreateMap<ProductQuestionTemplate, ProductQuestionTemplateDto>();
+        CreateMap<ProductQuestionTemplateDto, ProductQuestionTemplate>();
         CreateMap<Product, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
 
         CreateMap<Industry, IndustryDto>();
@@ -226,14 +123,13 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<Organization, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
         CreateMap<RequestForQuotation, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.QuoteNumber));
 
-        
         CreateMap<Catalog, CatalogDto>();
         CreateMap<Catalog, CatalogExcelDto>();
         CreateMap<CatalogWithNavigationProperties, CatalogWithNavigationPropertiesDto>();
         CreateMap<QuestionTemplate, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.QuestionText));
 
         CreateMap<Component, ComponentDto>().Ignore(x => x.ComponentItems);
-        
+
         CreateMap<BillOfMaterial, BillOfMaterialDto>();
         CreateMap<BillOfMaterialDto, BillOfMaterial>();
         CreateMap<BillOfMaterialDto, BillOfMaterialCreateDto>();
@@ -247,5 +143,16 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<BomProductItem, BomProductItemDto>();
         CreateMap<BomProductItemDto, BomProductItem>();
         
+        CreateMap<ProfessionalProfile, ProfessionalProfileDto>();
+        CreateMap<ProfessionalProfile, ProfessionalProfileExcelDto>();
+        CreateMap<ProfessionalProfileDto, ProfessionalProfile>();
+        CreateMap<ProfessionalProfileDto, ProfessionalProfileCreateDto>();
+        CreateMap<ProfessionalProfileDto, ProfessionalProfileUpdateDto>();
+        CreateMap<ProfessionalProfileCreateDto, ProfessionalProfileDto>();
+        CreateMap<ProfessionalProfileCreateDto, ProfessionalProfile>();
+        CreateMap<ProfessionalProfileUpdateDto, ProfessionalProfileDto>();
+        CreateMap<ProfessionalProfileUpdateDto, ProfessionalProfile>();
+        CreateMap<ProfessionalProfile, ProfessionalProfileDto>();
+
     }
 }
