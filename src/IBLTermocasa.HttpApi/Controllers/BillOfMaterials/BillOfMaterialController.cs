@@ -94,5 +94,17 @@ namespace IBLTermocasa.Controllers.BillOfMaterials
                 throw new UserFriendlyException("RequestForQuotationItem-id is required");
             return _billOfMaterialsAppService.GenerateBillOfMaterial(id);
         }
+        [HttpPost]
+        [Route("calculate-consumption/{id}")]
+        public virtual  Task<List<BomItemDto>> CalculateConsumption(Guid id, List<BomItemDto> listItems)
+        {
+            return _billOfMaterialsAppService.CalculateConsumption(id, listItems);
+        }
+        [HttpGet]
+        [Route("calculate-consumption/{id}")]
+        public virtual  Task<List<BomItemDto>> CalculateConsumption(Guid id)
+        {
+            return _billOfMaterialsAppService.CalculateConsumption(id);
+        }
     }
 }

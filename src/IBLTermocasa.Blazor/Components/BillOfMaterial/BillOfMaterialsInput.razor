@@ -6,6 +6,7 @@
 @using IBLTermocasa.Blazor.Components.Product
 @inherits IBLTermocasaComponentBase
 @inject IComponentsAppService ComponentsAppService
+@inject IBillOfMaterialsAppService BillOfMaterialsAppService
 @if(BillOfMaterials == null)
 {
     <div class="text-center">
@@ -79,7 +80,7 @@
                                     <PropertyColumn Property="x => x.MaterialPrice" Title="@L["Price"]" IsEditable="false"  Format="C2" Culture="cultureInfo"/>
                                     <PropertyColumn Property="x => x.MeasureUnit" Title="@L["MeasureUnitShort"]" IsEditable="false"/>
                                     <PropertyColumn Property="x => x.Quantity" Title="@L["Quantity"]" IsEditable="true"   Format="0.##"/>
-                                    <PropertyColumn Property="x => x.Price" Title="@L["Price"]" IsEditable="false"  Format="F2"/>
+                                    <PropertyColumn Property="x => x.Price" Title="@L["Price"]" IsEditable="false" Format="C2" Culture="cultureInfo"/>
                                 </Columns>
                             </MudDataGrid>
                         </MudPaper>

@@ -28,5 +28,7 @@ namespace IBLTermocasa.BillOfMaterials
 
         Task DeleteAllAsync(GetBillOfMaterialsInput input);
         Task<List<ViewElementPropertyDto<object>>> GenerateBillOfMaterial(Guid id);
+        Task<List<BomItemDto>> CalculateConsumption(Guid id, List<BomItemDto> listItems);
+        Task<List<BomItemDto>> CalculateConsumption(Guid id);
     }
 }
