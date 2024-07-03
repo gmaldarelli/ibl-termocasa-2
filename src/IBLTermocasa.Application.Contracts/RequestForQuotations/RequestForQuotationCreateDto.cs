@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using IBLTermocasa.Common;
+using IBLTermocasa.Types;
 
 namespace IBLTermocasa.RequestForQuotations
 {

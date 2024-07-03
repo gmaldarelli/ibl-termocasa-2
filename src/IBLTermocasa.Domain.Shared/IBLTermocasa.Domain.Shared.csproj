@@ -37,4 +37,12 @@
     <Content Remove="Localization\IBLTermocasa\*.json" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Profiles\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Profiles\ProfileConsts.cs" />
+  </ItemGroup>
+
 </Project>

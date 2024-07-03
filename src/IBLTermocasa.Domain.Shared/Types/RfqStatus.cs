@@ -1,4 +1,4 @@
-﻿namespace IBLTermocasa.RequestForQuotations;
+﻿namespace IBLTermocasa.Types;
 
 public enum RfqStatus
 {
@@ -11,7 +11,7 @@ public enum RfqStatus
     CANCELED
 }
 
-public static class EnumExtensions
+public static class EnumExtensionsRfqStatus
 {
     public static string GetDisplayName(this RfqStatus status)
     {

@@ -2,6 +2,7 @@ using IBLTermocasa.RequestForQuotations;
 using Volo.Abp.Application.Dtos;
 using System;
 using IBLTermocasa.Common;
+using IBLTermocasa.Types;
 
 namespace IBLTermocasa.RequestForQuotations
 {

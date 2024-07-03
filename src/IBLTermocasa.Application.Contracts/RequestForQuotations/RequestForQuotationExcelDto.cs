@@ -1,5 +1,6 @@
 using IBLTermocasa.RequestForQuotations;
 using System;
+using IBLTermocasa.Types;
 
 namespace IBLTermocasa.RequestForQuotations
 {

@@ -15,6 +15,7 @@ using IBLTermocasa.Products;
 using IBLTermocasa.QuestionTemplates;
 using IBLTermocasa.RequestForQuotations;
 using IBLTermocasa.Shared;
+using IBLTermocasa.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;

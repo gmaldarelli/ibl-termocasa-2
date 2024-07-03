@@ -8,6 +8,7 @@ using IBLTermocasa.Common;
 using IBLTermocasa.Contacts;
 using IBLTermocasa.MongoDB;
 using IBLTermocasa.Organizations;
+using IBLTermocasa.Types;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using Volo.Abp.Domain.Repositories.MongoDB;
