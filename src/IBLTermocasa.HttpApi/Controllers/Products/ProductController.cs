@@ -100,5 +100,12 @@ namespace IBLTermocasa.Controllers.Products
         {
             return _productsAppService.DeleteAllAsync(input);
         }
+        
+        [HttpGet]
+        [Route("product-lookup")]
+        public virtual Task<PagedResultDto<LookupDto<Guid>>> GetProductLookupAsync(LookupRequestDto input)
+        {
+            return _productsAppService.GetProductLookupAsync(input);
+        }
     }
 }

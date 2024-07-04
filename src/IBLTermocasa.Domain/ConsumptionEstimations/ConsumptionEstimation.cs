@@ -14,11 +14,10 @@ namespace IBLTermocasa.ConsumptionEstimations
     public class ConsumptionEstimation : FullAuditedAggregateRoot<Guid>, IMultiTenant
     {
         public virtual Guid? TenantId { get; set; }
-
-        [CanBeNull]
+        public virtual Guid IdProduct { get; set; }
+        
         public virtual string? ConsumptionProduct { get; set; }
-
-        [CanBeNull]
+        
         public virtual string? ConsumptionWork { get; set; }
 
         protected ConsumptionEstimation()

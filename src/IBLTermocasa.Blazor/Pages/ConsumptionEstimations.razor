@@ -5,23 +5,15 @@
 @attribute [Authorize(IBLTermocasaPermissions.ConsumptionEstimations.Default)]
 @using IBLTermocasa.ConsumptionEstimations
 @using IBLTermocasa.Localization
-@using IBLTermocasa.Shared
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.Extensions.Localization
-@using Microsoft.AspNetCore.Components.Web
-@using Blazorise
-@using Blazorise.Components
-@using Blazorise.DataGrid
-@using Volo.Abp.BlazoriseUI
-@using Volo.Abp.BlazoriseUI.Components
-@using Volo.Abp.ObjectMapping
 @using Volo.Abp.AspNetCore.Components.Messages
 @using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
 
 @using IBLTermocasa.Permissions
 @using Volo.Abp.AspNetCore.Components.Web
-@using Microsoft.AspNetCore.Components
 @using Volo.Abp.Http.Client
+@using Position = MudBlazor.Position
+@using MudBlazor
 @inherits IBLTermocasaComponentBase
 @inject IConsumptionEstimationsAppService ConsumptionEstimationsAppService
 
@@ -36,7 +28,7 @@
 </PageHeader>
 
 @* ************************* SEARCH ************************* *@
-<Card>
+@*<Card>
     <CardBody>
 
         <Form id="ConsumptionEstimationSearchForm" class="mb-3">
@@ -81,223 +73,177 @@
 
 
     </CardBody>
-</Card>
+</Card>*@
 
 @* ************************* DATA GRID ************************* *@
-<Card>
-    <CardBody>        
-        @if (SelectedConsumptionEstimations.Any())
-        {
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                @if (AllConsumptionEstimationsSelected)
-                {
-                    <p class="lead mb-0">
-                        @L["AllItemsAreSelected", TotalCount]
-                    </p>
-                }
-                else
-                {
-                    <p class="lead mb-0">
-                        @if (SelectedConsumptionEstimations.Count > 1)
-                        {
-                            @L["NumberOfItemsOnThisPageAreSelected", SelectedConsumptionEstimations.Count]
-                        }
-                        else
-                        {
-                            @L["OneItemOnThisPageIsSelected"]
-                        }
-                    </p>
-                }
-                    
-                <div>
-                    @if ((SelectedConsumptionEstimations.Count == PageSize || SelectedConsumptionEstimations.Count == ConsumptionEstimationList.Count) && TotalCount > SelectedConsumptionEstimations.Count)
+<MudForm   @ref="formConsumptionEstimation"
+           IsValid=" successValidationConsumptionEstimation"
+           Errors="errorsValidationConsumptionEstimation">
+    <MudGrid>
+        <MudItem xs="12" sm="4">
+            @* ************************* Lista di prodotti sulla sinistra ************************* *@
+            <MudPaper MaxHeight="600" Elevation="8">
+                <MudText Align="Align.Center" Typo="Typo.h5" Class="p-3"
+                         Style="box-shadow: 0px 2px #cdcdcd;">@L["Products List"]</MudText>
+                <MudList Clickable="true" Style="overflow-y: auto;" >
+                    @foreach (var product in ProductsList)
                     {
-                        if (!AllConsumptionEstimationsSelected)
-                        {
-                            <Button Clicked="SelectAllItems" Class="mx-1 btn-outline-secondary">@L["SelectAllItems", TotalCount]</Button>
-                        }
-                        else
-                        {
-                            <Button Clicked="ClearSelection" Class="mx-1 btn-outline-secondary">@L["ClearSelection"]</Button>
-                        }
+                        <MudListItem OnClick="() => OnClickSelectProduct(product)"
+                                     Text="@product.DisplayName">
+                        </MudListItem>
                     }
-                    
-                    <Button Color="Color.Danger" Class="mx-1" Size="Size.Medium" Clicked="DeleteSelectedConsumptionEstimationsAsync">
-                        <Icon Name="@IconName.Delete" /> @L["Delete"]
-                    </Button>
-                </div>
-            </div>
-            
-            <hr class="my-1 mx-0"/>
-        }
-        <DataGrid TItem="ConsumptionEstimationDto"
-                  Data="ConsumptionEstimationList"
-                  
-                  SelectionMode="DataGridSelectionMode.Multiple"
-                  SelectedRows="SelectedConsumptionEstimations"
-                  RowSelectable="@((args) => CanDeleteConsumptionEstimation)"
-                  SelectedRowsChanged="SelectedConsumptionEstimationRowsChanged"
-                  
-                  
-                  
-                  ReadData="OnDataGridReadAsync"
-                  TotalItems="TotalCount"
-                  ShowPager="true"
-                  Responsive="true"
-                  PageSize="PageSize"
-                  Class="datagrid-detail">
-            <DataGridColumns>
-                
-                @if (CanDeleteConsumptionEstimation)
-                {
-                    <DataGridMultiSelectColumn TItem="ConsumptionEstimationDto" Width="30px" Displayable="@(ConsumptionEstimationList.Any())"></DataGridMultiSelectColumn>
-                }
-                
-                <DataGridEntityActionsColumn TItem="ConsumptionEstimationDto" @ref="@EntityActionsColumn">
-                    <DisplayTemplate>
-                        <EntityActions TItem="ConsumptionEstimationDto" EntityActionsColumn="@EntityActionsColumn">
-                            <EntityAction TItem="ConsumptionEstimationDto"
-                                          Visible="@CanEditConsumptionEstimation"
-                                          Clicked="async () => await OpenEditConsumptionEstimationModalAsync(context)"
-                                          Text="@L["Edit"]"></EntityAction>
-                            <EntityAction TItem="ConsumptionEstimationDto"
-                                          Visible="@CanDeleteConsumptionEstimation"
-                                          Clicked="() => DeleteConsumptionEstimationAsync(context)"
-                                          ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
-                                          Text="@L["Delete"]"></EntityAction>
+                </MudList>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="8">
+            <MudPaper Elevation="8">
+                <MudTabs Outlined="true" Position="Position.Top" Rounded="true" Border="true"
+                         ApplyEffectsToContainer="true" PanelClass="pa-2">
+                    <MudTabPanel Text="@L["ConsumptionComponent"]">
+                        
+                    </MudTabPanel>
+                    <MudTabPanel Text="@L["ConsumptionProfessionalProfile"]">
 
-                        </EntityActions>
-                    </DisplayTemplate>
-                </DataGridEntityActionsColumn>
-               
-              <DataGridColumn TItem="ConsumptionEstimationDto"
-                      Field="ConsumptionProduct"
-                      Caption="@L["ConsumptionProduct"]">
-              </DataGridColumn>
+                    </MudTabPanel>
+                </MudTabs>
+            </MudPaper>
+        </MudItem>
+        @*<MudItem xs="12" sm="8">
+            <MudPaper Class="pa-4">
+                $1$ ************************* Tab  on right side ************************* #1#
+                <MudBlazor.MudTabs Outlined="true" MudBlazor.Position="@Position" Rounded="true" Border="true"
+                                   ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-2">
+                    $1$ ************************* Tab Components on right side ************************* #1#
+                    <MudBlazor.MudTabPanel Text="@L["Components"]">
+                        <MudPaper>
 
-              <DataGridColumn TItem="ConsumptionEstimationDto"
-                      Field="ConsumptionWork"
-                      Caption="@L["ConsumptionWork"]">
-              </DataGridColumn>
-
-            </DataGridColumns>
-            
-            
-        </DataGrid>
-    </CardBody>
-</Card>
-
-@* ************************* CREATE MODAL ************************* *@
-<Modal @ref="CreateConsumptionEstimationModal" Closing="@CreateConsumptionEstimationModal.CancelClosingModalWhenFocusLost">
-    <ModalContent Centered="true">
-
-        <Form id="CreateConsumptionEstimationForm">
-            <ModalHeader>
-                <ModalTitle>@L["NewConsumptionEstimation"]</ModalTitle>
-                <CloseButton Clicked="CloseCreateConsumptionEstimationModalAsync" />
-            </ModalHeader>
-            <ModalBody>
-                <Validations @ref="@NewConsumptionEstimationValidations"
-                            Mode="ValidationMode.Auto"
-                            Model="@NewConsumptionEstimation"
-                            ValidateOnLoad="false">
-                     
-                    
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["ConsumptionProduct"]</FieldLabel>
-                            <TextEdit @bind-Text="@NewConsumptionEstimation.ConsumptionProduct"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["ConsumptionWork"]</FieldLabel>
-                            <TextEdit @bind-Text="@NewConsumptionEstimation.ConsumptionWork"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-
-
-                    
-                    
-                </Validations>
-            </ModalBody>
-            <ModalFooter>
-                <Button Color="Color.Secondary"
-                        Clicked="CloseCreateConsumptionEstimationModalAsync">
-                    @L["Cancel"]
-                </Button>
-                <SubmitButton Form="CreateConsumptionEstimationForm" Clicked="CreateConsumptionEstimationAsync" />
-
-            </ModalFooter>
-        </Form>
-
-    </ModalContent>
-</Modal>
-
-@* ************************* EDIT MODAL ************************* *@
-<Modal @ref="EditConsumptionEstimationModal" Closing="@EditConsumptionEstimationModal.CancelClosingModalWhenFocusLost">
-    <ModalContent Centered="true">
-
-        <Form id="EditConsumptionEstimationForm">
-            <ModalHeader>
-                <ModalTitle>@L["Update"]</ModalTitle>
-                <CloseButton Clicked="CloseEditConsumptionEstimationModalAsync" />
-            </ModalHeader>
-            <ModalBody>
-                <Validations @ref="@EditingConsumptionEstimationValidations"
-                            Mode="ValidationMode.Auto"
-                            Model="@EditingConsumptionEstimation"
-                            ValidateOnLoad="false">
-                     
-                    
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["ConsumptionProduct"]</FieldLabel>
-                            <TextEdit @bind-Text="@EditingConsumptionEstimation.ConsumptionProduct"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["ConsumptionWork"]</FieldLabel>
-                            <TextEdit @bind-Text="@EditingConsumptionEstimation.ConsumptionWork"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-
-
-                    
-                    
-                </Validations>
-            </ModalBody>
-            <ModalFooter>
-                <Button Color="Color.Secondary"
-                        Clicked="CloseEditConsumptionEstimationModalAsync">
-                    @L["Cancel"]
-                </Button>
-                <SubmitButton Form="EditConsumptionEstimationForm" Clicked="UpdateConsumptionEstimationAsync" />
-
-            </ModalFooter>
-        </Form>
-
-    </ModalContent>
-</Modal>
-
+                            <MudDataGrid @ref="ProductComponentMudDataGrid" T="ProductComponentDto" Items="@Product.ProductComponents" ReadOnly="false" EditMode="MudBlazor.DataGridEditMode.Cell"
+                                         EditTrigger="DataGridEditTrigger.OnRowClick" CommittedItemChanges="@ProductComponentCommittedItemChanges"
+                                         Bordered="true" Dense="true" Filterable="false" SortMode="SortMode.None">
+                                <Columns>
+                                    <PropertyColumn Property="x => x.Order" Title="@L["Order"]" IsEditable="true" Sortable="false" Filterable="false">
+                                    </PropertyColumn>
+                                    <PropertyColumn Property="x => x.Code" IsEditable="true" Title="@L["Code"]" Sortable="false" Filterable="false">
+                                        <EditTemplate>
+                                            <MudTextField @bind-Value="context.Item.Code"/>
+                                        </EditTemplate>
+                                    </PropertyColumn>
+                                    <PropertyColumn Property="x => x.Name" IsEditable="true" Title="@L["Name"]" Sortable="false" Filterable="false">
+                                        <EditTemplate>
+                                            <MudTextField @bind-Value="context.Item.Name"/>
+                                        </EditTemplate>
+                                    </PropertyColumn>
+                                    <PropertyColumn Property="x => x.Mandatory" Title="@L["Mandatory"]" Sortable="false" Filterable="false">
+                                        <EditTemplate>
+                                            <MudCheckBox T="bool" @bind-Value="context.Item.Mandatory" Color="MudBlazor.Color.Success"/>
+                                        </EditTemplate>
+                                    </PropertyColumn>
+                                    <PropertyColumn Property="x => x.ConsumptionCalculation" Title="@L["Consumption"]" Sortable="false" Filterable="false">
+                                        <EditTemplate >
+                                            @if(context.Item.ConsumptionCalculation.IsNullOrWhiteSpace())
+                                            {
+                                            <MudIconButton Icon="@Icons.Material.Filled.Warning" Color="MudBlazor.Color.Warning"/>
+                                            }else{
+                                            <MudIconButton Icon="@Icons.Material.Filled.Check" Color="MudBlazor.Color.Success"/>
+                                            }
+                                        </EditTemplate>
+                                    </PropertyColumn>
+                                    <PropertyColumn Property="x => x.ComponentId" Sortable="false" Filterable="false">
+                                        <HeaderTemplate>
+                                            <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.AddTask" OnClick="AddComponentAsync"></MudIconButton>
+                                        </HeaderTemplate>
+                                        <EditTemplate>
+                                            <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.Delete" OnClick="() => DeleteProductComponentAsync(context.Item)"/>
+                                        </EditTemplate>
+                                    </PropertyColumn>
+                                </Columns>
+                            </MudDataGrid>
+                        </MudPaper>
+                    </MudBlazor.MudTabPanel>
+                    $1$ ************************* Tab Products on right side ************************* #1#
+                    <MudBlazor.MudTabPanel Text="@L["Products"]">
+                        <MudDataGrid T="SubProductDto"  @ref="SubProductMudDataGrid" Items="@Product.SubProducts" ReadOnly="false" EditMode="MudBlazor.DataGridEditMode.Cell"
+                                     EditTrigger="DataGridEditTrigger.OnRowClick" CommittedItemChanges="@SubProductDtoCommittedItemChanges"
+                                     Bordered="true" Dense="true" Filterable="false" SortMode="SortMode.None">
+                            <Columns>
+                                <PropertyColumn Property="x => x.Order" Title="@L["Order"]" >
+                                    <EditTemplate>
+                                        <MudNumericField @bind-Value="context.Item.Order"  Min="1" Max="(Product.SubProducts.Count + 1)" />
+                                    </EditTemplate>
+                                </PropertyColumn>
+                                <PropertyColumn Property="x => x.Code" IsEditable="true" Title="@L["Code"]" Sortable="false" Filterable="false">
+                                    <EditTemplate>
+                                        <MudTextField @bind-Value="context.Item.Code"/>
+                                    </EditTemplate>
+                                </PropertyColumn>
+                                <PropertyColumn Property="x => x.Name" IsEditable="true" Title="@L["Name"]">
+                                    <EditTemplate>
+                                        <MudTextField @bind-Value="context.Item.Name" />
+                                    </EditTemplate>
+                                </PropertyColumn>
+                                <PropertyColumn Property="x => x.IsSingleProduct"  Title="@L["IsSingleProduct"]">
+                                    <EditTemplate>
+                                        <MudCheckBox T="bool" @bind-Value="context.Item.IsSingleProduct" />
+                                    </EditTemplate>
+                                </PropertyColumn>
+                                <PropertyColumn Property="x => x.Mandatory"  Title="@L["Mandatory"]">
+                                    <EditTemplate>
+                                        <MudCheckBox T="bool" @bind-Value="context.Item.Mandatory" />
+                                    </EditTemplate>
+                                </PropertyColumn>
+                                <PropertyColumn Property="x => x.Id" Sortable="false" Filterable="false">
+                                    <HeaderTemplate>
+                                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.AddTask" OnClick="AddSubProductAsync"></MudIconButton>
+                                    </HeaderTemplate>
+                                    <EditTemplate>
+                                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.Delete" OnClick="() => DeleteSubProductAsync(context.Item)"/>
+                                    </EditTemplate>
+                                </PropertyColumn>
+                            </Columns>
+                        </MudDataGrid>
+                    </MudBlazor.MudTabPanel>
+                    $1$ ************************* Tab QuestionTemplate on right side ************************* #1#
+                    <MudBlazor.MudTabPanel Text="@L["QuestionTemplates"]">
+                        <MudDataGrid T="ProductQuestionTemplateDto" @ref="ProductQuestionTemplateMudDataGrid" Items="@Product.ProductQuestionTemplates" ReadOnly="false" EditMode="MudBlazor.DataGridEditMode.Cell"
+                                     EditTrigger="DataGridEditTrigger.OnRowClick" CommittedItemChanges="@QuestionTemplateDtoCommittedItemChanges"
+                                     Bordered="true" Dense="true" Filterable="false" SortMode="SortMode.None">
+                            <Columns>
+                                <PropertyColumn Property="x => x.Order" Title="@L["Order"]" >
+                                    <EditTemplate>
+                                        <MudNumericField @bind-Value="context.Item.Order"  Min="1" Max="(Product.SubProducts.Count + 1)" />
+                                    </EditTemplate>
+                                </PropertyColumn>
+                                <PropertyColumn Property="x => x.Code" IsEditable="true" Title="@L["Code"]" Sortable="false" Filterable="false">
+                                    <EditTemplate>
+                                        <MudTextField @bind-Value="context.Item.Code"/>
+                                    </EditTemplate>
+                                </PropertyColumn>
+                                <PropertyColumn Property="x => x.Name" IsEditable="true" Title="@L["Name"]">
+                                    <EditTemplate>
+                                        <MudTextField @bind-Value="context.Item.Name"/>
+                                    </EditTemplate>
+                                </PropertyColumn>
+                                <PropertyColumn Property="x => x.Mandatory"  Title="@L["Mandatory"]">
+                                    <EditTemplate>
+                                        <MudCheckBox T="bool" @bind-Value="context.Item.Mandatory" />
+                                    </EditTemplate>
+                                </PropertyColumn>
+                                <PropertyColumn Property="x => x.QuestionTemplateId" Sortable="false" Filterable="false">
+                                    <HeaderTemplate>
+                                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.AddTask" OnClick="AddQuestionTemplateAsync"></MudIconButton>
+                                    </HeaderTemplate>
+                                    <EditTemplate>
+                                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.Delete" OnClick="() => DeleteProductQuestionTemplateAsync(context.Item)"/>
+                                    </EditTemplate>
+                                </PropertyColumn>
+                            </Columns>
+                        </MudDataGrid>
+                    </MudBlazor.MudTabPanel>
+                </MudBlazor.MudTabs>
+            </MudPaper>
+        </MudItem>*@
+    </MudGrid>
+</MudForm> 
+<MudThemeProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider />

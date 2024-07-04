@@ -274,6 +274,9 @@
     "ConsumptionWork": "Consumption Work",
     "ConsumptionEstimations": "Consumption Estimations",
     "NewConsumptionEstimation": "New Consumption Estimation",
-    "Menu:ConsumptionEstimations": "Consumption Estimations"
+    "Menu:ConsumptionEstimations": "Consumption Estimations",
+    "ConsumptionComponent": "Consumption Component",
+    "ConsumptionMaterial": "Consumption Material",
+    "ConsumptionProfessionalProfile": "Consumption Professional Profile",
   }
 }

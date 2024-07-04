@@ -312,6 +312,9 @@
     "ConsumptionWork": "Lavoro di Consumo",
     "ConsumptionEstimations": "Stime di Consumo",
     "NewConsumptionEstimation": "Nuova Stima di Consumo",
-    "Menu:ConsumptionEstimations": "Stime di Consumo"
+    "Menu:ConsumptionEstimations": "Stime di Consumo",
+    "ConsumptionComponent": "Consumo dei Componenti",
+    "ConsumptionMaterial": "Consumo dei Materiali",
+    "ConsumptionProfessionalProfile": "Consumo dei Profili Professionali"
   }
 }
