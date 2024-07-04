@@ -1,0 +1,303 @@
+
+
+@page "/consumption-estimations"
+
+@attribute [Authorize(IBLTermocasaPermissions.ConsumptionEstimations.Default)]
+@using IBLTermocasa.ConsumptionEstimations
+@using IBLTermocasa.Localization
+@using IBLTermocasa.Shared
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Components.Web
+@using Blazorise
+@using Blazorise.Components
+@using Blazorise.DataGrid
+@using Volo.Abp.BlazoriseUI
+@using Volo.Abp.BlazoriseUI.Components
+@using Volo.Abp.ObjectMapping
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+
+@using IBLTermocasa.Permissions
+@using Volo.Abp.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components
+@using Volo.Abp.Http.Client
+@inherits IBLTermocasaComponentBase
+@inject IConsumptionEstimationsAppService ConsumptionEstimationsAppService
+
+@inject IUiMessageService UiMessageService
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["ConsumptionEstimations"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* SEARCH ************************* *@
+<Card>
+    <CardBody>
+
+        <Form id="ConsumptionEstimationSearchForm" class="mb-3">
+            <Addons>
+                <Addon AddonType="AddonType.Body">
+                    <TextEdit @bind-Text="@Filter.FilterText"
+                              Autofocus="true"
+                              Placeholder="@L["Search"]">
+                    </TextEdit>
+                </Addon>
+                <Addon AddonType="AddonType.End">
+                    <SubmitButton Form="ConsumptionEstimationSearchForm" Clicked="GetConsumptionEstimationsAsync">
+                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
+                    </SubmitButton>
+                </Addon>
+            </Addons>
+        </Form>
+        
+        <Row Class="mt-3 mb-3"> 
+            <div class="col-md-12">
+                <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
+            </div>
+        </Row>
+        
+        <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
+            <Row>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["ConsumptionProduct"]</FieldLabel>
+                        <TextEdit Text="@Filter.ConsumptionProduct" TextChanged="@OnConsumptionProductChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["ConsumptionWork"]</FieldLabel>
+                        <TextEdit Text="@Filter.ConsumptionWork" TextChanged="@OnConsumptionWorkChangedAsync" />                       
+                    </Field>
+                </Column>
+            </Row>
+
+        </div>
+
+
+    </CardBody>
+</Card>
+
+@* ************************* DATA GRID ************************* *@
+<Card>
+    <CardBody>        
+        @if (SelectedConsumptionEstimations.Any())
+        {
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                @if (AllConsumptionEstimationsSelected)
+                {
+                    <p class="lead mb-0">
+                        @L["AllItemsAreSelected", TotalCount]
+                    </p>
+                }
+                else
+                {
+                    <p class="lead mb-0">
+                        @if (SelectedConsumptionEstimations.Count > 1)
+                        {
+                            @L["NumberOfItemsOnThisPageAreSelected", SelectedConsumptionEstimations.Count]
+                        }
+                        else
+                        {
+                            @L["OneItemOnThisPageIsSelected"]
+                        }
+                    </p>
+                }
+                    
+                <div>
+                    @if ((SelectedConsumptionEstimations.Count == PageSize || SelectedConsumptionEstimations.Count == ConsumptionEstimationList.Count) && TotalCount > SelectedConsumptionEstimations.Count)
+                    {
+                        if (!AllConsumptionEstimationsSelected)
+                        {
+                            <Button Clicked="SelectAllItems" Class="mx-1 btn-outline-secondary">@L["SelectAllItems", TotalCount]</Button>
+                        }
+                        else
+                        {
+                            <Button Clicked="ClearSelection" Class="mx-1 btn-outline-secondary">@L["ClearSelection"]</Button>
+                        }
+                    }
+                    
+                    <Button Color="Color.Danger" Class="mx-1" Size="Size.Medium" Clicked="DeleteSelectedConsumptionEstimationsAsync">
+                        <Icon Name="@IconName.Delete" /> @L["Delete"]
+                    </Button>
+                </div>
+            </div>
+            
+            <hr class="my-1 mx-0"/>
+        }
+        <DataGrid TItem="ConsumptionEstimationDto"
+                  Data="ConsumptionEstimationList"
+                  
+                  SelectionMode="DataGridSelectionMode.Multiple"
+                  SelectedRows="SelectedConsumptionEstimations"
+                  RowSelectable="@((args) => CanDeleteConsumptionEstimation)"
+                  SelectedRowsChanged="SelectedConsumptionEstimationRowsChanged"
+                  
+                  
+                  
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  Responsive="true"
+                  PageSize="PageSize"
+                  Class="datagrid-detail">
+            <DataGridColumns>
+                
+                @if (CanDeleteConsumptionEstimation)
+                {
+                    <DataGridMultiSelectColumn TItem="ConsumptionEstimationDto" Width="30px" Displayable="@(ConsumptionEstimationList.Any())"></DataGridMultiSelectColumn>
+                }
+                
+                <DataGridEntityActionsColumn TItem="ConsumptionEstimationDto" @ref="@EntityActionsColumn">
+                    <DisplayTemplate>
+                        <EntityActions TItem="ConsumptionEstimationDto" EntityActionsColumn="@EntityActionsColumn">
+                            <EntityAction TItem="ConsumptionEstimationDto"
+                                          Visible="@CanEditConsumptionEstimation"
+                                          Clicked="async () => await OpenEditConsumptionEstimationModalAsync(context)"
+                                          Text="@L["Edit"]"></EntityAction>
+                            <EntityAction TItem="ConsumptionEstimationDto"
+                                          Visible="@CanDeleteConsumptionEstimation"
+                                          Clicked="() => DeleteConsumptionEstimationAsync(context)"
+                                          ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
+                                          Text="@L["Delete"]"></EntityAction>
+
+                        </EntityActions>
+                    </DisplayTemplate>
+                </DataGridEntityActionsColumn>
+               
+              <DataGridColumn TItem="ConsumptionEstimationDto"
+                      Field="ConsumptionProduct"
+                      Caption="@L["ConsumptionProduct"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="ConsumptionEstimationDto"
+                      Field="ConsumptionWork"
+                      Caption="@L["ConsumptionWork"]">
+              </DataGridColumn>
+
+            </DataGridColumns>
+            
+            
+        </DataGrid>
+    </CardBody>
+</Card>
+
+@* ************************* CREATE MODAL ************************* *@
+<Modal @ref="CreateConsumptionEstimationModal" Closing="@CreateConsumptionEstimationModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+
+        <Form id="CreateConsumptionEstimationForm">
+            <ModalHeader>
+                <ModalTitle>@L["NewConsumptionEstimation"]</ModalTitle>
+                <CloseButton Clicked="CloseCreateConsumptionEstimationModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@NewConsumptionEstimationValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@NewConsumptionEstimation"
+                            ValidateOnLoad="false">
+                     
+                    
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["ConsumptionProduct"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewConsumptionEstimation.ConsumptionProduct"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["ConsumptionWork"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewConsumptionEstimation.ConsumptionWork"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    
+                    
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseCreateConsumptionEstimationModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="CreateConsumptionEstimationForm" Clicked="CreateConsumptionEstimationAsync" />
+
+            </ModalFooter>
+        </Form>
+
+    </ModalContent>
+</Modal>
+
+@* ************************* EDIT MODAL ************************* *@
+<Modal @ref="EditConsumptionEstimationModal" Closing="@EditConsumptionEstimationModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+
+        <Form id="EditConsumptionEstimationForm">
+            <ModalHeader>
+                <ModalTitle>@L["Update"]</ModalTitle>
+                <CloseButton Clicked="CloseEditConsumptionEstimationModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@EditingConsumptionEstimationValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@EditingConsumptionEstimation"
+                            ValidateOnLoad="false">
+                     
+                    
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["ConsumptionProduct"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingConsumptionEstimation.ConsumptionProduct"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["ConsumptionWork"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingConsumptionEstimation.ConsumptionWork"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    
+                    
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseEditConsumptionEstimationModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="EditConsumptionEstimationForm" Clicked="UpdateConsumptionEstimationAsync" />
+
+            </ModalFooter>
+        </Form>
+
+    </ModalContent>
+</Modal>
+

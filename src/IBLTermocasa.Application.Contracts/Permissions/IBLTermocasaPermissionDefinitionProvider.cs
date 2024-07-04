@@ -86,6 +86,11 @@ public class IBLTermocasaPermissionDefinitionProvider : PermissionDefinitionProv
         professionalProfilePermission.AddChild(IBLTermocasaPermissions.ProfessionalProfiles.Create, L("Permission:Create"));
         professionalProfilePermission.AddChild(IBLTermocasaPermissions.ProfessionalProfiles.Edit, L("Permission:Edit"));
         professionalProfilePermission.AddChild(IBLTermocasaPermissions.ProfessionalProfiles.Delete, L("Permission:Delete"));
+
+        var consumptionEstimationPermission = myGroup.AddPermission(IBLTermocasaPermissions.ConsumptionEstimations.Default, L("Permission:ConsumptionEstimations"));
+        consumptionEstimationPermission.AddChild(IBLTermocasaPermissions.ConsumptionEstimations.Create, L("Permission:Create"));
+        consumptionEstimationPermission.AddChild(IBLTermocasaPermissions.ConsumptionEstimations.Edit, L("Permission:Edit"));
+        consumptionEstimationPermission.AddChild(IBLTermocasaPermissions.ConsumptionEstimations.Delete, L("Permission:Delete"));
     }
 
     private static LocalizableString L(string name)

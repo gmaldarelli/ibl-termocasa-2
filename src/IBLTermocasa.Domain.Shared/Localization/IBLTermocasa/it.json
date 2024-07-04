@@ -306,6 +306,12 @@
     "NewProfessionalProfile": "Nuovo Profilo Professionale",
     "Menu:ProfessionalProfiles": "Profili Professionali",
     "Name is required!": "Il nome è obbligatorio!",
-    "Standard Price is required!": "Il prezzo standard è obbligatorio!"
+    "Standard Price is required!": "Il prezzo standard è obbligatorio!",
+    "Permission:ConsumptionEstimations": "Stime di Consumo",
+    "ConsumptionProduct": "Prodotto di Consumo",
+    "ConsumptionWork": "Lavoro di Consumo",
+    "ConsumptionEstimations": "Stime di Consumo",
+    "NewConsumptionEstimation": "Nuova Stima di Consumo",
+    "Menu:ConsumptionEstimations": "Stime di Consumo"
   }
 }

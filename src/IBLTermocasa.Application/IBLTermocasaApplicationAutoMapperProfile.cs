@@ -1,3 +1,4 @@
+using IBLTermocasa.ConsumptionEstimations;
 using IBLTermocasa.ProfessionalProfiles;
 using IBLTermocasa.BillOfMaterials;
 using IBLTermocasa.Catalogs;
@@ -142,7 +143,7 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<BomComponentDto, BomComponent>();
         CreateMap<BomProductItem, BomProductItemDto>();
         CreateMap<BomProductItemDto, BomProductItem>();
-        
+
         CreateMap<ProfessionalProfile, ProfessionalProfileDto>();
         CreateMap<ProfessionalProfile, ProfessionalProfileExcelDto>();
         CreateMap<ProfessionalProfileDto, ProfessionalProfile>();
@@ -154,5 +155,7 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<ProfessionalProfileUpdateDto, ProfessionalProfile>();
         CreateMap<ProfessionalProfile, ProfessionalProfileDto>();
 
+        CreateMap<ConsumptionEstimation, ConsumptionEstimationDto>();
+        CreateMap<ConsumptionEstimation, ConsumptionEstimationExcelDto>();
     }
 }

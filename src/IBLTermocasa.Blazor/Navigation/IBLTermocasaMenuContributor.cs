@@ -124,7 +124,7 @@ public class IBLTermocasaMenuContributor : IMenuContributor
         GetCrmMenu(context, l);
         GetInventoryMenu(context, l);
         GetProductionMenu(context, l);
-        
+
         return Task.CompletedTask;
     }
 
@@ -156,6 +156,13 @@ public class IBLTermocasaMenuContributor : IMenuContributor
                     url: "/professional-profiles",
                     icon: "fa fa-user-tie",
                     requiredPermissionName: IBLTermocasaPermissions.ProfessionalProfiles.Default)
+            ).AddItem(
+                new ApplicationMenuItem(
+                    IBLTermocasaMenus.ConsumptionEstimations,
+                    l["Menu:ConsumptionEstimations"],
+                    url: "/consumption-estimations",
+                    icon: "fa fa-hand-holding-usd",
+                    requiredPermissionName: IBLTermocasaPermissions.ConsumptionEstimations.Default)
             )
         );
     }
