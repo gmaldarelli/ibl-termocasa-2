@@ -266,6 +266,8 @@
     "Permission:ProfessionalProfiles": "Professional Profiles",
     "ProfessionalProfiles": "Professional Profiles",
     "NewProfessionalProfile": "New Professional Profile",
-    "Menu:ProfessionalProfiles": "Professional Profiles"
+    "Menu:ProfessionalProfiles": "Professional Profiles",
+    "Name is required!": "Name is required!",
+    "Standard Price is required!": "Standard Price is required!"
   }
 }

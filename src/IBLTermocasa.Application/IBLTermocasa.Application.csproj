@@ -37,8 +37,4 @@
     <Compile Remove="Profiles\ProfilesAppService.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Profiles\" />
-  </ItemGroup>
-
 </Project>

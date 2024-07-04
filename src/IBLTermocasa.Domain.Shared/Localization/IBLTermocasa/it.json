@@ -305,5 +305,7 @@
     "ProfessionalProfiles": "Profili Professionali",
     "NewProfessionalProfile": "Nuovo Profilo Professionale",
     "Menu:ProfessionalProfiles": "Profili Professionali",
+    "Name is required!": "Il nome è obbligatorio!",
+    "Standard Price is required!": "Il prezzo standard è obbligatorio!"
   }
 }

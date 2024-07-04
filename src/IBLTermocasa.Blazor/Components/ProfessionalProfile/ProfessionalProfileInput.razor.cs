@@ -21,6 +21,7 @@ public partial class ProfessionalProfileInput
     [Inject] public IProfessionalProfilesAppService ProfessionalProfilesAppService { get; set; }
     [Inject] public IDialogService DialogService { get; set; }
     
+    private bool success;
     private bool _isComponentRendered;
     private ProfessionalProfileDto InternalProfessionalProfile = new();
 
