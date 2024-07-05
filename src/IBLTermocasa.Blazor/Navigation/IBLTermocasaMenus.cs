@@ -40,4 +40,6 @@ public class IBLTermocasaMenus
 
     public const string ProfessionalProfiles = Prefix + ".ProfessionalProfiles";
 
+    public const string ConsumptionEstimations = Prefix + ".ConsumptionEstimations";
+
 }

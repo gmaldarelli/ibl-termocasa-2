@@ -125,4 +125,12 @@ public static class IBLTermocasaPermissions
         public const string Create = Default + ".Create";
         public const string Delete = Default + ".Delete";
     }
+
+    public static class ConsumptionEstimations
+    {
+        public const string Default = GroupName + ".ConsumptionEstimations";
+        public const string Edit = Default + ".Edit";
+        public const string Create = Default + ".Create";
+        public const string Delete = Default + ".Delete";
+    }
 }

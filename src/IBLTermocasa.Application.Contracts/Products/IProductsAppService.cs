@@ -31,5 +31,7 @@ namespace IBLTermocasa.Products
         Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync(); Task DeleteByIdsAsync(List<Guid> productIds);
 
         Task DeleteAllAsync(GetProductsInput input);
+        
+        Task<PagedResultDto<LookupDto<Guid>>> GetProductLookupAsync(LookupRequestDto input);
     }
 }

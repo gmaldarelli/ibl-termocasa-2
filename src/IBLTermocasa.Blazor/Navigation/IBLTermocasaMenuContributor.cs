@@ -125,14 +125,6 @@ public class IBLTermocasaMenuContributor : IMenuContributor
         GetInventoryMenu(context, l);
         GetProductionMenu(context, l);
 
-        context.Menu.AddItem(
-            new ApplicationMenuItem(
-                IBLTermocasaMenus.ProfessionalProfiles,
-                l["Menu:ProfessionalProfiles"],
-                url: "/professional-profiles",
-                icon: "fa fa-user-tie",
-                requiredPermissionName: IBLTermocasaPermissions.ProfessionalProfiles.Default)
-        );
         return Task.CompletedTask;
     }
 
@@ -144,21 +136,35 @@ public class IBLTermocasaMenuContributor : IMenuContributor
                 l["Menu:Production"],
                 icon: "fas fa-industry",
                 order: IBLTermocasaMenus.ProductionOrder).AddItem(
-            new ApplicationMenuItem(
-                IBLTermocasaMenus.QuestionTemplates,
-                l["Menu:QuestionTemplates"],
-                url: "/question-templates",
-                icon: "fa fa-question-circle",
-                requiredPermissionName: IBLTermocasaPermissions.QuestionTemplates.Default)
-        ).AddItem(
+                new ApplicationMenuItem(
+                    IBLTermocasaMenus.QuestionTemplates,
+                    l["Menu:QuestionTemplates"],
+                    url: "/question-templates",
+                    icon: "fa fa-question-circle",
+                    requiredPermissionName: IBLTermocasaPermissions.QuestionTemplates.Default)
+            ).AddItem(
                 new ApplicationMenuItem(
                     IBLTermocasaMenus.BillOfMaterials,
                     l["Menu:BillOfMaterials"],
                     url: "/bill-of-materials",
                     icon: "fa fa-file-invoice",
                     requiredPermissionName: IBLTermocasaPermissions.BillOfMaterials.Default)
+            ).AddItem(
+                new ApplicationMenuItem(
+                    IBLTermocasaMenus.ProfessionalProfiles,
+                    l["Menu:ProfessionalProfiles"],
+                    url: "/professional-profiles",
+                    icon: "fa fa-user-tie",
+                    requiredPermissionName: IBLTermocasaPermissions.ProfessionalProfiles.Default)
+            ).AddItem(
+                new ApplicationMenuItem(
+                    IBLTermocasaMenus.ConsumptionEstimations,
+                    l["Menu:ConsumptionEstimations"],
+                    url: "/consumption-estimations",
+                    icon: "fa fa-hand-holding-usd",
+                    requiredPermissionName: IBLTermocasaPermissions.ConsumptionEstimations.Default)
             )
-            );
+        );
     }
 
     private static void GetInventoryMenu(MenuConfigurationContext context, IStringLocalizer l)
@@ -169,20 +175,20 @@ public class IBLTermocasaMenuContributor : IMenuContributor
                 l["Menu:Inventory"],
                 icon: "fas fa-boxes",
                 order: IBLTermocasaMenus.InventoryOrder).AddItem(
-            new ApplicationMenuItem(
-                IBLTermocasaMenus.Materials,
-                l["Menu:Materials"],
-                url: "/materials",
-                icon: "fa fa-file-alt",
-                requiredPermissionName: IBLTermocasaPermissions.Materials.Default)
-        ).AddItem(
-            new ApplicationMenuItem(
-                IBLTermocasaMenus.Components,
-                l["Menu:Components"],
-                url: "/components",
-                icon: "fa fa-file-alt",
-                requiredPermissionName: IBLTermocasaPermissions.Components.Default)
-        ).AddItem(
+                new ApplicationMenuItem(
+                    IBLTermocasaMenus.Materials,
+                    l["Menu:Materials"],
+                    url: "/materials",
+                    icon: "fa fa-file-alt",
+                    requiredPermissionName: IBLTermocasaPermissions.Materials.Default)
+            ).AddItem(
+                new ApplicationMenuItem(
+                    IBLTermocasaMenus.Components,
+                    l["Menu:Components"],
+                    url: "/components",
+                    icon: "fa fa-file-alt",
+                    requiredPermissionName: IBLTermocasaPermissions.Components.Default)
+            ).AddItem(
                 new ApplicationMenuItem(
                     IBLTermocasaMenus.Products,
                     l["Menu:Products"],
@@ -190,7 +196,7 @@ public class IBLTermocasaMenuContributor : IMenuContributor
                     icon: "fa fa-dolly",
                     requiredPermissionName: IBLTermocasaPermissions.Products.Default)
             )
-            );
+        );
     }
 
     private static void GetCrmMenu(MenuConfigurationContext context, IStringLocalizer l)
@@ -208,13 +214,13 @@ public class IBLTermocasaMenuContributor : IMenuContributor
                     icon: "fa fa-id-card-alt",
                     requiredPermissionName: IBLTermocasaPermissions.Contacts.Default)
             ).AddItem(
-            new ApplicationMenuItem(
-                IBLTermocasaMenus.Organizations,
-                l["Menu:Organizations"],
-                url: "/organizations",
-                icon: "fa fa-building",
-                requiredPermissionName: IBLTermocasaPermissions.Organizations.Default)
-        ).AddItem(
+                new ApplicationMenuItem(
+                    IBLTermocasaMenus.Organizations,
+                    l["Menu:Organizations"],
+                    url: "/organizations",
+                    icon: "fa fa-building",
+                    requiredPermissionName: IBLTermocasaPermissions.Organizations.Default)
+            ).AddItem(
                 new ApplicationMenuItem(
                     IBLTermocasaMenus.Interactions,
                     l["Menu:Interactions"],
@@ -229,13 +235,13 @@ public class IBLTermocasaMenuContributor : IMenuContributor
                     icon: "fa fa-industry",
                     requiredPermissionName: IBLTermocasaPermissions.Industries.Default)
             ).AddItem(
-            new ApplicationMenuItem(
-                IBLTermocasaMenus.RequestForQuotations,
-                l["Menu:RequestForQuotations"],
-                url: "/request-for-quotations",
-                icon: "fa fa-file-alt",
-                requiredPermissionName: IBLTermocasaPermissions.RequestForQuotations.Default)
-        ).AddItem(
+                new ApplicationMenuItem(
+                    IBLTermocasaMenus.RequestForQuotations,
+                    l["Menu:RequestForQuotations"],
+                    url: "/request-for-quotations",
+                    icon: "fa fa-file-alt",
+                    requiredPermissionName: IBLTermocasaPermissions.RequestForQuotations.Default)
+            ).AddItem(
                 new ApplicationMenuItem(
                     IBLTermocasaMenus.Catalogs,
                     l["Menu:Catalogs"],
@@ -243,7 +249,7 @@ public class IBLTermocasaMenuContributor : IMenuContributor
                     icon: "fa fa-book",
                     requiredPermissionName: IBLTermocasaPermissions.Catalogs.Default)
             )
-            );
+        );
     }
 
     private async Task ConfigureUserMenuAsync(MenuConfigurationContext context)

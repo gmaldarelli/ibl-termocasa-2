@@ -153,10 +153,10 @@ namespace IBLTermocasa.Blazor.Pages
 
         private async Task OpenDialogRfqChoiceAsync()
         {
-            var parameters = new DialogParameters<BillOfMaterialFromFrq>
+            var parameters = new DialogParameters<BillOfMaterialFromRrq>
             {
             };
-            var dialog = await DialogService.ShowAsync<BillOfMaterialFromFrq>("Seleziona un Preventivo", parameters, new DialogOptions
+            var dialog = await DialogService.ShowAsync<BillOfMaterialFromRrq>("Seleziona un Preventivo", parameters, new DialogOptions
             {
 
                 FullWidth= true,

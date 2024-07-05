@@ -266,6 +266,17 @@
     "Permission:ProfessionalProfiles": "Professional Profiles",
     "ProfessionalProfiles": "Professional Profiles",
     "NewProfessionalProfile": "New Professional Profile",
-    "Menu:ProfessionalProfiles": "Professional Profiles"
+    "Menu:ProfessionalProfiles": "Professional Profiles",
+    "Name is required!": "Name is required!",
+    "Standard Price is required!": "Standard Price is required!",
+    "Permission:ConsumptionEstimations": "Consumption Estimations",
+    "ConsumptionProduct": "Consumption Product",
+    "ConsumptionWork": "Consumption Work",
+    "ConsumptionEstimations": "Consumption Estimations",
+    "NewConsumptionEstimation": "New Consumption Estimation",
+    "Menu:ConsumptionEstimations": "Consumption Estimations",
+    "ConsumptionComponent": "Consumption Component",
+    "ConsumptionMaterial": "Consumption Material",
+    "ConsumptionProfessionalProfile": "Consumption Professional Profile",
   }
 }

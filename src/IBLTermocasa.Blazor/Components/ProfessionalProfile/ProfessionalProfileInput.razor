@@ -37,23 +37,23 @@
             <MudGrid>
                 <MudItem xs="12">
                     <MudPaper Class="pa-4">
-                        <MudForm ReadOnly="@DisplayReadOnly">
+                        <MudForm ReadOnly="@DisplayReadOnly" @bind-IsValid="@success">
                             <MudGrid>
                                 <MudItem xs="12">
-                                    <MudTextField @bind-Value="@InternalProfessionalProfile.Name" Label="@L["Name"]"/>
+                                    <MudTextField @bind-Value="@InternalProfessionalProfile.Name" Label="@L["Name"]" Required="true" RequiredError="@L["Name is required!"]"/>
                                 </MudItem>
                                 <MudItem xs="12">
-                                    <MudTextField T="double" @bind-Value="@InternalProfessionalProfile.StandardPrice" Label="@L["StandardPrice"]"/>
+                                    <MudTextField T="double" @bind-Value="@InternalProfessionalProfile.StandardPrice" Label="@L["StandardPrice"]" Required="true" RequiredError="@L["Standard Price is required!"]"/>
                                 </MudItem>
                             </MudGrid>
                         </MudForm>
                         <div style="height: 1.5rem;"></div>
                         <MudItem Class="d-flex justify-content-between flex-grow-1 gap-4">
-                            <MudItem xs="12" sm="1">
+                            <MudItem>
                                 <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="HandleCancel">@L[GetButtonText()]</MudButton>
                             </MudItem>
-                            <MudItem xs="12" sm="1">
-                                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => HandleValidSubmit()" Style="@(DisplayReadOnly ? "display: none;" : "display: initial;")">@L["Save"]</MudButton>
+                            <MudItem>
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" OnClick="() => HandleValidSubmit()" Style="@(DisplayReadOnly ? "display: none;" : "display: initial;")">@L["Save"]</MudButton>
                             </MudItem>
                         </MudItem>
                     </MudPaper>

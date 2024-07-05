@@ -10,7 +10,7 @@ using Volo.Abp.BlazoriseUI.Components;
 
 namespace IBLTermocasa.Blazor.Components.BillOfMaterial;
 
-public partial class BillOfMaterialFromFrq
+public partial class BillOfMaterialFromRrq
 {
     [Inject]
     public IDialogService DialogService { get; set; }
