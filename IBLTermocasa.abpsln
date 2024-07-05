@@ -1,0 +1,9 @@
+{
+  "id": "c83bff25-3c4d-41b7-95ed-6c2c5f5bb495",
+  "template": "empty",
+  "modules": {
+    "IBLTermocasa": {
+      "path": "IBLTermocasa.abpmdl"
+    }
+  }
+}

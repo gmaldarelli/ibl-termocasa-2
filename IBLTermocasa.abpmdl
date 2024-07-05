@@ -1,0 +1,78 @@
+{
+  "folders": {
+    "items": {
+      "src": {},
+      "test": {}
+    }
+  },
+  "packages": {
+    "IBLTermocasa.Domain": {
+      "path": "src/IBLTermocasa.Domain/IBLTermocasa.Domain.abppkg",
+      "folder": "src"
+    },
+    "IBLTermocasa.Application": {
+      "path": "src/IBLTermocasa.Application/IBLTermocasa.Application.abppkg",
+      "folder": "src"
+    },
+    "IBLTermocasa.Application.Tests": {
+      "path": "test/IBLTermocasa.Application.Tests/IBLTermocasa.Application.Tests.abppkg",
+      "folder": "test"
+    },
+    "IBLTermocasa.MongoDB": {
+      "path": "src/IBLTermocasa.MongoDB/IBLTermocasa.MongoDB.abppkg",
+      "folder": "src"
+    },
+    "IBLTermocasa.Domain.Shared": {
+      "path": "src/IBLTermocasa.Domain.Shared/IBLTermocasa.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "IBLTermocasa.Application.Contracts": {
+      "path": "src/IBLTermocasa.Application.Contracts/IBLTermocasa.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "IBLTermocasa.HttpApi": {
+      "path": "src/IBLTermocasa.HttpApi/IBLTermocasa.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "IBLTermocasa.HttpApi.Client": {
+      "path": "src/IBLTermocasa.HttpApi.Client/IBLTermocasa.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "IBLTermocasa.AuthServer": {
+      "path": "src/IBLTermocasa.AuthServer/IBLTermocasa.AuthServer.abppkg",
+      "folder": "src"
+    },
+    "IBLTermocasa.HttpApi.Host": {
+      "path": "src/IBLTermocasa.HttpApi.Host/IBLTermocasa.HttpApi.Host.abppkg",
+      "folder": "src"
+    },
+    "IBLTermocasa.TestBase": {
+      "path": "test/IBLTermocasa.TestBase/IBLTermocasa.TestBase.abppkg",
+      "folder": "test"
+    },
+    "IBLTermocasa.Domain.Tests": {
+      "path": "test/IBLTermocasa.Domain.Tests/IBLTermocasa.Domain.Tests.abppkg",
+      "folder": "test"
+    },
+    "IBLTermocasa.MongoDB.Tests": {
+      "path": "test/IBLTermocasa.MongoDB.Tests/IBLTermocasa.MongoDB.Tests.abppkg",
+      "folder": "test"
+    },
+    "IBLTermocasa.HttpApi.Client.ConsoleTestApp": {
+      "path": "test/IBLTermocasa.HttpApi.Client.ConsoleTestApp/IBLTermocasa.HttpApi.Client.ConsoleTestApp.abppkg",
+      "folder": "test"
+    },
+    "IBLTermocasa.DbMigrator": {
+      "path": "src/IBLTermocasa.DbMigrator/IBLTermocasa.DbMigrator.abppkg",
+      "folder": "src"
+    },
+    "IBLTermocasa.Blazor": {
+      "path": "src/IBLTermocasa.Blazor/IBLTermocasa.Blazor.abppkg",
+      "folder": "src"
+    },
+    "IBLTermocasa.Web.Public": {
+      "path": "src/IBLTermocasa.Web.Public/IBLTermocasa.Web.Public.abppkg",
+      "folder": "src"
+    }
+  }
+}
