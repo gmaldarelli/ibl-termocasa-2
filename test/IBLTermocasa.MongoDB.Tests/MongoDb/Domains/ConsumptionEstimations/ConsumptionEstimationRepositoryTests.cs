@@ -1,5 +1,6 @@
 using Shouldly;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IBLTermocasa.ConsumptionEstimations;
@@ -26,8 +27,7 @@ namespace IBLTermocasa.MongoDB.Domains.ConsumptionEstimations
             {
                 // Act
                 var result = await _consumptionEstimationRepository.GetListAsync(
-                    consumptionProduct: "df77227afb4249b9b6af520810481f",
-                    consumptionWork: "5088cd37f1a241b08108f9d9fb5097ceccca5cb0280d4f39a2fb177f208c72587be8c553d48149cab1f38e"
+                    productId: Guid.Parse("ed6b38803c3a418fa1da8622f52e98800e5f67434c694f86a71fd668fd28739506e51")
                 );
 
                 // Assert
@@ -45,8 +45,7 @@ namespace IBLTermocasa.MongoDB.Domains.ConsumptionEstimations
             {
                 // Act
                 var result = await _consumptionEstimationRepository.GetCountAsync(
-                    consumptionProduct: "da0e467a83cc4bd3aa0b75",
-                    consumptionWork: "1c68d608a39c4b48ac67c9665d3dbce9b293ad9740a8"
+                    productId: Guid.Parse("ed6b38803c3a418fa1da8622f52e98800e5f67434c694f86a71fd668fd28739506e51")
                 );
 
                 // Assert

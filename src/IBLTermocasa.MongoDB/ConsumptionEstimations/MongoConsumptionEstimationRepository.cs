@@ -21,11 +21,10 @@ namespace IBLTermocasa.ConsumptionEstimations
 
         public virtual async Task DeleteAllAsync(
             string? filterText = null,
-                        string? consumptionProduct = null,
-            string? consumptionWork = null,
+            Guid? productId = null,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, consumptionProduct, consumptionWork);
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, productId);
 
             var ids = query.Select(x => x.Id);
             await DeleteManyAsync(ids, cancellationToken: GetCancellationToken(cancellationToken));
@@ -33,14 +32,13 @@ namespace IBLTermocasa.ConsumptionEstimations
 
         public virtual async Task<List<ConsumptionEstimation>> GetListAsync(
             string? filterText = null,
-            string? consumptionProduct = null,
-            string? consumptionWork = null,
+            Guid? productId = null,
             string? sorting = null,
             int maxResultCount = int.MaxValue,
             int skipCount = 0,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, consumptionProduct, consumptionWork);
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, productId);
             query = query.OrderBy(string.IsNullOrWhiteSpace(sorting) ? ConsumptionEstimationConsts.GetDefaultSorting(false) : sorting);
             return await query.As<IMongoQueryable<ConsumptionEstimation>>()
                 .PageBy<ConsumptionEstimation, IMongoQueryable<ConsumptionEstimation>>(skipCount, maxResultCount)
@@ -49,24 +47,21 @@ namespace IBLTermocasa.ConsumptionEstimations
 
         public virtual async Task<long> GetCountAsync(
             string? filterText = null,
-            string? consumptionProduct = null,
-            string? consumptionWork = null,
+            Guid? productId = null,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, consumptionProduct, consumptionWork);
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, productId);
             return await query.As<IMongoQueryable<ConsumptionEstimation>>().LongCountAsync(GetCancellationToken(cancellationToken));
         }
 
         protected virtual IQueryable<ConsumptionEstimation> ApplyFilter(
             IQueryable<ConsumptionEstimation> query,
             string? filterText = null,
-            string? consumptionProduct = null,
-            string? consumptionWork = null)
+            Guid? productId = null)
         {
             return query
-                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.ConsumptionProduct!.Contains(filterText!) || e.ConsumptionWork!.Contains(filterText!))
-                    .WhereIf(!string.IsNullOrWhiteSpace(consumptionProduct), e => e.ConsumptionProduct.Contains(consumptionProduct))
-                    .WhereIf(!string.IsNullOrWhiteSpace(consumptionWork), e => e.ConsumptionWork.Contains(consumptionWork));
+                .WhereIf(!filterText.IsNullOrWhiteSpace(), e => e.Id.ToString().Contains(filterText))
+                .WhereIf(productId.HasValue, e => e.IdProduct == productId);
         }
     }
 }

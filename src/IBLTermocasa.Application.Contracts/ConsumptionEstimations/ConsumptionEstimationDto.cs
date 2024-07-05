@@ -6,12 +6,26 @@ using Volo.Abp.Domain.Entities;
 
 namespace IBLTermocasa.ConsumptionEstimations
 {
-    public class ConsumptionEstimationDto : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
+    public class ConsumptionEstimationDto : EntityDto<Guid>
     {
-        public string? ConsumptionProduct { get; set; }
-        public string? ConsumptionWork { get; set; }
-
-        public string ConcurrencyStamp { get; set; } = null!;
+        public Guid? TenantId { get; set; }
+        public Guid IdProduct { get; set; }
+        public List<ConsumptionProductDto> ConsumptionProduct { get; set; } = new();
+        public List<ConsumptionWorkDto> ConsumptionWork { get; set; } = new();
+        public string ConcurrencyStamp { get; set; }
+        
+        public ConsumptionEstimationDto()
+        {
+            
+        }
+        
+        public ConsumptionEstimationDto(Guid id, Guid idProduct, List<ConsumptionProductDto> consumptionProduct = null, List<ConsumptionWorkDto> consumptionWork = null)
+        {
+            Id = id;
+            IdProduct = idProduct;
+            ConsumptionProduct = consumptionProduct;
+            ConsumptionWork = consumptionWork;
+        }
 
     }
 }

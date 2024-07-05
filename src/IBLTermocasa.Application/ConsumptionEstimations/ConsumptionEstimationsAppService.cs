@@ -37,8 +37,8 @@ namespace IBLTermocasa.ConsumptionEstimations
 
         public virtual async Task<PagedResultDto<ConsumptionEstimationDto>> GetListAsync(GetConsumptionEstimationsInput input)
         {
-            var totalCount = await _consumptionEstimationRepository.GetCountAsync(input.FilterText, input.ConsumptionProduct, input.ConsumptionWork);
-            var items = await _consumptionEstimationRepository.GetListAsync(input.FilterText, input.ConsumptionProduct, input.ConsumptionWork, input.Sorting, input.MaxResultCount, input.SkipCount);
+            var totalCount = await _consumptionEstimationRepository.GetCountAsync(input.FilterText, input.IdProduct);
+            var items = await _consumptionEstimationRepository.GetListAsync(input.FilterText, input.IdProduct, input.Sorting, input.MaxResultCount, input.SkipCount);
 
             return new PagedResultDto<ConsumptionEstimationDto>
             {
@@ -61,24 +61,17 @@ namespace IBLTermocasa.ConsumptionEstimations
         [Authorize(IBLTermocasaPermissions.ConsumptionEstimations.Create)]
         public virtual async Task<ConsumptionEstimationDto> CreateAsync(ConsumptionEstimationCreateDto input)
         {
-
-            var consumptionEstimation = await _consumptionEstimationManager.CreateAsync(
-            input.ConsumptionProduct, input.ConsumptionWork
-            );
-
-            return ObjectMapper.Map<ConsumptionEstimation, ConsumptionEstimationDto>(consumptionEstimation);
+            var requestForQuotation = ObjectMapper.Map<ConsumptionEstimationCreateDto, ConsumptionEstimation>(input);
+            return ObjectMapper.Map<ConsumptionEstimation, ConsumptionEstimationDto>(
+                await _consumptionEstimationManager.CreateAsync(requestForQuotation));
         }
 
         [Authorize(IBLTermocasaPermissions.ConsumptionEstimations.Edit)]
         public virtual async Task<ConsumptionEstimationDto> UpdateAsync(Guid id, ConsumptionEstimationUpdateDto input)
         {
-
-            var consumptionEstimation = await _consumptionEstimationManager.UpdateAsync(
-            id,
-            input.ConsumptionProduct, input.ConsumptionWork, input.ConcurrencyStamp
-            );
-
-            return ObjectMapper.Map<ConsumptionEstimation, ConsumptionEstimationDto>(consumptionEstimation);
+            var requestForQuotationDto = ObjectMapper.Map<ConsumptionEstimationUpdateDto, ConsumptionEstimation>(input);
+            return ObjectMapper.Map<ConsumptionEstimation, ConsumptionEstimationDto>(
+                await _consumptionEstimationManager.UpdateAsync(id, requestForQuotationDto));
         }
 
         [AllowAnonymous]
@@ -90,7 +83,7 @@ namespace IBLTermocasa.ConsumptionEstimations
                 throw new AbpAuthorizationException("Invalid download token: " + input.DownloadToken);
             }
 
-            var items = await _consumptionEstimationRepository.GetListAsync(input.FilterText, input.ConsumptionProduct, input.ConsumptionWork);
+            var items = await _consumptionEstimationRepository.GetListAsync(input.FilterText, input.ProductId);
 
             var memoryStream = new MemoryStream();
             await memoryStream.SaveAsAsync(ObjectMapper.Map<List<ConsumptionEstimation>, List<ConsumptionEstimationExcelDto>>(items));
@@ -125,7 +118,7 @@ namespace IBLTermocasa.ConsumptionEstimations
         [Authorize(IBLTermocasaPermissions.ConsumptionEstimations.Delete)]
         public virtual async Task DeleteAllAsync(GetConsumptionEstimationsInput input)
         {
-            await _consumptionEstimationRepository.DeleteAllAsync(input.FilterText, input.ConsumptionProduct, input.ConsumptionWork);
+            await _consumptionEstimationRepository.DeleteAllAsync(input.FilterText, input.IdProduct);
         }
     }
 }

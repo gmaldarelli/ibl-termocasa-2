@@ -160,18 +160,7 @@ namespace IBLTermocasa.Blazor.Pages
                 culture = "&culture=" + culture;
             }
             await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
-            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/consumption-estimations/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&ConsumptionProduct={HttpUtility.UrlEncode(Filter.ConsumptionProduct)}&ConsumptionWork={HttpUtility.UrlEncode(Filter.ConsumptionWork)}", forceLoad: true);
-        }
-
-        protected virtual async Task OnConsumptionProductChangedAsync(string? consumptionProduct)
-        {
-            Filter.ConsumptionProduct = consumptionProduct;
-            await SearchAsync();
-        }
-        protected virtual async Task OnConsumptionWorkChangedAsync(string? consumptionWork)
-        {
-            Filter.ConsumptionWork = consumptionWork;
-            await SearchAsync();
+            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/consumption-estimations/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&ConsumptionProduct={HttpUtility.UrlEncode(Filter.IdProduct.ToString())}", forceLoad: true);
         }
         
         private Task ClearSelection()

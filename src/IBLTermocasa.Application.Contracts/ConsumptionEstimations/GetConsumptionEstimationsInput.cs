@@ -1,5 +1,6 @@
 using Volo.Abp.Application.Dtos;
 using System;
+using System.Collections.Generic;
 
 namespace IBLTermocasa.ConsumptionEstimations
 {
@@ -8,8 +9,7 @@ namespace IBLTermocasa.ConsumptionEstimations
 
         public string? FilterText { get; set; }
 
-        public string? ConsumptionProduct { get; set; }
-        public string? ConsumptionWork { get; set; }
+        public Guid? IdProduct { get; set; }
 
         public GetConsumptionEstimationsInput()
         {

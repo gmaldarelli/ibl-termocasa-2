@@ -154,8 +154,17 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<ProfessionalProfileUpdateDto, ProfessionalProfileDto>();
         CreateMap<ProfessionalProfileUpdateDto, ProfessionalProfile>();
         CreateMap<ProfessionalProfile, ProfessionalProfileDto>();
-
+        
+        
         CreateMap<ConsumptionEstimation, ConsumptionEstimationDto>();
         CreateMap<ConsumptionEstimation, ConsumptionEstimationExcelDto>();
+        CreateMap<ConsumptionEstimationDto, ConsumptionEstimation>();
+        CreateMap<ConsumptionEstimationDto, ConsumptionEstimationCreateDto>();
+        CreateMap<ConsumptionEstimationDto, ConsumptionEstimationUpdateDto>();
+        CreateMap<ConsumptionEstimationCreateDto, ConsumptionEstimationDto>();
+        CreateMap<ConsumptionEstimationCreateDto, ConsumptionEstimation>();
+        CreateMap<ConsumptionEstimationUpdateDto, ConsumptionEstimationDto>();
+        CreateMap<ConsumptionEstimationUpdateDto, ConsumptionEstimation>();
+        CreateMap<ConsumptionEstimation, ConsumptionEstimationDto>();
     }
 }

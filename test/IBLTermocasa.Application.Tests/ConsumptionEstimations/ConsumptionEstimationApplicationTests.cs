@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Shouldly;
 using System.Threading.Tasks;
@@ -50,8 +51,9 @@ namespace IBLTermocasa.ConsumptionEstimations
             // Arrange
             var input = new ConsumptionEstimationCreateDto
             {
-                ConsumptionProduct = "ed6b38803c3a418fa1da8622f52e98800e5f67434c694f86a71fd668fd28739506e51",
-                ConsumptionWork = "795497c686f74cd7ba03d46d5f"
+                IdProduct = Guid.Parse("ed6b38803c3a418fa1da8622f52e98800e5f67434c694f86a71fd668fd28739506e51"),
+                ConsumptionProduct = new List<ConsumptionProductDto>(),
+                ConsumptionWork = new List<ConsumptionWorkDto>()
             };
 
             // Act
@@ -61,8 +63,9 @@ namespace IBLTermocasa.ConsumptionEstimations
             var result = await _consumptionEstimationRepository.FindAsync(c => c.Id == serviceResult.Id);
 
             result.ShouldNotBe(null);
-            result.ConsumptionProduct.ShouldBe("ed6b38803c3a418fa1da8622f52e98800e5f67434c694f86a71fd668fd28739506e51");
-            result.ConsumptionWork.ShouldBe("795497c686f74cd7ba03d46d5f");
+            result.IdProduct.ShouldBe(Guid.Parse("ed6b38803c3a418fa1da8622f52e98800e5f67434c694f86a71fd668fd28739506e51"));
+            result.ConsumptionProduct.ShouldBe(new List<ConsumptionProduct>());
+            result.ConsumptionWork.ShouldBe(new List<ConsumptionWork>());
         }
 
         [Fact]
@@ -71,8 +74,9 @@ namespace IBLTermocasa.ConsumptionEstimations
             // Arrange
             var input = new ConsumptionEstimationUpdateDto()
             {
-                ConsumptionProduct = "b9e58408d19144cfa95c7cb831",
-                ConsumptionWork = "2b1e38becc0342f39539f9b70"
+                IdProduct = Guid.Parse("ed6b38803c3a418fa1da8622f52e98800e5f67434c694f86a71fd668fd28739506e51"),
+                ConsumptionProduct = new List<ConsumptionProductDto>(),
+                ConsumptionWork = new List<ConsumptionWorkDto>()
             };
 
             // Act
@@ -82,8 +86,9 @@ namespace IBLTermocasa.ConsumptionEstimations
             var result = await _consumptionEstimationRepository.FindAsync(c => c.Id == serviceResult.Id);
 
             result.ShouldNotBe(null);
-            result.ConsumptionProduct.ShouldBe("b9e58408d19144cfa95c7cb831");
-            result.ConsumptionWork.ShouldBe("2b1e38becc0342f39539f9b70");
+            result.IdProduct.ShouldBe(Guid.Parse("ed6b38803c3a418fa1da8622f52e98800e5f67434c694f86a71fd668fd28739506e51"));
+            result.ConsumptionProduct.ShouldBe(new List<ConsumptionProduct>());
+            result.ConsumptionWork.ShouldBe(new List<ConsumptionWork>());
         }
 
         [Fact]

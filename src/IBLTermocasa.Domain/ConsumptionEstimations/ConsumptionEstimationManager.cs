@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Volo.Abp;
-using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Domain.Services;
 using Volo.Abp.Data;
 
@@ -19,31 +16,18 @@ namespace IBLTermocasa.ConsumptionEstimations
             _consumptionEstimationRepository = consumptionEstimationRepository;
         }
 
-        public virtual async Task<ConsumptionEstimation> CreateAsync(
-        string? consumptionProduct = null, string? consumptionWork = null)
+        public virtual async Task<ConsumptionEstimation> CreateAsync(ConsumptionEstimation consumptionEstimation)
         {
-
-            var consumptionEstimation = new ConsumptionEstimation(
-             GuidGenerator.Create(),
-             consumptionProduct, consumptionWork
-             );
-
+            Check.NotNull(consumptionEstimation, nameof(consumptionEstimation));
             return await _consumptionEstimationRepository.InsertAsync(consumptionEstimation);
         }
 
-        public virtual async Task<ConsumptionEstimation> UpdateAsync(
-            Guid id,
-            string? consumptionProduct = null, string? consumptionWork = null, [CanBeNull] string? concurrencyStamp = null
-        )
+        public virtual async Task<ConsumptionEstimation> UpdateAsync(Guid id, ConsumptionEstimation consumptionEstimation)
         {
-
-            var consumptionEstimation = await _consumptionEstimationRepository.GetAsync(id);
-
-            consumptionEstimation.ConsumptionProduct = consumptionProduct;
-            consumptionEstimation.ConsumptionWork = consumptionWork;
-
-            consumptionEstimation.SetConcurrencyStampIfNotNull(concurrencyStamp);
-            return await _consumptionEstimationRepository.UpdateAsync(consumptionEstimation);
+            Check.NotNull(consumptionEstimation, nameof(consumptionEstimation));
+            var existingConsumptionEstimation = await _consumptionEstimationRepository.GetAsync(id);
+            ConsumptionEstimation.FillPropertiesForUpdate(consumptionEstimation, existingConsumptionEstimation);
+            return await _consumptionEstimationRepository.UpdateAsync(existingConsumptionEstimation);
         }
 
     }
