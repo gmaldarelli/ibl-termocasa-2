@@ -11,13 +11,11 @@ namespace IBLTermocasa.ConsumptionEstimations
 
         Task DeleteAllAsync(
             string? filterText = null,
-            string? consumptionProduct = null,
-            string? consumptionWork = null,
+            Guid? productId = null,
             CancellationToken cancellationToken = default);
         Task<List<ConsumptionEstimation>> GetListAsync(
                     string? filterText = null,
-                    string? consumptionProduct = null,
-                    string? consumptionWork = null,
+                    Guid? productId = null,
                     string? sorting = null,
                     int maxResultCount = int.MaxValue,
                     int skipCount = 0,
@@ -26,8 +24,7 @@ namespace IBLTermocasa.ConsumptionEstimations
 
         Task<long> GetCountAsync(
             string? filterText = null,
-            string? consumptionProduct = null,
-            string? consumptionWork = null,
+            Guid? productId = null,
             CancellationToken cancellationToken = default);
     }
 }

@@ -9,8 +9,7 @@ namespace IBLTermocasa.ConsumptionEstimations
 
         public string? FilterText { get; set; }
 
-        public string? ConsumptionProduct { get; set; }
-        public string? ConsumptionWork { get; set; }
+        public Guid? ProductId { get; set; }
 
         public ConsumptionEstimationExcelDownloadDto()
         {

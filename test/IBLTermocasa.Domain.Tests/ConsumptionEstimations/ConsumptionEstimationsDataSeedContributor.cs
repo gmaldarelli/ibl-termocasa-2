@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
@@ -30,15 +31,17 @@ namespace IBLTermocasa.ConsumptionEstimations
             await _consumptionEstimationRepository.InsertAsync(new ConsumptionEstimation
             (
                 id: Guid.Parse("868f7fde-b43b-41b3-b100-009312267a62"),
-                consumptionProduct: "df77227afb4249b9b6af520810481f",
-                consumptionWork: "5088cd37f1a241b08108f9d9fb5097ceccca5cb0280d4f39a2fb177f208c72587be8c553d48149cab1f38e"
+                idProduct: Guid.Parse("ed6b38803c3a418fa1da8622f52e98800e5f67434c694f86a71fd668fd28739506e51"),
+                consumptionProduct: new List<ConsumptionProduct>(),
+                consumptionWork: new List<ConsumptionWork>()
             ));
 
             await _consumptionEstimationRepository.InsertAsync(new ConsumptionEstimation
             (
                 id: Guid.Parse("4d3f667a-a8ac-416e-8290-a4cac7c1863b"),
-                consumptionProduct: "da0e467a83cc4bd3aa0b75",
-                consumptionWork: "1c68d608a39c4b48ac67c9665d3dbce9b293ad9740a8"
+                idProduct: Guid.Parse("ed6b38803c3a418fa1da8622f52e98800e5f67434c694f86a71fd668fd28739506e51"),
+                consumptionProduct: new List<ConsumptionProduct>(),
+                consumptionWork: new List<ConsumptionWork>()
             ));
 
             await _unitOfWorkManager!.Current!.SaveChangesAsync();

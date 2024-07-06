@@ -101,6 +101,11 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<ProfessionalProfileDto, ProfessionalProfileCreateDto>();
         CreateMap<ProfessionalProfileDto, ProfessionalProfileUpdateDto>();
 
+        CreateMap<ConsumptionEstimation, ConsumptionEstimationDto>();
+        CreateMap<ConsumptionEstimationCreateDto, ConsumptionEstimationDto>();
+        CreateMap<ConsumptionEstimationUpdateDto, ConsumptionEstimationDto>();
+        CreateMap<ConsumptionEstimationDto, ConsumptionEstimation>();
+        CreateMap<ConsumptionEstimationDto, ConsumptionEstimationCreateDto>();
         CreateMap<ConsumptionEstimationDto, ConsumptionEstimationUpdateDto>();
     }
 }
