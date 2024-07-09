@@ -54,6 +54,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
         protected override async Task OnInitializedAsync()
         {
             await SetPermissionsAsync();
+            await GetContactsAsync();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -123,17 +124,6 @@ namespace IBLTermocasa.Blazor.Pages.Crm
             }
             await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
             NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/contacts/as-excel-file?DownloadToken={token}&FilterText={Filter.FilterText}{culture}&Title={Filter.Title}&Name={Filter.Name}&Surname={Filter.Surname}&Phone={Filter.PhoneInfo}&Mail={Filter.MailInfo}&ConfidentialName={Filter.ConfidentialName}&JobRole={Filter.JobRole}&Tag={Filter.Tag}", forceLoad: true);
-        }
-
-        private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<ContactDto> e)
-        {
-            CurrentSorting = e.Columns
-                .Where(c => c.SortDirection != SortDirection.Default)
-                .Select(c => c.Field + (c.SortDirection == SortDirection.Descending ? " DESC" : ""))
-                .JoinAsString(",");
-            CurrentPage = e.Page;
-            await GetContactsAsync();
-            await InvokeAsync(StateHasChanged);
         }
 
         private async Task OpenCreateContactModalAsync()
