@@ -57,14 +57,16 @@ namespace IBLTermocasa.Blazor.Pages
         
         private void OnClickSelectProduct(LookupDto<Guid> item)
         {
-            OnSelectedItemChanged(item.Id);
+            _ = OnSelectedItemChanged(item.Id);
             StateHasChanged();
         }
         
         private async Task OnSelectedItemChanged(Guid idProduct)
         {
-            var product = ProductsAppService.GetAsync(idProduct);
-            
+            var item = await ConsumptionEstimationsAppService.GetAsyncByProduct(idProduct);
+            var product = await ProductsAppService.GetAsync(idProduct);
+            Console.WriteLine(":::::::::::::::::::::::::::::::::::product: " + product);
+            Console.WriteLine(":::::::::::::::::::::::::::::::::::ConsumptionEstimations: " + item);
         }
         
         

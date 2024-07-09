@@ -31,19 +31,4 @@
     <PackageReference Include="Volo.CmsKit.Pro.Application.Contracts" Version="8.1.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="Subproducts\GetSubproductsInput.Extended.cs" />
-    <Compile Remove="Subproducts\ISubproductsAppService.Extended.cs" />
-    <Compile Remove="Subproducts\SubproductCreateDto.Extended.cs" />
-    <Compile Remove="Subproducts\SubproductDto.Extended.cs" />
-    <Compile Remove="Subproducts\SubproductUpdateDto.Extended.cs" />
-    <Compile Remove="Subproducts\SubproductWithNavigationPropertiesDto.Extended.cs" />
-    <Compile Remove="Profiles\ProfileUpdateDto.cs" />
-    <Compile Remove="Profiles\ProfileExcelDto.cs" />
-    <Compile Remove="Profiles\ProfileExcelDownloadDto.cs" />
-    <Compile Remove="Profiles\ProfileDto.cs" />
-    <Compile Remove="Profiles\ProfileCreateDto.cs" />
-    <Compile Remove="Profiles\IProfilesAppService.cs" />
-  </ItemGroup>
-
 </Project>

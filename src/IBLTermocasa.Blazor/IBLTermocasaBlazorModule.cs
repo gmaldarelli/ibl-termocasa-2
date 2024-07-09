@@ -64,15 +64,35 @@ namespace IBLTermocasa.Blazor;
         var environment = context.Services.GetSingletonInstance<IWebAssemblyHostEnvironment>();
         var builder = context.Services.GetSingletonInstance<WebAssemblyHostBuilder>();
 
+        Console.WriteLine("IBLTermocasaBlazorModule.ConfigureServices");
         ConfigureAuthentication(builder);
+        Console.WriteLine("IBLTermocasaBlazorModule.ConfigureServices - after ConfigureAuthentication");
         ConfigureHttpClient(context, environment);
-        ConfigureBlazorise(context);
+        Console.WriteLine("IBLTermocasaBlazorModule.ConfigureServices - after ConfigureHttpClient");
+        try
+        {
+            ConfigureBlazorise(context);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            Console.WriteLine(e.StackTrace);
+            
+            throw;
+        }
+        Console.WriteLine("IBLTermocasaBlazorModule.ConfigureServices - after ConfigureBlazorise");
         ConfigureRouter(context);
+        Console.WriteLine("IBLTermocasaBlazorModule.ConfigureServices - after ConfigureRouter");
         ConfigureUI(builder);
+        Console.WriteLine("IBLTermocasaBlazorModule.ConfigureServices - after ConfigureUI");
         ConfigureMenu(context);
+        Console.WriteLine("IBLTermocasaBlazorModule.ConfigureServices - after ConfigureMenu");
         ConfigureAutoMapper(context);
+        Console.WriteLine("IBLTermocasaBlazorModule.ConfigureServices - after ConfigureAutoMapper");
         ConfigureCookieConsent(context);
+        Console.WriteLine("IBLTermocasaBlazorModule.ConfigureServices - after ConfigureCookieConsent");
         ConfigureExtraBlazoriseService(context);
+        Console.WriteLine("IBLTermocasaBlazorModule.ConfigureServices - after ConfigureExtraBlazoriseService");
     }
     
     private void ConfigureCookieConsent(ServiceConfigurationContext context)

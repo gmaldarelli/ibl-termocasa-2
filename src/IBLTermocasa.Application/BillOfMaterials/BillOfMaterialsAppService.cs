@@ -383,20 +383,17 @@ namespace IBLTermocasa.BillOfMaterials
                     foreach (var productComponent in product.ProductComponents)
                     {
                         string componentCode = $"{{{productCode}.C[{productComponent.Code}]}}";
-                        formulaElementCodes.Add(new ProductComponentCunsumptionFormulaElement(productComponent.ComponentId, productItem.Id, componentCode, productComponent.Code, productComponent.ConsumptionCalculation));
+                        //formulaElementCodes.Add(new ProductComponentCunsumptionFormulaElement(productComponent.ComponentId, productItem.Id, componentCode, productComponent.Code, productComponent.ConsumptionCalculation));
                     }
 
                     foreach (var subProduct in product.SubProducts)
                     {
-                        foreach (var subProductId in subProduct.ProductIds)
-                        {   
-                            var subProductItem = products.FirstOrDefault(x => x.Id == subProductId);
-                            string subProductCode = $"P[{product.Code}].P[{subProduct.Code}]";
-                            foreach (var productComponent in subProductItem.ProductComponents)
-                            {
-                                string componentCode = $"{{{subProductCode}.C[{productComponent.Code}]}}";
-                                formulaElementCodes.Add(new ProductComponentCunsumptionFormulaElement(productComponent.ComponentId, productItem.Id, componentCode, productComponent.Code, productComponent.ConsumptionCalculation));
-                            }
+                        var subProductItem = products.FirstOrDefault(x => x.Id == subProduct.ProductId);
+                        string subProductCode = $"P[{product.Code}].P[{subProduct.Code}]";
+                        foreach (var productComponent in subProductItem.ProductComponents)
+                        {
+                            string componentCode = $"{{{subProductCode}.C[{productComponent.Code}]}}";
+                            //formulaElementCodes.Add(new ProductComponentCunsumptionFormulaElement(productComponent.ComponentId, productItem.Id, componentCode, productComponent.Code, productComponent.ConsumptionCalculation));
                         }
                     }
                 }
@@ -425,15 +422,12 @@ namespace IBLTermocasa.BillOfMaterials
                     
                     foreach (var subProduct in product.SubProducts)
                     {
-                        foreach (var subProductId in subProduct.ProductIds)
-                        {   
-                            var subProductItem = products.FirstOrDefault(x => x.Id == subProductId);
-                            string subProductCode = $"P[{product.Code}].P[{subProduct.Code}]";
-                            foreach (var productComponent in subProductItem.ProductComponents)
-                            {
-                                string componentCode = $"{{{subProductCode}.C[{productComponent.Code}]}}";
-                                formulaElementCodes.Add(componentCode, productComponent);
-                            }
+                        var subProductItem = products.FirstOrDefault(x => x.Id == subProduct.ProductId);
+                        string subProductCode = $"P[{product.Code}].P[{subProduct.Code}]";
+                        foreach (var productComponent in subProductItem.ProductComponents)
+                        {
+                            string componentCode = $"{{{subProductCode}.C[{productComponent.Code}]}}";
+                            formulaElementCodes.Add(componentCode, productComponent);
                         }
                     }
                 }
@@ -490,15 +484,12 @@ namespace IBLTermocasa.BillOfMaterials
 
                     foreach (var subProduct in product.SubProducts)
                     {
-                        foreach (var subProductId in subProduct.ProductIds)
-                        {   
-                            var subProductItem = products.FirstOrDefault(x => x.Id == subProductId);
-                            string subProductCode = $"P[{product.Code}].P[{subProduct.Code}]";
-                            foreach (var questionTemplate in subProductItem.ProductQuestionTemplates)
-                            {
-                                string questionCode = $"{{{subProductCode}.Q[{questionTemplate.Code}]}}";
-                                formulaQuestionTemplateCodes.Add(questionCode, questionTemplate);
-                            }
+                        var subProductItem = products.FirstOrDefault(x => x.Id == subProduct.ProductId);
+                        string subProductCode = $"P[{product.Code}].P[{subProduct.Code}]";
+                        foreach (var questionTemplate in subProductItem.ProductQuestionTemplates)
+                        {
+                            string questionCode = $"{{{subProductCode}.Q[{questionTemplate.Code}]}}";
+                            formulaQuestionTemplateCodes.Add(questionCode, questionTemplate);
                         }
                     }
                 }

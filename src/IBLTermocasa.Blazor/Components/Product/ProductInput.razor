@@ -1,51 +1,50 @@
 ﻿@using IBLTermocasa.Components
 @using IBLTermocasa.Products
+@using Volo.Abp.AspNetCore.Components.Messages
+@using DataGridEditMode = MudBlazor.DataGridEditMode
 @using MudBlazor
-@using Color = MudBlazor.Color
-@using IBLTermocasa.Blazor.Components.Selector
+@inject IUiMessageService UiMessageService
 @inherits IBLTermocasaComponentBase
 
-<MudForm   @ref="formProductInfo"
-           IsValid=" successValidationProductInfo"
-           Errors="errorsValidationProductInfo"
-           Model="Product" >
+
     <MudGrid>
-        <MudItem xs="12" sm="12">
+        @*<MudItem xs="12" sm="12">
             <MudPaper Class="pa-2 mt-12">
                 <MudButton Variant="Variant.Filled" Color="Color.Primary"  DisableElevation="true" OnClick="@SaveProductAsync">@L["Save"]</MudButton>
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" DisableElevation="true" OnClick="@(()=>formProductInfo.Validate())">@L["Validate"]</MudButton>
                 <MudButton Variant="Variant.Filled" Color="Color.Secondary" DisableElevation="true" OnClick="@(()=>formProductInfo.ResetAsync())" Class="mx-2">@L["Reset"]</MudButton>
                 <MudButton Variant="Variant.Filled"  OnClick="@(()=>OpenConsumeCalculator())">Configura Consumi</MudButton>
             </MudPaper>
-        </MudItem>
+        </MudItem>*@
         <MudItem xs="12" sm="4">
+            <MudForm   @ref="formProductInfo"
+                       IsValid=" successValidationProductInfo"
+                       Errors="errorsValidationProductInfo"
+                       Model="Product" >
             @* ************************* Main Info on left side ************************* *@            
-            <MudPaper Class="pa-4">
-                <MudTextField @bind-Value="Product.Code"
-                              Label="@L["Code"]"
-                              Required="true" RequiredError="@L["Required"]"/>
-                <MudTextField @bind-Value="Product.Name"
-                              Label="@L["Name"]"
-                              Required="true" RequiredError="@L["Required"]"/>
-                <MudSelect T="bool" @bind-Value="Product.IsAssembled"
-                           Label="@L["IsAssembled"]" AnchorOrigin="Origin.BottomCenter">
-                    <MudSelectItem T="bool" Value="true">@L["Yes"]</MudSelectItem>
-                    <MudSelectItem T="bool" Value="false">@L["No"]</MudSelectItem>
-                </MudSelect>
-                <MudSelect T="bool" @bind-Value="Product.IsInternal"
-                           Label="@L["IsInternal"]" AnchorOrigin="Origin.BottomCenter">
-                    <MudSelectItem T="bool" Value="true">@L["Yes"]</MudSelectItem>
-                    <MudSelectItem T="bool" Value="false">@L["No"]</MudSelectItem>
-                </MudSelect>
-                <MudTextField @bind-Value="Product.Description"
-                              Label="@L["Description"]"
-                              Variant="Variant.Outlined" Lines="5"
-                              Required="true" RequiredError="@L["Required"]"/>
-                <div class="d-flex align-center justify-space-between">
-                    <MudCheckBox T="bool" Required="true" RequiredError="You must agree" Label="I agree!"/>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!successValidationProductInfo)" Class="ml-auto">Register</MudButton>
-                </div>
-            </MudPaper>
+                <MudPaper Class="pa-4">
+                    <MudTextField @bind-Value="Product.Code"
+                                  Label="@L["Code"]"
+                                  Required="true" RequiredError="@L["Required"]"/>
+                    <MudTextField @bind-Value="Product.Name"
+                                  Label="@L["Name"]"
+                                  Required="true" RequiredError="@L["Required"]"/>
+                    <MudSelect T="bool" @bind-Value="Product.IsAssembled"
+                               Label="@L["IsAssembled"]" AnchorOrigin="Origin.BottomCenter">
+                        <MudSelectItem T="bool" Value="true">@L["Yes"]</MudSelectItem>
+                        <MudSelectItem T="bool" Value="false">@L["No"]</MudSelectItem>
+                    </MudSelect>
+                    <MudSelect T="bool" @bind-Value="Product.IsInternal"
+                               Label="@L["IsInternal"]" AnchorOrigin="Origin.BottomCenter">
+                        <MudSelectItem T="bool" Value="true">@L["Yes"]</MudSelectItem>
+                        <MudSelectItem T="bool" Value="false">@L["No"]</MudSelectItem>
+                    </MudSelect>
+                    <MudTextField @bind-Value="Product.Description"
+                                  Label="@L["Description"]"
+                                  Variant="Variant.Outlined" Lines="5"
+                                  Required="true" RequiredError="@L["Required"]"/>
+                </MudPaper>
+            </MudForm>
         </MudItem>
         <MudItem xs="12" sm="8">
             <MudPaper Class="pa-4">
@@ -56,15 +55,18 @@
                     <MudBlazor.MudTabPanel Text="@L["Components"]">
                         <MudPaper>
 
-                            <MudDataGrid @ref="ProductComponentMudDataGrid" T="ProductComponentDto" Items="@Product.ProductComponents" ReadOnly="false" EditMode="MudBlazor.DataGridEditMode.Cell"
+                            <MudDataGrid @ref="ProductComponentMudDataGrid" T="ProductComponentDto" Items="@Product.ProductComponents" ReadOnly="false" EditMode="DataGridEditMode.Cell"
                                          EditTrigger="DataGridEditTrigger.OnRowClick" CommittedItemChanges="@ProductComponentCommittedItemChanges"
-                                         Bordered="true" Dense="true" Filterable="false" SortMode="SortMode.None">
+                                         Bordered="true" Dense="true" Filterable="false" SortMode="SortMode.None" >
                                 <Columns>
-                                    <PropertyColumn Property="x => x.Order" Title="@L["Order"]" IsEditable="true" Sortable="false" Filterable="false">
-                                    </PropertyColumn>
-                                    <PropertyColumn Property="x => x.Code" IsEditable="true" Title="@L["Code"]" Sortable="false" Filterable="false">
+                                    <PropertyColumn Property="x => x.Order" Title="@L["Order"]" IsEditable="true" Sortable="false" Filterable="false" Required="true" >
                                         <EditTemplate>
-                                            <MudTextField @bind-Value="context.Item.Code"/>
+                                            <MudNumericField @bind-Value="context.Item.Order"  Required="true" RequiredError="@L["Required"]"/>
+                                        </EditTemplate>
+                                    </PropertyColumn>
+                                    <PropertyColumn Property="x => x.Code" IsEditable="true" Title="@L["Code"]" Sortable="false" Filterable="false" Required="true">
+                                        <EditTemplate>
+                                            <MudTextField @bind-Value="context.Item.Code"  Required="true" RequiredError="@L["Required"]"/>
                                         </EditTemplate>
                                     </PropertyColumn>
                                     <PropertyColumn Property="x => x.Name" IsEditable="true" Title="@L["Name"]" Sortable="false" Filterable="false">
@@ -101,7 +103,7 @@
                     </MudBlazor.MudTabPanel>
                     @* ************************* Tab Products on right side ************************* *@
                     <MudBlazor.MudTabPanel Text="@L["Products"]">
-                        <MudDataGrid T="SubProductDto"  @ref="SubProductMudDataGrid" Items="@Product.SubProducts" ReadOnly="false" EditMode="MudBlazor.DataGridEditMode.Cell"
+                        <MudDataGrid T="SubProductDto"  @ref="SubProductMudDataGrid" Items="@Product.SubProducts" ReadOnly="false" EditMode="DataGridEditMode.Cell"
                                      EditTrigger="DataGridEditTrigger.OnRowClick" CommittedItemChanges="@SubProductDtoCommittedItemChanges"
                                      Bordered="true" Dense="true" Filterable="false" SortMode="SortMode.None">
                             <Columns>
@@ -143,7 +145,7 @@
                     </MudBlazor.MudTabPanel>
                     @* ************************* Tab QuestionTemplate on right side ************************* *@
                     <MudBlazor.MudTabPanel Text="@L["QuestionTemplates"]">
-                        <MudDataGrid T="ProductQuestionTemplateDto" @ref="ProductQuestionTemplateMudDataGrid" Items="@Product.ProductQuestionTemplates" ReadOnly="false" EditMode="MudBlazor.DataGridEditMode.Cell"
+                        <MudDataGrid T="ProductQuestionTemplateDto" @ref="ProductQuestionTemplateMudDataGrid" Items="@Product.ProductQuestionTemplates" ReadOnly="false" EditMode="DataGridEditMode.Cell"
                                      EditTrigger="DataGridEditTrigger.OnRowClick" CommittedItemChanges="@QuestionTemplateDtoCommittedItemChanges"
                                      Bordered="true" Dense="true" Filterable="false" SortMode="SortMode.None">
                             <Columns>
@@ -181,8 +183,11 @@
                 </MudBlazor.MudTabs>
             </MudPaper>
         </MudItem>
+        <MudItem xs="12" sm="12" >
+            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary"  DisableElevation="true" OnClick="@SaveProductAsync">@L["Save"]</MudButton>
+            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Secondary"  DisableElevation="true" OnClick="@Cancel">@L["Cancel"]</MudButton>
+        </MudItem>
     </MudGrid>
-</MudForm> 
 @code {
 
     private string _searchComponentString;
@@ -199,21 +204,6 @@
         return false;
     };
     
-    // events
-    void RowComponentClicked(DataGridRowClickEventArgs<ComponentDto> args)
-    {
-       // _events.Insert(0, $"Event = RowClick, Index = {args.RowIndex}, Data = {System.Text.Json.JsonSerializer.Serialize(args.Item)}");
-    }
-    
-    void RowComponentRightClicked(DataGridRowClickEventArgs<ComponentDto> args)
-    {
-        //_events.Insert(0, $"Event = RowRightClick, Index = {args.RowIndex}, Data = {System.Text.Json.JsonSerializer.Serialize(args.Item)}");
-    }
-
-    void SelectedComponentItemsChanged(HashSet<ComponentDto> items)
-    {
-        //_events.Insert(0, $"Event = SelectedItemsChanged, Data = {System.Text.Json.JsonSerializer.Serialize(items)}");
-    }
 
 
 }

@@ -86,7 +86,7 @@ public partial class ConsumeCalculator
         var _treeItems = new HashSet<TreeItemData>();
         if (productSubProducts is { Count: > 0 })
         {
-            var subProductIds = productSubProducts.SelectMany(subProduct => subProduct.ProductIds).ToList();
+            var subProductIds = productSubProducts.Select(subProduct => subProduct.ProductId).ToList();
             Console.WriteLine("Generating sub tree items1"); 
             foreach (var id in subProductIds)
             {

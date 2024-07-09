@@ -40,9 +40,9 @@ namespace IBLTermocasa.Products
                 GuidGenerator.Create(),
                 code, name, isAssembled, isInternal, subProducts, description
             );
+            await SetSubProductsAsync(product, subProducts);
             await SetComponentsAsync(product, productComponents);
             await SetQuestionTemplatesAsync(product, questionTemplates);
-
             return await _productRepository.InsertAsync(product);
         }
 
@@ -62,8 +62,8 @@ namespace IBLTermocasa.Products
             var query = queryable.Where(x => x.Id == id);
 
             var product = await AsyncExecuter.FirstOrDefaultAsync(query);
-
-            product.Code = code;
+            Check.NotNull(product, nameof(product));
+            product!.Code = code;
             product.Name = name;
             product.IsAssembled = isAssembled;
             product.IsInternal = isInternal;
@@ -75,36 +75,39 @@ namespace IBLTermocasa.Products
             return await _productRepository.UpdateAsync(product);
         }
 
-        private async Task SetSubProductsAsync(Product product, List<SubProduct> subProducts)
+        private async Task SetSubProductsAsync(Product product, List<SubProduct>? subProducts)
         {
             if (subProducts == null || !subProducts.Any())
             {
-                product.RemoveAllSubproducts();
+                product.RemoveAllSubProducts();
                 return;
             }
-            var pruductIds = subProducts.SelectMany(x => x.ProductIds).ToList();
+            var productIds = subProducts.Select(x => x.ProductId).ToList();
 
             var query = (await _productRepository.GetQueryableAsync())
-                .Where(x => pruductIds.Contains(x.Id))
+                .Where(x => productIds.Contains(x.Id))
                 .Select(x => x.Id);
 
-            if (!pruductIds.Any())
+            if (productIds.Count == 0)
             {
+                product.RemoveAllSubProducts();
                 return;
             }
-            product.RemoveAllSubProductssExceptGivenIds(pruductIds);
-
-            product.RemoveAllSubProducts();
-
-            product.RemoveAllSubproducts();
-
-            foreach (var subProduct in subProducts)
-            {
-                product.AddSubproduct(subProduct);
-            }
+            subProducts.RemoveAll(x => !productIds.Contains(x.ProductId));
+            product.SubProducts.RemoveAll(x => !productIds.Contains(x.ProductId));
+            product.SubProducts.RemoveAll((x => 
+                !subProducts.Select(y => y.Id).ToList().Contains(x.Id)));
+            subProducts.ForEach(
+                x =>
+                {
+                    if (product.SubProducts.All(y => y.Id != x.Id))
+                    {
+                        product.SubProducts.Add(x);
+                    }
+                });
         }
 
-        private async Task SetComponentsAsync(Product product, List<ProductComponent> productComponents)
+        private async Task SetComponentsAsync(Product product, List<ProductComponent>? productComponents)
         {
             if (productComponents == null || !productComponents.Any())
             {
@@ -121,17 +124,21 @@ namespace IBLTermocasa.Products
             {
                 return;
             }
-            product.RemoveAllComponentsExceptGivenIds(componentIds);
-
-            product.RemoveAllComponents();
-
-            foreach (var productComponent in productComponents)
-            {
-                product.AddComponent(productComponent.ComponentId, productComponent.Order, productComponent.Code, productComponent.Name, productComponent.Mandatory, productComponent.ConsumptionCalculation);
-            }
+            productComponents.RemoveAll(x => !componentIds.Contains(x.ComponentId));
+            product.ProductComponents.RemoveAll(x => !componentIds.Contains(x.ComponentId));
+            product.ProductComponents.RemoveAll((x => 
+                !productComponents.Select(y => y.Id).ToList().Contains(x.Id)));
+            productComponents.ForEach(
+                x =>
+                {
+                    if (product.ProductComponents.All(y => y.Id != x.Id))
+                    {
+                        product.ProductComponents.Add(x);
+                    }
+                });
         }
 
-        private async Task SetQuestionTemplatesAsync(Product product, List<ProductQuestionTemplate> questionTemplates)
+        private async Task SetQuestionTemplatesAsync(Product product, List<ProductQuestionTemplate>? questionTemplates)
         {
             if (questionTemplates == null || !questionTemplates.Any())
             {
@@ -147,17 +154,21 @@ namespace IBLTermocasa.Products
             var questionTemplateIdsInDb = await AsyncExecuter.ToListAsync(query);
             if (!questionTemplateIdsInDb.Any())
             {
+                product.RemoveAllQuestionTemplates();
                 return;
             }
-
-            product.RemoveAllQuestionTemplatesExceptGivenIds(questionTemplateIdsInDb);
-            product.RemoveAllQuestionTemplates();
-
-            foreach (var questionTemplateId in questionTemplateIdsInDb)
-            {
-                var entity = questionTemplates.Where(x => x.QuestionTemplateId == questionTemplateId).First();
-                product.AddQuestionTemplate(entity);
-            }
+            questionTemplates.RemoveAll(x => !questionTemplateIds.Contains(x.QuestionTemplateId));
+            product.ProductQuestionTemplates.RemoveAll(x => !questionTemplateIds.Contains(x.QuestionTemplateId));
+            product.ProductQuestionTemplates.RemoveAll((x => 
+                !questionTemplates.Select(y => y.Id).ToList().Contains(x.Id)));
+            questionTemplates.ForEach(
+                x =>
+                {
+                    if (product.ProductQuestionTemplates.All(y => y.Id != x.Id))
+                    {
+                        product.ProductQuestionTemplates.Add(x);
+                    }
+                });
         }
     }
 }

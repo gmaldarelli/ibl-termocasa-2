@@ -40,7 +40,8 @@ namespace IBLTermocasa.Products
                 {
                     new SubProduct(
                         Guid.Parse("f1b1b3b4-1b3b-4b1b-b3b4-1b3b4b1b3b4b"), 
-                        productIds: new List<Guid> { Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c") },
+                        parentId: Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c"),
+                        productId: Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c"),
                         order: 1,
                         code: "c51228db35954bcbb036558cfe34ee871a27e6adab9940bfad29e7bc9f9ca2fdf9fbddde78f746a0",
                         name: "Name1",
@@ -48,7 +49,8 @@ namespace IBLTermocasa.Products
                         isSingleProduct: true),
                     new SubProduct(
                         id: Guid.Parse("f1b1b3b4-1b3b-4b1b-b3b4-1b3b4b1b3b4b"),
-                        productIds: new List<Guid> { Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c") },
+                        parentId: Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c"),
+                        productId: Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c"),
                         order: 2,
                         code: "c51228db35954bcbb036558cfe34ee871a27e6adab9940bfad29e7bc9f9ca2fdf9fbddde78f746a0",
                         name: "Name2",
@@ -70,7 +72,8 @@ namespace IBLTermocasa.Products
                 {
                     new SubProduct(
                         Guid.Parse("f1b1b3b4-1b3b-4b1b-b3b4-1b3b4b1b3b4b"), 
-                        productIds: new List<Guid> { Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c") },
+                        parentId: Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c"),
+                        productId: Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c"),
                         order: 1,
                         code: "c51228db35954bcbb036558cfe34ee871a27e6adab9940bfad29e7bc9f9ca2fdf9fbddde78f746a0",
                         name: "Name1",
@@ -78,7 +81,8 @@ namespace IBLTermocasa.Products
                         isSingleProduct: true),
                     new SubProduct(
                         id: Guid.Parse("f1b1b3b4-1b3b-4b1b-b3b4-1b3b4b1b3b4b"),
-                        productIds: new List<Guid> { Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c") },
+                        parentId: Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c"),
+                        productId: Guid.Parse("4438de60-6a9a-45e3-8aa3-7692c33e752c"),
                         order: 2,
                         code: "c51228db35954bcbb036558cfe34ee871a27e6adab9940bfad29e7bc9f9ca2fdf9fbddde78f746a0",
                         name: "Name2",

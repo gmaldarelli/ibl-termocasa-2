@@ -394,37 +394,25 @@ namespace IBLTermocasa.Blazor.Pages
         private async Task OpenCreateComponentItemModalAsync()
         {
             var exclusionIds = ComponentItemList.Select(x => x.Id).ToList();
-            var parameters = new DialogParameters<AddMaterialsInput>();
-            parameters.Add(nameof(AddMaterialsInput.ExclusionIds), exclusionIds);
-
-            var dialog = await DialogService.ShowAsync<AddMaterialsInput>(L["ConfirmGenerationMudDialogTitle"], 
-                parameters,
-                new DialogOptions
-                {
-
-                    FullWidth= true,
-                    MaxWidth=MaxWidth.Medium,
-                    CloseButton= true,
-                    DisableBackdropClick= true,
-                    NoHeader=false,
-                    Position=DialogPosition.Center,
-                    CloseOnEscapeKey=false
-                });
             
-            var result = await dialog.Result;
-            if (result.Cancelled)
+            var materialDialog = await DialogService.ShowAsync<AddMaterialsInput>(L["ConfirmGenerationMudDialogTitle"] ,new DialogParameters
             {
-                return;
-            }
-            else
+                { "ExclusionIds", exclusionIds }
+            }, new DialogOptions
+            {
+                Position = DialogPosition.Custom,
+                FullWidth = true,
+                MaxWidth = MaxWidth.Medium
+            });
+            
+            var result = await materialDialog.Result;
+            if (!result.Canceled)
             {
                 var selectedItems = (List<MaterialDto>)result.Data;
                 if (selectedItems.Count == 0)
                 {
                     return;
                 }
-                
-
                 selectedItems.ForEach(x =>
                 {
                     ComponentMudDataGrid.SelectedItem.ComponentItems.Add(new ComponentItemDto
@@ -446,18 +434,10 @@ namespace IBLTermocasa.Blazor.Pages
                         x = updated;
                     }
                 });
-                ComponentMudDataGrid.ReloadServerData();
-                
-                await NewComponentItemValidations.ClearAll();
-                await CreateComponentItemModal.Show();
+                await ComponentMudDataGrid.ReloadServerData();
+                StateHasChanged();
             }
             
-            NewComponentItem = new ComponentItemDto
-            {
-                Id = Guid.NewGuid()
-            };
-            await NewComponentItemValidations.ClearAll();
-            await CreateComponentItemModal.Show();
         }
 
         private async Task CloseCreateComponentItemModalAsync()

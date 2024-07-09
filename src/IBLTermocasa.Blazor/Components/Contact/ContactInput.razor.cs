@@ -37,7 +37,6 @@ public partial class ContactInput
         {
             return;
         }
-        Console.WriteLine("Entro nel metodo HandleValidSubmit()");
         try
         {
             // copy Contact properties to EditingContact with mapper

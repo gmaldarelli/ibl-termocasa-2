@@ -11,6 +11,7 @@ using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
 using IBLTermocasa.Permissions;
 using IBLTermocasa.ConsumptionEstimations;
+using IBLTermocasa.Products;
 using MiniExcelLibs;
 using Volo.Abp.Content;
 using Volo.Abp.Authorization;
@@ -27,10 +28,16 @@ namespace IBLTermocasa.ConsumptionEstimations
         protected IDistributedCache<ConsumptionEstimationExcelDownloadTokenCacheItem, string> _excelDownloadTokenCache;
         protected IConsumptionEstimationRepository _consumptionEstimationRepository;
         protected ConsumptionEstimationManager _consumptionEstimationManager;
+        //protected ProductsAppService _productsAppService;
 
-        public ConsumptionEstimationsAppService(IConsumptionEstimationRepository consumptionEstimationRepository, ConsumptionEstimationManager consumptionEstimationManager, IDistributedCache<ConsumptionEstimationExcelDownloadTokenCacheItem, string> excelDownloadTokenCache)
+        public ConsumptionEstimationsAppService(IConsumptionEstimationRepository consumptionEstimationRepository, 
+            ConsumptionEstimationManager consumptionEstimationManager, 
+            IDistributedCache<ConsumptionEstimationExcelDownloadTokenCacheItem, string> excelDownloadTokenCache
+            //, ProductsAppService productsAppService
+            )
         {
             _excelDownloadTokenCache = excelDownloadTokenCache;
+            //_productsAppService = productsAppService;
             _consumptionEstimationRepository = consumptionEstimationRepository;
             _consumptionEstimationManager = consumptionEstimationManager;
         }
@@ -119,6 +126,27 @@ namespace IBLTermocasa.ConsumptionEstimations
         public virtual async Task DeleteAllAsync(GetConsumptionEstimationsInput input)
         {
             await _consumptionEstimationRepository.DeleteAllAsync(input.FilterText, input.IdProduct);
+        }
+        
+        public virtual async Task<ConsumptionEstimationDto> GetAsyncByProduct(Guid id)
+        {
+            /*var product = await _productsAppService.GetAsync(id);
+            if (product != null)    
+            {
+                throw new UserFriendlyException("Product not found");
+            }*/
+            
+            var entity = await _consumptionEstimationRepository.GetAsync(ix => ix.IdProduct == id);
+            if (entity == null)
+            {
+                return await this.CreateAsync(new ConsumptionEstimationCreateDto
+                {
+                    IdProduct = id
+                });
+            } else
+            {
+                return ObjectMapper.Map<ConsumptionEstimation, ConsumptionEstimationDto>(entity);
+            }
         }
     }
 }

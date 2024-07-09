@@ -3,7 +3,7 @@
   "name": "my-app-authserver",
   "private": true,
   "dependencies": {
-    "@volo/abp.aspnetcore.mvc.ui.theme.lepton": "~8.1.3",
-    "@volo/account": "~8.1.3"
+    "@volo/abp.aspnetcore.mvc.ui.theme.lepton": "~8.2.0",
+    "@volo/account": "~8.2.0"
   }
 }

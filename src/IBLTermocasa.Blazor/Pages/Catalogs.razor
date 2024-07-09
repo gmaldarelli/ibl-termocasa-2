@@ -5,28 +5,23 @@
 @attribute [Authorize(IBLTermocasaPermissions.Catalogs.Default)]
 @using IBLTermocasa.Catalogs
 @using IBLTermocasa.Localization
+@using IBLTermocasa.Permissions
 @using IBLTermocasa.Shared
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.Extensions.Localization
-@using Microsoft.AspNetCore.Components.Web
-@using Blazorise
-@using Blazorise.Components
-@using Blazorise.DataGrid
-@using Volo.Abp.BlazoriseUI
-@using Volo.Abp.BlazoriseUI.Components
-@using Volo.Abp.ObjectMapping
+@using MudBlazor
 @using Volo.Abp.AspNetCore.Components.Messages
-@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
-
-@using IBLTermocasa.Permissions
 @using Volo.Abp.AspNetCore.Components.Web
-@using Microsoft.AspNetCore.Components
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
 @using Volo.Abp.Http.Client
+@using Button = Blazorise.Button
+@using Color = Blazorise.Color
+@using Row = Blazorise.Row
+@using Size = MudBlazor.Size
 @inherits IBLTermocasaComponentBase
 @inject ICatalogsAppService CatalogsAppService
 
 @inject IUiMessageService UiMessageService
-@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> Lh
 @inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
 @inject NavigationManager NavigationManager
 
@@ -55,14 +50,14 @@
             </Addons>
         </Form>
         
-        <Row Class="mt-3 mb-3"> 
+        <Blazorise.Row Class="mt-3 mb-3"> 
             <div class="col-md-12">
-                <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
+                <a href="javascript:" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
             </div>
-        </Row>
+        </Blazorise.Row>
         
         <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
-            <Row>
+            <Blazorise.Row>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["Name"]</FieldLabel>
@@ -134,7 +129,7 @@
 </Select>                       
                     </Field>
                 </Column>
-            </Row>
+            </Blazorise.Row>
 
         </div>
 
@@ -153,8 +148,8 @@
                 <MudBlazor.PropertyColumn Property="x => x.Catalog.Description" Title="@L["Description"]"/>
                 <MudBlazor.TemplateColumn CellClass="d-flex justify-end">
                     <CellTemplate>
-                        <MudBlazor.MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Outlined.RemoveRedEye" OnClick="() => OpenEditCatalogModalAsync(context.Item)"/>
-                        <MudBlazor.MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Outlined.Remove" OnClick="() => DeleteCatalogAsync(context.Item)"/>
+                        <MudBlazor.MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="() => OpenEditCatalogModalAsync(context.Item)"/>
+                        <MudBlazor.MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteCatalogAsync(context.Item)"/>
                     </CellTemplate>
                 </MudBlazor.TemplateColumn>
             </Columns>
@@ -254,7 +249,7 @@
                             ValidateOnLoad="false">
                      <TabPanel Name="catalog-create-tab">
                     
-                    <Validation MessageLocalizer="@LH.Localize">
+                    <Validation MessageLocalizer="@Lh.Localize">
                         <Field>
                             <FieldLabel>@L["Name"] *</FieldLabel>
                             <TextEdit @bind-Text="@NewCatalog.Name"  >
@@ -266,7 +261,7 @@
                     </Validation>
 
 
-                    <Validation MessageLocalizer="@LH.Localize">
+                    <Validation MessageLocalizer="@Lh.Localize">
                         <Field>
                             <FieldLabel>@L["From"]</FieldLabel>
                             <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@NewCatalog.From" >
@@ -278,7 +273,7 @@
                     </Validation>
 
 
-                    <Validation MessageLocalizer="@LH.Localize">
+                    <Validation MessageLocalizer="@Lh.Localize">
                         <Field>
                             <FieldLabel>@L["To"]</FieldLabel>
                             <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@NewCatalog.To" >
@@ -290,7 +285,7 @@
                     </Validation>
 
 
-                    <Validation MessageLocalizer="@LH.Localize">
+                    <Validation MessageLocalizer="@Lh.Localize">
                         <Field>
                             <FieldLabel>@L["Description"]</FieldLabel>
                             <TextEdit @bind-Text="@NewCatalog.Description"  >
@@ -305,7 +300,7 @@
                     </TabPanel>
                                                 <TabPanel Name="products-create-tab">
 
-                                <Row>
+                                <Blazorise.Row>
                                     <Column ColumnSize="ColumnSize.Is9">
                                         <Field>
 
@@ -322,11 +317,11 @@
                                     </Column>
 
                                     <Column ColumnSize="ColumnSize.Is3">
-                                        <Button Color="Color.Info" TextColor="TextColor.White" Size="Size.Medium" Clicked="AddProduct">
+                                        <Button Color="Color.Info" TextColor="TextColor.White"  Clicked="AddProduct">
                                             <Icon class="fa fa-plus"></Icon> @L["Add"]
                                         </Button>
                                     </Column>
-                                </Row>
+                                </Blazorise.Row>
                                 @if (SelectedProducts.Any())
                                 {
                                     <Table striped-rows="true" responsive-sm="true" class="mt-2">
@@ -390,7 +385,7 @@
                             ValidateOnLoad="false">
                      <TabPanel Name="catalog-edit-tab">
                     
-                    <Validation MessageLocalizer="@LH.Localize">
+                    <Validation MessageLocalizer="@Lh.Localize">
                         <Field>
                             <FieldLabel>@L["Name"] *</FieldLabel>
                             <TextEdit @bind-Text="@EditingCatalog.Name"  >
@@ -402,7 +397,7 @@
                     </Validation>
 
 
-                    <Validation MessageLocalizer="@LH.Localize">
+                    <Validation MessageLocalizer="@Lh.Localize">
                         <Field>
                             <FieldLabel>@L["From"]</FieldLabel>
                             <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@EditingCatalog.From" >
@@ -414,7 +409,7 @@
                     </Validation>
 
 
-                    <Validation MessageLocalizer="@LH.Localize">
+                    <Validation MessageLocalizer="@Lh.Localize">
                         <Field>
                             <FieldLabel>@L["To"]</FieldLabel>
                             <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@EditingCatalog.To" >
@@ -426,7 +421,7 @@
                     </Validation>
 
 
-                    <Validation MessageLocalizer="@LH.Localize">
+                    <Validation MessageLocalizer="@Lh.Localize">
                         <Field>
                             <FieldLabel>@L["Description"]</FieldLabel>
                             <TextEdit @bind-Text="@EditingCatalog.Description"  >
@@ -441,7 +436,7 @@
                     </TabPanel>
                                                 <TabPanel Name="products-edit-tab">
 
-                                <Row>
+                                <Blazorise.Row>
                                     <Column ColumnSize="ColumnSize.Is9">
                                         <Field>
 
@@ -458,11 +453,11 @@
                                     </Column>
 
                                     <Column ColumnSize="ColumnSize.Is3">
-                                        <Button Color="Color.Info" TextColor="TextColor.White" Size="Size.Medium" Clicked="AddProduct">
+                                        <Button Color="Color.Info" TextColor="TextColor.White" Clicked="AddProduct">
                                             <Icon class="fa fa-plus"></Icon> @L["Add"]
                                         </Button>
                                     </Column>
-                                </Row>
+                                </Blazorise.Row>
                                 @if (SelectedProducts.Any())
                                 {
                                     <Table striped-rows="true" responsive-sm="true" class="mt-2">

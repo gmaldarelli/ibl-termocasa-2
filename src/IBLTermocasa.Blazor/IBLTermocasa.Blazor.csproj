@@ -60,6 +60,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Pages\Profiles.razor.cs" />
+    <Compile Remove="Components\Product\ModalProductComponentInput.razor.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="Components\Product\ComponentAutocompleteInput.razor" />
+    <Content Remove="Components\Product\ComponentDropInput.razor" />
   </ItemGroup>
   <PropertyGroup>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>

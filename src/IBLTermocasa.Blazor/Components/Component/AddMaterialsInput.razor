@@ -2,6 +2,23 @@
 @using Color = MudBlazor.Color
 @using MudBlazor
 @inherits IBLTermocasaComponentBase
+
+<style>
+
+    .mud-dialog-custom {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .navbar-open .mud-dialog-custom {
+        left: calc(50% + 264px); /* 264 è stato messo, perchè indica la larghezza della navbar */
+    }
+</style>
 <MudDialog>
     <DialogContent>
         <MudDataGrid T="MaterialDto" @ref="MaterialMudDataGrid" Items="@_items" Virtualize="true"

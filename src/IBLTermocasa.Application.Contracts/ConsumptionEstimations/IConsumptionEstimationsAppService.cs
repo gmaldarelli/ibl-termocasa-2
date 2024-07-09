@@ -26,5 +26,6 @@ namespace IBLTermocasa.ConsumptionEstimations
         Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync(); Task DeleteByIdsAsync(List<Guid> consumptionestimationIds);
 
         Task DeleteAllAsync(GetConsumptionEstimationsInput input);
+        Task<ConsumptionEstimationDto> GetAsyncByProduct(Guid idProduct);
     }
 }

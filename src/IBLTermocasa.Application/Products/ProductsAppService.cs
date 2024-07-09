@@ -165,14 +165,14 @@ namespace IBLTermocasa.Products
             var productComponents = ObjectMapper.Map<List<ProductComponentDto>, List<ProductComponent>>(input.ProductComponents);
             var productQuestionTemplates = ObjectMapper.Map<List<ProductQuestionTemplateDto>, List<ProductQuestionTemplate>>(input.ProductQuestionTemplates);
             var subProducts = ObjectMapper.Map<List<SubProductDto>, List<SubProduct>>(input.SubProducts);
-            productComponents.ForEach(x => x.ProductId = id);
-            productQuestionTemplates.ForEach(x => x.ProductId = id);
+            productComponents.ForEach(x => x.ParentId = id);
+            productQuestionTemplates.ForEach(x => x.ParentId = id);
+            subProducts.ForEach(x => x.ParentId = id);
             var product = await _productManager.UpdateAsync(
             id, subProducts, productComponents, 
             productQuestionTemplates, input.Code, 
             input.Name, input.IsAssembled, input.IsInternal, 
             input.Description, input.ConcurrencyStamp);
-
             return ObjectMapper.Map<Product, ProductDto>(product);
         }
 

@@ -13,8 +13,8 @@ namespace IBLTermocasa.Blazor.Components.Component;
 public partial class AddMaterialsInput 
 {
     [Inject] public IMaterialsAppService MaterialsAppService { get; set; }
-    
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    [CascadingParameter] private MudDialogInstance MudDialogComponent { get; set; } = new();
     [Parameter] public List<Guid> ExclusionIds { get; set; } = new List<Guid>();
     public HashSet<MaterialDto> SelectedItems { get; set; } = new HashSet<MaterialDto>();
     public MaterialDto SelectedItem { get; set; }
@@ -55,7 +55,6 @@ public partial class AddMaterialsInput
             MaxResultCount = 1000,
         };
         _items = (await MaterialsAppService.GetListAsync(filterInput)).Items;
-        Console.WriteLine($":::::::::::::::::::::::::::::::::::::::::::::::_items: {_items.ToList().Count}");
         List<MaterialDto> _itemsTemp = new List<MaterialDto>();
         _items.ForEach(x =>
         {
@@ -68,11 +67,29 @@ public partial class AddMaterialsInput
     }
     private void Submit()
     {
-        MudDialog.Close(DialogResult.Ok(SelectedItem));
+        Console.WriteLine($":::::::::::::::::::::::::::::::::::::::::::::::SelectedItem: {SelectedItems.Count}");
+       
+        if(SelectedItems.Count > 0 && MudDialogComponent != null)
+        {
+            MudDialogComponent.Close(DialogResult.Ok(SelectedItems));
+        }
+        else
+        {
+            if(MudDialogComponent != null)
+            {
+                MudDialogComponent.Cancel();
+            }
+            else
+            {
+                Console.WriteLine($":::::::::::::::::::::::::::::::::::::::::::::::MudDialog: {MudDialogComponent.ToString()}");
+            
+            }
+        }
+        
     }
 
     private void Cancel()
     {
-        MudDialog.Cancel();
+        MudDialogComponent.Cancel();
     }
 }

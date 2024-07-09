@@ -48,13 +48,7 @@ namespace IBLTermocasa.Products
             List<Guid> subProductIds = new List<Guid>();
             foreach (var subProduct in product.SubProducts)
             {
-                foreach (var subProductProductId in subProduct.ProductIds)
-                {
-                    if (subProductIds.Where(x => x == subProductProductId).ToList().Count == 0)
-                    {
-                        subProductIds.Add(subProductProductId);
-                    }
-                }
+                subProductIds.Add(subProduct.ProductId);
             }
             var products = await (await GetMongoQueryableAsync<Product>(cancellationToken)).Where(e => subProductIds.Contains(e.Id)).ToListAsync(cancellationToken: cancellationToken);
             return new ProductWithNavigationProperties

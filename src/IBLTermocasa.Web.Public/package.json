@@ -3,7 +3,7 @@
   "name": "my-app",
   "private": true,
   "dependencies": {
-    "@volo/abp.aspnetcore.mvc.ui.theme.lepton": "~8.1.3",
-    "@volo/cms-kit-pro.public": "~8.1.3"
+    "@volo/abp.aspnetcore.mvc.ui.theme.lepton": "~8.2.0",
+    "@volo/cms-kit-pro.public": "~8.2.0"
   }
 }

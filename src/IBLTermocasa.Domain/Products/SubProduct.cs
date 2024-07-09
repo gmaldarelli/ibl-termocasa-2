@@ -7,10 +7,12 @@ using Volo.Abp.Domain.Entities;
 
 namespace IBLTermocasa.Products
 {
-    public  class SubProduct : Entity
+    public  class SubProduct : Entity<Guid>
     {
-        public virtual Guid Id { get; set; }
-        public virtual  ICollection<Guid> ProductIds { get; set; } = new List<Guid>();
+        [NotNull]
+        public virtual Guid ParentId { get;  set; }
+        [NotNull]
+        public virtual Guid ProductId { get;  set; }
         [NotNull]
         public virtual int Order { get; set; }
         [NotNull]
@@ -26,15 +28,17 @@ namespace IBLTermocasa.Products
         {
         }
 
-        public SubProduct( Guid id, ICollection<Guid> productIds, int order, string code, string name, bool isSingleProduct, bool mandatory)
+        public SubProduct( Guid id, Guid productId, Guid parentId, int order, string code, string name, bool isSingleProduct, bool mandatory)
         {
 
             Check.NotNull(code, nameof(code));
             Check.NotNull(name, nameof(name));
             Check.NotNull(id, nameof(id));
-            Check.NotNull(productIds, nameof(productIds));
+            Check.NotNull(productId, nameof(productId));
+            Check.NotNull(parentId, nameof(parentId));
             Id = id;
-            ProductIds = productIds;
+            ProductId = productId;
+            ParentId = parentId;
             Order = order;
             Code = code;
             Name = name;

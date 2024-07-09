@@ -3,11 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IBLTermocasa.Common;
-using IBLTermocasa.Products;
-using IBLTermocasa.Shared;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 
 namespace IBLTermocasa.Blazor.Components.Product;

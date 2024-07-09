@@ -5,10 +5,13 @@ using Volo.Abp.Domain.Entities;
 
 namespace IBLTermocasa.Products
 {
-    public class ProductQuestionTemplate : Entity
+    public class ProductQuestionTemplate : Entity<Guid>
     {
-        public Guid ProductId { get;  set; }
-        public Guid QuestionTemplateId { get; set; }
+        
+        [NotNull]
+        public virtual Guid ParentId { get;  set; }
+        [NotNull]
+        public virtual Guid QuestionTemplateId { get; set; }
         [NotNull]
         public virtual int Order { get; set; }
         [NotNull]
@@ -17,35 +20,32 @@ namespace IBLTermocasa.Products
         public virtual string Name { get; set; }
         public virtual bool Mandatory { get; set; }
         
-        public virtual string? ValidationFormula { get; set; }
-        
         private ProductQuestionTemplate()
         {
 
         }
 
-        public ProductQuestionTemplate(Guid productId, Guid questionTemplateId, int order, string code, string name, bool mandatory, string? validationFormula = null)
+        public ProductQuestionTemplate(Guid id, Guid parentId, Guid questionTemplateId, int order, string code, string name, bool mandatory)
         {
             Check.NotNull(code, nameof(code));
             Check.NotNull(name, nameof(name));
             Check.NotNull(questionTemplateId, nameof(questionTemplateId));
-            Check.NotNull(productId, nameof(productId));
-            ProductId = productId;
+            Check.NotNull(parentId, nameof(parentId));
+            Check.NotNull(id, nameof(id));
+            Id = id;
+            ParentId = parentId;
             QuestionTemplateId = questionTemplateId;
             Order = order;
             Code = code;
             Name = name;
             Mandatory = mandatory;
-            ValidationFormula = validationFormula;
         }   
-       
 
         public override object[] GetKeys()
         {
             return new object[]
                 {
-                    ProductId,
-                    QuestionTemplateId
+                    Id
                 };
         }
     }
