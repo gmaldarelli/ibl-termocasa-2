@@ -10,43 +10,21 @@ using NUglify.Helpers;
 
 namespace IBLTermocasa.Blazor.Components.Component;
 
-public partial class AddMaterialsInput 
+public partial class AddMaterialsInput
 {
+    [CascadingParameter] private MudDialogInstance Dialog { get; set; }
     [Inject] public IMaterialsAppService MaterialsAppService { get; set; }
 
-    [CascadingParameter] private MudDialogInstance MudDialogComponent { get; set; } = new();
     [Parameter] public List<Guid> ExclusionIds { get; set; } = new List<Guid>();
     public HashSet<MaterialDto> SelectedItems { get; set; } = new HashSet<MaterialDto>();
-    public MaterialDto SelectedItem { get; set; }
 
-    IEnumerable<MaterialDto>? _items = new List<MaterialDto>();
+    private IEnumerable<MaterialDto>? _items = new List<MaterialDto>();
     private string _searchString;
-    
-    public override async Task SetParametersAsync(ParameterView parameters)
+
+    protected override async Task OnInitializedAsync()
     {
-        GetMaterialsInput filterInput = new GetMaterialsInput()
-        {
-            MaxResultCount = 10,
-        };
         await Search();
-        StateHasChanged(); 
     }
-   
-    private Func<MaterialDto, bool> _quickFilter => x =>
-    {   
-        
-        if (string.IsNullOrWhiteSpace(_searchString))
-            return true;
-
-        if (x.Code.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        return false;
-    };
-
-    public MudDataGrid<MaterialDto> MaterialMudDataGrid { get; set; }
 
     private async Task Search()
     {
@@ -54,42 +32,39 @@ public partial class AddMaterialsInput
         {
             MaxResultCount = 1000,
         };
-        _items = (await MaterialsAppService.GetListAsync(filterInput)).Items;
-        List<MaterialDto> _itemsTemp = new List<MaterialDto>();
-        _items.ForEach(x =>
-        {
-            if(!ExclusionIds.Contains(x.Id))
-            {
-                _itemsTemp.Add(x);
-            }
-        });
-        //_items = _itemsTemp;
+
+        var result = await MaterialsAppService.GetListAsync(filterInput);
+        _items = result.Items.Where(x => !ExclusionIds.Contains(x.Id) && 
+                                         (string.IsNullOrWhiteSpace(_searchString) || 
+                                          x.Code.Contains(_searchString, StringComparison.OrdinalIgnoreCase) || 
+                                          x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase)));
     }
+
     private void Submit()
     {
-        Console.WriteLine($":::::::::::::::::::::::::::::::::::::::::::::::SelectedItem: {SelectedItems.Count}");
-       
-        if(SelectedItems.Count > 0 && MudDialogComponent != null)
+        Console.WriteLine($"SelectedItem: {SelectedItems.Count}");
+
+        if (Dialog == null)
         {
-            MudDialogComponent.Close(DialogResult.Ok(SelectedItems));
+            Console.WriteLine("Dialog is null.");
+            return;
+        }
+
+        if (SelectedItems.Count > 0)
+        {
+            var selectedItemsList = SelectedItems.ToList();
+            Dialog.Close(DialogResult.Ok(selectedItemsList));
         }
         else
         {
-            if(MudDialogComponent != null)
-            {
-                MudDialogComponent.Cancel();
-            }
-            else
-            {
-                Console.WriteLine($":::::::::::::::::::::::::::::::::::::::::::::::MudDialog: {MudDialogComponent.ToString()}");
-            
-            }
+            Dialog.Cancel();
         }
-        
+
+        StateHasChanged();
     }
 
     private void Cancel()
     {
-        MudDialogComponent.Cancel();
+        Dialog.Cancel();
     }
 }

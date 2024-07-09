@@ -21,33 +21,30 @@
 </style>
 <MudDialog>
     <DialogContent>
-        <MudDataGrid T="MaterialDto" @ref="MaterialMudDataGrid" Items="@_items" Virtualize="true"
-                     FixedHeader="true"
-                     Height="350px"
-                     MultiSelection="true"
-                     SelectedItem="@SelectedItem"
-                     QuickFilter="@_quickFilter">
-            <ToolBarContent>
-                <MudText Typo="Typo.h6">@L["Materials"]</MudText>
-                <MudSpacer/>
-                <MudTextField @bind-Value="_searchString" Placeholder="@L["Search"]" Adornment="Adornment.Start" Immediate="true"
-                              AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
-            </ToolBarContent>
-            <Columns>
-                <SelectColumn T="MaterialDto">
-                </SelectColumn>
-                <PropertyColumn Property="x => x.Code"/>
-                <PropertyColumn Property="x => x.Name"/>
-                <PropertyColumn Property="x => x.MeasureUnit"/>
-                <PropertyColumn Property="x => x.LastModifierId"/>
-            </Columns>
-            <NoRecordsContent>
-                <MudListItem>
-                    <MudAlert Severity="Severity.Info">@L["NoData"]</MudAlert>
-                </MudListItem>
-            </NoRecordsContent>
-        </MudDataGrid>
+        <MudPaper>
+            <MudText Typo="Typo.h6">@L["Materials"]</MudText>
+            <MudSpacer/>
+            <MudTextField @bind-Value="_searchString" Placeholder="@L["Search"]" Adornment="Adornment.Start" Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
 
+            <MudTable Items="_items" @bind-SelectedItems="SelectedItems" MultiSelection="true">
+                <HeaderContent>
+                    <MudTh>Code</MudTh>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Measure Unit</MudTh>
+                    <MudTh>Last Modifier</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Code">@context.Code</MudTd>
+                    <MudTd DataLabel="Name">@context.Name</MudTd>
+                    <MudTd DataLabel="Measure Unit">@context.MeasureUnit</MudTd>
+                    <MudTd DataLabel="Last Modifier">@context.LastModifierId</MudTd>
+                </RowTemplate>
+                <NoRecordsContent>
+                    <MudText Typo="Typo.body2">@L["NoData"]</MudText>
+                </NoRecordsContent>
+            </MudTable>
+        </MudPaper>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel" Color="Color.Primary">@L["Cancel"]</MudButton>

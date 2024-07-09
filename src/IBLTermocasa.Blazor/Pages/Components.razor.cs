@@ -6,8 +6,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Globalization;
 using System.Web;
+using AngleSharp.Diffing.Extensions;
 using Blazorise;
 using Blazorise.DataGrid;
+using Blazorise.Extensions;
 using IBLTermocasa.Blazor.Components.Component;
 using Volo.Abp.BlazoriseUI.Components;
 using Microsoft.AspNetCore.Authorization;
@@ -35,7 +37,7 @@ namespace IBLTermocasa.Blazor.Pages
         [Inject] public IDialogService DialogService { get; set; }
         protected PageToolbar Toolbar { get; } = new PageToolbar();
         protected bool ShowAdvancedFilters { get; set; }
-        private IReadOnlyList<ComponentDto> ComponentList { get; set; }
+        private List<ComponentDto> ComponentList { get; set; }
         private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
         private int CurrentPage { get; set; } = 1;
         private string CurrentSorting { get; set; } = string.Empty;
@@ -51,8 +53,6 @@ namespace IBLTermocasa.Blazor.Pages
         private Modal CreateComponentModal { get; set; } = new();
         private Modal EditComponentModal { get; set; } = new();
         private GetComponentsInput Filter { get; set; }
-        protected string SelectedCreateTab = "component-create-tab";
-        protected string SelectedEditTab = "component-edit-tab";
         private ComponentDto? _selectedComponent;
 
         private ObservableCollection<ComponentItemDto> SelectedComponentItems { get; set; } =
@@ -74,10 +74,14 @@ namespace IBLTermocasa.Blazor.Pages
         private Validations EditingComponentItemValidations { get; set; } = new();
         private Modal EditComponentItemModal { get; set; } = new();
         private IReadOnlyList<LookupDto<Guid>> MaterialsCollection { get; set; } = new List<LookupDto<Guid>>();
+        private MudDataGrid<ComponentDto> ComponentMudDataGrid { get; set; }
+        private MudDataGrid<ComponentItemDto> ComponentItemMudDataGrid { get; set; }
+        private IEnumerable<ComponentItemDto> ComponentItemList { get; set; } = new List<ComponentItemDto>();
+        private bool ComponentSelected { get; set; } = true;
 
 
         private bool _isComponentRendered = false;
-        private bool _ComponentItemDataGridLoaded = false;
+        private bool _componentItemDataGridLoaded = false;
 
         public Components()
         {
@@ -155,7 +159,7 @@ namespace IBLTermocasa.Blazor.Pages
             Filter.Sorting = CurrentSorting;
 
             var result = await ComponentsAppService.GetListAsync(Filter);
-            ComponentList = result.Items;
+            ComponentList = result.Items.ToList();
             TotalCount = (int)result.TotalCount;
         }
 
@@ -217,16 +221,6 @@ namespace IBLTermocasa.Blazor.Pages
             await CreateComponentModal.Hide();
         }
 
-        private async Task OpenEditComponentModalAsync(ComponentDto input)
-        {
-            var component = input;
-
-            EditingComponentId = component.Id;
-            EditingComponent = ObjectMapper.Map<ComponentDto, ComponentUpdateDto>(component);
-            await EditingComponentValidations.ClearAll();
-            await EditComponentModal.Show();
-        }
-
         private async Task DeleteComponentAsync(ComponentDto input)
         {
             var message = L["DeleteSelectedRecords", input.Name];
@@ -234,11 +228,10 @@ namespace IBLTermocasa.Blazor.Pages
             {
                 return;
             }
-            else
-            {
-                await ComponentsAppService.DeleteAsync(input.Id);
-            }
+
+            await ComponentsAppService.DeleteAsync(input.Id);
             await GetComponentsAsync();
+            StateHasChanged();
         }
 
         private async Task CreateComponentAsync()
@@ -253,6 +246,7 @@ namespace IBLTermocasa.Blazor.Pages
                 await ComponentsAppService.CreateAsync(NewComponent);
                 await GetComponentsAsync();
                 await CloseCreateComponentModalAsync();
+                StateHasChanged();
             }
             catch (Exception ex)
             {
@@ -277,63 +271,12 @@ namespace IBLTermocasa.Blazor.Pages
                 await ComponentsAppService.UpdateAsync(EditingComponentId, EditingComponent);
                 await GetComponentsAsync();
                 await EditComponentModal.Hide();
+                StateHasChanged();
             }
             catch (Exception ex)
             {
                 await HandleErrorAsync(ex);
             }
-        }
-
-        private void OnSelectedCreateTabChanged(string name)
-        {
-            SelectedCreateTab = name;
-        }
-
-        private void OnSelectedEditTabChanged(string name)
-        {
-            SelectedEditTab = name;
-        }
-
-        protected virtual async Task OnNameChangedAsync(string? name)
-        {
-            Filter.Name = name;
-            await SearchAsync();
-        }
-
-
-
-        private bool ShouldShowDetailRow()
-        {
-            return CanListComponentItem;
-        }
-
-        public string SelectedChildTab { get; set; } = "componentitem-tab";
-        public MudDataGrid<ComponentDto> ComponentMudDataGrid { get; set; }
-        public MudDataGrid<ComponentItemDto> ComponentItemMudDataGrid { get; set; }
-        public IEnumerable<ComponentItemDto> ComponentItemList { get; set; } = new List<ComponentItemDto>();
-        public bool ComponentSelected { get; set; } = true;
-
-
-        private async Task SetComponentItemsAsync(Guid componentId, int currentPage = 1, string? sorting = null)
-        {
-            var component = ComponentList.FirstOrDefault(x => x.Id == componentId);
-            if (component == null)
-            {
-                return;
-            }
-
-            ComponentItemDataGrid.Data = component.ComponentItems;
-            ComponentItemDataGrid.CurrentPage = currentPage;
-            ComponentItemDataGrid.TotalItems = (int)component.ComponentItems.Count();
-        }
-
-        private async Task OpenEditComponentItemModalAsync(ComponentItemDto input)
-        {
-            var componentItem = _selectedComponent.ComponentItems.FirstOrDefault(x => x.Id == input.Id);
-            EditingComponentItemId = componentItem.Id;
-            EditingComponentItem = input;
-            await EditingComponentItemValidations.ClearAll();
-            await EditComponentItemModal.Show();
         }
 
         private async Task CloseEditComponentItemModalAsync()
@@ -356,19 +299,8 @@ namespace IBLTermocasa.Blazor.Pages
                         EditingComponentItem
                     });
                 await ReLoadComponentItemsComponent(updated);
-
-                /*
-                _selectedComponent = updated;
-                EditingComponentItem = _selectedComponent.ComponentItems.Where(x => x.Id == EditingComponentItemId).FirstOrDefault();
-                ComponentList.ToList().ForEach(x => {
-                    if (x.Id == updated.Id) {
-                        x = updated;
-                    }
-                });
-                SelectedComponentItems = updated.ComponentItems;
-                */
                 await EditComponentItemModal.Hide();
-                await InvokeAsync(StateHasChanged);
+                StateHasChanged();
             }
             catch (Exception ex)
             {
@@ -376,26 +308,12 @@ namespace IBLTermocasa.Blazor.Pages
             }
         }
 
-        private async Task DeleteComponentItemAsync(ComponentItemDto input)
-        {
-            var message = L["DeleteSelectedRecords", input.MaterialName!];
-            if (!await UiMessageService.Confirm(message))
-            {
-                return;
-            }
-            else
-            {
-                 var updated = await ComponentsAppService.DeleteComponentItemAsync(_selectedComponent!.Id, input.Id);
-                await ReLoadComponentItemsComponent(updated);
-                StateHasChanged();
-            }
-        }
-
+        
         private async Task OpenCreateComponentItemModalAsync()
         {
             var exclusionIds = ComponentItemList.Select(x => x.Id).ToList();
             
-            var materialDialog = await DialogService.ShowAsync<AddMaterialsInput>(L["ConfirmGenerationMudDialogTitle"] ,new DialogParameters
+            var dialog = await DialogService.ShowAsync<AddMaterialsInput>(L["ConfirmGenerationMudDialogTitle"] ,new DialogParameters
             {
                 { "ExclusionIds", exclusionIds }
             }, new DialogOptions
@@ -405,7 +323,7 @@ namespace IBLTermocasa.Blazor.Pages
                 MaxWidth = MaxWidth.Medium
             });
             
-            var result = await materialDialog.Result;
+            var result = await dialog.Result;
             if (!result.Canceled)
             {
                 var selectedItems = (List<MaterialDto>)result.Data;
@@ -461,18 +379,8 @@ namespace IBLTermocasa.Blazor.Pages
                         NewComponentItem
                     });
                 await ReLoadComponentItemsComponent(updated);
-                /*_selectedComponent = updated;
-                ComponentList.ToList().ForEach(x => {
-                    if (x.Id == updated.Id) {
-                        x = updated;
-                    }
-                });
-                SelectedComponentItems = updated.ComponentItems;
-                Console.WriteLine($"CreateComponentItemAsync updated1 {updated.ToString()}");
-                await SetComponentItemsAsync(NewComponentItem.Id);
-                Console.WriteLine($"CreateComponentItemAsync updated2 {updated.ToString()}");*/
                 await CloseCreateComponentItemModalAsync();
-                Console.WriteLine($"CreateComponentItemAsync updated2 {updated.ToString()}");
+                StateHasChanged();
             }
             catch (Exception ex)
             {
@@ -488,54 +396,38 @@ namespace IBLTermocasa.Blazor.Pages
             })).Items;
         }
 
-        private async Task OnComponentDtoDataGridRowClickedAsync(DataGridRowMouseEventArgs<ComponentDto> e)
+        
+        private async Task DeleteComponentItemAsync(ComponentItemDto input)
         {
-            if (e.Item.Id == _selectedComponent?.Id)
+            var message = L["DeleteSelectedRecords", input.MaterialName!];
+            if (!await UiMessageService.Confirm(message))
             {
                 return;
             }
-            else
-            {
-                await LoadComponentItemsComponent(e.Item);
-            }
 
-            StateHasChanged();
-        }
-
-        private async Task LoadComponentItemsComponent(ComponentDto componentDto){
-            if (componentDto.Id == _selectedComponent?.Id) { 
-                return;
-            }
-            else
-            {
-                await ReLoadComponentItemsComponent(componentDto);
-            }
-        }
-
-    private async Task ReLoadComponentItemsComponent(ComponentDto componentDto)
-        {
-            _selectedComponent = componentDto; 
-            ComponentList.ToList().ForEach(x => {
-                if (x.Id == componentDto.Id) {
-                    x = componentDto;
-                }
-            });
-            ComponentDtoDataGrid.Data = ComponentList;
-            SelectedComponentItems = new ObservableCollection<ComponentItemDto>(componentDto.ComponentItems);
-            ComponentItemDataGrid.Data = SelectedComponentItems;
-            ComponentItemDataGrid.CurrentPage = 1;
-            ComponentItemDataGrid.TotalItems = (int)SelectedComponentItems.Count();
+            var updated = await ComponentsAppService.DeleteComponentItemAsync(_selectedComponent!.Id, input.Id);
             
-            if (_ComponentItemDataGridLoaded)
-            {
-                await ComponentDtoDataGrid.Reload();
-                await this.ComponentItemDataGrid.Reload();
-            }else{
-                _ComponentItemDataGridLoaded = true;
-            }
+            await ReLoadComponentItemsComponent(updated);
             StateHasChanged();
         }
 
+        private async Task ReLoadComponentItemsComponent(ComponentDto updatedComponentDto)
+        {
+            _selectedComponent = updatedComponentDto;
+            var index = ComponentList.FindIndex(x => x.Id == updatedComponentDto.Id);
+            ComponentList[index] = updatedComponentDto;
+            ComponentMudDataGrid.Items = ComponentList;
+            
+            SelectedComponentItems = new ObservableCollection<ComponentItemDto>(updatedComponentDto.ComponentItems);
+            
+            ComponentItemMudDataGrid.Items = SelectedComponentItems;
+            ComponentItemMudDataGrid.CurrentPage = 1;
+            await ComponentItemMudDataGrid.ReloadServerData();
+            await ComponentItemMudDataGrid.ReloadServerData();
+            StateHasChanged();
+        }
+        
+        
         protected override void OnAfterRender(bool firstRender)
         {
             if (firstRender)
@@ -550,6 +442,7 @@ namespace IBLTermocasa.Blazor.Pages
             if(obj.ComponentItems.Count > 0){
                 ComponentItemList = obj.ComponentItems;
             }
+            _selectedComponent = obj;
             ComponentSelected = false;
             ComponentItemMudDataGrid.ReloadServerData();
             StateHasChanged();

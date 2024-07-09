@@ -23,7 +23,9 @@
 @using Microsoft.AspNetCore.Components
 @using ComponentItemDto = IBLTermocasa.Components.ComponentItemDto
 @using Volo.Abp.Http.Client
-@using Blazorise
+@using Size = MudBlazor.Size
+@using Color = MudBlazor.Color
+@using MudBlazor
 @inherits IBLTermocasaComponentBase
 @inject IComponentsAppService ComponentsAppService
 
@@ -37,98 +39,85 @@
 
 </PageHeader>
 
-<MudBlazor.MudGrid>
-    <MudBlazor.MudItem xs="12" sm="6">
+<MudGrid>
+    <MudItem xs="12" sm="6">
         @* ************************* Main Info on left side ************************* *@
-        <MudBlazor.MudPaper Class="pa-4">
-            <MudBlazor.MudDataGrid @ref="ComponentMudDataGrid" T="ComponentDto" 
+        <MudPaper Class="pa-4">
+            <MudDataGrid @ref="ComponentMudDataGrid" T="ComponentDto" 
                                    Items="@ComponentList" ReadOnly="false" 
-                                   EditMode="MudBlazor.DataGridEditMode.Form" 
+                                   EditMode="MudBlazor.DataGridEditMode.Cell" 
                                    Hover="true" SelectedItemChanged="OnSelectedItemChanged"
-                                   EditTrigger="MudBlazor.DataGridEditTrigger.Manual"  
-                                   Bordered="true" Dense="true" Filterable="false" SortMode="MudBlazor.SortMode.Single"
-                                   CommittedItemChanges="@OnCommittedItemChanges"
-                                   Sea
-                                   >
+                                   EditTrigger="DataGridEditTrigger.Manual"  
+                                   Bordered="true" Dense="true" Filterable="false" SortMode="SortMode.Single"
+                                   CommittedItemChanges="@OnCommittedItemChanges">
                 <ToolBarContent>
-                    <MudBlazor.MudText Typo="MudBlazor.Typo.h6">@L["Components"]</MudBlazor.MudText>
-                    <MudBlazor.MudSpacer />
-                    <Button Color="Color.Primary" @onclick="CreateComponentAsync">@L["NewComponent"]</Button>
+                    <MudText Typo="Typo.h6">@L["Components"]</MudText>
+                    <MudSpacer />
+                    <Button Color="Blazorise.Color.Primary" @onclick="CreateComponentAsync">@L["NewComponent"]</Button>
                 </ToolBarContent>
                 <Columns>
-                    <MudBlazor.PropertyColumn Property="x => x.Code" Title="@L["Code"]" IsEditable="true" Sortable="true" Filterable="true">
-                    </MudBlazor.PropertyColumn>
-                    <MudBlazor.PropertyColumn Property="x => x.Name" Title="@L["Name"]" IsEditable="true" Sortable="true" Filterable="true">
-                    </MudBlazor.PropertyColumn>
-                    <MudBlazor.TemplateColumn  CellClass="d-flex justify-center">
-                        <CellTemplate>
-                            <MudBlazor.MudIconButton Size="@MudBlazor.Size.Small"
-                                                     Icon="@MudBlazor.Icons.Material.Filled.Edit"
-                                                     Variant="@MudBlazor.Variant.Filled"
-                                                     OnClick="@context.Actions.StartEditingItemAsync"/>
-                            <MudBlazor.MudIconButton Size="@MudBlazor.Size.Small"
-                                                     Icon="@MudBlazor.Icons.Material.Filled.DeleteForever"
-                                                     Variant="@MudBlazor.Variant.Filled"
-                                                     OnClick="() => DeleteComponentAsync(context.Item)"/>
-                        </CellTemplate>
-                    </MudBlazor.TemplateColumn>
-                    
-                </Columns>
-            </MudBlazor.MudDataGrid>
-        </MudBlazor.MudPaper>
-    </MudBlazor.MudItem>
-
-    <MudBlazor.MudItem xs="12" sm="6">
-
-        @* ************************* Main Info on left side ************************* *@
-        <MudBlazor.MudPaper Class="pa-4">
-            <MudBlazor.MudDataGrid @ref="ComponentItemMudDataGrid" T="ComponentItemDto" Items="@ComponentItemList" ReadOnly="false" EditMode="MudBlazor.DataGridEditMode.Cell" Hover="true"
-                                   EditTrigger="MudBlazor.DataGridEditTrigger.OnRowClick"
-                                   Bordered="true" Dense="true" Filterable="false" SortMode="MudBlazor.SortMode.Single">
-                <ToolBarContent>
-                    <MudBlazor.MudText Typo="MudBlazor.Typo.h6">@L["ComponentItems"]</MudBlazor.MudText>
-                    <MudBlazor.MudSpacer />
-                    <Button Disabled="@ComponentSelected" Color="Color.Primary" @onclick="OpenCreateComponentItemModalAsync">@L["NewComponentItem"]</Button>
-                </ToolBarContent>
-                <Columns>
-                    <MudBlazor.PropertyColumn Property="x => x.IsDefault" Title="@L["IsDefault"]" IsEditable="true" Sortable="true" Filterable="true">
+                    <PropertyColumn Property="x => x.Code" Title="@L["Code"]" IsEditable="true" Sortable="true" Filterable="true">
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.Name" Title="@L["Name"]" IsEditable="true" Sortable="true" Filterable="true">
+                    </PropertyColumn>
+                    <TemplateColumn>
                         <EditTemplate>
-                            <MudBlazor.MudCheckBox @bind-Checked="context.Item.IsDefault"/>
+                            <MudIconButton Size="@Size.Small"
+                                                     Icon="@Icons.Material.Filled.DeleteSweep"
+                                                     OnClick="() => DeleteComponentAsync(context.Item)"/>
                         </EditTemplate>
-                    </MudBlazor.PropertyColumn>
-                    <MudBlazor.PropertyColumn Property="x => x.MaterialCode" Title="@L["Code"]" IsEditable="false" Sortable="false" Filterable="false">
-                    </MudBlazor.PropertyColumn>
-                    <MudBlazor.PropertyColumn Property="x => x.MaterialName" Title="@L["Name"]" IsEditable="false" Sortable="false" Filterable="false">
-                    </MudBlazor.PropertyColumn>
-                    <MudBlazor.PropertyColumn Property="x => x.Id" Sortable="false" Filterable="false">
+                    </TemplateColumn>
+                </Columns>
+            </MudDataGrid>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12" sm="6">
+
+        @* ************************* Main Info on right side ************************* *@
+        <MudPaper Class="pa-4">
+            <MudDataGrid @ref="ComponentItemMudDataGrid" T="ComponentItemDto" Items="@ComponentItemList" ReadOnly="false" EditMode="MudBlazor.DataGridEditMode.Cell" Hover="true"
+                                   EditTrigger="DataGridEditTrigger.OnRowClick"
+                                   Bordered="true" Dense="true" Filterable="false" SortMode="SortMode.Single">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6">@L["ComponentItems"]</MudText>
+                    <MudSpacer />
+                    <MudButton Disabled="@ComponentSelected" Color="Color.Primary" OnClick="OpenCreateComponentItemModalAsync">@L["NewComponentItem"]</MudButton>
+                </ToolBarContent>
+                <Columns>
+                    <PropertyColumn Property="x => x.IsDefault" Title="@L["IsDefault"]" IsEditable="true" Sortable="true" Filterable="true">
+                        <EditTemplate>
+                            <MudCheckBox @bind-Checked="context.Item.IsDefault"/>
+                        </EditTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.MaterialCode" Title="@L["Code"]" IsEditable="false" Sortable="false" Filterable="false">
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.MaterialName" Title="@L["Name"]" IsEditable="false" Sortable="false" Filterable="false">
+                    </PropertyColumn>
+                    <PropertyColumn Property="x => x.Id" Sortable="false" Filterable="false">
                         <HeaderTemplate>
-                            <MudBlazor.MudSpacer></MudBlazor.MudSpacer>
+                            <MudSpacer></MudSpacer>
                         </HeaderTemplate>
                         <EditTemplate>
-                            <MudBlazor.MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Filled.DeleteSweep" OnClick="() => DeleteComponentItemAsync(context.Item)"/>
+                            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Filled.DeleteSweep" OnClick="() => DeleteComponentItemAsync(context.Item)"/>
                         </EditTemplate>
-                    </MudBlazor.PropertyColumn>
+                    </PropertyColumn>
                 </Columns>
                 <NoRecordsContent>
-                    <MudICons.MudIcon Icon="MudIcons.Material.Filled.Warning" Size="Large" Color="Color.Warning"/>
-                    @if (ComponentDtoDataGrid.SelectedRow == null)
+                    <MudIcon Icon="MudIcons.Material.Filled.Warning" Size="Size.Large" Color="Color.Warning"/>
+                    @if (ComponentMudDataGrid.SelectedItem == null)
                     {
-                        <MudBlazor.MudText>@L["NoDataSelected"]</MudBlazor.MudText>
-                    }
-                    else
-                    {
-                        <MudBlazor.MudText>@L["NoData"]</MudBlazor.MudText>
-                        <MudBlazor.MudButton Color="MudBlazor.Color.Primary" @onclick="CreateComponentItemAsync">@L["NewComponentItem"]</MudBlazor.MudButton>
+                        <MudText>@L["NoDataSelected"]</MudText>
                     }
                 </NoRecordsContent>
-            </MudBlazor.MudDataGrid>
-        </MudBlazor.MudPaper>
-    </MudBlazor.MudItem>
-</MudBlazor.MudGrid>
+            </MudDataGrid>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
 
-<MudBlazor.MudThemeProvider/>
-<MudBlazor.MudDialogProvider/>
-<MudBlazor.MudSnackbarProvider />
+<MudThemeProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider />
 
 @* ************************* CREATE MODAL ************************* *@
 <Modal @ref="CreateComponentModal" Closing="@CreateComponentModal.CancelClosingModalWhenFocusLost">
@@ -173,7 +162,7 @@
                 </Validations>
             </ModalBody>
             <ModalFooter>
-                <Button Color="Color.Secondary"
+                <Button Color="Blazorise.Color.Secondary"
                         Clicked="CloseCreateComponentModalAsync">
                     @L["Cancel"]
                 </Button>
@@ -229,7 +218,7 @@
                 </Validations>
             </ModalBody>
             <ModalFooter>
-                <Button Color="Color.Secondary"
+                <Button Color="Blazorise.Color.Secondary"
                         Clicked="CloseEditComponentModalAsync">
                     @L["Cancel"]
                 </Button>
@@ -277,7 +266,7 @@
                 </Validations>
             </ModalBody>
             <ModalFooter>
-                <Button Color="Color.Secondary"
+                <Button Color="Blazorise.Color.Secondary"
                         Clicked="CloseCreateComponentItemModalAsync">
                     @L["Cancel"]
                 </Button>
@@ -323,7 +312,7 @@
                 </Validations>
             </ModalBody>
             <ModalFooter>
-                <Button Color="Color.Secondary"
+                <Button Color="Blazorise.Color.Secondary"
                         Clicked="CloseEditComponentItemModalAsync">
                     @L["Cancel"]
                 </Button>
