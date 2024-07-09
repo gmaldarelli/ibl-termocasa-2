@@ -115,77 +115,29 @@
 </Card>
 
 @* ************************* DATA GRID ************************* *@
-<Card>
-    <CardBody>
-        <DataGrid TItem="ContactDto"
-                  Data="ContactList"
-                  ReadData="OnDataGridReadAsync"
-                  TotalItems="TotalCount"
-                  ShowPager="true"
-                  Responsive="true"
-                  PageSize="PageSize"
-                  Class="datagrid-detail">
-            <DataGridColumns>
-              <DataGridColumn TItem="ContactDto"
-                      Field="Title"
-                      Caption="@L["Title"]">
-              </DataGridColumn>
-                
-              <DataGridColumn TItem="ContactDto"
-                      Field="Name"
-                      Caption="@L["Name"]">
-              </DataGridColumn>
-
-              <DataGridColumn TItem="ContactDto"
-                      Field="Surname"
-                      Caption="@L["Surname"]">
-              </DataGridColumn>
-                <DataGridColumn TItem="ContactDto"
-                                Field="ConfidentialName"
-                                Caption="@L["ConfidentialName"]">
-                </DataGridColumn>
-
-                <DataGridColumn TItem="ContactDto"
-                                Field="JobRole"
-                                Caption="@L["JobRole"]">
-                </DataGridColumn>
-              <DataGridColumn TItem="ContactDto"
-                      Field="Phones"
-                      Caption="@L["Phone"]">
-              </DataGridColumn>
-
-              <DataGridColumn TItem="ContactDto"
-                      Field="Emails"
-                      Caption="@L["Mail"]">
-              </DataGridColumn>
-                <DataGridColumn TItem="ContactDto"
-
-                                Caption="@L["Tag"]">
-                    <DisplayTemplate>
-                        @foreach (var tag in context.Tags)
-                        {
-                            <span class="badge bg-primary me-1">@tag</span>
-                        }
-                    </DisplayTemplate>
-                </DataGridColumn>
-
-            </DataGridColumns>
-            
-            <RowOverlayTemplate>
-                            <Div id="@context.Item.Name" class="justify-content-start">
-                                <Button Color="Color.Primary" Size="Size.ExtraSmall"
-                                        Visibility="@((CanEditContact) ? Visibility.Visible : Visibility.Invisible)"
-                                        Clicked="() => OpenEditContactPageAsync(context.Item)">
-                                    <Icon Name="IconName.Edit" IconSize="IconSize.ExtraSmall"/>
-                                </Button>
-                                <Button Color="Color.Secondary" Size="Size.ExtraSmall"
-                                        Visibility="@((CanDeleteContact) ? Visibility.Visible : Visibility.Invisible)"
-                                        Clicked="async () => await DeleteContactAsync(context.Item)">
-                                    <Icon Name="IconName.Delete" IconSize="IconSize.ExtraSmall"/>
-                                </Button>
-                            </Div>
-            </RowOverlayTemplate>
-        </DataGrid>
-    </CardBody>
-</Card>
-
+<MudBlazor.MudCard>
+    <MudBlazor.MudCardContent>
+        <MudBlazor.MudDataGrid Dense="true" Striped="@true" Bordered="true" Items="ContactList">
+            <Columns>
+                <MudBlazor.PropertyColumn Property="x => x.Title" Title="@L["Title"]"/>
+                <MudBlazor.PropertyColumn Property="x => x.Name" Title="@L["Name"]"/>
+                <MudBlazor.PropertyColumn Property="x => x.Surname" Title="@L["Surname"]"/>
+                <MudBlazor.PropertyColumn Property="x => x.ConfidentialName" Title="@L["ConfidentialName"]"/>
+                <MudBlazor.PropertyColumn Property="x => x.JobRole" Title="@L["JobRole"]"/>
+                <MudBlazor.PropertyColumn Property="x => x.Phones" Title="@L["Phones"]"/>
+                <MudBlazor.PropertyColumn Property="x => x.Emails" Title="@L["Emails"]"/>
+                <MudBlazor.TemplateColumn CellClass="d-flex justify-end">
+                    <CellTemplate>
+                        <MudBlazor.MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Outlined.RemoveRedEye" OnClick="() => OpenEditContactPageAsync(context.Item)"/>
+                        <MudBlazor.MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Outlined.Remove" OnClick="() => DeleteContactAsync(context.Item)"/>
+                    </CellTemplate>
+                </MudBlazor.TemplateColumn>
+            </Columns>
+            <PagerContent>
+                <MudBlazor.MudDataGridPager T="ContactDto" />
+            </PagerContent>
+        </MudBlazor.MudDataGrid>
+    </MudBlazor.MudCardContent>
+</MudBlazor.MudCard>
+<MudBlazor.MudThemeProvider/>
+<MudBlazor.MudDialogProvider/>

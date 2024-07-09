@@ -12,6 +12,8 @@
 @using Volo.Abp.AspNetCore.Components.Web
 @using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
 @using Volo.Abp.Http.Client
+@using Size = MudBlazor.Size
+@using MudBlazor
 @inherits IBLTermocasaComponentBase
 @inject IOrganizationsAppService OrganizationsAppService
 @inject IIndustriesAppService IndustriesAppService
@@ -45,14 +47,14 @@
             </Addons>
         </Form>
 
-        <Row Class="mt-3 mb-3">
+        <Blazorise.Row Class="mt-3 mb-3">
             <div class="col-md-12">
                 <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
             </div>
-        </Row>
+        </Blazorise.Row>
 
         <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
-            <Row>
+            <Blazorise.Row>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["Code"]</FieldLabel>
@@ -141,7 +143,7 @@
                         </Select>
                     </Field>
                 </Column>
-            </Row>
+            </Blazorise.Row>
 
         </div>
 
@@ -149,90 +151,56 @@
     </CardBody>
 </Card>
 
+<MudCard>
+    <MudCardContent>
+        <MudDataGrid @ref="OrganizationMudDataGrid" Dense="true" Striped="true" Items="OrganizationList" >
+            <Columns>
+                <PropertyColumn Property="x => x.Code" Title="@L["Title"]"/>
+                <PropertyColumn Property="x => x.Name" Title="@L["Name"]"/>
+                <PropertyColumn Property="x => x.Phones" Title="@L["Phones"]"/>
+                <PropertyColumn Property="x => x.Emails" Title="@L["Emails"]"/>
+                <TemplateColumn Title="@L["Industry"]">
+                    <CellTemplate Context="context">
+                        @((context)?.Item.IndustryId != null ? Industries.FirstOrDefault(ind => ind.Id == ((context)?.Item.IndustryId))?.Code : "N/A")
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="@L["OrganizationType"]">
+                    <CellTemplate Context="context">
+                        @L[$"Enum:OrganizationType.{(string)context.Item.OrganizationType.ToString()}"]
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="@L["SourceType"]">
+                    <CellTemplate Context="context">
+                        @L[$"Enum:SourceType.{(int)context.Item.SourceType}"]
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="@L["FirstSync"]">
+                    <CellTemplate Context="context">
+                        @(context.Item.FirstSync.HasValue ? context.Item.FirstSync.Value.ToShortDateString() : string.Empty)
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="@L["LastSync"]">
+                    <CellTemplate Context="context">
+                        @(context.Item.LastSync.HasValue ? context.Item.LastSync.Value.ToShortDateString() : string.Empty)
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn StickyRight="true">
+                    <CellTemplate>
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="() => OpenEditContactPageAsync(context.Item)"/>
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteOrganizationAsync(context.Item)"/>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+            <PagerContent>
+                <MudDataGridPager T="OrganizationDto" />
+            </PagerContent>
+        </MudDataGrid>
+    </MudCardContent>
+</MudCard>
+<MudThemeProvider/>
+<MudDialogProvider/>
 
-<Card>
-    <CardBody>
-        <DataGrid TItem="OrganizationDto"
-                  Data="OrganizationList"
-                  ReadData="OnDataGridReadAsync"
-                  TotalItems="TotalCount"
-                  ShowPager="true"
-                  Responsive="true"
-                  PageSize="PageSize"
-                  Class="datagrid-detail">
-            <DataGridColumns>
-                <DataGridColumn TItem="OrganizationDto" Field="Code" Caption="@L["Code"]"/>
-                <DataGridColumn TItem="OrganizationDto" Field="Name" Caption="@L["Name"]"/>
-                <DataGridColumn TItem="OrganizationDto" Field="Emails" Caption="@L["Email"]"/>
-                <DataGridColumn TItem="OrganizationDto" Field="Phones" Caption="@L["Phone"]"/>
-                <DataGridColumn TItem="OrganizationDto" Caption="@L["Industry"]">
-                    <DisplayTemplate>
-                        @((context as OrganizationDto)?.IndustryId != null ? Industries.FirstOrDefault(ind => ind.Id == (context as OrganizationDto)?.IndustryId)?.Code : "N/A")
-                    </DisplayTemplate>
-                </DataGridColumn>
-
-                <DataGridColumn TItem="OrganizationDto" Field="OrganizationType" Caption="@L["OrganizationType"]">
-                    <DisplayTemplate Context="organization_context">
-                        @L[$"Enum:OrganizationType.{organization_context.OrganizationType.ToString("d")}"]
-                    </DisplayTemplate>
-                </DataGridColumn>
-
-                <DataGridColumn TItem="OrganizationDto"
-                                Field="SourceType"
-                                Caption="@L["SourceType"]">
-                    <DisplayTemplate>
-                        @L[$"Enum:SourceType.{(int)context.SourceType}"]
-                    </DisplayTemplate>
-                </DataGridColumn>
-
-
-                <DataGridColumn TItem="OrganizationDto"
-                                Field="FirstSync"
-                                Caption="@L["FirstSync"]">
-                    <DisplayTemplate>
-                        @(context.FirstSync.HasValue ? context.FirstSync.Value.ToShortDateString() : string.Empty)
-                    </DisplayTemplate>
-                </DataGridColumn>
-
-                <DataGridColumn TItem="OrganizationDto"
-                                Field="LastSync"
-                                Caption="@L["LastSync"]">
-                    <DisplayTemplate>
-                        @(context.LastSync.HasValue ? context.LastSync.Value.ToShortDateString() : string.Empty)
-                    </DisplayTemplate>
-                </DataGridColumn>
-            </DataGridColumns>
-            <EmptyTemplate>
-                <div class="box">
-                    Nesun dato trovato
-                </div>
-            </EmptyTemplate>
-            <LoadingTemplate>
-                <Progress @ref="progressRef" Color="Color.Primary" Max="100" Value="progress"/>
-            </LoadingTemplate>
-
-            <RowOverlayTemplate>
-                <Div id="@context.Item.Name" class="justify-content-start">
-                    @*<Button Color="Color.Primary" Size="Size.ExtraSmall"
-                            Visibility="@((CanEditOrganization) ? Visibility.Visible : Visibility.Invisible)"
-                            Clicked="async () => await OpenEditOrganizationModalAsync(context.Item, DisplayViewType.FULL_READONLY)">
-                        <Icon Name="IconName.Eye" IconSize="IconSize.ExtraSmall"/>
-                    </Button>*@
-                    <Button Color="Color.Primary" Size="Size.Default"
-                            Visibility="@((CanEditOrganization) ? Visibility.Visible : Visibility.Invisible)"
-                            Clicked="() => OpenEditContactPageAsync(context.Item)">
-                        <Icon Name="IconName.Edit" IconSize="IconSize.Default"/>
-                    </Button>
-                    <Button Color="Color.Secondary" Size="Size.Default"
-                            Visibility="@((CanDeleteOrganization) ? Visibility.Visible : Visibility.Invisible)"
-                            Clicked="async () => await DeleteOrganizationAsync(context.Item)">
-                        <Icon Name="IconName.Delete" IconSize="IconSize.Default"/>
-                    </Button>
-                </Div>
-            </RowOverlayTemplate>
-        </DataGrid>
-    </CardBody>
-</Card>
+@*
 <Offcanvas @ref="offcanvasRef" ShowBackdrop Closing="@OnOffcanvasClosing">
     <OffcanvasHeader>
         Offcanvas Start
@@ -248,11 +216,11 @@
         </Div>
     </OffcanvasBody>
 </Offcanvas>
-<Button Color="Color.Primary" Clicked="@ShowOffcanvas">Show Offcanvas</Button>
+<Button Color="Color.Primary" Clicked="@ShowOffcanvas">Show Offcanvas</Button>*@
 
 
 @code {
-    private Offcanvas offcanvasRef;
+    /*private Offcanvas offcanvasRef;
 
     private bool cancelClose;
 
@@ -283,5 +251,6 @@
 
         return Task.CompletedTask;
     }
+    */
 
 }

@@ -14,10 +14,13 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
 using IBLTermocasa.Organizations;
 using IBLTermocasa.Permissions;
+using IBLTermocasa.Products;
 using IBLTermocasa.Shared;
 using IBLTermocasa.Types;
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
 using NUglify.Helpers;
+using SortDirection = Blazorise.SortDirection;
 
 
 namespace IBLTermocasa.Blazor.Pages.Crm
@@ -28,7 +31,8 @@ namespace IBLTermocasa.Blazor.Pages.Crm
         protected PageToolbar Toolbar {get;} = new PageToolbar();
         protected bool ShowAdvancedFilters { get; set; }
         private IReadOnlyList<OrganizationDto> OrganizationList { get; set; }
-        private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
+        private MudDataGrid<OrganizationDto> OrganizationMudDataGrid { get; set; }
+        private int PageSize { get; } = LimitedResultRequestDto.MaxMaxResultCount;
         private int CurrentPage { get; set; } = 1;
         private string CurrentSorting { get; set; } = string.Empty;
         private int TotalCount { get; set; }
@@ -71,6 +75,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
         protected override async Task OnInitializedAsync()
         {
             await SetPermissionsAsync();
+            await GetOrganizationsAsync();
             await GetIndustryCollectionLookupAsync();
         }
 
@@ -158,7 +163,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
             await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
             NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/organizations/as-excel-file?DownloadToken={token}&FilterText={Filter.FilterText}{culture}&Name={Filter.Name}", forceLoad: true);
         }
-
+        
         private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<OrganizationDto> e)
         {
             progress = 25;
@@ -172,7 +177,6 @@ namespace IBLTermocasa.Blazor.Pages.Crm
             await InvokeAsync( StateHasChanged );
             await GetOrganizationsAsync();
             progress = 75;
-            await InvokeAsync( StateHasChanged );
             await InvokeAsync(StateHasChanged);
             progress = 100;
             await InvokeAsync( StateHasChanged );
