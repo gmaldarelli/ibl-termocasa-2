@@ -231,6 +231,7 @@ namespace IBLTermocasa.Blazor.Pages
 
             await ComponentsAppService.DeleteAsync(input.Id);
             await GetComponentsAsync();
+            ComponentItemMudDataGrid.Items = new List<ComponentItemDto>();
             StateHasChanged();
         }
 
@@ -308,12 +309,75 @@ namespace IBLTermocasa.Blazor.Pages
             }
         }
 
+        /*
+        private async Task OpenCreateComponentDialog()
+        {
+            var exclusionCodes = !ComponentList.IsNullOrEmpty() ? ComponentList.Select(x => x.Code).ToList() : new List<string>();
+            var dialogComponent = await DialogService.ShowAsync<AddComponentsInput>(L["NewComponent"] , new DialogParameters
+            {
+                { "ExclusionCodes", exclusionCodes }
+            }, new DialogOptions
+            {
+                Position = DialogPosition.Custom,
+                FullWidth = true,
+                MaxWidth = MaxWidth.Medium
+            });
+            
+            var result = await dialogComponent.Result;
+            if (!result.Canceled)
+            {
+                var selectedItem = (ComponentDto)result.Data;
+                if (selectedItem != null)
+                {
+                    return;
+                }
+
+                var create = await ComponentsAppService.CreateAsync(
+                    ObjectMapper.Map<ComponentDto, ComponentCreateDto>(selectedItem));
+                ComponentList.Add(create);
+                ComponentMudDataGrid.Items = ComponentList;
+                ComponentMudDataGrid.SelectedItem = create;
+                
+                await ComponentMudDataGrid.ReloadServerData();
+                StateHasChanged();
+            }
+        }
+        */
         
-        private async Task OpenCreateComponentItemModalAsync()
+        private async Task OpenCreateComponentDialog() {
+            var exclusionCodes = ComponentList?.Select(x => x.Code).ToList() ?? new List<string>();
+
+            var dialog = DialogService.Show<AddComponentsInput>(L["NewComponent"], new DialogParameters {
+                { "ExclusionCodes", exclusionCodes }
+            }, new DialogOptions
+            {
+                Position = DialogPosition.Custom,
+                FullWidth = true,
+                MaxWidth = MaxWidth.Small
+            });
+
+            var result = await dialog.Result;
+
+            if (!result.Canceled) {
+                var selectedItem = (ComponentDto)result.Data;
+
+                var create = await ComponentsAppService.CreateAsync(
+                    ObjectMapper.Map<ComponentDto, ComponentCreateDto>(selectedItem));
+            
+                ComponentList.Add(create);
+                ComponentMudDataGrid.Items = ComponentList;
+                ComponentMudDataGrid.SelectedItem = create;
+            
+                await ComponentMudDataGrid.ReloadServerData();
+                StateHasChanged();
+            }
+        }
+
+        
+        private async Task OpenAssociateComponentItemDialogAsync()
         {
             var exclusionIds = ComponentItemList.Select(x => x.Id).ToList();
-            
-            var dialog = await DialogService.ShowAsync<AddMaterialsInput>(L["ConfirmGenerationMudDialogTitle"] ,new DialogParameters
+            var dialog = await DialogService.ShowAsync<AddMaterialsInput>(L["NewComponent"] ,new DialogParameters
             {
                 { "ExclusionIds", exclusionIds }
             }, new DialogOptions
@@ -347,12 +411,12 @@ namespace IBLTermocasa.Blazor.Pages
                     ComponentMudDataGrid.SelectedItem.Id,
                     ObjectMapper.Map<ComponentDto, ComponentUpdateDto>(ComponentMudDataGrid.SelectedItem)
                 );
-                ComponentList.ToList().ForEach(x => {
-                    if (x.Id == ComponentMudDataGrid.SelectedItem.Id) {
-                        x = updated;
-                    }
-                });
+                var indexComponent = ComponentList.FindIndex(x => x.Id == updated.Id);
+                ComponentMudDataGrid.SelectedItem = ComponentList[indexComponent];
+                ComponentItemMudDataGrid.Items = ComponentMudDataGrid.SelectedItem.ComponentItems;
                 await ComponentMudDataGrid.ReloadServerData();
+                await ComponentItemMudDataGrid.ReloadServerData();
+                
                 StateHasChanged();
             }
             
@@ -416,14 +480,7 @@ namespace IBLTermocasa.Blazor.Pages
             _selectedComponent = updatedComponentDto;
             var index = ComponentList.FindIndex(x => x.Id == updatedComponentDto.Id);
             ComponentList[index] = updatedComponentDto;
-            ComponentMudDataGrid.Items = ComponentList;
-            
-            SelectedComponentItems = new ObservableCollection<ComponentItemDto>(updatedComponentDto.ComponentItems);
-            
-            ComponentItemMudDataGrid.Items = SelectedComponentItems;
-            ComponentItemMudDataGrid.CurrentPage = 1;
-            await ComponentItemMudDataGrid.ReloadServerData();
-            await ComponentItemMudDataGrid.ReloadServerData();
+            ComponentMudDataGrid.SelectedItem = updatedComponentDto;
             StateHasChanged();
         }
         

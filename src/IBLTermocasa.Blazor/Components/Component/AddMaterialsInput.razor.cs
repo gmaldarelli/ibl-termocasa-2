@@ -44,12 +44,6 @@ public partial class AddMaterialsInput
     {
         Console.WriteLine($"SelectedItem: {SelectedItems.Count}");
 
-        if (Dialog == null)
-        {
-            Console.WriteLine("Dialog is null.");
-            return;
-        }
-
         if (SelectedItems.Count > 0)
         {
             var selectedItemsList = SelectedItems.ToList();

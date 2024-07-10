@@ -131,7 +131,8 @@
     "Menu:Components": "Componenti",
     "IsDefault": "Predefinito",
     "ComponentItems": "Materiali",
-    "NewComponentItem": "Associa Materiale",
+    "NewComponentItem": "Nuovo Materiale",
+    "AssociateMaterial": "Associa Materiale",
     "Material": "Materiale",
     "Permission:ComponentItems": "Elementi del Componente",
     "Permission:Products": "Prodotti",
@@ -306,8 +307,8 @@
     "ProfessionalProfiles": "Profili Professionali",
     "NewProfessionalProfile": "Nuovo Profilo Professionale",
     "Menu:ProfessionalProfiles": "Profili Professionali",
-    "Name is required!": "Il nome è obbligatorio!",
-    "Standard Price is required!": "Il prezzo standard è obbligatorio!",
+    "NameIsRequired": "Il nome è obbligatorio!",
+    "StandardPriceIsRequired": "Il prezzo standard è obbligatorio!",
     "Permission:ConsumptionEstimations": "Stime di Consumo",
     "ConsumptionProduct": "Prodotto di Consumo",
     "ConsumptionWork": "Lavoro di Consumo",
@@ -316,6 +317,8 @@
     "Menu:ConsumptionEstimations": "Stime di Consumo",
     "ConsumptionComponent": "Consumo dei Componenti",
     "ConsumptionMaterial": "Consumo dei Materiali",
-    "ConsumptionProfessionalProfile": "Consumo dei Profili Professionali"
+    "ConsumptionProfessionalProfile": "Consumo dei Profili Professionali",
+    "TheCodeAlreadyExists": "Il codice esiste già!",
+    "TheFieldIsRequired": "Il campo è obbligatorio!",
   }
 }

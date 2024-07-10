@@ -12,6 +12,7 @@
 @using Blazorise
 @using Blazorise.Components
 @using Blazorise.DataGrid
+@using CsvHelper
 @using Volo.Abp.BlazoriseUI
 @using Volo.Abp.BlazoriseUI.Components
 @using Volo.Abp.ObjectMapping
@@ -53,10 +54,10 @@
                 <ToolBarContent>
                     <MudText Typo="Typo.h6">@L["Components"]</MudText>
                     <MudSpacer />
-                    <Button Color="Blazorise.Color.Primary" @onclick="CreateComponentAsync">@L["NewComponent"]</Button>
+                    <MudButton Color="Color.Primary" OnClick="OpenCreateComponentDialog">@L["NewComponent"]</MudButton>
                 </ToolBarContent>
                 <Columns>
-                    <PropertyColumn Property="x => x.Code" Title="@L["Code"]" IsEditable="true" Sortable="true" Filterable="true">
+                    <PropertyColumn Property="x => x.Code" Title="@L["Code"]" IsEditable="false" Sortable="true" Filterable="true">
                     </PropertyColumn>
                     <PropertyColumn Property="x => x.Name" Title="@L["Name"]" IsEditable="true" Sortable="true" Filterable="true">
                     </PropertyColumn>
@@ -82,7 +83,7 @@
                 <ToolBarContent>
                     <MudText Typo="Typo.h6">@L["ComponentItems"]</MudText>
                     <MudSpacer />
-                    <MudButton Disabled="@ComponentSelected" Color="Color.Primary" OnClick="OpenCreateComponentItemModalAsync">@L["NewComponentItem"]</MudButton>
+                    <MudButton Disabled="@ComponentSelected" Color="Color.Primary" OnClick="OpenAssociateComponentItemDialogAsync">@L["AssociateMaterial"]</MudButton>
                 </ToolBarContent>
                 <Columns>
                     <PropertyColumn Property="x => x.IsDefault" Title="@L["IsDefault"]" IsEditable="true" Sortable="true" Filterable="true">
@@ -104,8 +105,7 @@
                     </PropertyColumn>
                 </Columns>
                 <NoRecordsContent>
-                    <MudIcon Icon="MudIcons.Material.Filled.Warning" Size="Size.Large" Color="Color.Warning"/>
-                    @if (ComponentMudDataGrid.SelectedItem == null)
+                    @if (ComponentMudDataGrid.SelectedItem == null || ComponentMudDataGrid.SelectedItem.ComponentItems.IsNullOrEmpty())
                     {
                         <MudText>@L["NoDataSelected"]</MudText>
                     }
@@ -118,206 +118,3 @@
 <MudThemeProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider />
-
-@* ************************* CREATE MODAL ************************* *@
-<Modal @ref="CreateComponentModal" Closing="@CreateComponentModal.CancelClosingModalWhenFocusLost">
-    <ModalContent Centered="true">
-        <Form id="CreateComponentForm">
-            <ModalHeader>
-                <ModalTitle>@L["NewComponent"]</ModalTitle>
-                <CloseButton Clicked="CloseCreateComponentModalAsync" />
-            </ModalHeader>
-            <ModalBody>
-                <Validations @ref="@NewComponentValidations"
-                             Mode="ValidationMode.Auto"
-                             Model="@NewComponent"
-                             ValidateOnLoad="false">
-                    
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Code"] *</FieldLabel>
-                            <TextEdit @bind-Text="@NewComponent.Code">
-                                <Feedback>
-                                    <ValidationError/>
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Name"] *</FieldLabel>
-                            <TextEdit @bind-Text="@NewComponent.Name">
-                                <Feedback>
-                                    <ValidationError/>
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-
-
-
-
-                </Validations>
-            </ModalBody>
-            <ModalFooter>
-                <Button Color="Blazorise.Color.Secondary"
-                        Clicked="CloseCreateComponentModalAsync">
-                    @L["Cancel"]
-                </Button>
-                <SubmitButton Form="CreateComponentForm" Clicked="CreateComponentAsync" />
-
-            </ModalFooter>
-        </Form>
-
-    </ModalContent>
-</Modal>
-
-@* ************************* EDIT MODAL ************************* *@
-<Modal @ref="EditComponentModal" Closing="@EditComponentModal.CancelClosingModalWhenFocusLost">
-    <ModalContent Centered="true">
-
-        <Form id="EditComponentForm">
-            <ModalHeader>
-                <ModalTitle>@L["Update"]</ModalTitle>
-                <CloseButton Clicked="CloseEditComponentModalAsync" />
-            </ModalHeader>
-            <ModalBody>
-                <Validations @ref="@EditingComponentValidations"
-                            Mode="ValidationMode.Auto"
-                            Model="@EditingComponent"
-                            ValidateOnLoad="false">
-
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Code"] *</FieldLabel>
-                            <TextEdit @bind-Text="@EditingComponent.Code"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-                    
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Name"] *</FieldLabel>
-                            <TextEdit @bind-Text="@EditingComponent.Name"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-
-
-                    
-                    
-                </Validations>
-            </ModalBody>
-            <ModalFooter>
-                <Button Color="Blazorise.Color.Secondary"
-                        Clicked="CloseEditComponentModalAsync">
-                    @L["Cancel"]
-                </Button>
-                <SubmitButton Form="EditComponentForm" Clicked="UpdateComponentAsync" />
-
-            </ModalFooter>
-        </Form>
-
-    </ModalContent>
-</Modal>
-
-@* ************************* ComponentItem: CREATE MODAL ************************* *@
-<Modal @ref="CreateComponentItemModal" Closing="@CreateComponentItemModal.CancelClosingModalWhenFocusLost">
-    <ModalContent Centered="true">
-        <Form id="CreateComponentItemForm">
-            <ModalHeader>
-                <ModalTitle>@L["NewComponentItem"]</ModalTitle>
-                <CloseButton Clicked="CloseCreateComponentItemModalAsync" />
-            </ModalHeader>
-            <ModalBody>
-                <Validations @ref="@NewComponentItemValidations"
-                             Mode="ValidationMode.Auto"
-                             Model="@NewComponentItem"
-                             ValidateOnLoad="false">
-                     
-                    
-                    <Field>
-                        <Check TValue="bool" @bind-Checked="@NewComponentItem.IsDefault" >@L["IsDefault"]</Check>
-                    </Field>
-
-                    <Field>
-                        <FieldLabel>@L["Material"]</FieldLabel>
-                        <Select TValue="Guid" @bind-SelectedValue="@NewComponentItem.MaterialId">
-                            @foreach (var material in MaterialsCollection)
-                            {
-                                <SelectItem TValue="Guid" Value="@(material.Id)">
-                                    @(material.DisplayName)
-                                </SelectItem>
-                            }
-                        </Select>
-                    </Field>
-
-
-                    
-                </Validations>
-            </ModalBody>
-            <ModalFooter>
-                <Button Color="Blazorise.Color.Secondary"
-                        Clicked="CloseCreateComponentItemModalAsync">
-                    @L["Cancel"]
-                </Button>
-                <SubmitButton Form="CreateComponentItemForm" Clicked="CreateComponentItemAsync" />
-            </ModalFooter>
-        </Form>
-    </ModalContent>
-</Modal>
-
-@* ************************* ComponentItem: EDIT MODAL ************************* *@
-<Modal @ref="EditComponentItemModal" Closing="@EditComponentItemModal.CancelClosingModalWhenFocusLost">
-    <ModalContent Centered="true">
-        <Form id="EditComponentItemForm">
-            <ModalHeader>
-                <ModalTitle>@L["Update"]</ModalTitle>
-                <CloseButton Clicked="CloseEditComponentItemModalAsync" />
-            </ModalHeader>
-            <ModalBody>
-                <Validations @ref="@EditingComponentItemValidations"
-                             Mode="ValidationMode.Auto"
-                             Model="@EditingComponentItem"
-                             ValidateOnLoad="false">
-                     
-                    
-                    <Field>
-                        <Check TValue="bool" @bind-Checked="@EditingComponentItem.IsDefault" >@L["IsDefault"]</Check>
-                    </Field>
-
-                    <Field>
-                        <FieldLabel>@L["Material"]</FieldLabel>
-                        <Select TValue="Guid" @bind-SelectedValue="@EditingComponentItem.MaterialId">
-                            @foreach (var material in MaterialsCollection)
-                            {
-                                <SelectItem TValue="Guid" Value="@(material.Id)">
-                                    @(material.DisplayName)
-                                </SelectItem>
-                            }
-                        </Select>
-                    </Field>
-
-
-                    
-                </Validations>
-            </ModalBody>
-            <ModalFooter>
-                <Button Color="Blazorise.Color.Secondary"
-                        Clicked="CloseEditComponentItemModalAsync">
-                    @L["Cancel"]
-                </Button>
-                <SubmitButton Form="EditComponentItemForm" Clicked="UpdateComponentItemAsync" />
-            </ModalFooter>
-        </Form>
-    </ModalContent>
-</Modal>

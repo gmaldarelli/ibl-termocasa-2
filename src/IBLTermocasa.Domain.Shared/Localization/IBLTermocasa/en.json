@@ -93,6 +93,7 @@
     "Permission:Components": "Components",
     "Components": "Components",
     "NewComponent": "New Component",
+    "AssociateMaterial": "Associate Material",
     "Menu:Components": "Components",
     "IsDefault": "Is Default",
     "ComponentItems": "Component Items",
@@ -267,8 +268,8 @@
     "ProfessionalProfiles": "Professional Profiles",
     "NewProfessionalProfile": "New Professional Profile",
     "Menu:ProfessionalProfiles": "Professional Profiles",
-    "Name is required!": "Name is required!",
-    "Standard Price is required!": "Standard Price is required!",
+    "NameIsRequired": "Name is required!",
+    "StandardPriceIsRequired": "Standard Price is required!",
     "Permission:ConsumptionEstimations": "Consumption Estimations",
     "ConsumptionProduct": "Consumption Product",
     "ConsumptionWork": "Consumption Work",
@@ -278,5 +279,7 @@
     "ConsumptionComponent": "Consumption Component",
     "ConsumptionMaterial": "Consumption Material",
     "ConsumptionProfessionalProfile": "Consumption Professional Profile",
+    "TheCodeAlreadyExists": "The code already exists!",
+    "TheFieldIsRequired": "The field is required!",
   }
 }

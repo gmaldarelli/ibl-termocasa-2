@@ -1,0 +1,42 @@
+﻿@using MudBlazor
+@using Color = MudBlazor.Color
+@inherits IBLTermocasaComponentBase
+
+<style>
+
+    .mud-dialog-custom {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .navbar-open .mud-dialog-custom {
+        left: calc(50% + 264px); /* 264 è stato messo, perchè indica la larghezza della navbar */
+    }
+</style>
+<MudDialog>
+    <TitleContent>@L["NewComponent"]</TitleContent>
+    <DialogContent>
+        <MudForm @ref="NewComponentForm" Model="@NewComponent">
+            <MudTextField @bind-Value="NewComponent.Code" Label="@L["Code"]" Required="true" Immediate="true" Error="@HasDuplicateCode" ErrorText="@(HasDuplicateCode ? DuplicateCodeErrorMessage : L["TheFieldIsRequired"])"/>
+            <MudTextField @bind-Value="NewComponent.Name" Label="@L["Name"]" Required="true" Immediate="true" ErrorText="@L["TheFieldIsRequired"]"/>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Secondary" OnClick="Cancel">
+            @L["Cancel"]
+        </MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">
+            @L["Save"]
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+
+}
