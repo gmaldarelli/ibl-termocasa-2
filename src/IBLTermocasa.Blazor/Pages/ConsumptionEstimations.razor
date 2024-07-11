@@ -117,14 +117,34 @@
                             </MudTreeView>
                         </MudPaper>
                         <MudPaper Elevation="0">
-                            <MudList>
-                                @foreach (var item in Product.ProductComponents)
+                            <MudList >
+                                @foreach (var item in SelectedProduct.ProductComponents)
                                 {
-                                    <MudListItem OnClick="() => SelectedProductComponent = item">
-                                        <MudText Typo="Typo.h6">@item.Code - @item.Name</MudText>
-                                        <MudTextField T="string" @bind-Value="@(Formulas[item.Code])" Label="@L["Formula"]"
-                                                      @onclick="() => OnSelectedFormula(item)"/>
-                                    </MudListItem>
+                                    item.ParentId = SelectedProduct.Id;
+                                    item.ParentPlaceHolder = SelectedProduct.PlaceHolder;
+                                <MudListItem>
+                                    <MudText Typo="Typo.h6">@item.Code - @item.Name  (@item.PlaceHolder)</MudText>
+                                    <MudTextField T="string" @bind-Value="@item.ConsumptionCalculation" Label="@L["Formula"]"/>
+                                </MudListItem>
+                                }
+                                @foreach (var subIProducttem in SelectedProducts)
+                                {
+                                    var parentSubProduct = SelectedProduct.SubProducts.FirstOrDefault(x => x.ProductId == subIProducttem.Id);
+                                    if (parentSubProduct != null)
+                                    {
+                                        parentSubProduct.ParentId = SelectedProduct.Id;
+                                        parentSubProduct.ParentPlaceHolder = SelectedProduct.PlaceHolder;
+                                        foreach (var subItem in subIProducttem.ProductComponents)
+                                        {
+                                            subItem.ParentId = parentSubProduct!.Id;
+                                            subItem.ParentPlaceHolder = parentSubProduct.PlaceHolder;
+
+                                            <MudListItem>
+                                                <MudText Typo="Typo.h6">@subItem.Code - @subItem.Name  (@subItem.PlaceHolder)</MudText>
+                                                <MudTextField T="string" @bind-Value="@subItem.ConsumptionCalculation" Label="@L["Formula"]"/>
+                                            </MudListItem>
+                                        }
+                                    }
                                 }
                             </MudList>
                         </MudPaper>

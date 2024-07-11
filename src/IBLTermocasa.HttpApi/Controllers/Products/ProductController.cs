@@ -107,5 +107,13 @@ namespace IBLTermocasa.Controllers.Products
         {
             return _productsAppService.GetProductLookupAsync(input);
         }
+        
+        [HttpPost]
+        [Route("ids")]
+        public virtual Task<List<ProductDto>> GetListByIdAsync(List<Guid> ids)
+        {
+            return _productsAppService.GetListByIdAsync(ids);
+        }
+        
     }
 }

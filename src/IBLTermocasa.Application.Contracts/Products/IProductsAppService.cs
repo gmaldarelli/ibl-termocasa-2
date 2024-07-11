@@ -33,5 +33,8 @@ namespace IBLTermocasa.Products
         Task DeleteAllAsync(GetProductsInput input);
         
         Task<PagedResultDto<LookupDto<Guid>>> GetProductLookupAsync(LookupRequestDto input);
+        
+        Task<List<ProductDto>> GetListByIdAsync(List<Guid> ids);
+
     }
 }

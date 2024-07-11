@@ -247,5 +247,11 @@ namespace IBLTermocasa.Products
                 Items = ObjectMapper.Map<List<Product>, List<LookupDto<Guid>>>(lookupData)
             };
         }
+        
+        public virtual async Task<List<ProductDto>> GetListByIdAsync(List<Guid> ids)
+        {
+            var fullEntityItems = await _productRepository.GetListAsync(x => ids.Contains(x.Id));
+            return ObjectMapper.Map<List<Product>, List<ProductDto>>(fullEntityItems);
+        }
     }
 }

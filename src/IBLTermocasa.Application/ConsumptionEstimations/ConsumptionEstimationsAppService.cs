@@ -127,21 +127,22 @@ namespace IBLTermocasa.ConsumptionEstimations
         {
             await _consumptionEstimationRepository.DeleteAllAsync(input.FilterText, input.IdProduct);
         }
-        
-        public virtual async Task<ConsumptionEstimationDto> GetAsyncByProduct(Guid id)
+        [Authorize(IBLTermocasaPermissions.ConsumptionEstimations.Create)]
+        public virtual async Task<ConsumptionEstimationDto> GetAsyncByProduct(Guid idProduct)
         {
+            
             /*var product = await _productsAppService.GetAsync(id);
             if (product != null)    
             {
                 throw new UserFriendlyException("Product not found");
             }*/
             
-            var entity = await _consumptionEstimationRepository.GetAsync(ix => ix.IdProduct == id);
+            var entity = await _consumptionEstimationRepository.GetAsync(ix => ix.IdProduct == idProduct);
             if (entity == null)
             {
                 return await this.CreateAsync(new ConsumptionEstimationCreateDto
                 {
-                    IdProduct = id
+                    IdProduct = idProduct
                 });
             } else
             {

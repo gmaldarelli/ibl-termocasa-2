@@ -87,10 +87,10 @@ namespace IBLTermocasa.Controllers.ConsumptionEstimations
         }
         
         [HttpGet]
-        [Route("product/{id}")]
-        public virtual Task<ConsumptionEstimationDto> GetAsyncByProduct(Guid id)
+        [Route("product/{idProduct}")]
+        public virtual Task<ConsumptionEstimationDto> GetAsyncByProduct(Guid idProduct)
         {
-            return _consumptionEstimationsAppService.GetAsyncByProduct(id);
+            return _consumptionEstimationsAppService.GetAsyncByProduct(idProduct);
         }
     }
 }

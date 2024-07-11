@@ -61,11 +61,17 @@ namespace IBLTermocasa.Blazor.Pages
         
         private async Task OnClickSelectProduct(LookupDto<Guid> item)
         {
+            SelectedProduct = await ProductsAppService.GetAsync(item.Id);
+            SelectedProducts = await ProductsAppService.GetListByIdAsync(SelectedProduct.SubProducts.Select(x => x.ProductId).ToList());
             Console.WriteLine(":::::::::::::::::::::::::::::::::::OnClickSelectProduct: " + item);
             await OnSelectedItemChanged(item.Id);
             StateHasChanged();
         }
-        
+
+        public List<ProductDto> SelectedProducts { get; set; } = new List<ProductDto>();
+
+        public ProductDto SelectedProduct { get; set; } = new ProductDto();
+
         private async Task OnSelectedItemChanged(Guid idProduct)
         {
             ConsumptionEstimationDto selectedConsumptionEstimation = new ConsumptionEstimationDto(
@@ -86,7 +92,9 @@ namespace IBLTermocasa.Blazor.Pages
                 ));
             }
             Console.WriteLine(":::::::::::::::::::::::::::::::::::OnSelectedItemChanged idProduct: " + idProduct);
-            //var item = await ConsumptionEstimationsAppService.GetAsyncByProduct(idProduct);
+            var res = await ConsumptionEstimationsAppService.GetListAsync(Filter);
+            Console.WriteLine(":::::::::::::::::::::::::::::::::::OnSelectedItemChanged res: " + res.Items.Count);
+            var item = await ConsumptionEstimationsAppService.GetAsyncByProduct(idProduct);
             var product = await ProductsAppService.GetAsync(idProduct);
             List<ProductDto> subProducts = new List<ProductDto>();
             foreach (var subProductItem in product.SubProducts)
