@@ -7,7 +7,7 @@ namespace IBLTermocasa.Common;
 
 public class TransformerUtils
 {
-    private PlaceHolderTreeItemData GenerateTreeItems(ProductDto rootProduct,  
+    public PlaceHolderTreeItemData GenerateTreeItems(ProductDto rootProduct,  
         List<ProductDto> subProducts,
         Dictionary<PlaceHolderType, string> icons)
     {

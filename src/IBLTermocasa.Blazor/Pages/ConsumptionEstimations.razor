@@ -3,6 +3,8 @@
 @page "/consumption-estimations"
 
 @attribute [Authorize(IBLTermocasaPermissions.ConsumptionEstimations.Default)]
+@using IBLTermocasa.Blazor.Components.Product
+@using IBLTermocasa.Common
 @using IBLTermocasa.ConsumptionEstimations
 @using IBLTermocasa.Localization
 @using Microsoft.AspNetCore.Authorization
@@ -100,7 +102,32 @@
                 <MudTabs Outlined="true" Position="Position.Top" Rounded="true" Border="true"
                          ApplyEffectsToContainer="true" PanelClass="pa-2">
                     <MudTabPanel Text="@L["ConsumptionComponent"]">
-                        
+                        <MudPaper Elevation="0">
+                            <MudTreeView T="PlaceHolderTreeItemData" Hover
+                                         @ref="ProductMudTreeView" Items="TreeItems" MultiSelection="false"
+                                         @bind-SelectedValues="SelectedValues"
+                                         SelectionMode="@SelectionMode.SingleSelection">
+                                <ItemTemplate>
+                                    <MudTreeViewItem @bind-Expanded="@context.IsExpanded" 
+                                                     Items="@context.TreeItems"  
+                                                     Icon="@context.Icon" 
+                                                     LoadingIconColor="MudBlazor.Color.Info"
+                                                     Text="@context.CodeAndName"/>
+                                </ItemTemplate>
+                            </MudTreeView>
+                        </MudPaper>
+                        <MudPaper Elevation="0">
+                            <MudList>
+                                @foreach (var item in Product.ProductComponents)
+                                {
+                                    <MudListItem OnClick="() => SelectedProductComponent = item">
+                                        <MudText Typo="Typo.h6">@item.Code - @item.Name</MudText>
+                                        <MudTextField T="string" @bind-Value="@(Formulas[item.Code])" Label="@L["Formula"]"
+                                                      @onclick="() => OnSelectedFormula(item)"/>
+                                    </MudListItem>
+                                }
+                            </MudList>
+                        </MudPaper>
                     </MudTabPanel>
                     <MudTabPanel Text="@L["ConsumptionProfessionalProfile"]">
 

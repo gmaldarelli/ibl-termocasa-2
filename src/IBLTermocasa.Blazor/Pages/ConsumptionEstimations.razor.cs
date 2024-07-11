@@ -6,6 +6,8 @@ using System.Globalization;
 using System.Web;
 using Blazorise;
 using Blazorise.DataGrid;
+using IBLTermocasa.Blazor.Components.Product;
+using IBLTermocasa.Common;
 using Volo.Abp.BlazoriseUI.Components;
 using Microsoft.AspNetCore.Authorization;
 using Volo.Abp.Application.Dtos;
@@ -39,7 +41,7 @@ namespace IBLTermocasa.Blazor.Pages
         private ConsumptionEstimationDto? SelectedConsumptionEstimation;
         private List<ConsumptionEstimationDto> SelectedConsumptionEstimations { get; set; } = new();
         private bool AllConsumptionEstimationsSelected { get; set; }
-        
+        Dictionary<PlaceHolderType, string> icons = new Dictionary<PlaceHolderType, string>();
         
         
         [Inject] private IProductsAppService ProductsAppService { get; set; }
@@ -47,28 +49,69 @@ namespace IBLTermocasa.Blazor.Pages
         bool successValidationConsumptionEstimation {get; set;}
         string[] errorsValidationConsumptionEstimation = { };
         private List<LookupDto<Guid>> ProductsList { get; set; } = new();
-        
-        
-        
+        public MudTreeView<PlaceHolderTreeItemData> ProductMudTreeView { get; set; }
+        public HashSet<PlaceHolderTreeItemData> TreeItems { get; set; } = new HashSet<PlaceHolderTreeItemData>();
+        public HashSet<PlaceHolderTreeItemData> SelectedValues { get; set; }
+
+
         private async Task GetListProductsCollectionLookupAsync()
         {
             ProductsList = (await ProductsAppService.GetProductLookupAsync(new LookupRequestDto())).Items.ToList();
         }
         
-        private void OnClickSelectProduct(LookupDto<Guid> item)
+        private async Task OnClickSelectProduct(LookupDto<Guid> item)
         {
-            _ = OnSelectedItemChanged(item.Id);
+            Console.WriteLine(":::::::::::::::::::::::::::::::::::OnClickSelectProduct: " + item);
+            await OnSelectedItemChanged(item.Id);
             StateHasChanged();
         }
         
         private async Task OnSelectedItemChanged(Guid idProduct)
         {
-            var item = await ConsumptionEstimationsAppService.GetAsyncByProduct(idProduct);
+            ConsumptionEstimationDto selectedConsumptionEstimation = new ConsumptionEstimationDto(
+                id: Guid.NewGuid(),
+                idProduct: idProduct,
+                consumptionWork: new List<ConsumptionWorkDto>(), 
+                consumptionProduct: new List<ConsumptionProductDto>()
+                );
+            List<ConsumptionProductDto> consumptionProduct = new List<ConsumptionProductDto>();
+            foreach (var subProductItem in selectedConsumptionEstimation.ConsumptionProduct)
+            {
+                var subProduct = await ProductsAppService.GetAsync(subProductItem.IdProductComponent);
+                consumptionProduct.Add(new ConsumptionProductDto(
+                    id: subProductItem.Id,
+                    idProductComponent: subProductItem.IdProductComponent,
+                    consumptionComponentFormula: subProductItem.ConsumptionComponentFormula,
+                    isValid: subProductItem.IsValid
+                ));
+            }
+            Console.WriteLine(":::::::::::::::::::::::::::::::::::OnSelectedItemChanged idProduct: " + idProduct);
+            //var item = await ConsumptionEstimationsAppService.GetAsyncByProduct(idProduct);
             var product = await ProductsAppService.GetAsync(idProduct);
+            List<ProductDto> subProducts = new List<ProductDto>();
+            foreach (var subProductItem in product.SubProducts)
+            {
+                var subProduct = await ProductsAppService.GetAsync(subProductItem.ProductId);
+                subProducts.Add(subProduct);
+            }
+            TransformerUtils transformerUtils = new TransformerUtils();
+            var treeItemData = transformerUtils.GenerateTreeItems(product, subProducts, icons);
+            TreeItems = new HashSet<PlaceHolderTreeItemData>();
+            TreeItems.Add(treeItemData);
+            Console.WriteLine(":::::::::::::::::::::::::::::::::::TreeItems: " + TreeItems.Count);
             Console.WriteLine(":::::::::::::::::::::::::::::::::::product: " + product);
-            Console.WriteLine(":::::::::::::::::::::::::::::::::::ConsumptionEstimations: " + item);
+            //Console.WriteLine(":::::::::::::::::::::::::::::::::::ConsumptionEstimations: " + item);
         }
-        
+
+        private void initComponentTreeView()
+        {
+            icons = new Dictionary<PlaceHolderType, string>
+            {
+                {PlaceHolderType.PRODUCT, MudBlazor.Icons.Material.Filled.AllInbox},
+                {PlaceHolderType.PRODUCT_QUESTION_TEMPLATE, MudBlazor.Icons.Material.Filled.QuestionAnswer},
+                {PlaceHolderType.PRODUCT_COMPONENT, MudBlazor.Icons.Material.Filled.Commit},
+            };
+        }
         
         
         public ConsumptionEstimations()
@@ -82,7 +125,7 @@ namespace IBLTermocasa.Blazor.Pages
                 Sorting = CurrentSorting
             };
             ConsumptionEstimationList = new List<ConsumptionEstimationDto>();
-            
+            initComponentTreeView();
             
         }
 
