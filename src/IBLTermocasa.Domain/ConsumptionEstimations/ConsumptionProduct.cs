@@ -13,7 +13,9 @@ namespace IBLTermocasa.ConsumptionEstimations
 {
     public class ConsumptionProduct : Entity<Guid>
     {
-        public virtual Guid IdProductComponent { get; set; }
+        public virtual Guid IdProductComponent { get; set; }        
+        public virtual string? ConsumptionComponentLabel { get; set; }
+        public virtual string? ConsumptionComponentCodeAndName { get; set; }
         public virtual string? ConsumptionComponentFormula { get; set; }
         public virtual bool IsValid { get; set; }
 
@@ -22,10 +24,16 @@ namespace IBLTermocasa.ConsumptionEstimations
 
         }
 
-        public ConsumptionProduct(Guid id, Guid idProductComponent, string consumptionComponentFormula, bool isValid)
+        public ConsumptionProduct(Guid id, Guid idProductComponent, 
+            string? consumptionComponentLabel = null,  
+            string? consumptionComponentCodeAndName = null,  
+            string? consumptionComponentFormula = null, 
+            bool isValid = false)
         {
             Id = id;
             IdProductComponent = idProductComponent;
+            ConsumptionComponentCodeAndName = consumptionComponentCodeAndName;
+            ConsumptionComponentLabel = consumptionComponentLabel;
             ConsumptionComponentFormula = consumptionComponentFormula;
             IsValid = isValid;
         }

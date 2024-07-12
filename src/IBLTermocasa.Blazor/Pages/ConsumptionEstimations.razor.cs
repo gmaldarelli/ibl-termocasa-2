@@ -17,6 +17,7 @@ using IBLTermocasa.Permissions;
 using IBLTermocasa.Products;
 using IBLTermocasa.Shared;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 
 
@@ -74,27 +75,7 @@ namespace IBLTermocasa.Blazor.Pages
 
         private async Task OnSelectedItemChanged(Guid idProduct)
         {
-            ConsumptionEstimationDto selectedConsumptionEstimation = new ConsumptionEstimationDto(
-                id: Guid.NewGuid(),
-                idProduct: idProduct,
-                consumptionWork: new List<ConsumptionWorkDto>(), 
-                consumptionProduct: new List<ConsumptionProductDto>()
-                );
-            List<ConsumptionProductDto> consumptionProduct = new List<ConsumptionProductDto>();
-            foreach (var subProductItem in selectedConsumptionEstimation.ConsumptionProduct)
-            {
-                var subProduct = await ProductsAppService.GetAsync(subProductItem.IdProductComponent);
-                consumptionProduct.Add(new ConsumptionProductDto(
-                    id: subProductItem.Id,
-                    idProductComponent: subProductItem.IdProductComponent,
-                    consumptionComponentFormula: subProductItem.ConsumptionComponentFormula,
-                    isValid: subProductItem.IsValid
-                ));
-            }
-            Console.WriteLine(":::::::::::::::::::::::::::::::::::OnSelectedItemChanged idProduct: " + idProduct);
-            var res = await ConsumptionEstimationsAppService.GetListAsync(Filter);
-            Console.WriteLine(":::::::::::::::::::::::::::::::::::OnSelectedItemChanged res: " + res.Items.Count);
-            var item = await ConsumptionEstimationsAppService.GetAsyncByProduct(idProduct);
+            SelectedConsumptionEstimation = await ConsumptionEstimationsAppService.GetAsyncByProduct(idProduct);
             var product = await ProductsAppService.GetAsync(idProduct);
             List<ProductDto> subProducts = new List<ProductDto>();
             foreach (var subProductItem in product.SubProducts)
@@ -106,12 +87,10 @@ namespace IBLTermocasa.Blazor.Pages
             var treeItemData = transformerUtils.GenerateTreeItems(product, subProducts, icons);
             TreeItems = new HashSet<PlaceHolderTreeItemData>();
             TreeItems.Add(treeItemData);
-            Console.WriteLine(":::::::::::::::::::::::::::::::::::TreeItems: " + TreeItems.Count);
-            Console.WriteLine(":::::::::::::::::::::::::::::::::::product: " + product);
-            //Console.WriteLine(":::::::::::::::::::::::::::::::::::ConsumptionEstimations: " + item);
         }
 
-        private void initComponentTreeView()
+
+        private void InitComponentTreeView()
         {
             icons = new Dictionary<PlaceHolderType, string>
             {
@@ -133,7 +112,7 @@ namespace IBLTermocasa.Blazor.Pages
                 Sorting = CurrentSorting
             };
             ConsumptionEstimationList = new List<ConsumptionEstimationDto>();
-            initComponentTreeView();
+            InitComponentTreeView();
             
         }
 
@@ -225,5 +204,35 @@ namespace IBLTermocasa.Blazor.Pages
         }
 
 
+        private Task OnBlurConsumptionComponentFormula(ConsumptionProductDto item)
+        {
+            SelectedConsumptionProductEstimation = item;
+            return Task.CompletedTask;
+        }
+
+        public ConsumptionProductDto? SelectedConsumptionProductEstimation { get; set; }
+
+        private Task OnDoubleClickSelectConsumptionComponent(PlaceHolderTreeItemData context)
+        {
+            if(SelectedConsumptionProductEstimation != null)
+            {
+                if(SelectedConsumptionProductEstimation.ConsumptionComponentFormula == null){
+                    SelectedConsumptionProductEstimation.ConsumptionComponentFormula =$"{{{context.PlaceHolder}}}";
+                    return Task.CompletedTask; 
+                }
+                SelectedConsumptionProductEstimation.ConsumptionComponentFormula += $"{{{context.PlaceHolder}}}";
+            }
+            return Task.CompletedTask;
+        }
+
+        private async void OnClickSaveConsumptionComponent(MouseEventArgs obj)
+        {
+            if(SelectedConsumptionEstimation != null)
+            {
+                var element = ObjectMapper.Map<ConsumptionEstimationDto, ConsumptionEstimationUpdateDto>(SelectedConsumptionEstimation);
+                await ConsumptionEstimationsAppService.UpdateAsync(SelectedConsumptionEstimation.Id, element);
+                await UiMessageService.Success("Consumption Component added successfully");
+            }
+        }
     }
 }

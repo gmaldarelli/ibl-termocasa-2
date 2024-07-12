@@ -28,16 +28,16 @@ namespace IBLTermocasa.ConsumptionEstimations
         protected IDistributedCache<ConsumptionEstimationExcelDownloadTokenCacheItem, string> _excelDownloadTokenCache;
         protected IConsumptionEstimationRepository _consumptionEstimationRepository;
         protected ConsumptionEstimationManager _consumptionEstimationManager;
-        //protected ProductsAppService _productsAppService;
+        protected ProductsAppService _productsAppService;
 
         public ConsumptionEstimationsAppService(IConsumptionEstimationRepository consumptionEstimationRepository, 
             ConsumptionEstimationManager consumptionEstimationManager, 
             IDistributedCache<ConsumptionEstimationExcelDownloadTokenCacheItem, string> excelDownloadTokenCache
-            //, ProductsAppService productsAppService
+            , ProductsAppService productsAppService
             )
         {
             _excelDownloadTokenCache = excelDownloadTokenCache;
-            //_productsAppService = productsAppService;
+            _productsAppService = productsAppService;
             _consumptionEstimationRepository = consumptionEstimationRepository;
             _consumptionEstimationManager = consumptionEstimationManager;
         }
@@ -68,9 +68,45 @@ namespace IBLTermocasa.ConsumptionEstimations
         [Authorize(IBLTermocasaPermissions.ConsumptionEstimations.Create)]
         public virtual async Task<ConsumptionEstimationDto> CreateAsync(ConsumptionEstimationCreateDto input)
         {
-            var requestForQuotation = ObjectMapper.Map<ConsumptionEstimationCreateDto, ConsumptionEstimation>(input);
+            var product = await _productsAppService.GetAsync(input.IdProduct);
+            foreach (var productComponent in product.ProductComponents)
+            {
+                productComponent.ParentId = product.Id;
+                productComponent.ParentPlaceHolder = product.PlaceHolder;
+                var consumptionProduct =new ConsumptionProductDto(Guid.NewGuid(), 
+                    productComponent.Id,
+                    productComponent.PlaceHolder,
+                    $"{productComponent.Code} - {productComponent.Name}"
+                    );
+                input.ConsumptionProduct.Add(consumptionProduct);
+            }
+
+            if (product.IsAssembled)
+            {
+                var listSubProduct = await _productsAppService.GetListByIdAsync(product.SubProducts.Select(x => x.ProductId).ToList());
+
+                foreach (var dto in listSubProduct)
+                {
+                    var selectedSubProduct = product.SubProducts.FirstOrDefault(x => x.ProductId == dto.Id);
+                    if(selectedSubProduct is null){ continue; }
+                    selectedSubProduct.ParentId = product.Id;
+                    selectedSubProduct.ParentPlaceHolder = product.PlaceHolder;
+
+                    foreach (var productComponent in dto.ProductComponents)
+                    {
+                        productComponent.ParentId = selectedSubProduct.Id;
+                        productComponent.ParentPlaceHolder = selectedSubProduct.PlaceHolder;
+                        var consumptionProduct = new ConsumptionProductDto(Guid.NewGuid(), 
+                            productComponent.Id, 
+                            productComponent.PlaceHolder,
+                            $"{productComponent.Code} - {productComponent.Name}" );
+                        input.ConsumptionProduct.Add(consumptionProduct);
+                    }
+                }
+            }
+            var consumptionEstimation = ObjectMapper.Map<ConsumptionEstimationCreateDto, ConsumptionEstimation>(input);
             return ObjectMapper.Map<ConsumptionEstimation, ConsumptionEstimationDto>(
-                await _consumptionEstimationManager.CreateAsync(requestForQuotation));
+                await _consumptionEstimationManager.CreateAsync(consumptionEstimation));
         }
 
         [Authorize(IBLTermocasaPermissions.ConsumptionEstimations.Edit)]
@@ -136,17 +172,26 @@ namespace IBLTermocasa.ConsumptionEstimations
             {
                 throw new UserFriendlyException("Product not found");
             }*/
-            
-            var entity = await _consumptionEstimationRepository.GetAsync(ix => ix.IdProduct == idProduct);
-            if (entity == null)
+
+            try
             {
-                return await this.CreateAsync(new ConsumptionEstimationCreateDto
+
+                var entity = await _consumptionEstimationRepository.FirstOrDefaultAsync(ix => ix.IdProduct == idProduct);
+                if (entity == null)
                 {
-                    IdProduct = idProduct
-                });
-            } else
+                    return await this.CreateAsync(new ConsumptionEstimationCreateDto
+                    {
+                        IdProduct = idProduct
+                    });
+                } else
+                {
+                    return ObjectMapper.Map<ConsumptionEstimation, ConsumptionEstimationDto>(entity);
+                }
+            }
+            catch (Exception e)
             {
-                return ObjectMapper.Map<ConsumptionEstimation, ConsumptionEstimationDto>(entity);
+                Console.WriteLine(e);
+                throw;
             }
         }
     }

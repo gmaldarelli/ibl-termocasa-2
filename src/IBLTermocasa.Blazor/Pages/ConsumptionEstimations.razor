@@ -29,65 +29,16 @@
 
 </PageHeader>
 
-@* ************************* SEARCH ************************* *@
-@*<Card>
-    <CardBody>
-
-        <Form id="ConsumptionEstimationSearchForm" class="mb-3">
-            <Addons>
-                <Addon AddonType="AddonType.Body">
-                    <TextEdit @bind-Text="@Filter.FilterText"
-                              Autofocus="true"
-                              Placeholder="@L["Search"]">
-                    </TextEdit>
-                </Addon>
-                <Addon AddonType="AddonType.End">
-                    <SubmitButton Form="ConsumptionEstimationSearchForm" Clicked="GetConsumptionEstimationsAsync">
-                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
-                    </SubmitButton>
-                </Addon>
-            </Addons>
-        </Form>
-        
-        <Row Class="mt-3 mb-3"> 
-            <div class="col-md-12">
-                <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
-            </div>
-        </Row>
-        
-        <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
-            <Row>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["ConsumptionProduct"]</FieldLabel>
-                        <TextEdit Text="@Filter.ConsumptionProduct" TextChanged="@OnConsumptionProductChangedAsync" />                       
-                    </Field>
-                </Column>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["ConsumptionWork"]</FieldLabel>
-                        <TextEdit Text="@Filter.ConsumptionWork" TextChanged="@OnConsumptionWorkChangedAsync" />                       
-                    </Field>
-                </Column>
-            </Row>
-
-        </div>
-
-
-    </CardBody>
-</Card>*@
-
-@* ************************* DATA GRID ************************* *@
-<MudForm   @ref="formConsumptionEstimation"
-           IsValid=" successValidationConsumptionEstimation"
-           Errors="errorsValidationConsumptionEstimation">
-    <MudGrid>
-        <MudItem xs="12" sm="4">
-            @* ************************* Lista di prodotti sulla sinistra ************************* *@
-            <MudPaper MaxHeight="600" Elevation="8">
-                <MudText Align="Align.Center" Typo="Typo.h5" Class="p-3"
+<MudPaper Style="overflow:hidden; position:relative; height: 100%;" MinHeight="48 0px">
+    <MudDrawerContainer Class="mud-height-full" Style="height: 100%;">
+        <MudDrawer @bind-Open="@_open" Elevation="0" Variant="@DrawerVariant.Persistent" 
+                   Color="MudBlazor.Color.Transparent" Width="30%" Height="100%"  Style="min-height: 350px">
+            <MudDrawerHeader Style="min-width: 300px; width: 300px;">
+                <MudText Align="Align.Center" 
                          Style="box-shadow: 0px 2px #cdcdcd;">@L["Products List"]</MudText>
-                <MudList Clickable="true" Style="overflow-y: auto;" >
+            </MudDrawerHeader>
+            <MudPaper Style="overflow:hidden; position:relative; height: 100%;" MinHeight="400px">
+                <MudList Clickable="true" Style="overflow-y: auto; min-width: 350px;" >
                     @foreach (var product in ProductsList)
                     {
                         <MudListItem OnClick="() => OnClickSelectProduct(product)"
@@ -96,201 +47,82 @@
                     }
                 </MudList>
             </MudPaper>
-        </MudItem>
-        <MudItem xs="12" sm="8">
-            <MudPaper Elevation="8">
+        </MudDrawer>
+        <MudDrawer @bind-Open="@_openEnd" Fixed="false" Anchor="MudBlazor.Anchor.End" Elevation="0" 
+                   Variant="@DrawerVariant.Persistent"
+                   Width="30%" Height="100%"
+        >
+            <MudDrawerHeader >
+                <MudText Align="Align.Center"
+                         Style="box-shadow: 0px 2px #cdcdcd;">Variabili Prodotto</MudText>
+            </MudDrawerHeader>
+            <MudPaper Elevation="0" MinHeight="400px">
+                <MudTreeView T="PlaceHolderTreeItemData" Hover
+                             @ref="ProductMudTreeView" Items="TreeItems" MultiSelection="false"
+                             @bind-SelectedValues="SelectedValues"
+                             Style="min-width: 350px;"
+                             SelectionMode="@SelectionMode.SingleSelection">
+                    <ItemTemplate>
+                        <MudTreeViewItem @bind-Expanded="@context.IsExpanded"
+                                         Items="@context.TreeItems"
+                                         Icon="@context.Icon"
+                                         LoadingIconColor="MudBlazor.Color.Info"
+                                         Text="@context.CodeAndName"
+                                         OnDoubleClick="() => OnDoubleClickSelectConsumptionComponent(context)"/>
+                    </ItemTemplate>
+                </MudTreeView>
+            </MudPaper>
+        </MudDrawer>
+        
+        <div class="d-flex justify-content-start align-left mud-height-full">
+            <MudPaper Elevation="25" Class="w-100">
+                <MudToolBar>
+                    <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="MudBlazor.Color.Info" Class="mr-5" OnClick="@ToggleDrawer"/>
+                    <MudIconButton Icon="@Icons.Material.Outlined.Save" Color="MudBlazor.Color.Primary" Class="mr-5" OnClick="@OnClickSaveConsumptionComponent"/>
+                    <MudSpacer /><MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="MudBlazor.Color.Info" Class="mr-5" OnClick="@ToggleEndDrawer"/>
+                    
+                </MudToolBar>
                 <MudTabs Outlined="true" Position="Position.Top" Rounded="true" Border="true"
-                         ApplyEffectsToContainer="true" PanelClass="pa-2">
+                         ApplyEffectsToContainer="true" PanelClass="pa-2 " Class="w-100">
                     <MudTabPanel Text="@L["ConsumptionComponent"]">
-                        <MudPaper Elevation="0">
-                            <MudTreeView T="PlaceHolderTreeItemData" Hover
-                                         @ref="ProductMudTreeView" Items="TreeItems" MultiSelection="false"
-                                         @bind-SelectedValues="SelectedValues"
-                                         SelectionMode="@SelectionMode.SingleSelection">
-                                <ItemTemplate>
-                                    <MudTreeViewItem @bind-Expanded="@context.IsExpanded" 
-                                                     Items="@context.TreeItems"  
-                                                     Icon="@context.Icon" 
-                                                     LoadingIconColor="MudBlazor.Color.Info"
-                                                     Text="@context.CodeAndName"/>
-                                </ItemTemplate>
-                            </MudTreeView>
-                        </MudPaper>
-                        <MudPaper Elevation="0">
-                            <MudList >
-                                @foreach (var item in SelectedProduct.ProductComponents)
-                                {
-                                    item.ParentId = SelectedProduct.Id;
-                                    item.ParentPlaceHolder = SelectedProduct.PlaceHolder;
-                                <MudListItem>
-                                    <MudText Typo="Typo.h6">@item.Code - @item.Name  (@item.PlaceHolder)</MudText>
-                                    <MudTextField T="string" @bind-Value="@item.ConsumptionCalculation" Label="@L["Formula"]"/>
-                                </MudListItem>
-                                }
-                                @foreach (var subIProducttem in SelectedProducts)
-                                {
-                                    var parentSubProduct = SelectedProduct.SubProducts.FirstOrDefault(x => x.ProductId == subIProducttem.Id);
-                                    if (parentSubProduct != null)
+                        @if (SelectedConsumptionEstimation != null)
+                        {
+                            <MudPaper Elevation="0">
+                                <MudList >
+                                    @foreach (var item in SelectedConsumptionEstimation.ConsumptionProduct)
                                     {
-                                        parentSubProduct.ParentId = SelectedProduct.Id;
-                                        parentSubProduct.ParentPlaceHolder = SelectedProduct.PlaceHolder;
-                                        foreach (var subItem in subIProducttem.ProductComponents)
-                                        {
-                                            subItem.ParentId = parentSubProduct!.Id;
-                                            subItem.ParentPlaceHolder = parentSubProduct.PlaceHolder;
-
-                                            <MudListItem>
-                                                <MudText Typo="Typo.h6">@subItem.Code - @subItem.Name  (@subItem.PlaceHolder)</MudText>
-                                                <MudTextField T="string" @bind-Value="@subItem.ConsumptionCalculation" Label="@L["Formula"]"/>
-                                            </MudListItem>
-                                        }
+                                        <MudListItem>
+                                            <MudText Typo="Typo.h6">@item.ConsumptionComponentCodeAndName - {@item.ConsumptionComponentLabel}</MudText>
+                                            <MudTextField T="string" @bind-Value="@item.ConsumptionComponentFormula" Label="@L["Formula"]" OnBlur="() => OnBlurConsumptionComponentFormula(item)"/>
+                                        </MudListItem>
                                     }
-                                }
-                            </MudList>
-                        </MudPaper>
+                                </MudList>
+                            </MudPaper>
+                        }
                     </MudTabPanel>
                     <MudTabPanel Text="@L["ConsumptionProfessionalProfile"]">
-
                     </MudTabPanel>
                 </MudTabs>
             </MudPaper>
-        </MudItem>
-        @*<MudItem xs="12" sm="8">
-            <MudPaper Class="pa-4">
-                $1$ ************************* Tab  on right side ************************* #1#
-                <MudBlazor.MudTabs Outlined="true" MudBlazor.Position="@Position" Rounded="true" Border="true"
-                                   ApplyEffectsToContainer="true" Class="mt-8" PanelClass="pa-2">
-                    $1$ ************************* Tab Components on right side ************************* #1#
-                    <MudBlazor.MudTabPanel Text="@L["Components"]">
-                        <MudPaper>
-
-                            <MudDataGrid @ref="ProductComponentMudDataGrid" T="ProductComponentDto" Items="@Product.ProductComponents" ReadOnly="false" EditMode="MudBlazor.DataGridEditMode.Cell"
-                                         EditTrigger="DataGridEditTrigger.OnRowClick" CommittedItemChanges="@ProductComponentCommittedItemChanges"
-                                         Bordered="true" Dense="true" Filterable="false" SortMode="SortMode.None">
-                                <Columns>
-                                    <PropertyColumn Property="x => x.Order" Title="@L["Order"]" IsEditable="true" Sortable="false" Filterable="false">
-                                    </PropertyColumn>
-                                    <PropertyColumn Property="x => x.Code" IsEditable="true" Title="@L["Code"]" Sortable="false" Filterable="false">
-                                        <EditTemplate>
-                                            <MudTextField @bind-Value="context.Item.Code"/>
-                                        </EditTemplate>
-                                    </PropertyColumn>
-                                    <PropertyColumn Property="x => x.Name" IsEditable="true" Title="@L["Name"]" Sortable="false" Filterable="false">
-                                        <EditTemplate>
-                                            <MudTextField @bind-Value="context.Item.Name"/>
-                                        </EditTemplate>
-                                    </PropertyColumn>
-                                    <PropertyColumn Property="x => x.Mandatory" Title="@L["Mandatory"]" Sortable="false" Filterable="false">
-                                        <EditTemplate>
-                                            <MudCheckBox T="bool" @bind-Value="context.Item.Mandatory" Color="MudBlazor.Color.Success"/>
-                                        </EditTemplate>
-                                    </PropertyColumn>
-                                    <PropertyColumn Property="x => x.ConsumptionCalculation" Title="@L["Consumption"]" Sortable="false" Filterable="false">
-                                        <EditTemplate >
-                                            @if(context.Item.ConsumptionCalculation.IsNullOrWhiteSpace())
-                                            {
-                                            <MudIconButton Icon="@Icons.Material.Filled.Warning" Color="MudBlazor.Color.Warning"/>
-                                            }else{
-                                            <MudIconButton Icon="@Icons.Material.Filled.Check" Color="MudBlazor.Color.Success"/>
-                                            }
-                                        </EditTemplate>
-                                    </PropertyColumn>
-                                    <PropertyColumn Property="x => x.ComponentId" Sortable="false" Filterable="false">
-                                        <HeaderTemplate>
-                                            <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.AddTask" OnClick="AddComponentAsync"></MudIconButton>
-                                        </HeaderTemplate>
-                                        <EditTemplate>
-                                            <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.Delete" OnClick="() => DeleteProductComponentAsync(context.Item)"/>
-                                        </EditTemplate>
-                                    </PropertyColumn>
-                                </Columns>
-                            </MudDataGrid>
-                        </MudPaper>
-                    </MudBlazor.MudTabPanel>
-                    $1$ ************************* Tab Products on right side ************************* #1#
-                    <MudBlazor.MudTabPanel Text="@L["Products"]">
-                        <MudDataGrid T="SubProductDto"  @ref="SubProductMudDataGrid" Items="@Product.SubProducts" ReadOnly="false" EditMode="MudBlazor.DataGridEditMode.Cell"
-                                     EditTrigger="DataGridEditTrigger.OnRowClick" CommittedItemChanges="@SubProductDtoCommittedItemChanges"
-                                     Bordered="true" Dense="true" Filterable="false" SortMode="SortMode.None">
-                            <Columns>
-                                <PropertyColumn Property="x => x.Order" Title="@L["Order"]" >
-                                    <EditTemplate>
-                                        <MudNumericField @bind-Value="context.Item.Order"  Min="1" Max="(Product.SubProducts.Count + 1)" />
-                                    </EditTemplate>
-                                </PropertyColumn>
-                                <PropertyColumn Property="x => x.Code" IsEditable="true" Title="@L["Code"]" Sortable="false" Filterable="false">
-                                    <EditTemplate>
-                                        <MudTextField @bind-Value="context.Item.Code"/>
-                                    </EditTemplate>
-                                </PropertyColumn>
-                                <PropertyColumn Property="x => x.Name" IsEditable="true" Title="@L["Name"]">
-                                    <EditTemplate>
-                                        <MudTextField @bind-Value="context.Item.Name" />
-                                    </EditTemplate>
-                                </PropertyColumn>
-                                <PropertyColumn Property="x => x.IsSingleProduct"  Title="@L["IsSingleProduct"]">
-                                    <EditTemplate>
-                                        <MudCheckBox T="bool" @bind-Value="context.Item.IsSingleProduct" />
-                                    </EditTemplate>
-                                </PropertyColumn>
-                                <PropertyColumn Property="x => x.Mandatory"  Title="@L["Mandatory"]">
-                                    <EditTemplate>
-                                        <MudCheckBox T="bool" @bind-Value="context.Item.Mandatory" />
-                                    </EditTemplate>
-                                </PropertyColumn>
-                                <PropertyColumn Property="x => x.Id" Sortable="false" Filterable="false">
-                                    <HeaderTemplate>
-                                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.AddTask" OnClick="AddSubProductAsync"></MudIconButton>
-                                    </HeaderTemplate>
-                                    <EditTemplate>
-                                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.Delete" OnClick="() => DeleteSubProductAsync(context.Item)"/>
-                                    </EditTemplate>
-                                </PropertyColumn>
-                            </Columns>
-                        </MudDataGrid>
-                    </MudBlazor.MudTabPanel>
-                    $1$ ************************* Tab QuestionTemplate on right side ************************* #1#
-                    <MudBlazor.MudTabPanel Text="@L["QuestionTemplates"]">
-                        <MudDataGrid T="ProductQuestionTemplateDto" @ref="ProductQuestionTemplateMudDataGrid" Items="@Product.ProductQuestionTemplates" ReadOnly="false" EditMode="MudBlazor.DataGridEditMode.Cell"
-                                     EditTrigger="DataGridEditTrigger.OnRowClick" CommittedItemChanges="@QuestionTemplateDtoCommittedItemChanges"
-                                     Bordered="true" Dense="true" Filterable="false" SortMode="SortMode.None">
-                            <Columns>
-                                <PropertyColumn Property="x => x.Order" Title="@L["Order"]" >
-                                    <EditTemplate>
-                                        <MudNumericField @bind-Value="context.Item.Order"  Min="1" Max="(Product.SubProducts.Count + 1)" />
-                                    </EditTemplate>
-                                </PropertyColumn>
-                                <PropertyColumn Property="x => x.Code" IsEditable="true" Title="@L["Code"]" Sortable="false" Filterable="false">
-                                    <EditTemplate>
-                                        <MudTextField @bind-Value="context.Item.Code"/>
-                                    </EditTemplate>
-                                </PropertyColumn>
-                                <PropertyColumn Property="x => x.Name" IsEditable="true" Title="@L["Name"]">
-                                    <EditTemplate>
-                                        <MudTextField @bind-Value="context.Item.Name"/>
-                                    </EditTemplate>
-                                </PropertyColumn>
-                                <PropertyColumn Property="x => x.Mandatory"  Title="@L["Mandatory"]">
-                                    <EditTemplate>
-                                        <MudCheckBox T="bool" @bind-Value="context.Item.Mandatory" />
-                                    </EditTemplate>
-                                </PropertyColumn>
-                                <PropertyColumn Property="x => x.QuestionTemplateId" Sortable="false" Filterable="false">
-                                    <HeaderTemplate>
-                                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.AddTask" OnClick="AddQuestionTemplateAsync"></MudIconButton>
-                                    </HeaderTemplate>
-                                    <EditTemplate>
-                                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.Delete" OnClick="() => DeleteProductQuestionTemplateAsync(context.Item)"/>
-                                    </EditTemplate>
-                                </PropertyColumn>
-                            </Columns>
-                        </MudDataGrid>
-                    </MudBlazor.MudTabPanel>
-                </MudBlazor.MudTabs>
-            </MudPaper>
-        </MudItem>*@
-    </MudGrid>
-</MudForm> 
+        </div>
+    </MudDrawerContainer>
+</MudPaper>
 <MudThemeProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider />
+
+@code
+{
+    private bool _open = true;
+
+    private bool _openEnd = false;
+    
+    private void ToggleDrawer()
+    {
+        _open = !_open;
+    }
+    private void ToggleEndDrawer()
+    {
+        _openEnd = !_openEnd;
+    }
+}

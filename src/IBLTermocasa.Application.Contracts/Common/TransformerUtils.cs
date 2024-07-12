@@ -11,6 +11,8 @@ public class TransformerUtils
         List<ProductDto> subProducts,
         Dictionary<PlaceHolderType, string> icons)
     {
+        this.ApplyParentToSubProducts(rootProduct, subProducts);
+        this.ApplyParentToComponentsAndQuestionTemplate(rootProduct);
          var treeItemData =new PlaceHolderTreeItemData(
              product: rootProduct,
             parent: null,
@@ -20,6 +22,34 @@ public class TransformerUtils
          var children = GenerateSubTreeItems(rootProduct.SubProducts, rootProduct.ProductComponents, rootProduct.ProductQuestionTemplates, subProducts, treeItemData, icons);
          treeItemData.TreeItems = children;
          return treeItemData;
+    }
+
+    private void ApplyParentToComponentsAndQuestionTemplate(ProductDto rootProduct)
+    {
+        foreach (var productComponent in rootProduct.ProductComponents)
+        {
+            productComponent.ParentPlaceHolder = rootProduct.PlaceHolder;
+        }
+        foreach (var productQuestionTemplate in rootProduct.ProductQuestionTemplates)
+        {
+            productQuestionTemplate.ParentPlaceHolder = rootProduct.PlaceHolder;
+        }
+    }
+
+    private void ApplyParentToSubProducts(ProductDto rootProduct, List<ProductDto> subProducts)
+    {
+        foreach (var subProduct in subProducts)
+        {
+            subProduct.ParentPlaceHolder = rootProduct.PlaceHolder;
+            foreach (var productComponent in subProduct.ProductComponents)
+            {
+                productComponent.ParentPlaceHolder = subProduct.PlaceHolder;
+            }
+            foreach (var productQuestionTemplate in subProduct.ProductQuestionTemplates)
+            {
+                productQuestionTemplate.ParentPlaceHolder = subProduct.PlaceHolder;
+            }
+        }
     }
 
     private  HashSet<PlaceHolderTreeItemData> GenerateSubTreeItems(List<SubProductDto> productSubProducts,
