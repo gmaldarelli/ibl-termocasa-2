@@ -23,12 +23,13 @@ namespace IBLTermocasa.ProfessionalProfiles
 
         public virtual async Task DeleteAllAsync(
             string? filterText = null,
-                        string? name = null,
+            string? code = null,
+            string? name = null,
             double? standardPriceMin = null,
             double? standardPriceMax = null,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, name, standardPriceMin, standardPriceMax);
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, code, name, standardPriceMin, standardPriceMax);
 
             var ids = query.Select(x => x.Id);
             await DeleteManyAsync(ids, cancellationToken: GetCancellationToken(cancellationToken));
@@ -36,6 +37,7 @@ namespace IBLTermocasa.ProfessionalProfiles
 
         public virtual async Task<List<ProfessionalProfile>> GetListAsync(
             string? filterText = null,
+            string? code = null,
             string? name = null,
             double? standardPrice = null,
             double? standardPriceMin = null,
@@ -45,7 +47,7 @@ namespace IBLTermocasa.ProfessionalProfiles
             int skipCount = 0,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, name, standardPrice, standardPriceMin, standardPriceMax);
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, code, name, standardPrice, standardPriceMin, standardPriceMax);
             query = query.OrderBy(string.IsNullOrWhiteSpace(sorting) ? ProfessionalProfileConsts.GetDefaultSorting(false) : sorting);
             return await query.OrderBy(string.IsNullOrWhiteSpace(sorting)
                     ? ProfessionalProfileConsts.GetDefaultSorting(false)
@@ -57,13 +59,14 @@ namespace IBLTermocasa.ProfessionalProfiles
 
         public virtual async Task<long> GetCountAsync(
             string? filterText = null,
+            string? code = null,
             string? name = null,
             double? standardPrice = null,
             double? standardPriceMin = null,
             double? standardPriceMax = null,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, name, standardPrice, standardPriceMin, standardPriceMax);
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, code, name, standardPrice, standardPriceMin, standardPriceMax);
             return await query.As<IMongoQueryable<ProfessionalProfile>>()
                 .LongCountAsync(GetCancellationToken(cancellationToken));
         }
@@ -71,6 +74,7 @@ namespace IBLTermocasa.ProfessionalProfiles
         protected virtual IQueryable<ProfessionalProfile> ApplyFilter(
             IQueryable<ProfessionalProfile> query,
             string? filterText = null,
+            string? code = null,
             string? name = null,
             double? standardPrice = null,
             double? standardPriceMin = null,
@@ -80,6 +84,8 @@ namespace IBLTermocasa.ProfessionalProfiles
             return query
                 .WhereIf(!string.IsNullOrWhiteSpace(filterText), e =>
                     (e.Name != null && e.Name.Contains(filterText)))
+                .WhereIf(!string.IsNullOrWhiteSpace(code),
+                    e => e.Code != null && e.Code.Contains(code))
                 .WhereIf(!string.IsNullOrWhiteSpace(name),
                     e => e.Name != null && e.Name.Contains(name));
         }

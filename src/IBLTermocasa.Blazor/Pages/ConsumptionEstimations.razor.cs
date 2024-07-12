@@ -5,19 +5,18 @@ using System.Threading.Tasks;
 using System.Globalization;
 using System.Web;
 using Blazorise;
-using Blazorise.DataGrid;
-using IBLTermocasa.Blazor.Components.Product;
 using IBLTermocasa.Common;
-using Volo.Abp.BlazoriseUI.Components;
 using Microsoft.AspNetCore.Authorization;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
 using IBLTermocasa.ConsumptionEstimations;
 using IBLTermocasa.Permissions;
 using IBLTermocasa.Products;
+using IBLTermocasa.ProfessionalProfiles;
 using IBLTermocasa.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using MudBlazor;
 
 
@@ -36,42 +35,67 @@ namespace IBLTermocasa.Blazor.Pages
         private bool CanEditConsumptionEstimation { get; set; }
         private bool CanDeleteConsumptionEstimation { get; set; }
         private ConsumptionEstimationCreateDto NewConsumptionEstimation { get; set; }
-        private Validations NewConsumptionEstimationValidations { get; set; } = new();
         private ConsumptionEstimationUpdateDto EditingConsumptionEstimation { get; set; }
         private GetConsumptionEstimationsInput Filter { get; set; }
         private ConsumptionEstimationDto? SelectedConsumptionEstimation;
-        private List<ConsumptionEstimationDto> SelectedConsumptionEstimations { get; set; } = new();
-        private bool AllConsumptionEstimationsSelected { get; set; }
-        Dictionary<PlaceHolderType, string> icons = new Dictionary<PlaceHolderType, string>();
+        Dictionary<PlaceHolderType, string> icons = new();
+        private MudList MudListProductsList { get; set; }
+        private MudListItem _selectedMudListItem;
+        private Dictionary<Guid, MudListItem> _mudListItemReferences = new();
+        private List<ProductDto> SelectedProducts { get; set; } = new();
+        private ProductDto SelectedProduct { get; set; } = new();
+        private ConsumptionWorkDto NewConsumptionWorkDto { get; set; } = new();
+        [Inject] private IJSRuntime JsRuntime { get; set; }
         
         
         [Inject] private IProductsAppService ProductsAppService { get; set; }
-        MudForm formConsumptionEstimation;
-        bool successValidationConsumptionEstimation {get; set;}
-        string[] errorsValidationConsumptionEstimation = { };
+        [Inject] private IProfessionalProfilesAppService ProfessionalProfilesAppService { get; set; }
         private List<LookupDto<Guid>> ProductsList { get; set; } = new();
+        private List<LookupDto<Guid>> ProfessionalProfilesList { get; set; } = new();
         public MudTreeView<PlaceHolderTreeItemData> ProductMudTreeView { get; set; }
-        public HashSet<PlaceHolderTreeItemData> TreeItems { get; set; } = new HashSet<PlaceHolderTreeItemData>();
-        public HashSet<PlaceHolderTreeItemData> SelectedValues { get; set; }
-
+        public HashSet<PlaceHolderTreeItemData> TreeItems { get; set; } = new ();
+        private Dictionary<Guid, MudListItem> _tempMudListItemReferences = new();
+        private int activeTabIndex = 0;
+        
+        public ConsumptionEstimations()
+        {
+            NewConsumptionEstimation = new ConsumptionEstimationCreateDto();
+            EditingConsumptionEstimation = new ConsumptionEstimationUpdateDto();
+            Filter = new GetConsumptionEstimationsInput
+            {
+                MaxResultCount = PageSize,
+                SkipCount = (CurrentPage - 1) * PageSize,
+                Sorting = CurrentSorting
+            };
+            ConsumptionEstimationList = new List<ConsumptionEstimationDto>();
+            InitComponentTreeView();
+        }
 
         private async Task GetListProductsCollectionLookupAsync()
         {
             ProductsList = (await ProductsAppService.GetProductLookupAsync(new LookupRequestDto())).Items.ToList();
         }
         
+        private async Task GetListProfessionalProfilesCollectionLookupAsync()
+        {
+            ProfessionalProfilesList = (await ProfessionalProfilesAppService.GetProfessionalProfileLookupAsync(new LookupRequestDto())).Items.ToList();
+        }
+        
         private async Task OnClickSelectProduct(LookupDto<Guid> item)
         {
             SelectedProduct = await ProductsAppService.GetAsync(item.Id);
             SelectedProducts = await ProductsAppService.GetListByIdAsync(SelectedProduct.SubProducts.Select(x => x.ProductId).ToList());
-            Console.WriteLine(":::::::::::::::::::::::::::::::::::OnClickSelectProduct: " + item);
+
+            if (_mudListItemReferences.TryGetValue(item.Id, out var listItem))
+            {
+                _selectedMudListItem = listItem;
+            }
+            _open = false;
+            _openEnd = true;
+            await FocusMudListItem(item.Id);
             await OnSelectedItemChanged(item.Id);
             StateHasChanged();
         }
-
-        public List<ProductDto> SelectedProducts { get; set; } = new List<ProductDto>();
-
-        public ProductDto SelectedProduct { get; set; } = new ProductDto();
 
         private async Task OnSelectedItemChanged(Guid idProduct)
         {
@@ -99,38 +123,29 @@ namespace IBLTermocasa.Blazor.Pages
                 {PlaceHolderType.PRODUCT_COMPONENT, MudBlazor.Icons.Material.Filled.Commit},
             };
         }
-        
-        
-        public ConsumptionEstimations()
-        {
-            NewConsumptionEstimation = new ConsumptionEstimationCreateDto();
-            EditingConsumptionEstimation = new ConsumptionEstimationUpdateDto();
-            Filter = new GetConsumptionEstimationsInput
-            {
-                MaxResultCount = PageSize,
-                SkipCount = (CurrentPage - 1) * PageSize,
-                Sorting = CurrentSorting
-            };
-            ConsumptionEstimationList = new List<ConsumptionEstimationDto>();
-            InitComponentTreeView();
-            
-        }
 
         protected override async Task OnInitializedAsync()
         {
             await SetPermissionsAsync();
             await GetListProductsCollectionLookupAsync();
+            await GetListProfessionalProfilesCollectionLookupAsync();
         }
-
+        
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
-                await SetBreadcrumbItemsAsync();
-                await SetToolbarItemsAsync();
+                foreach (var product in ProductsList)
+                {
+                    if (_tempMudListItemReferences.TryGetValue(product.Id, out var tempRef))
+                    {
+                        _mudListItemReferences[product.Id] = tempRef;
+                    }
+                }
+
                 StateHasChanged();
             }
-        }  
+        }
 
         protected virtual ValueTask SetBreadcrumbItemsAsync()
         {
@@ -162,26 +177,6 @@ namespace IBLTermocasa.Blazor.Pages
                             
         }
 
-        private async Task GetConsumptionEstimationsAsync()
-        {
-            Filter.MaxResultCount = PageSize;
-            Filter.SkipCount = (CurrentPage - 1) * PageSize;
-            Filter.Sorting = CurrentSorting;
-
-            var result = await ConsumptionEstimationsAppService.GetListAsync(Filter);
-            ConsumptionEstimationList = result.Items;
-            TotalCount = (int)result.TotalCount;
-            
-            await ClearSelection();
-        }
-
-        protected virtual async Task SearchAsync()
-        {
-            CurrentPage = 1;
-            await GetConsumptionEstimationsAsync();
-            await InvokeAsync(StateHasChanged);
-        }
-
         private async Task DownloadAsExcelAsync()
         {
             var token = (await ConsumptionEstimationsAppService.GetDownloadTokenAsync()).Token;
@@ -195,34 +190,30 @@ namespace IBLTermocasa.Blazor.Pages
             NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/consumption-estimations/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&ConsumptionProduct={HttpUtility.UrlEncode(Filter.IdProduct.ToString())}", forceLoad: true);
         }
         
-        private Task ClearSelection()
-        {
-            AllConsumptionEstimationsSelected = false;
-            SelectedConsumptionEstimations.Clear();
-            
-            return Task.CompletedTask;
-        }
-
-
         private Task OnBlurConsumptionComponentFormula(ConsumptionProductDto item)
         {
             SelectedConsumptionProductEstimation = item;
             return Task.CompletedTask;
         }
 
-        public ConsumptionProductDto? SelectedConsumptionProductEstimation { get; set; }
+        private ConsumptionProductDto? SelectedConsumptionProductEstimation { get; set; }
 
-        private Task OnDoubleClickSelectConsumptionComponent(PlaceHolderTreeItemData context)
+        private async Task OnDoubleClickSelectConsumptionComponent(PlaceHolderTreeItemData context)
         {
-            if(SelectedConsumptionProductEstimation != null)
+            if (SelectedConsumptionProductEstimation != null)
             {
-                if(SelectedConsumptionProductEstimation.ConsumptionComponentFormula == null){
-                    SelectedConsumptionProductEstimation.ConsumptionComponentFormula =$"{{{context.PlaceHolder}}}";
-                    return Task.CompletedTask; 
+                if (SelectedConsumptionProductEstimation.ConsumptionComponentFormula == null)
+                {
+                    SelectedConsumptionProductEstimation.ConsumptionComponentFormula = $"{{{context.PlaceHolder}}}";
                 }
-                SelectedConsumptionProductEstimation.ConsumptionComponentFormula += $"{{{context.PlaceHolder}}}";
+                else
+                {
+                    SelectedConsumptionProductEstimation.ConsumptionComponentFormula += $"{{{context.PlaceHolder}}}";
+                }
+
+                // Assuming you have a way to get the ID or unique identifier of the MudTextField
+                await JsRuntime.InvokeVoidAsync("focusHelper.setCursorToEnd", $"consumptionComponentField-{SelectedConsumptionProductEstimation.Id}");
             }
-            return Task.CompletedTask;
         }
 
         private async void OnClickSaveConsumptionComponent(MouseEventArgs obj)
@@ -233,6 +224,79 @@ namespace IBLTermocasa.Blazor.Pages
                 await ConsumptionEstimationsAppService.UpdateAsync(SelectedConsumptionEstimation.Id, element);
                 await UiMessageService.Success("Consumption Component added successfully");
             }
+        }
+        
+        private void OnTabIndexChanged(int newIndex)
+        {
+            activeTabIndex = newIndex;
+            switch (activeTabIndex)
+            {
+                //ConsumptionComponent
+                case 0 when SelectedProduct.Id != Guid.Empty:
+                    _open = false;
+                    _openEnd = true;
+                    break;
+                case 0:
+                    _open = true;
+                    _openEnd = false;
+                    break;
+                //ConsumptionProfessionalProfile
+                case 1 when SelectedProduct.Id != Guid.Empty:
+                    _open = false;
+                    _openEnd = true;
+                    break;
+                case 1:
+                    _open = true;
+                    _openEnd = false;
+                    break;
+            }
+        }
+        
+        private async Task<IEnumerable<LookupDto<Guid>>> SearchConsumptionProfessional(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return ProfessionalProfilesList;
+            }
+            var lookupDtos = ProfessionalProfilesList.Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+            return lookupDtos;
+        }
+        
+        private async Task OnConsumptionProfessionalSelected(LookupDto<Guid>? lookupDto)
+        {
+            if (lookupDto == null)
+            {
+                return;
+            }
+            
+            var consumptionProfessionalSelected = await ProfessionalProfilesAppService.GetAsync(lookupDto.Id);
+            NewConsumptionWorkDto = new ConsumptionWorkDto(Guid.NewGuid(), consumptionProfessionalSelected.Id, consumptionProfessionalSelected.Code, consumptionProfessionalSelected.Name, consumptionProfessionalSelected.StandardPrice, "", 0);
+            StateHasChanged();
+        }
+
+        private void AddNewConsumptionWork(MouseEventArgs obj)
+        {
+            if (SelectedConsumptionEstimation != null)
+            {
+                SelectedConsumptionEstimation.ConsumptionWork ??= [];
+
+                if (SelectedConsumptionEstimation.ConsumptionWork.Any(item => item.IdProfessionalProfile == NewConsumptionWorkDto.IdProfessionalProfile))
+                {
+                    var indexCe = SelectedConsumptionEstimation.ConsumptionWork.FindIndex(item =>
+                        item.IdProfessionalProfile == NewConsumptionWorkDto.IdProfessionalProfile);
+                    SelectedConsumptionEstimation.ConsumptionWork[indexCe] = NewConsumptionWorkDto;
+
+                }
+                else
+                {
+                    SelectedConsumptionEstimation.ConsumptionWork.Add(NewConsumptionWorkDto);
+                }
+            }
+        }
+
+        private async Task FocusMudListItem(Guid itemId)
+        {
+            await JsRuntime.InvokeVoidAsync("focusHelper.focusElement", $"mudListItem-{itemId}");
         }
     }
 }

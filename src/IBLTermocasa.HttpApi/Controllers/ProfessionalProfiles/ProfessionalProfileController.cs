@@ -85,5 +85,12 @@ namespace IBLTermocasa.Controllers.ProfessionalProfiles
         {
             return _professionalProfilesAppService.DeleteAllAsync(input);
         }
+        
+        [HttpGet]
+        [Route("professional-profile-lookup")]
+        public virtual Task<PagedResultDto<LookupDto<Guid>>> GetProfessionalProfileLookupAsync(LookupRequestDto input)
+        {
+            return _professionalProfilesAppService.GetProfessionalProfileLookupAsync(input);
+        }
     }
 }

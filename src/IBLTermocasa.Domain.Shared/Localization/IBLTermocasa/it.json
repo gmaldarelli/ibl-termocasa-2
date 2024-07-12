@@ -265,7 +265,7 @@
     "AddRemoveComponent": "Aggiungi/Rimuovi {0}",
     "Add": "Nuovo",
     "Delete": "Elimina",
-    "Products List": "Lista Prodotti",
+    "ProductsList": "Lista Prodotti",
     "Catalogs": "Cataloghi",
     "Catalog": "Catalogo",
     "Phone": "Telefono",
@@ -320,5 +320,9 @@
     "ConsumptionProfessionalProfile": "Consumo dei Profili Professionali",
     "TheCodeAlreadyExists": "Il codice esiste già!",
     "TheFieldIsRequired": "Il campo è obbligatorio!",
+    "ProductVariables": "Variabili Prodotto",
+    "Price": "Prezzo",
+    "WorkTime": "Tempo di Lavoro",
+    "ProfessionalProfile": "Profilo Professionale",
   }
 }

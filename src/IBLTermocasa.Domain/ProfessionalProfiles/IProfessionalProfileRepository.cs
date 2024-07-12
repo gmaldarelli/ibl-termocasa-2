@@ -11,12 +11,14 @@ namespace IBLTermocasa.ProfessionalProfiles
 
         Task DeleteAllAsync(
             string? filterText = null,
+            string? code = null,
             string? name = null,
             double? standardPriceMin = null,
             double? standardPriceMax = null,
             CancellationToken cancellationToken = default);
         Task<List<ProfessionalProfile>> GetListAsync(
                     string? filterText = null,
+                    string? code = null,
                     string? name = null,
                     double? standardPrice = null,
                     double? standardPriceMin = null,
@@ -29,6 +31,7 @@ namespace IBLTermocasa.ProfessionalProfiles
 
         Task<long> GetCountAsync(
             string? filterText = null,
+            string? code = null,
             string? name = null,
             double? standardPrice = null,
             double? standardPriceMin = null,

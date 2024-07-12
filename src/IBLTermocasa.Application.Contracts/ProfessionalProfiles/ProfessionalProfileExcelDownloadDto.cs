@@ -8,6 +8,7 @@ namespace IBLTermocasa.ProfessionalProfiles
         public string DownloadToken { get; set; } = null!;
 
         public string? FilterText { get; set; }
+        public string? Code { get; set; }
 
         public string? Name { get; set; }
         public double? StandardPriceMin { get; set; }

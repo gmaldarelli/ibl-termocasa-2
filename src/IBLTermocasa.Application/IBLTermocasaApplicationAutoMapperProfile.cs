@@ -154,6 +154,8 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<ProfessionalProfileUpdateDto, ProfessionalProfileDto>();
         CreateMap<ProfessionalProfileUpdateDto, ProfessionalProfile>();
         CreateMap<ProfessionalProfile, ProfessionalProfileDto>();
+        CreateMap<ProfessionalProfile, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
+
         
         
         CreateMap<ConsumptionEstimation, ConsumptionEstimationDto>();

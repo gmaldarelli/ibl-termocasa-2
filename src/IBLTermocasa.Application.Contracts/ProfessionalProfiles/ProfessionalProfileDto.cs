@@ -8,6 +8,7 @@ namespace IBLTermocasa.ProfessionalProfiles
 {
     public class ProfessionalProfileDto : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
     {
+        public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;
         public double StandardPrice { get; set; }
         public double MinPrice { get; set; }

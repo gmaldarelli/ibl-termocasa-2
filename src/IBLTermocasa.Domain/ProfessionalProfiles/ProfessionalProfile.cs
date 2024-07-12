@@ -16,6 +16,8 @@ namespace IBLTermocasa.ProfessionalProfiles
     {
         public virtual Guid? TenantId { get; set; }
 
+        public virtual string Code { get; set; }
+
         [NotNull]
         public virtual string Name { get; set; }
 
@@ -26,10 +28,10 @@ namespace IBLTermocasa.ProfessionalProfiles
 
         }
 
-        public ProfessionalProfile(Guid id, string name, double standardPrice)
+        public ProfessionalProfile(Guid id, string code, string name, double standardPrice)
         {
-
             Id = id;
+            Code = code;
             Check.NotNull(name, nameof(name));
             Name = name;
             StandardPrice = standardPrice;

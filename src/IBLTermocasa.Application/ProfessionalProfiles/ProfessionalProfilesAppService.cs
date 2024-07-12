@@ -12,6 +12,8 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.Authorization;
 using Volo.Abp.Caching;
 using Volo.Abp.Content;
+using System.Linq;
+using System.Linq.Dynamic.Core;
 
 namespace IBLTermocasa.ProfessionalProfiles
 {
@@ -35,9 +37,9 @@ namespace IBLTermocasa.ProfessionalProfiles
         public virtual async Task<PagedResultDto<ProfessionalProfileDto>> GetListAsync(
             GetProfessionalProfilesInput input)
         {
-            var totalCount = await _professionalProfileRepository.GetCountAsync(input.FilterText, input.Name, input.StandardPrice,
+            var totalCount = await _professionalProfileRepository.GetCountAsync(input.FilterText, input.Code, input.Name, input.StandardPrice,
                 input.StandardPriceMin, input.StandardPriceMax);
-            var items = await _professionalProfileRepository.GetListAsync(input.FilterText, input.Name, input.StandardPrice,
+            var items = await _professionalProfileRepository.GetListAsync(input.FilterText, input.Code, input.Name, input.StandardPrice,
                 input.StandardPriceMin, input.StandardPriceMax, input.Sorting, input.MaxResultCount, input.SkipCount);
 
             return new PagedResultDto<ProfessionalProfileDto>
@@ -86,7 +88,7 @@ namespace IBLTermocasa.ProfessionalProfiles
                 throw new AbpAuthorizationException("Invalid download token: " + input.DownloadToken);
             }
 
-            var items = await _professionalProfileRepository.GetListAsync(input.FilterText, input.Name,
+            var items = await _professionalProfileRepository.GetListAsync(input.FilterText, input.Code, input.Name,
                 input.StandardPriceMin, input.StandardPriceMax);
 
             var memoryStream = new MemoryStream();
@@ -125,8 +127,24 @@ namespace IBLTermocasa.ProfessionalProfiles
         [Authorize(IBLTermocasaPermissions.ProfessionalProfiles.Delete)]
         public virtual async Task DeleteAllAsync(GetProfessionalProfilesInput input)
         {
-            await _professionalProfileRepository.DeleteAllAsync(input.FilterText, input.Name, input.StandardPriceMin,
+            await _professionalProfileRepository.DeleteAllAsync(input.FilterText, input.Code, input.Name, input.StandardPriceMin,
                 input.StandardPriceMax);
+        }
+        
+        public virtual async Task<PagedResultDto<LookupDto<Guid>>> GetProfessionalProfileLookupAsync(LookupRequestDto input)
+        {
+            var query = (await _professionalProfileRepository.GetQueryableAsync())
+                .WhereIf(!string.IsNullOrWhiteSpace(input.Filter),
+                    x => x.Name != null &&
+                        x.Name.Contains(input.Filter) || x.Code != null && x.Code.Contains(input.Filter));
+
+            var lookupData = await query.PageBy(input.SkipCount, input.MaxResultCount).ToDynamicListAsync<ProfessionalProfile>();
+            var totalCount = query.Count();
+            return new PagedResultDto<LookupDto<Guid>>
+            {
+                TotalCount = totalCount,
+                Items = ObjectMapper.Map<List<ProfessionalProfile>, List<LookupDto<Guid>>>(lookupData)
+            };
         }
     }
 }

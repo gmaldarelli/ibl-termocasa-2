@@ -47,9 +47,10 @@
         </MudTextField>
         <MudSpacer/>
         <MudButton Class="mr-2" StartIcon="@Icons.Material.Outlined.FileDownload" Size="Size.Small" Variant="Variant.Filled" Color="@Color.Primary" OnClick="DownloadAsExcelAsync">@L["ExportToExcel"]</MudButton>
-        <MudButton StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" Variant="Variant.Filled" Color="@Color.Primary" OnClick="() => OpenNewOrReadOrEditProfessionalProfile(new ProfessionalProfileDto(), false, true)">@L["NewProfessionalProfiles"]</MudButton>
+        <MudButton StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" Variant="Variant.Filled" Color="@Color.Primary" OnClick="() => OpenNewOrReadOrEditProfessionalProfile(new ProfessionalProfileDto(), false, true)">@L["NewProfessionalProfile"]</MudButton>
     </ToolBarContent>
     <Columns>
+        <PropertyColumn Property="x => x.Code" Title="@L["Code"]"/>
         <PropertyColumn Property="x => x.Name" Title="@L["Name"]"/>
         <PropertyColumn Property="x => x.StandardPrice" Title="@L["StandardPrice"]"/>
         <TemplateColumn CellClass="d-flex justify-end">

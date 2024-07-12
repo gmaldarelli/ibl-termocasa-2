@@ -239,7 +239,7 @@
     "MaxLastSync": "Max Last Sync",
     "Add": "Add",
     "Delete": "Delete",
-    "Products List": "Products List",
+    "ProductsList": "Products List",
     "Phone": "Phone",
     "Email": "Email",
     "Details": "Details",
@@ -281,5 +281,9 @@
     "ConsumptionProfessionalProfile": "Consumption Professional Profile",
     "TheCodeAlreadyExists": "The code already exists!",
     "TheFieldIsRequired": "The field is required!",
+    "ProductVariables": "Product Variables",
+    "Price": "Price",
+    "WorkTime": "Work Time",
+    "ProfessionalProfile": "Professional Profile",
   }
 }

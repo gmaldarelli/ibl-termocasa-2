@@ -40,6 +40,9 @@
                         <MudForm ReadOnly="@DisplayReadOnly" @bind-IsValid="@success">
                             <MudGrid>
                                 <MudItem xs="12">
+                                    <MudTextField @bind-Value="@InternalProfessionalProfile.Code" Label="@L["Code"]" Required="true" RequiredError="@L["CodeIsRequired"]"/>
+                                </MudItem>
+                                <MudItem xs="12">
                                     <MudTextField @bind-Value="@InternalProfessionalProfile.Name" Label="@L["Name"]" Required="true" RequiredError="@L["NameIsRequired"]"/>
                                 </MudItem>
                                 <MudItem xs="12">

@@ -14,24 +14,26 @@ namespace IBLTermocasa.ConsumptionEstimations
     public class ConsumptionWorkDto : Entity<Guid>
     {
         public virtual Guid IdProfessionalProfile { get; set; }
+        public virtual string Code { get; set; }
         public virtual string Name { get; set; }
         public virtual double Price { get; set; }
         public virtual string? ConsumptionWorkFormula { get; set; }
         public virtual int WorkTime { get; set; }
 
-        protected ConsumptionWorkDto()
+        public ConsumptionWorkDto()
         {
 
         }
 
-        public ConsumptionWorkDto(Guid id, Guid idProfessionalProfile, string name, double price, string consumptionWorkFormula, int workTime)
+        public ConsumptionWorkDto(Guid id, Guid idProfessionalProfile, string code, string name, double price, string consumptionWorkFormula, int workTime)
         {
             Id = id;
             IdProfessionalProfile = idProfessionalProfile;
+            Code = code;
             Name = name;
             Price = price;
-            ConsumptionWorkFormula = consumptionWorkFormula;
             WorkTime = workTime;
+            ConsumptionWorkFormula = consumptionWorkFormula;
         }
     }
 }

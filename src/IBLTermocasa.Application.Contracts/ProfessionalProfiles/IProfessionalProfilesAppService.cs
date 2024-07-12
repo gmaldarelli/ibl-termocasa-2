@@ -22,6 +22,7 @@ namespace IBLTermocasa.ProfessionalProfiles
         Task<ProfessionalProfileDto> UpdateAsync(Guid id, ProfessionalProfileUpdateDto input);
 
         Task<IRemoteStreamContent> GetListAsExcelFileAsync(ProfessionalProfileExcelDownloadDto input);
+        Task<PagedResultDto<LookupDto<Guid>>> GetProfessionalProfileLookupAsync(LookupRequestDto input);
 
         Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync(); Task DeleteByIdsAsync(List<Guid> professionalprofileIds);
 

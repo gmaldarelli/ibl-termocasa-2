@@ -3,6 +3,7 @@
 @page "/consumption-estimations"
 
 @attribute [Authorize(IBLTermocasaPermissions.ConsumptionEstimations.Default)]
+@using System.Globalization
 @using IBLTermocasa.Blazor.Components.Product
 @using IBLTermocasa.Common
 @using IBLTermocasa.ConsumptionEstimations
@@ -12,10 +13,13 @@
 @using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
 
 @using IBLTermocasa.Permissions
+@using IBLTermocasa.Shared
 @using Volo.Abp.AspNetCore.Components.Web
 @using Volo.Abp.Http.Client
 @using Position = MudBlazor.Position
 @using MudBlazor
+@using Size = MudBlazor.Size
+@using Color = MudBlazor.Color
 @inherits IBLTermocasaComponentBase
 @inject IConsumptionEstimationsAppService ConsumptionEstimationsAppService
 
@@ -29,20 +33,23 @@
 
 </PageHeader>
 
-<MudPaper Style="overflow:hidden; position:relative; height: 100%;" MinHeight="48 0px">
+<MudPaper Style="overflow:hidden; position:relative; height: 80vh">
     <MudDrawerContainer Class="mud-height-full" Style="height: 100%;">
         <MudDrawer @bind-Open="@_open" Elevation="0" Variant="@DrawerVariant.Persistent" 
                    Color="MudBlazor.Color.Transparent" Width="30%" Height="100%"  Style="min-height: 350px">
             <MudDrawerHeader Style="min-width: 300px; width: 300px;">
                 <MudText Align="Align.Center" 
-                         Style="box-shadow: 0px 2px #cdcdcd;">@L["Products List"]</MudText>
+                         Style="box-shadow: 0 2px #cdcdcd;">@L["ProductsList"]</MudText>
             </MudDrawerHeader>
-            <MudPaper Style="overflow:hidden; position:relative; height: 100%;" MinHeight="400px">
-                <MudList Clickable="true" Style="overflow-y: auto; min-width: 350px;" >
+            <MudPaper Style="overflow:hidden; position:relative; height: 100%;">
+                <MudList @ref="MudListProductsList" Clickable="true" Style="overflow-y: auto;" >
                     @foreach (var product in ProductsList)
                     {
-                        <MudListItem OnClick="() => OnClickSelectProduct(product)"
-                                     Text="@product.DisplayName">
+                        <MudListItem @ref="_tempMudListItemReferences[product.Id]"
+                                     Id="@($"mudListItem-{product.Id}")"
+                                     OnClick="() => OnClickSelectProduct(product)"
+                                     Text="@product.DisplayName"
+                                     Tag="@product.Id">
                         </MudListItem>
                     }
                 </MudList>
@@ -54,14 +61,11 @@
         >
             <MudDrawerHeader >
                 <MudText Align="Align.Center"
-                         Style="box-shadow: 0px 2px #cdcdcd;">Variabili Prodotto</MudText>
+                         Style="box-shadow: 0 2px #cdcdcd;">@L["ProductVariables"]</MudText>
             </MudDrawerHeader>
-            <MudPaper Elevation="0" MinHeight="400px">
+            <MudPaper Elevation="0">
                 <MudTreeView T="PlaceHolderTreeItemData" Hover
-                             @ref="ProductMudTreeView" Items="TreeItems" MultiSelection="false"
-                             @bind-SelectedValues="SelectedValues"
-                             Style="min-width: 350px;"
-                             SelectionMode="@SelectionMode.SingleSelection">
+                             @ref="ProductMudTreeView" Items="TreeItems" MultiSelection="false">
                     <ItemTemplate>
                         <MudTreeViewItem @bind-Expanded="@context.IsExpanded"
                                          Items="@context.TreeItems"
@@ -74,7 +78,7 @@
             </MudPaper>
         </MudDrawer>
         
-        <div class="d-flex justify-content-start align-left mud-height-full">
+        <div class="d-flex justify-content-start align-left">
             <MudPaper Elevation="25" Class="w-100">
                 <MudToolBar>
                     <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="MudBlazor.Color.Info" Class="mr-5" OnClick="@ToggleDrawer"/>
@@ -82,25 +86,55 @@
                     <MudSpacer /><MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="MudBlazor.Color.Info" Class="mr-5" OnClick="@ToggleEndDrawer"/>
                     
                 </MudToolBar>
-                <MudTabs Outlined="true" Position="Position.Top" Rounded="true" Border="true"
-                         ApplyEffectsToContainer="true" PanelClass="pa-2 " Class="w-100">
+                <MudTabs Outlined="true" Position="Position.Top" Rounded="true" Border="true" ActivePanelIndexChanged="OnTabIndexChanged"
+                         ApplyEffectsToContainer="true" PanelClass="pa-2 " Style="overflow-y: auto; height: 73vh;">
                     <MudTabPanel Text="@L["ConsumptionComponent"]">
                         @if (SelectedConsumptionEstimation != null)
                         {
                             <MudPaper Elevation="0">
-                                <MudList >
+                                <MudList>
                                     @foreach (var item in SelectedConsumptionEstimation.ConsumptionProduct)
                                     {
-                                        <MudListItem>
-                                            <MudText Typo="Typo.h6">@item.ConsumptionComponentCodeAndName - {@item.ConsumptionComponentLabel}</MudText>
-                                            <MudTextField T="string" @bind-Value="@item.ConsumptionComponentFormula" Label="@L["Formula"]" OnBlur="() => OnBlurConsumptionComponentFormula(item)"/>
-                                        </MudListItem>
+                                    <MudListItem>
+                                        <MudText Typo="Typo.h6">@item.ConsumptionComponentCodeAndName - {@item.ConsumptionComponentLabel}</MudText>
+                                        <MudTextField T="string" @bind-Value="@item.ConsumptionComponentFormula" Label="@L["Formula"]"
+                                                      Id="@($"consumptionComponentField-{item.Id}")"
+                                                      OnBlur="() => OnBlurConsumptionComponentFormula(item)"/>
+                                    </MudListItem>
                                     }
                                 </MudList>
                             </MudPaper>
                         }
                     </MudTabPanel>
                     <MudTabPanel Text="@L["ConsumptionProfessionalProfile"]">
+                        @if (SelectedConsumptionEstimation != null)
+                        {
+                            <MudCard Elevation="0" Style="padding: 16px;">
+                                <MudAutocomplete T="LookupDto<Guid>" Label="@L["ProfessionalProfile"]" ValueChanged="@OnConsumptionProfessionalSelected" SearchFunc="@SearchConsumptionProfessional"
+                                                 ResetValueOnEmptyText="@true"
+                                                 CoerceText="true" CoerceValue="true"
+                                                 ToStringFunc="@((LookupDto<Guid> x) => x.DisplayName)"
+                                                 Required="true"
+                                                 Strict="false">
+                                    <ItemTemplate Context="item">
+                                        <MudText>@item.DisplayName</MudText>
+                                    </ItemTemplate>
+                                    <ItemDisabledTemplate Context="item">
+                                        <MudText>@item.DisplayName</MudText>
+                                    </ItemDisabledTemplate>
+                                </MudAutocomplete>
+                                <MudTextField @bind-Value="@NewConsumptionWorkDto.Code" Label="@L["Code"]" Variant="Variant.Text" Required="true" Disabled="true"/>
+                                <MudTextField @bind-Value="@NewConsumptionWorkDto.Name" Label="@L["Name"]" Variant="Variant.Text" Required="true" Disabled="true"/>
+                                <MudTextField T="double" @bind-Value="@NewConsumptionWorkDto.Price" Label="@L["Price"]" Variant="Variant.Text" Required="true" Culture="@cultureInfo"/>
+                                <MudNumericField @bind-Value="@NewConsumptionWorkDto.WorkTime" Label="@L["WorkTime"]" Variant="Variant.Text" Required="true"/>
+                                <MudTextField @bind-Value="@NewConsumptionWorkDto.ConsumptionWorkFormula" Label="@L["Formula"]" Variant="Variant.Text"/>
+                                
+
+                                <MudButton Color="Color.Primary" OnClick="@AddNewConsumptionWork" Size="Size.Small" Class="mt-2">
+                                    <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Add"/>
+                                </MudButton>
+                            </MudCard>
+                        }
                     </MudTabPanel>
                 </MudTabs>
             </MudPaper>
@@ -113,6 +147,7 @@
 
 @code
 {
+    private readonly CultureInfo cultureInfo = new CultureInfo("it-IT");
     private bool _open = true;
 
     private bool _openEnd = false;

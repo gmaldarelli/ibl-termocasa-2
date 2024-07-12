@@ -30,6 +30,7 @@ namespace IBLTermocasa.ProfessionalProfiles
             await _professionalProfileRepository.InsertAsync(new ProfessionalProfile
             (
                 id: Guid.Parse("b8f44d45-44c6-4e2d-9c75-623c8764bfa4"),
+                code: "dec40a5d478746f8bdc180237ec848fd5bbd1d5fe54245e0",
                 name: "dec40a5d478746f8bdc180237ec848fd5bbd1d5fe54245e0",
                 standardPrice: 1492575415
             ));
@@ -37,6 +38,7 @@ namespace IBLTermocasa.ProfessionalProfiles
             await _professionalProfileRepository.InsertAsync(new ProfessionalProfile
             (
                 id: Guid.Parse("b8b8926a-e8d6-4163-ab88-0865e1b588d7"),
+                code: "87735376e0c44ff8b23d064089c041b4087320f0938a4a5187c7481d78",
                 name: "87735376e0c44ff8b23d064089c041b4087320f0938a4a5187c7481d78",
                 standardPrice: 1188708294
             ));
