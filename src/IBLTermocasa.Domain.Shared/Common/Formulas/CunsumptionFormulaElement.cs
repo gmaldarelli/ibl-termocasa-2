@@ -12,6 +12,7 @@ public class ProductComponentCunsumptionFormulaElement
 {
     public string PlaceHolder { get; set; }
     public Guid ProductItemId { get; set; }
+    public Guid ProducComponentId { get; set; }
     public Guid ComponentId { get; set; }
     public string Code { get; set; }
     public string ConsumptionCalculation { get; set; }
@@ -36,11 +37,12 @@ public class ProductComponentCunsumptionFormulaElement
         VariablesValues = new Dictionary<string, object>();
     }
 
-    public ProductComponentCunsumptionFormulaElement(Guid productItemId, Guid componentId , string placeHolder, string code, string consumptionCalculation)
+    public ProductComponentCunsumptionFormulaElement(Guid productItemId, Guid producComponentId, Guid componentId , string placeHolder, string code, string consumptionCalculation)
     {
         ProductItemId = productItemId;
         ComponentId = componentId;
         PlaceHolder = placeHolder;
+        ProducComponentId = producComponentId;
         Code = code;
         ConsumptionCalculation = consumptionCalculation;
         VariablesValues = new Dictionary<string, object>();

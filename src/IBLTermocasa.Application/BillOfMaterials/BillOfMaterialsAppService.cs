@@ -15,6 +15,7 @@ using IBLTermocasa.BillOfMaterials;
 using IBLTermocasa.Common;
 using IBLTermocasa.Common.Formulas;
 using IBLTermocasa.Components;
+using IBLTermocasa.ConsumptionEstimations;
 using IBLTermocasa.Materials;
 using IBLTermocasa.Products;
 using IBLTermocasa.RequestForQuotations;
@@ -41,19 +42,21 @@ namespace IBLTermocasa.BillOfMaterials
         protected IProductRepository _productRepository;
         protected IComponentRepository _componentRepository;
         protected IMaterialRepository _materialRepository;
+        protected IConsumptionEstimationRepository _consumptionEstimationRepository;
 
         public BillOfMaterialsAppService(IBillOfMaterialRepository billOfMaterialRepository, 
             BillOfMaterialManager billOfMaterialManager, 
             IDistributedCache<BillOfMaterialExcelDownloadTokenCacheItem, string> excelDownloadTokenCache, 
             IRequestForQuotationRepository requestForQuotationRepository, 
             IProductRepository productRepository, 
-            IComponentRepository componentRepository, IMaterialRepository materialRepository)
+            IComponentRepository componentRepository, IMaterialRepository materialRepository, IConsumptionEstimationRepository consumptionEstimationRepository)
         {
             _excelDownloadTokenCache = excelDownloadTokenCache;
             _requestForQuotationRepository = requestForQuotationRepository;
             _productRepository = productRepository;
             _componentRepository = componentRepository;
             _materialRepository = materialRepository;
+            _consumptionEstimationRepository = consumptionEstimationRepository;
             _billOfMaterialRepository = billOfMaterialRepository;
             _billOfMaterialManager = billOfMaterialManager;
         }
@@ -78,6 +81,11 @@ namespace IBLTermocasa.BillOfMaterials
         [Authorize(IBLTermocasaPermissions.BillOfMaterials.Delete)]
         public virtual async Task DeleteAsync(Guid id)
         {
+            var bom = await _billOfMaterialRepository.GetAsync(id);
+            var rrfqId = bom.RequestForQuotationProperty.Id;
+            var rfq = await _requestForQuotationRepository.GetAsync(rrfqId);
+            rfq.Status = RfqStatus.NEW;
+            await _requestForQuotationRepository.UpdateAsync(rfq);
             await _billOfMaterialRepository.DeleteAsync(id);
         }
 
@@ -190,7 +198,7 @@ namespace IBLTermocasa.BillOfMaterials
                         id: Guid.NewGuid(),
                         requestForQuotationItemId:  rfqItem.Id,
                         quantity: rfqItem.Quantity,
-                        bomProductItems: await this.getBillOfMaterialBOMProductItems(rfqItem, product, components)
+                        bomProductItems: await this.getBillOfMaterialBOMProductItems(rfqItem, products, components)
                         )
                     );
                 }
@@ -199,16 +207,17 @@ namespace IBLTermocasa.BillOfMaterials
             return items;
         }
 
-        private async Task<List<BomProductItem>> getBillOfMaterialBOMProductItems(RequestForQuotationItem rfqItem, Product product,
+        private async Task<List<BomProductItem>> getBillOfMaterialBOMProductItems(RequestForQuotationItem rfqItem, List<Product> products,
             List<Component> components)
         {
             List<BomProductItem> productItems = new List<BomProductItem>();
             foreach (var productItem in rfqItem.ProductItems)
             {
+                var product = products.FirstOrDefault(x => x.Id == productItem.ProductId);
                 productItems.Add(new BomProductItem(
                     id: Guid.NewGuid(),
                     productItemId: productItem.Id,
-                    productItemName: product.Name,
+                    productItemName: productItem.ProductName,
                     productId:  product.Id,
                     parentBomProductItemId: productItem.ParentId,
                     bomComponents: await this.getBillOfMaterialComponents(productItem, product, components)
@@ -227,15 +236,16 @@ namespace IBLTermocasa.BillOfMaterials
             var materialIds = componentsWhitDefalutMaterial.Select(x => x.ComponentItems.FirstOrDefault(y => y.IsDefault)!.MaterialId).ToList();
             var materials = await _materialRepository.GetListAsync(x => materialIds.Contains(x.Id));
             
-            foreach (var productComponents in product.ProductComponents)
+            foreach (var productComponent in product.ProductComponents)
             {
-                var component = sourceComponents.FirstOrDefault(x => x.Id == productComponents.ComponentId);
+                var component = sourceComponents.FirstOrDefault(x => x.Id == productComponent.ComponentId);
                 var isDefaultMaterialSelected = component.ComponentItems.Any(x => x.IsDefault);
                 bool isDefault = componentsWhitDefalutMaterial.Contains(component);
                 Material material = isDefault ? materials.FirstOrDefault(x => x.Id == component.ComponentItems.FirstOrDefault(y => y.IsDefault)!.MaterialId) : null;
                 components.Add(new BomComponent(
                     id: Guid.NewGuid(),
                     componentId: component.Id,
+                    productComponentId: productComponent.Id,
                     componentName: component.Name,
                     materialId: (material is not null) ? material.Id : Guid.Empty,
                     materialName: ((material is not null) ? material.Name : null) ?? string.Empty,
@@ -276,332 +286,197 @@ namespace IBLTermocasa.BillOfMaterials
             var billOfMaterial = await _billOfMaterialRepository.GetAsync(id);
             var rfq = await _requestForQuotationRepository.GetAsync(billOfMaterial.RequestForQuotationProperty.Id);
             var productIds = billOfMaterial.ListItems.SelectMany(x => x.BomProductItems.Select(y => y.ProductId)).ToList();
-            var products = await _productRepository.GetListAsync(x => productIds.Contains(x.Id));
-            var componentIds = products.SelectMany(x => x.ProductComponents.Select(y => y.ComponentId)).ToList();
-            var components = await _componentRepository.GetListAsync(x => componentIds.Contains(x.Id));
-            
-            Dictionary<string,ProductComponent> formulaElementCodes =  
-                this.ExtractFormulaProductComponentCodes(billOfMaterial, products, components);
-            Dictionary<string,object> formulaQuestionTemplateCodes =  
-                this.ExtractFormulaQuestionTemplateCodes(rfq, products, components);
-            var  cunsumptionFormulaElements = 
-                this.ExtractCunsumptionFormulaElement(billOfMaterial, products, components);
-            formulaQuestionTemplateCodes.ToList().ForEach(x =>
+            var products = ObjectMapper.Map<List<Product>, List<ProductDto>>(await _productRepository.GetListAsync(x => productIds.Contains(x.Id)));
+            var consumptionEstimations = await _consumptionEstimationRepository.GetListAsync(x => productIds.Contains(x.IdProduct));
+            var materials = await GetListOfMaterials(listItems);
+            foreach (var product in products)
             {
-                cunsumptionFormulaElements.ForEach(y =>
+                product.ProductComponents.ForEach(x =>
                 {
-                    y.SetVariableValue(x.Key, x.Value);
+                    x.ParentId = product.Id;
+                    x.ParentPlaceHolder = product.PlaceHolder;
                 });
-            });
-            cunsumptionFormulaElements =  this.CompleteCunsumptionFormulaElement(cunsumptionFormulaElements);
-            cunsumptionFormulaElements.ForEach(x =>
-            {
-                Console.WriteLine($">>>>>>>>>>>>>>>>>>>>>>{x.PlaceHolder} = {x.Value}");
-            });
-
-            foreach (var item in cunsumptionFormulaElements)
-            {
-                listItems.SelectMany(x => x.BomProductItems).ToList().ForEach(x =>
+                product.ProductQuestionTemplates.ForEach(x =>
                 {
-                    x.BomComponents.ForEach(y =>
+                    x.ParentId = product.Id;
+                    x.ParentPlaceHolder = product.PlaceHolder;
+                });
+                product.SubProducts.ForEach(x =>
+                {
+                    x.ParentId = product.Id;
+                    x.ParentPlaceHolder = product.PlaceHolder;
+                    var subProduct = products.FirstOrDefault(y => y.Id == x.ProductId);
+                    if (subProduct != null)
                     {
-                        if (y.ComponentId == item.ProductItemId)
-                        {
-                            try
+                        subProduct.ParentPlaceHolder = product.PlaceHolder;
+                        subProduct.ProductComponents.ForEach(y =>
                             {
-                                y.Quantity = decimal.TryParse(item.Value.ToString(), out decimal value) ? value : 0;
+                                y.ParentId = subProduct.Id;
+                                y.ParentPlaceHolder = subProduct.PlaceHolder;
                             }
-                            catch (Exception e)
+                        );
+                        subProduct.ProductQuestionTemplates.ForEach(y =>
                             {
-                                y.Quantity = 0;
+                                y.ParentId = subProduct.Id;
+                                y.ParentPlaceHolder = subProduct.PlaceHolder;
                             }
-                        }
-                    });
+                        );
+                    }
                 });
             }
-            
-            
-            /*foreach (var item in listItems)
+            foreach (var bomItem in listItems)
             {
-                foreach (var productItem in item.BomProductItems)
+                var rfqItem = rfq.RequestForQuotationItems!.FirstOrDefault(x => x.Id == bomItem.RequestForQuotationItemId);
+                if(rfqItem is null) continue;
+                Dictionary<string,object> questionTemplateValues = new Dictionary<string, object>();
+                var allAnswares = rfqItem.ProductItems.SelectMany(x => x.Answers).ToList();
+                foreach (var bomProductItem in bomItem.BomProductItems)
                 {
-                    foreach (var component in productItem.BomComponents)
+                    var rfqProductItem = rfqItem.ProductItems.FirstOrDefault(x => x.Id == bomProductItem.ProductItemId);
+                    rfqProductItem!.Answers.ForEach(x =>
                     {
-                        cunsumptionFormulaElements.Where(x => 
-                            x.ProductItemId == productItem.ProductItemId  && x.Code.Equals(component.Co)).ToList();
-                        var product = products.FirstOrDefault(x => x.Id == productItem.ProductId);
-                        if (product is null)
+                        var itemProduct = products.FirstOrDefault(x => x.Id == bomProductItem.ProductId);
+                        if(itemProduct is null) return;
+                        var questionTemplate = itemProduct.ProductQuestionTemplates.FirstOrDefault(y => y.QuestionTemplateId == x.QuestionId);
+                        if (questionTemplate is not null)
                         {
-                            continue;
+                            questionTemplateValues.Add($"{{{questionTemplate.PlaceHolder}}}", x.AnswerValue);
                         }
-                       var productComponent = product.ProductComponents.FirstOrDefault(x => x.ComponentId == component.ComponentId);
-                        if(productComponent is null)
+                    });
+                }
+                foreach (var bomProductItem in bomItem.BomProductItems)
+                {
+                    var rfqProductItem = rfqItem.ProductItems.FirstOrDefault(x => x.Id == bomProductItem.ProductItemId);
+                    var itemProduct = products.FirstOrDefault(x => x.Id == bomProductItem.ProductId);
+                    if(itemProduct is null) continue;
+                    var consumptionEstimation = consumptionEstimations.FirstOrDefault(x => x.IdProduct == bomProductItem.ProductId);
+                    var productId = bomItem.BomProductItems.FirstOrDefault(x => x.ParentBOMProductItemId is null)?.ProductId;
+                    if(productId is not null)
+                    {
+                        consumptionEstimation = consumptionEstimations.FirstOrDefault(x => x.IdProduct == productId);
+                    }
+                    var consumptionFormulaElements = this.GenerateProductComponentCunsumptionFormulaElement(itemProduct, products, consumptionEstimation);
+                    questionTemplateValues.ToList().ForEach(x =>
+                    {
+                        consumptionFormulaElements.ForEach(y =>
                         {
-                            continue;
-                        }
+                            y.SetVariableValue(x.Key, x.Value);
+                        });
+                    });
+                    consumptionFormulaElements =  this.CompleteCunsumptionFormulaElement(consumptionFormulaElements);
+                    consumptionFormulaElements.ForEach(x =>
+                    {
+                        var value = (x.IsValueAvailable) ? x.Value.ToString() : "N/A";
+                        Console.WriteLine($">>>>>>>>>>>>>>>>>>>>>>{x.PlaceHolder} = {value}");
+                    });
+                    foreach (var item in consumptionFormulaElements)
+                    {
+                        bomProductItem.BomComponents.ForEach(x =>
+                        {
+                            if (x.ComponentId == item.ComponentId && x.ProductComponentId == item.ProducComponentId)
+                            {
+                                try
+                                {
+                                    x.Quantity = decimal.TryParse(item.Value.ToString(), out decimal value) ? value : 0;
+                                    this.TryToCalculatePrice(x, bomItem.Quantity, materials);
+                                }
+                                catch (Exception e)
+                                {
+                                    x.Quantity = 0;
+                                }
+                            }
+                        });
                     }
                 }
-            }*/
-            
+            }
             return listItems;
         }
 
-        private List<ProductComponentCunsumptionFormulaElement> CompleteCunsumptionFormulaElement(List<ProductComponentCunsumptionFormulaElement> cunsumptionFormulaElements)
+        private async Task<List<MaterialDto>> GetListOfMaterials(List<BomItemDto> listItems)
         {
-            for (int i = 0; i < cunsumptionFormulaElements.Count; i++)
+            List<MaterialDto> materials = new List<MaterialDto>();
+            List<Guid> materialIds = new List<Guid>();
+            foreach (var bomItem in listItems)
             {
-                foreach (var item in cunsumptionFormulaElements)
+                foreach (var bomProductItem in bomItem.BomProductItems)
                 {
-
-                    foreach (var subItem in cunsumptionFormulaElements)
+                    foreach (var bomComponent in bomProductItem.BomComponents)
                     {
-                        if (!subItem.IsValueAvailable)
+                        materialIds.Add(bomComponent.MaterialId);
+                    }
+                }
+            }
+            return ObjectMapper.Map<List<Material>, List<MaterialDto>>(await _materialRepository.GetListAsync(x => materialIds.Contains(x.Id)));
+        }
+
+        private void TryToCalculatePrice(BomComponentDto bomComponentDto, int bomItemQuantity, List<MaterialDto> materials)
+        {
+            try
+            {
+                var material = materials.FirstOrDefault(x => x.Id == bomComponentDto.MaterialId);
+                if (material is not null)
+                {
+                    bomComponentDto.Price = bomComponentDto.Quantity * material.StandardPrice * bomItemQuantity;
+                }else
+                {
+                    bomComponentDto.Price = 0;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error calculating price: {e.Message}");
+            }
+        }
+
+        private List<ProductComponentCunsumptionFormulaElement> GenerateProductComponentCunsumptionFormulaElement(
+            ProductDto itemProduct, List<ProductDto> products, ConsumptionEstimation consumptionEstimation)
+        {
+            List<ProductComponentCunsumptionFormulaElement> formulaElements = new List<ProductComponentCunsumptionFormulaElement>();
+            foreach (var productComponent in itemProduct.ProductComponents)
+            {
+                var formulaElement = new ProductComponentCunsumptionFormulaElement(
+                    componentId: productComponent.ComponentId,
+                    producComponentId: productComponent.Id,
+                    productItemId: itemProduct.Id,
+                    placeHolder: productComponent.PlaceHolder,
+                    code: productComponent.Code,
+                    consumptionCalculation: consumptionEstimation.ConsumptionProduct.FirstOrDefault(x => x.IdProductComponent == productComponent.Id)?.ConsumptionComponentFormula?? string.Empty
+                );
+                formulaElements.Add(formulaElement);
+                if (itemProduct.IsAssembled)
+                {
+                    foreach (var subItem in itemProduct.SubProducts)
+                    {
+                        var productSubItem = products.FirstOrDefault(x => x.Id == subItem.ProductId);
+                        if(productSubItem is null)
+                        {
+                            continue;
+                        }
+                        var subConsumptionEstimations = GenerateProductComponentCunsumptionFormulaElement(productSubItem, products, consumptionEstimation);
+                        formulaElements.AddRange(subConsumptionEstimations);
+                    }
+                }
+            }
+            return formulaElements;
+        }
+       
+        private List<ProductComponentCunsumptionFormulaElement> CompleteCunsumptionFormulaElement(List<ProductComponentCunsumptionFormulaElement> consumptionFormulaElements)
+        {
+            for (int i = 0; i < consumptionFormulaElements.Count; i++)
+            {
+                foreach (var item in consumptionFormulaElements)
+                {
+                    
+                    foreach (var subItem in consumptionFormulaElements)
+                    {
+                        if (!subItem.IsValueAvailable && item.IsValueAvailable)
                         {
                             subItem.SetVariableValue(item.PlaceHolder, item.Value);
                         }
                     }
                 }
             }
-            
-            return cunsumptionFormulaElements;
+            return consumptionFormulaElements;
         }
-
-        private List<ProductComponentCunsumptionFormulaElement> ExtractCunsumptionFormulaElement(BillOfMaterial billOfMaterial,
-            List<Product> products, List<Component> components)
-        {
-            List<ProductComponentCunsumptionFormulaElement> formulaElementCodes = new List<ProductComponentCunsumptionFormulaElement>();
-            foreach (var item in billOfMaterial.ListItems)
-            {
-                foreach (var productItem in item.BomProductItems)
-                {
-                    var product = products.FirstOrDefault(x => x.Id == productItem.ProductId);
-                    if (product is null)
-                    {
-                        continue;
-                    }
-                    string productCode = $"P[{product.Code}]";
-                    foreach (var productComponent in product.ProductComponents)
-                    {
-                        string componentCode = $"{{{productCode}.C[{productComponent.Code}]}}";
-                        //formulaElementCodes.Add(new ProductComponentCunsumptionFormulaElement(productComponent.ComponentId, productItem.Id, componentCode, productComponent.Code, productComponent.ConsumptionCalculation));
-                    }
-
-                    foreach (var subProduct in product.SubProducts)
-                    {
-                        var subProductItem = products.FirstOrDefault(x => x.Id == subProduct.ProductId);
-                        string subProductCode = $"P[{product.Code}].P[{subProduct.Code}]";
-                        foreach (var productComponent in subProductItem.ProductComponents)
-                        {
-                            string componentCode = $"{{{subProductCode}.C[{productComponent.Code}]}}";
-                            //formulaElementCodes.Add(new ProductComponentCunsumptionFormulaElement(productComponent.ComponentId, productItem.Id, componentCode, productComponent.Code, productComponent.ConsumptionCalculation));
-                        }
-                    }
-                }
-            }
-            return formulaElementCodes;
-        }
-
-        private Dictionary<string, ProductComponent> ExtractFormulaProductComponentCodes( BillOfMaterial billOfMaterial, List<Product> products, List<Component> components)
-        {
-            Dictionary<string, ProductComponent> formulaElementCodes = new Dictionary<string, ProductComponent>();
-            foreach (var item in billOfMaterial.ListItems)
-            {
-                foreach (var productItem in item.BomProductItems)
-                {
-                    var product = products.FirstOrDefault(x => x.Id == productItem.ProductId);
-                    if (product is null)
-                    {
-                        continue;
-                    }
-                    string productCode = $"P[{product.Code}]";
-                    foreach (var productComponent in product.ProductComponents)
-                    {
-                        string componentCode = $"{{{productCode}.C[{productComponent.Code}]}}";
-                        formulaElementCodes.Add(componentCode, productComponent);
-                    }
-                    
-                    foreach (var subProduct in product.SubProducts)
-                    {
-                        var subProductItem = products.FirstOrDefault(x => x.Id == subProduct.ProductId);
-                        string subProductCode = $"P[{product.Code}].P[{subProduct.Code}]";
-                        foreach (var productComponent in subProductItem.ProductComponents)
-                        {
-                            string componentCode = $"{{{subProductCode}.C[{productComponent.Code}]}}";
-                            formulaElementCodes.Add(componentCode, productComponent);
-                        }
-                    }
-                }
-            }
-            return formulaElementCodes;
-        }
-        
-        private Dictionary<string, object> ExtractFormulaQuestionTemplateCodes(RequestForQuotation rfq, List<Product> products, List<Component> components)
-        {
-            Dictionary<string, object> formulaQuestionTemplateCodes = new Dictionary<string, object>();
-            foreach (var item in rfq.RequestForQuotationItems)
-            {
-                foreach (var productItem in item.ProductItems)
-                {
-                    var product = products.FirstOrDefault(x => x.Id == productItem.ProductId);
-                    if (product is null)
-                    {
-                        continue;
-                    }
-                    string productCode = $"P[{product.Code}]";
-                    foreach (var questionTemplate in product.ProductQuestionTemplates)
-                    {
-                        var answer = productItem.Answers.FirstOrDefault(x => x.QuestionId == questionTemplate.QuestionTemplateId)?? null;
-                        string questionCode = $"{{{productCode}.Q[{questionTemplate.Code}]}}";
-                        var answerAnswerValue = answer?.AnswerValue;
-                        object value = null;
-                        if (answer is not null)
-                        {
-                            switch (answer.AnswerType)
-                            {
-                                case BOOLEAN:
-                                    value = bool.TryParse(answer.AnswerValue, out bool boolValue) && boolValue;
-                                    break;
-                                case DATE:
-                                    value = DateTime.TryParse(answerAnswerValue, out DateTime dateValue) ? dateValue : DateTime.MinValue;
-                                    break;
-                                case LARGE_TEXT:
-                                    value = answerAnswerValue;
-                                    break;
-                                case NUMBER:
-                                    value = double.TryParse(answerAnswerValue, out double doubleValue) ? doubleValue : 0;
-                                    break;
-                                case TEXT:
-                                    value= answerAnswerValue;
-                                    break;
-                                case CHOICE:
-                                    value = answerAnswerValue;
-                                    break;
-                                
-                            }
-                            formulaQuestionTemplateCodes.Add(questionCode, value);
-                        }
-                    }
-
-                    foreach (var subProduct in product.SubProducts)
-                    {
-                        var subProductItem = products.FirstOrDefault(x => x.Id == subProduct.ProductId);
-                        string subProductCode = $"P[{product.Code}].P[{subProduct.Code}]";
-                        foreach (var questionTemplate in subProductItem.ProductQuestionTemplates)
-                        {
-                            string questionCode = $"{{{subProductCode}.Q[{questionTemplate.Code}]}}";
-                            formulaQuestionTemplateCodes.Add(questionCode, questionTemplate);
-                        }
-                    }
-                }
-            }
-            return formulaQuestionTemplateCodes;
-        }
-
-        
-        
-    public List<string> ExtractVariables(string formula)
-    {
-        var matches = Regex.Matches(formula, @"\{([^}]+)\}");
-        var variables = new List<string>();
-        foreach (Match match in matches)
-        {
-            variables.Add(match.Groups[1].Value);
-        }
-        return variables;
-    }
-    
-    
-    
-    
-    
-    /*
-    private object applyFormula(ProductComponent productComponent, RequestForQuotationItem? requestForQuotationItem, RequestForQuotation rfq, List<Product> products, List<Component> components)
-    {
-        var formula = productComponent.ConsumptionCalculation;
-        if (formula is null || formula.IsNullOrEmpty() || requestForQuotationItem is null)
-        {
-            return 0;
-        }
-        var quantity = 0;
-        var variables = ExtractVariables(formula);
-        var quantities = GetQuantities(variables, rfq, products, components);
-        return null;
-    }
-    */
-    /*
-    public List<KeyValuePair<string, object>> GetQuantities(List<string> variables, RequestForQuotation rfq, List<Product> products, List<Component> components)
-    {
-        var quantities = new List<KeyValuePair<string, object>>();
-        foreach (var variable in variables)
-        {
-            //data una variabie tipo {P[MONO].P[Spalletta].C[GUI]} e un oggetto Product in input legga il valore della quantità del componente
-            var quantity = getValue(variable, rfq, products, components);
-            quantities.Add(new KeyValuePair<string, object>(variable, quantity));
-        }
-        return quantities;
-    }
-    */
-
-    /*
-    private object getValue(string variable, RequestForQuotation rfq, List<Product> products, List<Component> components)
-    {
-        var items = variable.Split(new[] { "." }, StringSplitOptions.None);
-        var adv = (string[])items.Clone();
-        var productcode = items[0].Replace("P","").Replace("[", "").Replace("]", "");
-        Product _product = null;
-        var product = products.FirstOrDefault(x => x.Code.Equals(productcode));
-        if(product == null)
-        {
-            return 0;
-        }
-        if(adv.Length == 1)
-        {
-            return 0;
-        }
-        _product = product;
-        adv = adv.Skip(1).Take(adv.Length - 1).ToArray();
-        string subpart = adv[0].Substring(0, 1);
-        if(subpart == "P")
-        {
-            var subproductcode = adv[0].Replace("P","").Replace("[", "").Replace("]", "");
-            if (items.Length == 2)
-            {
-                throw new Exception($"Value path is not correct for the variable {variable}");
-            }
-
-            var id = _product.SubProducts.FirstOrDefault(x => x.Code.Equals(subproductcode))!.ProductIds.FirstOrDefault();
-            
-            _product =  _productRepository.GetAsync(id).Result;
-            adv = adv.Skip(1).Take(adv.Length - 1).ToArray();
-        }
-        subpart = adv[0].Substring(0, 1);
-        if(subpart == "C")
-        {
-            var componentcode = adv[0].Replace("C","").Replace("[", "").Replace("]", "");
-            Component _component = _product.ProductComponents.FirstOrDefault(x => x.Code.Equals(componentcode));
-            return _component.Quantity;
-        }
-        if(subpart == "Q")
-        {
-            var _questionTemplate = items[1].Replace("Q","").Replace("[", "").Replace("]", "");
-            QuestionTempate _question = _product.QuestionTemplates.Find(x => x.Code.Equals(_questionTemplate));
-            return _question.Answer.AnswerValue;
-        }
-        throw new Exception($"Value path is not correct for the variable {variable}");
-    }
-    */
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
     }
 }

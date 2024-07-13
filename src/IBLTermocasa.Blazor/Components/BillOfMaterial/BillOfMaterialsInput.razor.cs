@@ -43,6 +43,7 @@ public partial class BillOfMaterialsInput
             {
                 foreach (var bomComponent in bomProductItem.BomComponents)
                 {
+                    Console.WriteLine($"::::::::::::::::::::::::::::::::RequestForQuotationItemId: {listItem.RequestForQuotationItemId} ProductItemId: {bomProductItem.ProductItemId} ComponentId: {bomComponent.ComponentId} Quantity: {bomComponent.Quantity}");
                     items.Add(new BillOfMaterialsMudDataGridItem
                     {
                         RequestForQuotationItemId = listItem.RequestForQuotationItemId,
@@ -72,10 +73,12 @@ public partial class BillOfMaterialsInput
             {
                 bomi.MaterialPrice = MaterialDictionary[bomi.BomComponentId].FirstOrDefault(x => x.Id == bomi.MaterialId)!.StandardPrice;
                 bomi.MeasureUnit = MaterialDictionary[bomi.BomComponentId].FirstOrDefault(x => x.Id == bomi.MaterialId)!.MeasureUnit;
+                if (bomi.Price is 0 && bomi.Quantity is not 0)
+                {
+                    bomi.Price = bomi.RequestForQuotationItemQuantity * bomi.Quantity * bomi.MaterialPrice;
+                }
             }
         }
-        
-        
         BillOfMaterialsMudDataGridItems = items;
         StateHasChanged();
         Console.WriteLine("::::::::::::::::::::::::::::::::MaterialDictionaryKeys.Count: " + MaterialDictionary.Keys.Count);
@@ -87,24 +90,6 @@ public partial class BillOfMaterialsInput
             ? "mud-theme-warning"
             : string.Empty;
     }
-
-    private async void OnMaterialIdChanged1(BillOfMaterialsMudDataGridItem obj)
-    {
-        obj.MaterialPrice = MaterialDictionary[obj.BomComponentId].FirstOrDefault(x => x.Id == obj.MaterialId)!.StandardPrice;
-        obj.MeasureUnit = MaterialDictionary[obj.BomComponentId].FirstOrDefault(x => x.Id == obj.MaterialId)!.MeasureUnit;
-        obj.Price = obj.Quantity * obj.MaterialPrice;
-        StateHasChanged();
-    }
-
-    private Task OnMaterialChanged(BillOfMaterialsMudDataGridItem contextItem)
-    {
-        contextItem.MaterialPrice = MaterialDictionary[contextItem.BomComponentId].FirstOrDefault(x => x.Id == contextItem.MaterialId)!.StandardPrice;
-        contextItem.MeasureUnit = MaterialDictionary[contextItem.BomComponentId].FirstOrDefault(x => x.Id == contextItem.MaterialId)!.MeasureUnit;
-        contextItem.Price = contextItem.RequestForQuotationItemQuantity *  contextItem.Quantity * contextItem.MaterialPrice;
-        return Task.CompletedTask;
-    }
-
-
     private void CommittedItemChanges(BillOfMaterialsMudDataGridItem contextItem)
     {
         Console.WriteLine("::::::::::::::::::::::::::::::::CommittedItemChanges");
@@ -133,11 +118,7 @@ public partial class BillOfMaterialsInput
         ReloadItemsFromDataGrid();
         BillOfMaterials.ListItems = await BillOfMaterialsAppService.CalculateConsumption(BillOfMaterials.Id, BillOfMaterials.ListItems);
         this.LoadBillOfMaterialsMudDataGridItems();
-        BillOfMaterialsMudDataGridItems.ForEach(x =>
-        {
-            x.Price = x.RequestForQuotationItemQuantity *  x.Quantity * x.MaterialPrice;
-        });
-        this.ReloadItemsFromDataGrid();        
+        //this.ReloadItemsFromDataGrid();        
         BillOfMaterialsMudDataGrid.ReloadServerData();
         StateHasChanged();
         
@@ -172,21 +153,6 @@ public partial class BillOfMaterialsInput
                 }
             );
         }
-    }
-
-    private Task OnMaterialChanged2(BillOfMaterialsMudDataGridItem contextItem)
-    {
-        contextItem.MaterialPrice = MaterialDictionary[contextItem.BomComponentId].FirstOrDefault(x => x.Id == contextItem.MaterialId)!.StandardPrice;
-        contextItem.MeasureUnit = MaterialDictionary[contextItem.BomComponentId].FirstOrDefault(x => x.Id == contextItem.MaterialId)!.MeasureUnit;
-        contextItem.Price = contextItem.Quantity * contextItem.MaterialPrice;
-        return Task.CompletedTask;
-    }
-
-    private void OnMaterialChanged3(BillOfMaterialsMudDataGridItem contextItem)
-    {
-        contextItem.MaterialPrice = MaterialDictionary[contextItem.BomComponentId].FirstOrDefault(x => x.Id == contextItem.MaterialId)!.StandardPrice;
-        contextItem.MeasureUnit = MaterialDictionary[contextItem.BomComponentId].FirstOrDefault(x => x.Id == contextItem.MaterialId)!.MeasureUnit;
-        contextItem.Price = contextItem.Quantity * contextItem.MaterialPrice;
     }
 }
 

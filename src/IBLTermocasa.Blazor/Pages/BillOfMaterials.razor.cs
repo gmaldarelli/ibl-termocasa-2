@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
 using IBLTermocasa.BillOfMaterials;
+using IBLTermocasa.Blazor.Components;
 using IBLTermocasa.Blazor.Components.BillOfMaterial;
 using IBLTermocasa.Common;
 using IBLTermocasa.Permissions;
@@ -30,7 +31,9 @@ namespace IBLTermocasa.Blazor.Pages
     {
         [Inject]
         public IDialogService DialogService { get; set; }
-        protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems = new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
+        protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems = new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();   
+        [Inject]
+        private SecureConfirmationService _SecureConfirmationService { get; set; }
         protected PageToolbar Toolbar {get;} = new PageToolbar();
         private IReadOnlyList<BillOfMaterialDto> BillOfMaterialList { get; set; } = new List<BillOfMaterialDto>();
         private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
@@ -317,9 +320,23 @@ namespace IBLTermocasa.Blazor.Pages
             NavigationManager.NavigateTo($"/bill-of-materials-detail/{contextItem.Id}");
         }
 
-        private void RemoveBillOfMaterialDetailAsync(BillOfMaterialDto contextItem)
+        private async void RemoveBillOfMaterialDetailAsync(BillOfMaterialDto contextItem)
         {
-            throw new NotImplementedException();
+             bool result = await _SecureConfirmationService.ShowConfirmation(
+                "Sei sicuro di voler eliminare questa Distinta? La richiesta di preventivo associata tornerà in stato di Nuova",
+                "Scrivi il numero di distinta {0} per confermare l'eliminazione",
+                contextItem.BomNumber
+            );
+            if (result)
+            {
+                await BillOfMaterialsAppService.DeleteAsync(contextItem.Id);
+                await GetBillOfMaterialsAsync();
+            }
+            else
+            {
+                // Cancellazione annullata
+                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>Cancellazione annullata...");
+            }
         }
     }
 }
