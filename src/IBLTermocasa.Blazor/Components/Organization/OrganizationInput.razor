@@ -8,6 +8,7 @@
 @using Volo.Abp.AspNetCore.Components.Messages
 @inject IUiMessageService UiMessageService
 @using Volo.Abp.AspNetCore.Components.Web
+@using EnumExtensions = IBLTermocasa.Types.EnumExtensions
 @inherits IBLTermocasaComponentBase
 <EditForm Model="@Organization" >
 <Row >
@@ -22,7 +23,7 @@
                     <Image Class="lpx-avatar-img-lg mb-3" Source="@_organizaionImageString"></Image>
                     <div class="border-bottom pb-3 mb-3">
                         <h3 class="card-title mb-0">@Organization.Name</h3>
-                        <h5 class="fw-normal mt-2 mb-0">@L[$"Enum:OrganizationType.{Organization.OrganizationType:d}"]</h5>
+                        <h5 class="fw-normal mt-2 mb-0">@L[$"Enum:OrganizationType.{EnumExtensions.GetDisplayName(Organization.OrganizationType)}"]</h5>
                         <small class="text-muted">
                             <a href="https://www.google.com/maps/search/?api=1&query=@(Uri.EscapeDataString(Organization.BillingAddress.ResolveAddress()))" target="_blank">
                                 <i class="bi bi-geo-alt-fill"></i>
@@ -48,7 +49,7 @@
                     <SocialBadge  SocialInfo="@InternalOrganization.SocialInfo"/>
                     <div>
                         <small class="text-muted">@L["Source"]</small>
-                        <h5 class="mt-0">@L[$"Enum:SourceType.{Organization.SourceType:d}"]</h5>
+                        <h5 class="mt-0">@L[$"Enum:SourceType.{EnumExtensions.GetDisplayName(Organization.SourceType)}"]</h5>
                     </div>
                     <div>
                         <small class="text-muted">@L["FirsSync"]</small>
@@ -116,7 +117,7 @@
                                                 @foreach (var type in OrganizationTypes)
                                                 {
                                                 <SelectItem Value="@type" Text="@type">
-                                                    @L[$"Enum:OrganizationType.{type:d}"]
+                                                    @L[$"Enum:OrganizationType.{EnumExtensions.GetDisplayName(type)}"]
                                                 </SelectItem>
                                                 }
                                             </Select>

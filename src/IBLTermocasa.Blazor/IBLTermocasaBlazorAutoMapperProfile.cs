@@ -1,3 +1,4 @@
+using IBLTermocasa.Quotations;
 using IBLTermocasa.ConsumptionEstimations;
 using IBLTermocasa.ProfessionalProfiles;
 using IBLTermocasa.BillOfMaterials;
@@ -90,7 +91,7 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<AnswerDto, Answer>();
         CreateMap<Answer, AnswerDto>();
         CreateMap<BomItem, BomItemDto>();
-        CreateMap<BomItemDto, BomItem>();;
+        CreateMap<BomItemDto, BomItem>(); ;
         CreateMap<BowItem, BowItemDto>();
         CreateMap<BowItemDto, BowItem>();
         CreateMap<BomComponent, BomComponentDto>();
@@ -113,5 +114,13 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<ConsumptionEstimationDto, ConsumptionEstimation>();
         CreateMap<ConsumptionEstimationDto, ConsumptionEstimationCreateDto>();
         CreateMap<ConsumptionEstimationDto, ConsumptionEstimationUpdateDto>();
+
+        CreateMap<QuotationDto, QuotationUpdateDto>();
+        CreateMap<QuotationDto, QuotationUpdateDto>();
+        CreateMap<QuotationDto, QuotationCreateDto>();
+        CreateMap<QuotationCreateDto, Quotation>();
+        CreateMap<Quotation, QuotationDto>();
+        CreateMap<QuotationItem, QuotationItemDto>();
+        CreateMap<QuotationItemDto, QuotationItem>();
     }
 }

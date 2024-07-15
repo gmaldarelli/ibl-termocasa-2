@@ -225,6 +225,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
                 // Cancellazione annullata
                 Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>Cancellazione annullata...");
             }
+            StateHasChanged();
         }
 
         private async Task CreateOrganizationAsync()

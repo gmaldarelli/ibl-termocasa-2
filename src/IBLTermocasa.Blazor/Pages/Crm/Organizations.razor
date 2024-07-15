@@ -166,12 +166,12 @@
                 </TemplateColumn>
                 <TemplateColumn Title="@L["OrganizationType"]">
                     <CellTemplate Context="context">
-                        @L[$"Enum:OrganizationType.{(string)context.Item.OrganizationType.ToString()}"]
+                        @L[$"Enum:OrganizationType.{EnumExtensions.GetDisplayName(context.Item.OrganizationType)}"]
                     </CellTemplate>
                 </TemplateColumn>
                 <TemplateColumn Title="@L["SourceType"]">
                     <CellTemplate Context="context">
-                        @L[$"Enum:SourceType.{(int)context.Item.SourceType}"]
+                        @L[$"Enum:SourceType.{EnumExtensions.GetDisplayName(context.Item.SourceType)}"]
                     </CellTemplate>
                 </TemplateColumn>
                 <TemplateColumn Title="@L["FirstSync"]">

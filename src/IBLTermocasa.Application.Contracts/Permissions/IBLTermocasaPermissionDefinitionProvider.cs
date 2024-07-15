@@ -91,6 +91,11 @@ public class IBLTermocasaPermissionDefinitionProvider : PermissionDefinitionProv
         consumptionEstimationPermission.AddChild(IBLTermocasaPermissions.ConsumptionEstimations.Create, L("Permission:Create"));
         consumptionEstimationPermission.AddChild(IBLTermocasaPermissions.ConsumptionEstimations.Edit, L("Permission:Edit"));
         consumptionEstimationPermission.AddChild(IBLTermocasaPermissions.ConsumptionEstimations.Delete, L("Permission:Delete"));
+
+        var quotationPermission = myGroup.AddPermission(IBLTermocasaPermissions.Quotations.Default, L("Permission:Quotations"));
+        quotationPermission.AddChild(IBLTermocasaPermissions.Quotations.Create, L("Permission:Create"));
+        quotationPermission.AddChild(IBLTermocasaPermissions.Quotations.Edit, L("Permission:Edit"));
+        quotationPermission.AddChild(IBLTermocasaPermissions.Quotations.Delete, L("Permission:Delete"));
     }
 
     private static LocalizableString L(string name)

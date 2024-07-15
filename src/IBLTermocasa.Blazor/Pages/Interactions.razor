@@ -207,7 +207,7 @@
                       Field="Interaction.InteractionType"
                       Caption="@L["InteractionType"]">
                     <DisplayTemplate>
-                        @L[$"Enum:InteractionType.{(int)context.Interaction.InteractionType}"]
+                        @L[$"Enum:InteractionType.{EnumExtensions.GetDisplayName(context.Interaction.InteractionType)}"]
                     </DisplayTemplate>
               </DataGridColumn>
 
@@ -268,8 +268,9 @@
                         <Select TValue="InteractionType" @bind-SelectedValue="@NewInteraction.InteractionType" >
                             @foreach (var itemValue in Enum.GetValues(typeof(InteractionType)))
                             {
-                                <SelectItem TValue="InteractionType" Value="@((InteractionType) itemValue)">
-                                    @L[$"Enum:InteractionType.{((InteractionType) itemValue).ToString("d")}"]
+                                var enumValue = (InteractionType)itemValue;
+                                <SelectItem TValue="InteractionType" Value="@enumValue">
+                                    @L[$"Enum:InteractionType.{EnumExtensions.GetDisplayName(enumValue)}"]
                                 </SelectItem>
                             }
                         </Select>
@@ -403,8 +404,9 @@
                         <Select TValue="InteractionType" @bind-SelectedValue="@EditingInteraction.InteractionType" >
                             @foreach (var itemValue in Enum.GetValues(typeof(InteractionType)))
                             {
-                                <SelectItem TValue="InteractionType" Value="@((InteractionType) itemValue)">
-                                    @L[$"Enum:InteractionType.{((InteractionType) itemValue).ToString("d")}"]
+                                var enumValue = (InteractionType)itemValue;
+                                <SelectItem TValue="InteractionType" Value="@enumValue">
+                                    @L[$"Enum:InteractionType.{EnumExtensions.GetDisplayName(enumValue)}"]
                                 </SelectItem>
                             }
                         </Select>

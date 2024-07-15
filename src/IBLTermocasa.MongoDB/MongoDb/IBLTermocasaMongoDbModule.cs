@@ -1,3 +1,4 @@
+using IBLTermocasa.Quotations;
 using IBLTermocasa.ConsumptionEstimations;
 using IBLTermocasa.ProfessionalProfiles;
 using IBLTermocasa.BillOfMaterials;
@@ -82,6 +83,8 @@ public class IBLTermocasaMongoDbModule : AbpModule
             options.AddRepository<ProfessionalProfile, ProfessionalProfiles.MongoProfessionalProfileRepository>();
 
             options.AddRepository<ConsumptionEstimation, ConsumptionEstimations.MongoConsumptionEstimationRepository>();
+
+            options.AddRepository<Quotation, Quotations.MongoQuotationRepository>();
 
         });
 

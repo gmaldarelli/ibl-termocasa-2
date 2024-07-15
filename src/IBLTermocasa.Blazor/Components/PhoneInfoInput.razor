@@ -4,6 +4,7 @@
 @using Volo.Abp.AspNetCore.Components.Web
 @using MudBlazor
 @using Color = MudBlazor.Color
+@using EnumExtensions = IBLTermocasa.Types.EnumExtensions
 @using Size = MudBlazor.Size
 @inherits IBLTermocasaComponentBase
 <MudForm @ref="PhoneInfoForm" Disabled="@ReadOnly">
@@ -14,7 +15,7 @@
                 <MudSelect T="PhoneType" @bind-Value="phoneItem.Type" Placeholder="@L["Type"]">
                     @foreach (var type in Enum.GetValues<PhoneType>())
                     {
-                        <MudSelectItem Value="@type">@L[$"Enum:PhoneType.{type:d}"]</MudSelectItem>
+                        <MudSelectItem Value="@type">@L[$"Enum:PhoneType.{EnumExtensions.GetDisplayName(type)}"]</MudSelectItem>
                     }
                 </MudSelect>
             </MudItem>

@@ -155,7 +155,7 @@
                       Field="MeasureUnit"
                       Caption="@L["MeasureUnitShort"]">
                     <DisplayTemplate>
-                        @L[$"Enum:MeasureUnit.{(int)context.MeasureUnit}"]
+                        @L[$"Enum:MeasureUnit.{EnumExtensions.GetDisplayName(context.MeasureUnit)}"]
                     </DisplayTemplate>
               </DataGridColumn>
 
@@ -189,7 +189,7 @@
                       Field="SourceType"
                       Caption="@L["SourceType"]">
                     <DisplayTemplate>
-                        @L[$"Enum:SourceType.{(int)context.SourceType}"]
+                        @L[$"Enum:SourceType.{EnumExtensions.GetDisplayName(context.SourceType)}"]
                     </DisplayTemplate>
               </DataGridColumn>
 
@@ -259,12 +259,13 @@
 
                     <Field>
                         <FieldLabel>@L["MeasureUnit"]</FieldLabel>
-                        <Select TValue="MeasureUnit" @bind-SelectedValue="@NewMaterial.MeasureUnit" >
+                        <Select TValue="MeasureUnit" @bind-SelectedValue="@NewMaterial.MeasureUnit">
                             @foreach (var itemValue in Enum.GetValues(typeof(MeasureUnit)))
                             {
-                                <SelectItem TValue="MeasureUnit" Value="@((MeasureUnit) itemValue)">
-                                    @L[$"Enum:MeasureUnit.{((MeasureUnit) itemValue).ToString("d")}"]
-                                </SelectItem>
+                            var enumValue = (MeasureUnit)itemValue;
+                            <SelectItem TValue="MeasureUnit" Value="@enumValue">
+                                @L[$"Enum:MeasureUnit.{EnumExtensions.GetDisplayName(enumValue)}"]
+                            </SelectItem>
                             }
                         </Select>
                     </Field>
@@ -398,15 +399,16 @@
                         </Field>
                     </Validation>
 
-
+                    
                     <Field>
                         <FieldLabel>@L["MeasureUnit"]</FieldLabel>
-                        <Select TValue="MeasureUnit" @bind-SelectedValue="@EditingMaterial.MeasureUnit" >
+                        <Select TValue="MeasureUnit" @bind-SelectedValue="@EditingMaterial.MeasureUnit">
                             @foreach (var itemValue in Enum.GetValues(typeof(MeasureUnit)))
                             {
-                                <SelectItem TValue="MeasureUnit" Value="@((MeasureUnit) itemValue)">
-                                    @L[$"Enum:MeasureUnit.{((MeasureUnit) itemValue).ToString("d")}"]
-                                </SelectItem>
+                            var enumValue = (MeasureUnit)itemValue;
+                            <SelectItem TValue="MeasureUnit" Value="@enumValue">
+                                @L[$"Enum:MeasureUnit.{EnumExtensions.GetDisplayName(enumValue)}"]
+                            </SelectItem>
                             }
                         </Select>
                     </Field>
@@ -489,8 +491,9 @@
                         <Select TValue="SourceType" @bind-SelectedValue="@EditingMaterial.SourceType" ReadOnly>
                             @foreach (var itemValue in Enum.GetValues(typeof(SourceType)))
                             {
-                                <SelectItem TValue="SourceType" Value="@((SourceType) itemValue)">
-                                    @L[$"Enum:SourceType.{((SourceType) itemValue).ToString("d")}"]
+                                var enumValue = (SourceType)itemValue;
+                                <SelectItem TValue="SourceType" Value="@enumValue">
+                                    @L[$"Enum:SourceType.{EnumExtensions.GetDisplayName(enumValue)}"]
                                 </SelectItem>
                             }
                         </Select>

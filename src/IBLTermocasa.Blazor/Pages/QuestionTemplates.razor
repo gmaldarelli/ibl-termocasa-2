@@ -159,7 +159,7 @@
                       Field="AnswerType"
                       Caption="@L["AnswerType"]">
                     <DisplayTemplate>
-                        @L[$"Enum:AnswerType.{(int)context.AnswerType}"]
+                        @L[$"Enum:AnswerType.{EnumExtensions.GetDisplayName(context.AnswerType)}"]
                     </DisplayTemplate>
               </DataGridColumn>
 
@@ -216,8 +216,9 @@
                         <Select TValue="AnswerType" @bind-SelectedValue="@NewQuestionTemplate.AnswerType" >
                             @foreach (var itemValue in Enum.GetValues(typeof(AnswerType)))
                             {
-                                <SelectItem TValue="AnswerType" Value="@((AnswerType) itemValue)">
-                                    @L[$"Enum:AnswerType.{((AnswerType) itemValue).ToString("d")}"]
+                                var enumValue = (AnswerType)itemValue;
+                                <SelectItem TValue="AnswerType" Value="@enumValue">
+                                    @L[$"Enum:AnswerType.{EnumExtensions.GetDisplayName(enumValue)}"]
                                 </SelectItem>
                             }
                         </Select>
@@ -298,8 +299,9 @@
                         <Select TValue="AnswerType" @bind-SelectedValue="@EditingQuestionTemplate.AnswerType" >
                             @foreach (var itemValue in Enum.GetValues(typeof(AnswerType)))
                             {
-                                <SelectItem TValue="AnswerType" Value="@((AnswerType) itemValue)">
-                                    @L[$"Enum:AnswerType.{((AnswerType) itemValue).ToString("d")}"]
+                                var enumValue = (AnswerType)itemValue;
+                                <SelectItem TValue="AnswerType" Value="@enumValue">
+                                    @L[$"Enum:AnswerType.{EnumExtensions.GetDisplayName(enumValue)}"]
                                 </SelectItem>
                             }
                         </Select>

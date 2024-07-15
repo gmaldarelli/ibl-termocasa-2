@@ -125,6 +125,14 @@ public class IBLTermocasaMenuContributor : IMenuContributor
         GetInventoryMenu(context, l);
         GetProductionMenu(context, l);
 
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                IBLTermocasaMenus.Quotations,
+                l["Menu:Quotations"],
+                url: "/quotations",
+                icon: "fa fa-file-alt",
+                requiredPermissionName: IBLTermocasaPermissions.Quotations.Default)
+        );
         return Task.CompletedTask;
     }
 

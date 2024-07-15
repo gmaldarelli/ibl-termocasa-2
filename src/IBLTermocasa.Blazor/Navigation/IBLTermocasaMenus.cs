@@ -42,4 +42,6 @@ public class IBLTermocasaMenus
 
     public const string ConsumptionEstimations = Prefix + ".ConsumptionEstimations";
 
+    public const string Quotations = Prefix + ".Quotations";
+
 }

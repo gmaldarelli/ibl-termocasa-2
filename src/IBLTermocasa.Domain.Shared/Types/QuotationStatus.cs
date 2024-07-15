@@ -6,5 +6,6 @@ public enum QuotationStatus
     DRAFT,
     AWAITING_APPROVAL,
     APPROVED,
+    SENT_WAITING,
     SENT
 }

@@ -1,3 +1,4 @@
+using IBLTermocasa.Quotations;
 using IBLTermocasa.ConsumptionEstimations;
 using IBLTermocasa.ProfessionalProfiles;
 using IBLTermocasa.BillOfMaterials;
@@ -160,8 +161,6 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<ProfessionalProfile, ProfessionalProfileDto>();
         CreateMap<ProfessionalProfile, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
 
-        
-        
         CreateMap<ConsumptionEstimation, ConsumptionEstimationDto>();
         CreateMap<ConsumptionEstimation, ConsumptionEstimationExcelDto>();
         CreateMap<ConsumptionEstimationDto, ConsumptionEstimation>();
@@ -176,5 +175,16 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<ConsumptionProductDto, ConsumptionProduct>();
         CreateMap<ConsumptionWorkDto, ConsumptionWork>();
         CreateMap<ConsumptionWork, ConsumptionWorkDto>();
+        
+        CreateMap<QuotationDto, QuotationUpdateDto>();
+        CreateMap<QuotationDto, QuotationCreateDto>();
+        CreateMap<QuotationCreateDto, Quotation>();
+        CreateMap<QuotationItem, QuotationItemDto>();
+        CreateMap<QuotationItemDto, QuotationItem>();
+        CreateMap<QuotationUpdateDto, Quotation>();
+        CreateMap<Quotation, QuotationUpdateDto>();
+        CreateMap<Quotation, QuotationCreateDto>();
+        CreateMap<Quotation, QuotationDto>();
+        CreateMap<Quotation, QuotationExcelDto>();
     }
 }

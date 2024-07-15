@@ -62,7 +62,7 @@
         <PropertyColumn Property="x => x.City" Title="@L["City"]"/>
         <TemplateColumn Title="@L["Status"]">
             <CellTemplate Context="context">
-                @L[$"Enum:Status.{context.Item.Status.GetDisplayName()}"]
+                @L[$"Enum:RfqStatus.{EnumExtensions.GetDisplayName(context.Item.Status)}"]
             </CellTemplate>
         </TemplateColumn>
         <TemplateColumn CellClass="d-flex justify-end">

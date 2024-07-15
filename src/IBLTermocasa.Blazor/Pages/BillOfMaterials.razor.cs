@@ -337,6 +337,7 @@ namespace IBLTermocasa.Blazor.Pages
                 // Cancellazione annullata
                 Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>Cancellazione annullata...");
             }
+            StateHasChanged();
         }
     }
 }

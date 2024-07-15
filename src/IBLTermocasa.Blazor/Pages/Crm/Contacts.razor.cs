@@ -161,6 +161,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
                 // Cancellazione annullata
                 Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>Cancellazione annullata...");
             }
+            StateHasChanged();
         }
         private void OnSelectedCreateTabChanged(string name)
         {

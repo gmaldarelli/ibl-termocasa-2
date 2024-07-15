@@ -2,6 +2,7 @@
 @using IBLTermocasa.Common
 @using IBLTermocasa.Localization
 @using Volo.Abp.AspNetCore.Components.Web
+@using EnumExtensions = IBLTermocasa.Types.EnumExtensions
 @inherits IBLTermocasaComponentBase
 @foreach (var socialItem in SocialInfo.SocialItems)
 {
@@ -23,7 +24,7 @@
            <Select TValue="SocialType" @bind-SelectedValue="@socialItem.SocialType">
                 @foreach (var type in Enum.GetValues<SocialType>())
                 {
-                    <SelectItem Value="@type">@L[$"Enum:SocialType.{type:d}"]</SelectItem>
+                    <SelectItem Value="@type">@L[$"Enum:SocialType.{EnumExtensions.GetDisplayName(type)}"]</SelectItem>
                 }
             </Select>
         </Field>

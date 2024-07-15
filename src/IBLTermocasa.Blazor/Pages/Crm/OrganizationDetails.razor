@@ -105,7 +105,7 @@
         }
         else
         {
-            organizationPrefix = L[$"Enum:OrganizationType.{OrganizationInput.OrganizationType:d}"];
+            organizationPrefix = L[$"Enum:OrganizationType.{EnumExtensions.GetDisplayName(OrganizationInput.OrganizationType)}"];
             BreadcrumbItems.Add(new BreadcrumbItem($"{organizationPrefix}  {OrganizationInput.Name}", $"/organization/{OrganizationInput.Id}"));
         }
 
@@ -142,7 +142,7 @@
         OrganizationInput = savedOrganization;
         OrganizationId = savedOrganization.Id.ToString();
         IsNew = false;
-        string organizationPrefix = L[$"Enum:OrganizationType.{OrganizationInput.OrganizationType:d}"];
+        string organizationPrefix = L[$"Enum:OrganizationType.{EnumExtensions.GetDisplayName(OrganizationInput.OrganizationType)}"];
         BreadcrumbItems.Add(new BreadcrumbItem($"{organizationPrefix}  {OrganizationInput.Name}", $"/organization/{OrganizationInput.Id}"));
         var message = L["OrganizationSavedMessage"];
         if (!await UiMessageService.Confirm(message))

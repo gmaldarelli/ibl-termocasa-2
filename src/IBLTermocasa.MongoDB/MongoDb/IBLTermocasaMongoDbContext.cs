@@ -1,3 +1,4 @@
+using IBLTermocasa.Quotations;
 using IBLTermocasa.ConsumptionEstimations;
 using IBLTermocasa.ProfessionalProfiles;
 using IBLTermocasa.BillOfMaterials;
@@ -23,6 +24,7 @@ namespace IBLTermocasa.MongoDB;
 [ConnectionStringName("Default")]
 public class IBLTermocasaMongoDbContext : AbpMongoDbContext
 {
+    public IMongoCollection<Quotation> Quotations => Collection<Quotation>();
     public IMongoCollection<ConsumptionEstimation> ConsumptionEstimations => Collection<ConsumptionEstimation>();
     public IMongoCollection<ProfessionalProfile> ProfessionalProfiles => Collection<ProfessionalProfile>();
     public IMongoCollection<BillOfMaterial> BillOfMaterials => Collection<BillOfMaterial>();
@@ -81,5 +83,7 @@ public class IBLTermocasaMongoDbContext : AbpMongoDbContext
         modelBuilder.Entity<ProfessionalProfile>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "ProfessionalProfiles"; });
 
         modelBuilder.Entity<ConsumptionEstimation>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "ConsumptionEstimations"; });
+
+        modelBuilder.Entity<Quotation>(b => { b.CollectionName = IBLTermocasaConsts.DbTablePrefix + "Quotations"; });
     }
 }
