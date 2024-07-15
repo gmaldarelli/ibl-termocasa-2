@@ -6,6 +6,7 @@ namespace IBLTermocasa.ConsumptionEstimations
     public class ConsumptionWork : Entity<Guid>
     {
         public virtual Guid IdProfessionalProfile { get; set; }
+        public virtual Guid ProductId { get; set; }
         public virtual string Code { get; set; }
         public virtual string Name { get; set; }
         public virtual double Price { get; set; }
@@ -17,10 +18,11 @@ namespace IBLTermocasa.ConsumptionEstimations
 
         }
 
-        public ConsumptionWork(Guid id, Guid idProfessionalProfile, string code, string name, double price, string consumptionWorkFormula, int workTime)
+        public ConsumptionWork(Guid id, Guid idProfessionalProfile, Guid productId, string code, string name, double price, string consumptionWorkFormula, int workTime)
         {
             Id = id;
             IdProfessionalProfile = idProfessionalProfile;
+            ProductId = productId;
             Code = code;
             Name = name;
             Price = price;

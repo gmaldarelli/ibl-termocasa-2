@@ -1,0 +1,66 @@
+﻿@using IBLTermocasa.Common
+@using IBLTermocasa.Shared
+@using MudBlazor
+@inherits IBLTermocasaComponentBase
+<style>
+
+    .mud-dialog-custom {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .navbar-open .mud-dialog-custom {
+        left: calc(50% + 264px); /* 264 è stato messo, perchè indica la larghezza della navbar */
+    }
+</style>
+
+<MudForm @ref="_form" @bind-IsValid="@_success" @bind-Errors="@_errors">
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                @L["ConsumptionWorkInputTitle"]
+            </MudText>
+        </TitleContent>    
+        <DialogContent>
+
+            <MudAutocomplete T="LookupDto<Guid>" Label="@L["ProfessionalProfile"]" ValueChanged="@OnConsumptionProfessionalSelected" SearchFunc="@SearchConsumptionProfessional"
+                             ResetValueOnEmptyText="@true"
+                             CoerceText="true" CoerceValue="true"
+                             ToStringFunc="@((LookupDto<Guid> x) => x.DisplayName)"
+                             Required="true"
+                             Strict="false">
+                <ItemTemplate Context="item">
+                    <MudText>@item.DisplayName</MudText>
+                </ItemTemplate>
+                <ItemDisabledTemplate Context="item">
+                    <MudText>@item.DisplayName</MudText>
+                </ItemDisabledTemplate>
+            </MudAutocomplete>
+            <MudSelect  T="Guid" Label="@L["Product"]" @bind-Value="@ConsumptionWork.ProductId" Required="true">
+                @foreach (var item in ProductListLookup)
+                {
+                    <MudSelectItem Value="@item.Id">@item.DisplayName</MudSelectItem>
+                }
+            </MudSelect>
+            <MudTextField @bind-Value="@ConsumptionWork.Code" Label="@L["Code"]" Variant="Variant.Text" Required="true" />
+            <MudTextField @bind-Value="@ConsumptionWork.Name" Label="@L["Name"]" Variant="Variant.Text" Required="true" />
+            <MudTextField T="double" @bind-Value="@ConsumptionWork.Price" Label="@L["Price"]" Variant="Variant.Text" Required="true" Culture="@_cultureInfo"/>
+            <MudNumericField @bind-Value="@ConsumptionWork.WorkTime" Label="@L["WorkTime"]" Variant="Variant.Text" Required="true" Min="0"/>
+            <MudTextField @bind-Value="@ConsumptionWork.ConsumptionWorkFormula" Label="@L["Formula"]" Variant="Variant.Text"/>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">@L["Cancel"]</MudButton>
+            <MudButton  Color="MudBlazor.Color.Primary" OnClick="OnValidSubmit">@L["Save"]</MudButton>
+        </DialogActions>
+    </MudDialog>
+</MudForm>
+
+
+@code {
+    
+}

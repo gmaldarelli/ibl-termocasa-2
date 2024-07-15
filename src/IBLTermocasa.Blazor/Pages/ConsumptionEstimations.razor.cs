@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 using System.Web;
 using Blazorise;
+using IBLTermocasa.Blazor.Components.ConsumptionEstimations;
 using IBLTermocasa.Common;
 using Microsoft.AspNetCore.Authorization;
 using Volo.Abp.Application.Dtos;
@@ -43,15 +44,17 @@ namespace IBLTermocasa.Blazor.Pages
         private MudListItem _selectedMudListItem;
         private Dictionary<Guid, MudListItem> _mudListItemReferences = new();
         private List<ProductDto> SelectedProducts { get; set; } = new();
-        private ProductDto SelectedProduct { get; set; } = new();
-        private ConsumptionWorkDto NewConsumptionWorkDto { get; set; } = new();
+        private ProductDto? SelectedProduct { get; set; } 
+        private ConsumptionWorkDto SelectedConsumptionWorkDto { get; set; } = new();
         [Inject] private IJSRuntime JsRuntime { get; set; }
         
+        [Inject] public IDialogService DialogService { get; set; }
         
         [Inject] private IProductsAppService ProductsAppService { get; set; }
         [Inject] private IProfessionalProfilesAppService ProfessionalProfilesAppService { get; set; }
         private List<LookupDto<Guid>> ProductsList { get; set; } = new();
         private List<LookupDto<Guid>> ProfessionalProfilesList { get; set; } = new();
+        List<LookupDto<Guid>> SelectedProductListLookUp = new List<LookupDto<Guid>>();
         public MudTreeView<PlaceHolderTreeItemData> ProductMudTreeView { get; set; }
         public HashSet<PlaceHolderTreeItemData> TreeItems { get; set; } = new ();
         private Dictionary<Guid, MudListItem> _tempMudListItemReferences = new();
@@ -94,6 +97,9 @@ namespace IBLTermocasa.Blazor.Pages
             _openEnd = true;
             await FocusMudListItem(item.Id);
             await OnSelectedItemChanged(item.Id);
+            SelectedProductListLookUp.Clear();
+            SelectedProductListLookUp.Add(new LookupDto<Guid>(SelectedProduct.Id, SelectedProduct.Name));
+            SelectedProduct.SubProducts.ForEach(x => SelectedProductListLookUp.Add(new LookupDto<Guid>(x.ProductId, x.Name)));
             StateHasChanged();
         }
 
@@ -197,6 +203,10 @@ namespace IBLTermocasa.Blazor.Pages
         }
 
         private ConsumptionProductDto? SelectedConsumptionProductEstimation { get; set; }
+        public MudTabs MudTabsConsumptionEstimations { get; set; }
+        public MudTabPanel MudTabPanelConsumptionComponent { get; set; }
+        public MudTabPanel MudTabPanelConsumptionProfessional { get; set; }
+        public int MudTabsConsumptionEstimationsActiveIndex { get; set; } = 0;
 
         private async Task OnDoubleClickSelectConsumptionComponent(PlaceHolderTreeItemData context)
         {
@@ -210,7 +220,6 @@ namespace IBLTermocasa.Blazor.Pages
                 {
                     SelectedConsumptionProductEstimation.ConsumptionComponentFormula += $"{{{context.PlaceHolder}}}";
                 }
-
                 // Assuming you have a way to get the ID or unique identifier of the MudTextField
                 await JsRuntime.InvokeVoidAsync("focusHelper.setCursorToEnd", $"consumptionComponentField-{SelectedConsumptionProductEstimation.Id}");
             }
@@ -270,26 +279,33 @@ namespace IBLTermocasa.Blazor.Pages
             }
             
             var consumptionProfessionalSelected = await ProfessionalProfilesAppService.GetAsync(lookupDto.Id);
-            NewConsumptionWorkDto = new ConsumptionWorkDto(Guid.NewGuid(), consumptionProfessionalSelected.Id, consumptionProfessionalSelected.Code, consumptionProfessionalSelected.Name, consumptionProfessionalSelected.StandardPrice, "", 0);
+            //SelectedConsumptionWorkDto = new ConsumptionWorkDto(Guid.NewGuid(), consumptionProfessionalSelected.Id, consumptionProfessionalSelected.Code, consumptionProfessionalSelected.Name, consumptionProfessionalSelected.StandardPrice, "", 0);
             StateHasChanged();
         }
 
-        private void AddNewConsumptionWork(MouseEventArgs obj)
+        private void SaveConsumptionWork(ConsumptionWorkDto consumptionWorkDto)
         {
+            if(consumptionWorkDto.Id.Equals(Guid.Empty))
+            {
+                consumptionWorkDto.Id = Guid.NewGuid();
+            }
+            SelectedConsumptionWorkDto = consumptionWorkDto;
+            
+            
             if (SelectedConsumptionEstimation != null)
             {
                 SelectedConsumptionEstimation.ConsumptionWork ??= [];
 
-                if (SelectedConsumptionEstimation.ConsumptionWork.Any(item => item.IdProfessionalProfile == NewConsumptionWorkDto.IdProfessionalProfile))
+                if (SelectedConsumptionEstimation.ConsumptionWork.Any(item => item.Id == consumptionWorkDto.Id))
                 {
                     var indexCe = SelectedConsumptionEstimation.ConsumptionWork.FindIndex(item =>
-                        item.IdProfessionalProfile == NewConsumptionWorkDto.IdProfessionalProfile);
-                    SelectedConsumptionEstimation.ConsumptionWork[indexCe] = NewConsumptionWorkDto;
+                        item.IdProfessionalProfile == SelectedConsumptionWorkDto.IdProfessionalProfile);
+                    SelectedConsumptionEstimation.ConsumptionWork[indexCe] = SelectedConsumptionWorkDto;
 
                 }
                 else
                 {
-                    SelectedConsumptionEstimation.ConsumptionWork.Add(NewConsumptionWorkDto);
+                    SelectedConsumptionEstimation.ConsumptionWork.Add(SelectedConsumptionWorkDto);
                 }
             }
         }
@@ -297,6 +313,71 @@ namespace IBLTermocasa.Blazor.Pages
         private async Task FocusMudListItem(Guid itemId)
         {
             await JsRuntime.InvokeVoidAsync("focusHelper.focusElement", $"mudListItem-{itemId}");
+        }
+        private async Task OnClickAddProfessionaProfile(MouseEventArgs obj)
+        {
+            await OperProfileDialog();
+        }
+        private async Task OnClickEditProfessionaProfile(ConsumptionWorkDto dto)
+        {
+            await OperProfileDialog(dto);
+        }
+
+        private async Task OperProfileDialog(ConsumptionWorkDto dto = null)
+        {
+
+            if (dto == null)
+            {
+                dto = new ConsumptionWorkDto();
+            }
+            var dialog = await DialogService.ShowAsync<ConsumptionWorkInput>("Seleziona Profilo Professionale", new DialogParameters
+            {
+                { "ProductListLookup", SelectedProductListLookUp },
+                { "ConsumptionWork", dto },
+                { "ProfessionalProfilesListLookup", ProfessionalProfilesList }
+            }, new DialogOptions
+            {
+                Position = DialogPosition.Custom,
+                FullWidth = true,
+                MaxWidth = MaxWidth.Medium
+            });
+        
+            var dialogResult = await dialog.Result;
+            if (!dialogResult.Canceled)
+            {
+                var consumptionWorkDto = dialogResult.Data as ConsumptionWorkDto;
+                SaveConsumptionWork(consumptionWorkDto);
+            }
+
+            SelectedConsumptionWorkDto  = new ConsumptionWorkDto();
+            OpenAddProfileCard = true;
+            StateHasChanged();
+        }
+
+        public bool OpenAddProfileCard { get; set; }
+
+        private void OnActivePanelIndexChanged(int index)
+        {
+            MudTabsConsumptionEstimationsActiveIndex = index;
+            if(index == 1)
+            {
+                OpenAddProfileCard = false;
+                SelectedConsumptionWorkDto = new ConsumptionWorkDto();
+            }
+        }
+
+        private Task OnClickDeleteProfessionaProfile(ConsumptionWorkDto item)
+        {
+            if (SelectedConsumptionEstimation != null)
+            {
+                SelectedConsumptionEstimation.ConsumptionWork.RemoveAll(x => x.Id == item.Id);
+            }
+            return Task.CompletedTask;
+        }
+
+        private object DisplayProductFromId(Guid itemProductId)
+        {
+            return SelectedProductListLookUp.FirstOrDefault(x => x.Id == itemProductId)?.DisplayName ?? "N/A";
         }
     }
 }

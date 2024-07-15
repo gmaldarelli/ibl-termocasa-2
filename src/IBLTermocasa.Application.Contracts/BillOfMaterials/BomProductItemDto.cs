@@ -11,4 +11,5 @@ public class BomProductItemDto : EntityDto<Guid>
     public Guid ProductId { get; set; }
     public Guid? ParentBOMProductItemId { get; set; }
     public List<BomComponentDto> BomComponents { get; set; } = new();
+    public List<BowItemDto> BowItems { get; set; } = new();
 }

@@ -11,8 +11,12 @@ public class BomProductItem : Entity<Guid>
     public Guid ProductId { get; set; }
     public Guid? ParentBOMProductItemId { get; set; }
     public List<BomComponent> BomComponents { get; set; } = new();
+    public List<BowItem> BowItems { get; set; } = new();
     
-    public BomProductItem(Guid id, Guid productItemId, string productItemName, Guid productId, Guid? parentBomProductItemId, List<BomComponent>? bomComponents)
+    protected BomProductItem()
+    {
+    }
+    public BomProductItem(Guid id, Guid productItemId, string productItemName, Guid productId, Guid? parentBomProductItemId, List<BomComponent>? bomComponents, List<BowItem>? bowItems)
     {
         Id = id;
         ProductItemId = productItemId;
@@ -22,6 +26,10 @@ public class BomProductItem : Entity<Guid>
         if (bomComponents != null)
         {
             BomComponents = bomComponents;
+        }
+        if (bowItems != null)
+        {
+            BowItems = bowItems;
         }
     }
 }

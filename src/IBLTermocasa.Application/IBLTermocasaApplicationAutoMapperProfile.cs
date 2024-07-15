@@ -135,11 +135,15 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<BillOfMaterialDto, BillOfMaterial>();
         CreateMap<BillOfMaterialDto, BillOfMaterialCreateDto>();
         CreateMap<BillOfMaterialCreateDto, BillOfMaterialDto>();
-        CreateMap<BillOfMaterialUpdateDto, BillOfMaterialDto>();
+        CreateMap<BillOfMaterialUpdateDto, BillOfMaterial>();
         CreateMap<BillOfMaterialDto, BillOfMaterialUpdateDto>();
         CreateMap<BomItem, BomItemDto>();
         CreateMap<BomItemDto, BomItem>();
+        CreateMap<BowItem, BowItemDto>();
+        CreateMap<BowItemDto, BowItem>();
         CreateMap<BomComponent, BomComponentDto>();
+        CreateMap<BomItem, BomItem>();
+        CreateMap<BomItemDto, BomItemDto>();
         CreateMap<BomComponentDto, BomComponent>();
         CreateMap<BomProductItem, BomProductItemDto>();
         CreateMap<BomProductItemDto, BomProductItem>();

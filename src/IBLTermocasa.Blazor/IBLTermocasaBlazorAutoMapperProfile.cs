@@ -59,7 +59,9 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<BillOfMaterial, BillOfMaterialDto>();
         CreateMap<BillOfMaterialDto, BillOfMaterial>();
         CreateMap<BillOfMaterialDto, BillOfMaterialCreateDto>();
+        CreateMap<BillOfMaterialDto, BillOfMaterialUpdateDto>();
         CreateMap<BillOfMaterialCreateDto, BillOfMaterialDto>();
+        CreateMap<BillOfMaterialUpdateDto, BillOfMaterialDto>();
 
         CreateMap<AddressDto, Address>();
         CreateMap<Address, AddressDto>();
@@ -88,9 +90,13 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<AnswerDto, Answer>();
         CreateMap<Answer, AnswerDto>();
         CreateMap<BomItem, BomItemDto>();
-        CreateMap<BomItemDto, BomItem>();
+        CreateMap<BomItemDto, BomItem>();;
+        CreateMap<BowItem, BowItemDto>();
+        CreateMap<BowItemDto, BowItem>();
         CreateMap<BomComponent, BomComponentDto>();
         CreateMap<BomComponentDto, BomComponent>();
+        CreateMap<BomItem, BomItem>();
+        CreateMap<BomItemDto, BomItemDto>();
         CreateMap<BomProductItem, BomProductItemDto>();
         CreateMap<BomProductItemDto, BomProductItem>();
 

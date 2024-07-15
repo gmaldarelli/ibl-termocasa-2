@@ -22,7 +22,7 @@ namespace IBLTermocasa.BillOfMaterials
         [NotNull] public virtual RequestForQuotationProperty RequestForQuotationProperty { get; set; } = new();
         public virtual string Notes { get; set; }
 
-        [NotNull] public virtual BomStatus Status { get; set; } = BomStatus.CREATED;
+        [NotNull] public virtual BomStatusType Status { get; set; } = BomStatusType.CREATED;
         public virtual List<BomItem> ListItems { get; set; } = new();
 
         protected BillOfMaterial()
@@ -30,7 +30,7 @@ namespace IBLTermocasa.BillOfMaterials
 
         }
 
-        public BillOfMaterial(Guid id, string bomNumber, RequestForQuotationProperty requestForQuotationProperty, List<BomItem> listItems = null, string? notes = null, BomStatus status = BomStatus.CREATED)
+        public BillOfMaterial(Guid id, string bomNumber, RequestForQuotationProperty requestForQuotationProperty, List<BomItem> listItems = null, string? notes = null, BomStatusType status = BomStatusType.CREATED)
         {
 
             Id = id;

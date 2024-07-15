@@ -24,6 +24,7 @@ namespace IBLTermocasa.Products
         public List<SubProductDto> SubProducts { get; set; } = new();
         public List<ProductComponentDto> ProductComponents { get; set; } = new();
         public List<ProductQuestionTemplateDto> ProductQuestionTemplates { get; set; } = new();
+        public object CodeAndName => $"{Code} - {Name}";
 
         public List<SubProductDto> SubProductReorder(SubProductDto subProduct)
         {

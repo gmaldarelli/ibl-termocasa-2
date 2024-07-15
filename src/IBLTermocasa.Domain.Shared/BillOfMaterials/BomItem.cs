@@ -10,6 +10,9 @@ public class BomItem : Entity<Guid>
     public int Quantity { get; set; } = 1;
     public List<BomProductItem> BomProductItems { get; set; } = new();
 
+    protected BomItem()
+    {
+    }
     public BomItem(Guid id, Guid requestForQuotationItemId, int quantity,  List<BomProductItem>? bomProductItems) 
     {
         Id = id;

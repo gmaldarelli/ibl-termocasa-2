@@ -7,6 +7,7 @@ public class PlaceHolderUtils
 {
     public static  string GetPlaceHolder(PlaceHolderType prefix, string code, string? parentPlaceHolder = null)
     {
+        //TOFIX remove whitespace from parentPlaceHolder
         if (parentPlaceHolder is { Length: > 0 })
         {
             return $"{parentPlaceHolder}.{prefix.GetPrefix()} [{code}]";

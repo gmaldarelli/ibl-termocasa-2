@@ -1,34 +1,31 @@
 using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using Volo.Abp.Domain.Entities;
-using Volo.Abp.Domain.Entities.Auditing;
-using Volo.Abp.MultiTenancy;
-using JetBrains.Annotations;
-
-using Volo.Abp;
+using Volo.Abp.Application.Dtos;
 
 namespace IBLTermocasa.ConsumptionEstimations
 {
-    public class ConsumptionWorkDto : Entity<Guid>
+    public class ConsumptionWorkDto : EntityDto<Guid>
     {
-        public virtual Guid IdProfessionalProfile { get; set; }
-        public virtual string Code { get; set; }
-        public virtual string Name { get; set; }
-        public virtual double Price { get; set; }
-        public virtual string? ConsumptionWorkFormula { get; set; }
-        public virtual int WorkTime { get; set; }
+        public Guid IdProfessionalProfile { get; set; }
+        public Guid ProductId { get; set; }
+        public string Code { get; set; }
+        public string Name { get; set; }
+        public double Price { get; set; }
+        public string? ConsumptionWorkFormula { get; set; }
+        public int WorkTime { get; set; }
 
         public ConsumptionWorkDto()
         {
-
+            
         }
-
-        public ConsumptionWorkDto(Guid id, Guid idProfessionalProfile, string code, string name, double price, string consumptionWorkFormula, int workTime)
+        public ConsumptionWorkDto(Guid id)
+        {
+            Id = id;
+        }
+        public ConsumptionWorkDto(Guid id, Guid idProfessionalProfile, Guid productId, string code, string name, double price, string consumptionWorkFormula, int workTime)
         {
             Id = id;
             IdProfessionalProfile = idProfessionalProfile;
+            ProductId = productId;
             Code = code;
             Name = name;
             Price = price;

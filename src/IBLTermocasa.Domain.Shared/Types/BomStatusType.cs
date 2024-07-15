@@ -1,9 +1,11 @@
 ﻿namespace IBLTermocasa.Types;
 
-public enum BomStatus
+public enum BomStatusType
 {
     CREATED,
+    TO_BE_BILLED,
     MATERIALS_BILLED,
-    IN_PROGRESS,
+    WORKS_BILLED,
     COMPLETED,
+    RFP_GENERATED
 }

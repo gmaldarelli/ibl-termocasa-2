@@ -16,6 +16,9 @@ public class BomComponent : Entity<Guid>
     public MeasureUnit MeasureUnit { get; set; }
     public decimal Price { get; set; }
 
+    protected BomComponent()
+    {
+    }
     public BomComponent(Guid id, Guid componentId, Guid productComponentId, string componentName, Guid materialId, string materialName,
         decimal materialPrice,  MeasureUnit measureUnit, decimal quantity = 0, decimal price = 0)
     {

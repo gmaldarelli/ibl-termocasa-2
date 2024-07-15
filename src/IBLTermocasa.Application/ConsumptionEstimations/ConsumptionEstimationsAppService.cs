@@ -113,8 +113,9 @@ namespace IBLTermocasa.ConsumptionEstimations
         public virtual async Task<ConsumptionEstimationDto> UpdateAsync(Guid id, ConsumptionEstimationUpdateDto input)
         {
             var requestForQuotationDto = ObjectMapper.Map<ConsumptionEstimationUpdateDto, ConsumptionEstimation>(input);
-            return ObjectMapper.Map<ConsumptionEstimation, ConsumptionEstimationDto>(
-                await _consumptionEstimationManager.UpdateAsync(id, requestForQuotationDto));
+            var entity = await _consumptionEstimationManager.UpdateAsync(id, requestForQuotationDto);
+            var dto = ObjectMapper.Map<ConsumptionEstimation, ConsumptionEstimationDto>(entity);
+            return dto;
         }
 
         [AllowAnonymous]

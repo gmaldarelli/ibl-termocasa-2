@@ -210,24 +210,56 @@ namespace IBLTermocasa.BillOfMaterials
         private async Task<List<BomProductItem>> getBillOfMaterialBOMProductItems(RequestForQuotationItem rfqItem, List<Product> products,
             List<Component> components)
         {
+            var parentId = rfqItem.ProductItems.FirstOrDefault(x => (x.ParentId is null))?.ProductId;
+            if (parentId is null)
+            {
+                throw new UserFriendlyException("Errore nella generazione della distinta, Richeista preventivo non valida. Errore: RequestForQuotationItem.ProductItems without parent.");
+            }
+            var consumptionEstimationsForWork = await _consumptionEstimationRepository.FindAsync(x => x.IdProduct == parentId);
             List<BomProductItem> productItems = new List<BomProductItem>();
             foreach (var productItem in rfqItem.ProductItems)
             {
+                var consumptionWorks = consumptionEstimationsForWork?.ConsumptionWork
+                    .Where(x => x.ProductId == productItem.ProductId).ToList();
+                if (consumptionWorks is null)
+                {
+                    consumptionWorks = new List<ConsumptionWork>();
+                }
+
                 var product = products.FirstOrDefault(x => x.Id == productItem.ProductId);
                 productItems.Add(new BomProductItem(
                     id: Guid.NewGuid(),
                     productItemId: productItem.Id,
                     productItemName: productItem.ProductName,
-                    productId:  product.Id,
+                    productId: product.Id,
                     parentBomProductItemId: productItem.ParentId,
-                    bomComponents: await this.getBillOfMaterialComponents(productItem, product, components)
-                ));
+                    bomComponents: await this.GetBillOfMaterialComponents(productItem, product, components),
+                    bowItems: this.GetBillOfMaterialBowItems(consumptionWorks)
+                    ));
             }
-
             return productItems;
         }
 
-        private async Task<List<BomComponent>> getBillOfMaterialComponents(ProductItem productItem, Product product,
+        private List<BowItem> GetBillOfMaterialBowItems(List<ConsumptionWork> consumptionWorks)
+        {
+            List<BowItem> bowItems = new List<BowItem>();
+            foreach (var consumptionWork in consumptionWorks)
+            {
+                BowItem bowItem = new BowItem(
+                    id: Guid.NewGuid(),
+                    idProfessionalProfile: consumptionWork.IdProfessionalProfile,
+                    code: consumptionWork.Code,
+                    name: consumptionWork.Name,
+                    hourPrice: consumptionWork.Price,
+                    workTime: consumptionWork.WorkTime,
+                    price: 0
+                );
+                bowItems.Add(bowItem);
+            }
+            return bowItems;
+        }
+
+        private async Task<List<BomComponent>> GetBillOfMaterialComponents(ProductItem productItem, Product product,
             List<Component> sourceComponents)
         {
             
@@ -388,6 +420,17 @@ namespace IBLTermocasa.BillOfMaterials
                         });
                     }
                 }
+            }
+
+            foreach (var listItem in listItems)
+            {
+                listItem.BomProductItems.ForEach(x =>
+                {
+                    x.BowItems.ForEach(y =>
+                    {
+                        y.Price = y.HourPrice / 60  * y.WorkTime * listItem.Quantity;
+                    });
+                });
             }
             return listItems;
         }

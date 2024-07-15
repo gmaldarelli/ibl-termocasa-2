@@ -12,7 +12,7 @@ namespace IBLTermocasa.BillOfMaterials
         public string BomNumber { get; set; } = null!;
         public RequestForQuotationPropertyDto RequestForQuotationProperty { get; set; } = new();
         public List<BomItemDto>? ListItems { get; set; } = new();
-        public BomStatus Status { get; set; } = BomStatus.CREATED;
+        public BomStatusType Status { get; set; } = BomStatusType.CREATED;
         public string ConcurrencyStamp { get; set; } = null!;
 
     }
