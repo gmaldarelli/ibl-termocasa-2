@@ -44,8 +44,6 @@ namespace IBLTermocasa.Blazor.Pages
         private bool CanEditBillOfMaterial { get; set; }
         private bool CanDeleteBillOfMaterial { get; set; }
         private GetBillOfMaterialsInput Filter { get; set; } = new();
-        protected string SelectedCreateTab = "billOfMaterial-create-tab";
-        protected string SelectedEditTab = "billOfMaterial-edit-tab";
         private BillOfMaterialDto? SelectedBillOfMaterial;
         private ModalBillOfMaterialInput AddBillOfMaterialModal { get; set; }
         
@@ -167,7 +165,7 @@ namespace IBLTermocasa.Blazor.Pages
                 CloseButton= true,
                 DisableBackdropClick= true,
                 NoHeader=false,
-                Position=DialogPosition.Center,
+                Position = DialogPosition.Custom,
                 CloseOnEscapeKey=false
             });
             var result = await dialog.Result;
@@ -175,7 +173,7 @@ namespace IBLTermocasa.Blazor.Pages
             await GetBillOfMaterialsAsync();
         }
 
-        public string? BadgeContent { get; set; } = "0";
+        private string? BadgeContent { get; set; } = "0";
         
         private async Task NewRefqBadgeContributor()
         {
