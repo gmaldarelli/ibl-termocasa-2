@@ -326,6 +326,14 @@
     "MaxDepositRequiredValue": "Max Deposit Required Value",
     "NewQuotation": "New Quotation",
     "Menu:Quotations": "Quotations",
-    "BillSummary": "Bill Summary"
+    "BillSummary": "Bill Summary",
+    "SendQuotation": "Send Quotation",
+    "QuotationRequestData": "Quotation Request Data",
+    "BillOfMaterialsData": "Bill of Materials Data",
+    "QuotationData": "Quotation Data",
+    "Number": "Number",
+    "CreationDate": "Creation Date",
+    "ValidUntil": "Valid Until",
+    "Status": "Status"
   }
 }

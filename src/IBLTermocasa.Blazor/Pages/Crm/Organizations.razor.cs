@@ -193,14 +193,12 @@ namespace IBLTermocasa.Blazor.Pages.Crm
 
         private async Task CloseCreateOrganizationModalAsync()
         {
-            
-            
             OrganizationInput = new OrganizationDto();
             await CreateOrganizationModal.Hide();
         }
-        private void OpenEditContactPageAsync(OrganizationDto input)
+        private void OpenEditOrganizationPageAsync(OrganizationDto input)
         {
-            //navigate to the page ContactDetail
+            //navigate to the page OrganizationDetails
             SelectedOrganization = input;
             NavigationManager.NavigateTo($"/organization/{input.Id}");
         }

@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Web;
 using Blazorise;
 using Blazorise.DataGrid;
+using IBLTermocasa.Blazor.Components;
 using Volo.Abp.BlazoriseUI.Components;
 using Microsoft.AspNetCore.Authorization;
 using Volo.Abp.Application.Dtos;
@@ -15,7 +16,9 @@ using IBLTermocasa.Permissions;
 using IBLTermocasa.Shared;
 
 using IBLTermocasa.Types;
-
+using Microsoft.AspNetCore.Components;
+using MudBlazor;
+using SortDirection = Blazorise.SortDirection;
 
 
 namespace IBLTermocasa.Blazor.Pages
@@ -26,6 +29,7 @@ namespace IBLTermocasa.Blazor.Pages
         protected PageToolbar Toolbar {get;} = new PageToolbar();
         protected bool ShowAdvancedFilters { get; set; }
         private IReadOnlyList<QuotationDto> QuotationList { get; set; }
+        private MudDataGrid<QuotationDto> QuotationMudDataGrid { get; set; }
         private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
         private int CurrentPage { get; set; } = 1;
         private string CurrentSorting { get; set; } = string.Empty;
@@ -36,15 +40,16 @@ namespace IBLTermocasa.Blazor.Pages
         private QuotationCreateDto NewQuotation { get; set; }
         private Validations NewQuotationValidations { get; set; } = new();
         private QuotationUpdateDto EditingQuotation { get; set; }
-        private Validations EditingQuotationValidations { get; set; } = new();
-        private Guid EditingQuotationId { get; set; }
-        private Modal CreateQuotationModal { get; set; } = new();
-        private Modal EditQuotationModal { get; set; } = new();
+
         private GetQuotationsInput Filter { get; set; }
         private DataGridEntityActionsColumn<QuotationDto> EntityActionsColumn { get; set; } = new();
         protected string SelectedCreateTab = "quotation-create-tab";
         protected string SelectedEditTab = "quotation-edit-tab";
         private QuotationDto? SelectedQuotation;
+        
+        [Inject]
+        private SecureConfirmationService _SecureConfirmationService { get; set; }
+        
         
         
         public Quotations()
@@ -65,7 +70,7 @@ namespace IBLTermocasa.Blazor.Pages
         protected override async Task OnInitializedAsync()
         {
             await SetPermissionsAsync();
-            
+            await GetQuotationsAsync();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -73,7 +78,6 @@ namespace IBLTermocasa.Blazor.Pages
             if (firstRender)
             {
                 await SetBreadcrumbItemsAsync();
-                await SetToolbarItemsAsync();
                 StateHasChanged();
             }
         }  
@@ -81,18 +85,6 @@ namespace IBLTermocasa.Blazor.Pages
         protected virtual ValueTask SetBreadcrumbItemsAsync()
         {
             BreadcrumbItems.Add(new Volo.Abp.BlazoriseUI.BreadcrumbItem(L["Menu:Quotations"]));
-            return ValueTask.CompletedTask;
-        }
-
-        protected virtual ValueTask SetToolbarItemsAsync()
-        {
-            Toolbar.AddButton(L["ExportToExcel"], async () =>{ await DownloadAsExcelAsync(); }, IconName.Download);
-            
-            Toolbar.AddButton(L["NewQuotation"], async () =>
-            {
-                await OpenCreateQuotationModalAsync();
-            }, IconName.Add, requiredPolicyName: IBLTermocasaPermissions.Quotations.Create);
-
             return ValueTask.CompletedTask;
         }
 
@@ -104,8 +96,6 @@ namespace IBLTermocasa.Blazor.Pages
                             .IsGrantedAsync(IBLTermocasaPermissions.Quotations.Edit);
             CanDeleteQuotation = await AuthorizationService
                             .IsGrantedAsync(IBLTermocasaPermissions.Quotations.Delete);
-                            
-                            
         }
 
         private async Task GetQuotationsAsync()
@@ -128,7 +118,7 @@ namespace IBLTermocasa.Blazor.Pages
             await InvokeAsync(StateHasChanged);
         }
 
-        private async Task DownloadAsExcelAsync()
+        /*private async Task DownloadAsExcelAsync()
         {
             var token = (await QuotationsAppService.GetDownloadTokenAsync()).Token;
             var remoteService = await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("IBLTermocasa") ?? await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
@@ -139,108 +129,8 @@ namespace IBLTermocasa.Blazor.Pages
             }
             await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
             NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/quotations/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&Code={HttpUtility.UrlEncode(Filter.Code)}&Name={HttpUtility.UrlEncode(Filter.Name)}&SentDateMin={Filter.SentDateMin?.ToString("O")}&SentDateMax={Filter.SentDateMax?.ToString("O")}&QuotationValidDateMin={Filter.QuotationValidDateMin?.ToString("O")}&QuotationValidDateMax={Filter.QuotationValidDateMax?.ToString("O")}&ConfirmedDateMin={Filter.ConfirmedDateMin?.ToString("O")}&ConfirmedDateMax={Filter.ConfirmedDateMax?.ToString("O")}&Status={Filter.Status}&DepositRequired={Filter.DepositRequired}&DepositRequiredValueMin={Filter.DepositRequiredValueMin}&DepositRequiredValueMax={Filter.DepositRequiredValueMax}", forceLoad: true);
-        }
-
-        private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<QuotationDto> e)
-        {
-            CurrentSorting = e.Columns
-                .Where(c => c.SortDirection != SortDirection.Default)
-                .Select(c => c.Field + (c.SortDirection == SortDirection.Descending ? " DESC" : ""))
-                .JoinAsString(",");
-            CurrentPage = e.Page;
-            await GetQuotationsAsync();
-            await InvokeAsync(StateHasChanged);
-        }
-
-        private async Task OpenCreateQuotationModalAsync()
-        {
-            NewQuotation = new QuotationCreateDto{
-                SentDate = DateTime.Now,
-QuotationValidDate = DateTime.Now,
-ConfirmedDate = DateTime.Now,
-
-                
-            };
-            await NewQuotationValidations.ClearAll();
-            await CreateQuotationModal.Show();
-        }
-
-        private async Task CloseCreateQuotationModalAsync()
-        {
-            NewQuotation = new QuotationCreateDto{
-                SentDate = DateTime.Now,
-QuotationValidDate = DateTime.Now,
-ConfirmedDate = DateTime.Now,
-
-                
-            };
-            await CreateQuotationModal.Hide();
-        }
-
-        private async Task OpenEditQuotationModalAsync(QuotationDto input)
-        {
-            var quotation = await QuotationsAppService.GetAsync(input.Id);
-            NavigationManager.NavigateTo($"/quotation/{quotation.Id}"); 
-        }
-
-        private async Task DeleteQuotationAsync(QuotationDto input)
-        {
-            await QuotationsAppService.DeleteAsync(input.Id);
-            await GetQuotationsAsync();
-        }
-
-        private async Task CreateQuotationAsync()
-        {
-            try
-            {
-                if (await NewQuotationValidations.ValidateAll() == false)
-                {
-                    return;
-                }
-
-                await QuotationsAppService.CreateAsync(NewQuotation);
-                await GetQuotationsAsync();
-                await CloseCreateQuotationModalAsync();
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
-        }
-
-        private async Task CloseEditQuotationModalAsync()
-        {
-            await EditQuotationModal.Hide();
-        }
-
-        private async Task UpdateQuotationAsync()
-        {
-            try
-            {
-                if (await EditingQuotationValidations.ValidateAll() == false)
-                {
-                    return;
-                }
-
-                await QuotationsAppService.UpdateAsync(EditingQuotationId, EditingQuotation);
-                await GetQuotationsAsync();
-                await EditQuotationModal.Hide();                
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
-        }
-
-        private void OnSelectedCreateTabChanged(string name)
-        {
-            SelectedCreateTab = name;
-        }
-
-        private void OnSelectedEditTabChanged(string name)
-        {
-            SelectedEditTab = name;
-        }
+        }*/
+        
         protected virtual async Task OnCodeChangedAsync(string? code)
         {
             Filter.Code = code;
@@ -300,6 +190,36 @@ ConfirmedDate = DateTime.Now,
         {
             Filter.DepositRequiredValueMax = depositRequiredValueMax;
             await SearchAsync();
+        }
+        
+        private void OpenEditQuotationPageAsync(QuotationDto input)
+        {
+            //navigate to the page Quotation
+            SelectedQuotation = input;
+            NavigationManager.NavigateTo($"/quotation/{input.Id}");
+        }
+        
+        private async Task DeleteQuotationAsync(QuotationDto input)
+        {
+            
+            bool result = await _SecureConfirmationService.ShowConfirmation(
+                "Sei sicuro di voler eliminare questo preventivo?",
+                "Scrivi il codice del preventivo {0} per confermare l'eliminazione",
+                input.Code
+            );
+            if (result)
+            {
+                // Procedi con la cancellazione
+                Console.WriteLine("Cancellazione in corso preventivo : " + input.Id);
+                await QuotationsAppService.DeleteAsync(input.Id);
+                await GetQuotationsAsync();
+            }
+            else
+            {
+                // Cancellazione annullata
+                Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>Cancellazione annullata...");
+            }
+            StateHasChanged();
         }
     }
 }

@@ -45,7 +45,7 @@ else
         <MudGrid>
             <MudItem xs="12" sm="12">
                 <MudPaper Class="pa-2 mt-12">
-                    <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" DisableElevation="true" OnClick="@OnSentQuotation">Invia Preventivo</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" DisableElevation="true" OnClick="@OnSentQuotation">@L["SendQuotation"]</MudButton>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12">
@@ -53,7 +53,7 @@ else
                     <MudGrid>
                         <MudItem xs="12" sm="6">
                             <MudStack Row="true" >
-                                <MudText Typo="Typo.h5">Dati Richiesta Prventivo </MudText>
+                                <MudText Typo="Typo.h5">@L["QuotationRequestData"]</MudText>
                                 <MudAvatar Color="MudBlazor.Color.Primary" Size="Size.Small" @onclick="() => OpenRfqDetailAsync()">I</MudAvatar>
                             </MudStack>
                             <MudTextField @bind-Value="RfqInput.QuoteNumber"
@@ -69,7 +69,7 @@ else
                         </MudItem>
                         <MudItem xs="12" sm="6">
                                 <MudStack Row="true" >
-                                    <MudText Typo="Typo.h5">Dati Distina Base</MudText>
+                                    <MudText Typo="Typo.h5">@L["BillOfMaterialsData"]</MudText>
                                     <MudAvatar Color="MudBlazor.Color.Primary" Size="Size.Small" @onclick="() => OpenRfqDetailAsync()">I</MudAvatar>
                                 </MudStack>
                             <MudTextField @bind-Value="BillOfMaterialsInput.BomNumber"
@@ -93,36 +93,36 @@ else
 
                         <MudItem xs="12" sm="12">
                         <MudStack Row="true" >
-                            <MudText Typo="Typo.h5">Dati Prventivo</MudText>
+                            <MudText Typo="Typo.h5">@L["QuotationData"]</MudText>
                         </MudStack>
                         </MudItem>
                         <MudGrid>
                             <MudItem xs="12" sm="6">
                                 <MudTextField @bind-Value="QuotationInput.Code"
-                                              Label="Numero"
+                                              Label="@L["Number"]"
                                               ReadOnly="true"/>
                                 <MudTextField @bind-Value="QuotationInput.CreationTime"
-                                              Label="Data Creazione" Format="dd/MM/yyyy"
+                                              Label="@L["CreationDate"]" Format="dd/MM/yyyy"
                                               ReadOnly="true"/>
                                 <MudTextField @bind-Value="QuotationInput.QuotationValidDate"
-                                              Label="Valido Fino" Format="dd/MM/yyyy"
+                                              Label="@L["ValidUntil"]" Format="dd/MM/yyyy"
                                               ReadOnly="false"/>
                                 <MudStack Row="true"  AlignItems="AlignItems.Center" Class="d-flex justify-center">
-                                    <MudCheckBox @bind-Value="QuotationInput.DepositRequired" Label="Richiesto Acconto" />
+                                    <MudCheckBox @bind-Value="QuotationInput.DepositRequired" Label="@L["DepositRequired"]" />
                                     <MudTextField @bind-Value="QuotationInput.DepositRequiredValue"
-                                                  Label="Acconto Richiesto"
+                                                  Label="@L["DepositRequired"]"
                                                   ReadOnly="@IsDepositRequired" Required="@IsDepositRequired"/>
                                 </MudStack>
                             </MudItem>
                             <MudItem xs="12" sm="6">
                                 <MudTextField @bind-Value="QuotationInput.Status"
-                                              Label="Stato"
+                                              Label="@L["Status"]"
                                               ReadOnly="true"/>
                                 <MudTextField @bind-Value="QuotationInput.SentDate"
-                                              Label="Data Invio" Format="dd/MM/yyyy"
+                                              Label="@L["SentDate"]" Format="dd/MM/yyyy"
                                               ReadOnly="false"/>
                                 <MudTextField @bind-Value="QuotationInput.ConfirmedDate"
-                                              Label="Data Conferma" Format="dd/MM/yyyy"
+                                              Label="@L["ConfirmedDate"]" Format="dd/MM/yyyy"
                                               ReadOnly="false"/>
                             </MudItem>
                         </MudGrid>

@@ -348,7 +348,7 @@
     "SentDate": "Data Inviata",
     "QuotationValidDate": "Data Validità Preventivo",
     "ConfirmedDate": "Data Confermata",
-    "DepositRequired": "Deposito Richiesto",
+    "DepositRequired": "Acconto Richiesto",
     "DepositRequiredValue": "Valore Deposito Richiesto",
     "QuotationItems": "Voci Preventivo",
     "Quotations": "Preventivi",
@@ -362,6 +362,13 @@
     "MaxDepositRequiredValue": "Valore Deposito Richiesto Massimo",
     "NewQuotation": "Nuovo Preventivo",
     "Menu:Quotations": "Preventivi",
-    "BillSummary": "Riepilogo Fattura"
+    "BillSummary": "Riepilogo Fattura",
+    "SendQuotation": "Invia Preventivo",
+    "QuotationRequestData": "Dati Richiesta Preventivo",
+    "BillOfMaterialsData": "Dati Distinta Base",
+    "QuotationData": "Dati Preventivo",
+    "Number": "Numero",
+    "CreationDate": "Data Creazione",
+    "ValidUntil": "Valido Fino"
   }
 }

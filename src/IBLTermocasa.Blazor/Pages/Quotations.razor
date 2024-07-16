@@ -5,23 +5,17 @@
 @attribute [Authorize(IBLTermocasaPermissions.Quotations.Default)]
 @using IBLTermocasa.Quotations
 @using IBLTermocasa.Localization
-@using IBLTermocasa.Shared
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.Extensions.Localization
-@using Microsoft.AspNetCore.Components.Web
-@using Blazorise
-@using Blazorise.Components
-@using Blazorise.DataGrid
-@using Volo.Abp.BlazoriseUI
-@using Volo.Abp.BlazoriseUI.Components
-@using Volo.Abp.ObjectMapping
+
 @using Volo.Abp.AspNetCore.Components.Messages
 @using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
 
 @using IBLTermocasa.Permissions
 @using Volo.Abp.AspNetCore.Components.Web
-@using Microsoft.AspNetCore.Components
 @using Volo.Abp.Http.Client
+@using MudBlazor
+@using Size = MudBlazor.Size
+@using Color = MudBlazor.Color
 @inherits IBLTermocasaComponentBase
 @inject IQuotationsAppService QuotationsAppService
 
@@ -57,14 +51,14 @@
             </Addons>
         </Form>
         
-        <Row Class="mt-3 mb-3"> 
+        <Blazorise.Row Class="mt-3 mb-3"> 
             <div class="col-md-12">
                 <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
             </div>
-        </Row>
+        </Blazorise.Row>
         
         <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
-            <Row>
+            <Blazorise.Row>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
                         <FieldLabel>@L["Code"]</FieldLabel>
@@ -186,7 +180,7 @@
              ValueChanged="@OnDepositRequiredValueMaxChangedAsync" />                       
                     </Field>
                 </Column>
-            </Row>
+            </Blazorise.Row>
 
         </div>
 
@@ -195,14 +189,66 @@
 </Card>
 
 @* ************************* DATA GRID ************************* *@
+<MudCard>
+    <MudCardContent>
+        <MudDataGrid @ref="QuotationMudDataGrid" Dense="true" Striped="true" Items="QuotationList" >
+            <Columns>
+                <PropertyColumn Property="x => x.Code" Title="@L["Code"]"/>
+                <PropertyColumn Property="x => x.Name" Title="@L["Name"]"/>
+                <PropertyColumn Property="x => x.SentDate" Title="@L["SentDate"]"/>
+                <TemplateColumn Title="@L["SentDate"]">
+                    <CellTemplate Context="context">
+                        @(context.Item.SentDate.ToShortDateString())
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="@L["QuotationValidDate"]">
+                    <CellTemplate Context="context">
+                        @(context.Item.QuotationValidDate.ToShortDateString())
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="@L["ConfirmedDate"]">
+                    <CellTemplate Context="context">
+                        @(context.Item.ConfirmedDate.HasValue ? context.Item.ConfirmedDate.Value.ToShortDateString() : string.Empty)
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="@L["Status"]">
+                    <CellTemplate Context="context">
+                        @L[$"Enum:QuotationStatus.{EnumExtensions.GetDisplayName(context.Item.Status)}"]
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="@L["DepositRequired"]">
+                    <CellTemplate Context="context">
+                        @if (context.Item.DepositRequired)
+                        {
+                            <Icon TextColor="TextColor.Success" Name="@IconName.Check" />
+                        }
+                        else
+                        {
+                            <Icon TextColor="TextColor.Danger" Name="@IconName.Times" />
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                <PropertyColumn Property="x => x.DepositRequiredValue" Title="@L["DepositRequiredValue"]"/>
+                <TemplateColumn StickyRight="true">
+                    <CellTemplate>
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="() => OpenEditQuotationPageAsync(context.Item)"/>
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteQuotationAsync(context.Item)"/>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+            <PagerContent>
+                <MudDataGridPager T="QuotationDto" />
+            </PagerContent>
+        </MudDataGrid>
+    </MudCardContent>
+</MudCard>
+<MudThemeProvider/>
+<MudDialogProvider/>
+@*
 <Card>
     <CardBody>
         <DataGrid TItem="QuotationDto"
                   Data="QuotationList"
-                  
-                  
-                  
-                  
                   ReadData="OnDataGridReadAsync"
                   TotalItems="TotalCount"
                   ShowPager="true"
@@ -314,310 +360,4 @@
         </DataGrid>
     </CardBody>
 </Card>
-
-@* ************************* CREATE MODAL ************************* *@
-<Modal @ref="CreateQuotationModal" Closing="@CreateQuotationModal.CancelClosingModalWhenFocusLost">
-    <ModalContent Centered="true">
-
-        <Form id="CreateQuotationForm">
-            <ModalHeader>
-                <ModalTitle>@L["NewQuotation"]</ModalTitle>
-                <CloseButton Clicked="CloseCreateQuotationModalAsync" />
-            </ModalHeader>
-            <ModalBody>
-                <Validations @ref="@NewQuotationValidations"
-                            Mode="ValidationMode.Auto"
-                            Model="@NewQuotation"
-                            ValidateOnLoad="false">
-                     
-                    
-                    @*<Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["IdRFQ"] *</FieldLabel>
-                            <TextEdit @bind-Text="@NewQuotation.IdRFQ"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["IdBOM"] *</FieldLabel>
-                            <TextEdit @bind-Text="@NewQuotation.IdBOM"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>*@
-
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Code"] *</FieldLabel>
-                            <TextEdit @bind-Text="@NewQuotation.Code"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Name"] *</FieldLabel>
-                            <TextEdit @bind-Text="@NewQuotation.Name"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["SentDate"]</FieldLabel>
-                            <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@NewQuotation.SentDate" >
-                               <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </DateEdit>
-                        </Field>
-                    </Validation>
-
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["QuotationValidDate"]</FieldLabel>
-                            <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@NewQuotation.QuotationValidDate" >
-                               <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </DateEdit>
-                        </Field>
-                    </Validation>
-
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["ConfirmedDate"]</FieldLabel>
-                            <DateEdit TValue="DateTime?" InputMode="DateInputMode.DateTime" @bind-Date="@NewQuotation.ConfirmedDate" >
-                               <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </DateEdit>
-                        </Field>
-                    </Validation>
-
-
-                    <Field>
-                        <FieldLabel>@L["Status"]</FieldLabel>
-                        <Select TValue="QuotationStatus" @bind-SelectedValue="@NewQuotation.Status" >
-                            @foreach (var itemValue in Enum.GetValues(typeof(QuotationStatus)))
-                            {
-                                var enumValue = (QuotationStatus)itemValue;
-                                <SelectItem TValue="QuotationStatus" Value="@enumValue">
-                                    @L[$"Enum:QuotationStatus.{EnumExtensions.GetDisplayName(enumValue)}"]
-                                </SelectItem>
-                            }
-                        </Select>
-                    </Field>
-
-
-                    <Field>
-                        <Check TValue="bool" @bind-Checked="@NewQuotation.DepositRequired" >@L["DepositRequired"]</Check>
-                    </Field>
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["DepositRequiredValue"]</FieldLabel>
-                            <NumericPicker TValue="double?" @bind-Value="@NewQuotation.DepositRequiredValue"   >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                             </NumericPicker>
-                        </Field>
-                     </Validation>
-
-
-                    @*<Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["QuotationItems"]</FieldLabel>
-                            <TextEdit @bind-Text="@NewQuotation.QuotationItems"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>*@
-
-
-                    
-                    
-                </Validations>
-            </ModalBody>
-            <ModalFooter>
-                <Button Color="Color.Secondary"
-                        Clicked="CloseCreateQuotationModalAsync">
-                    @L["Cancel"]
-                </Button>
-                <SubmitButton Form="CreateQuotationForm" Clicked="CreateQuotationAsync" />
-
-            </ModalFooter>
-        </Form>
-
-    </ModalContent>
-</Modal>
-
-@* ************************* EDIT MODAL ************************* *@
-<Modal @ref="EditQuotationModal" Closing="@EditQuotationModal.CancelClosingModalWhenFocusLost">
-    <ModalContent Centered="true">
-
-        <Form id="EditQuotationForm">
-            <ModalHeader>
-                <ModalTitle>@L["Update"]</ModalTitle>
-                <CloseButton Clicked="CloseEditQuotationModalAsync" />
-            </ModalHeader>
-            <ModalBody>
-                <Validations @ref="@EditingQuotationValidations"
-                            Mode="ValidationMode.Auto"
-                            Model="@EditingQuotation"
-                            ValidateOnLoad="false">
-                     
-                    
-                    @*<Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["IdRFQ"] *</FieldLabel>
-                            <TextEdit @bind-Text="@EditingQuotation.IdRFQ"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["IdBOM"] *</FieldLabel>
-                            <TextEdit @bind-Text="@EditingQuotation.IdBOM"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>*@
-
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["Name"] *</FieldLabel>
-                            <TextEdit @bind-Text="@EditingQuotation.Name"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>
-
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["SentDate"]</FieldLabel>
-                            <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@EditingQuotation.SentDate" >
-                               <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </DateEdit>
-                        </Field>
-                    </Validation>
-
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["QuotationValidDate"]</FieldLabel>
-                            <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@EditingQuotation.QuotationValidDate" >
-                               <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </DateEdit>
-                        </Field>
-                    </Validation>
-
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["ConfirmedDate"]</FieldLabel>
-                            <DateEdit TValue="DateTime?" InputMode="DateInputMode.DateTime" @bind-Date="@EditingQuotation.ConfirmedDate" >
-                               <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </DateEdit>
-                        </Field>
-                    </Validation>
-
-
-                    <Field>
-                        <FieldLabel>@L["Status"]</FieldLabel>
-                        <Select TValue="QuotationStatus" @bind-SelectedValue="@EditingQuotation.Status" >
-                            @foreach (var itemValue in Enum.GetValues(typeof(QuotationStatus)))
-                            {
-                                var enumValue = (QuotationStatus)itemValue;
-                                <SelectItem TValue="QuotationStatus" Value="@enumValue">
-                                    @L[$"Enum:QuotationStatus.{EnumExtensions.GetDisplayName(enumValue)}"]
-                                </SelectItem>
-                            }
-                        </Select>
-                    </Field>
-
-
-                    <Field>
-                        <Check TValue="bool" @bind-Checked="@EditingQuotation.DepositRequired" >@L["DepositRequired"]</Check>
-                    </Field>
-
-                    <Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["DepositRequiredValue"]</FieldLabel>
-                            <NumericPicker TValue="double?" @bind-Value="@EditingQuotation.DepositRequiredValue"   >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                             </NumericPicker>
-                        </Field>
-                     </Validation>
-
-
-                    @*<Validation MessageLocalizer="@LH.Localize">
-                        <Field>
-                            <FieldLabel>@L["QuotationItems"]</FieldLabel>
-                            <TextEdit @bind-Text="@EditingQuotation.QuotationItems"  >
-                                <Feedback>
-                                    <ValidationError />
-                                </Feedback>
-                            </TextEdit>
-                        </Field>
-                    </Validation>*@
-
-
-                    
-                    
-                </Validations>
-            </ModalBody>
-            <ModalFooter>
-                <Button Color="Color.Secondary"
-                        Clicked="CloseEditQuotationModalAsync">
-                    @L["Cancel"]
-                </Button>
-                <SubmitButton Form="EditQuotationForm" Clicked="UpdateQuotationAsync" />
-
-            </ModalFooter>
-        </Form>
-
-    </ModalContent>
-</Modal>
-
+*@
