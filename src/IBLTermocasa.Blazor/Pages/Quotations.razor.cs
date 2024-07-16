@@ -180,11 +180,7 @@ ConfirmedDate = DateTime.Now,
         private async Task OpenEditQuotationModalAsync(QuotationDto input)
         {
             var quotation = await QuotationsAppService.GetAsync(input.Id);
-            
-            EditingQuotationId = quotation.Id;
-            EditingQuotation = ObjectMapper.Map<QuotationDto, QuotationUpdateDto>(quotation);
-            await EditingQuotationValidations.ClearAll();
-            await EditQuotationModal.Show();
+            NavigationManager.NavigateTo($"/quotation/{quotation.Id}"); 
         }
 
         private async Task DeleteQuotationAsync(QuotationDto input)

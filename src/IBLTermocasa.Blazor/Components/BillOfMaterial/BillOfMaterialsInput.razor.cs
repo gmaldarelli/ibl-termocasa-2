@@ -250,13 +250,25 @@ public partial class BillOfMaterialsInput
                 BillOfMaterials.Status = BomStatusType.MATERIALS_BILLED;
             }
             {
-                
+                if (BillOfMaterials.Status == BomStatusType.MATERIALS_BILLED)
+                {
+                    BillOfMaterials.Status = BomStatusType.COMPLETED;
+                }
             }
             var updateDto = ObjectMapper.Map<BillOfMaterialDto, BillOfMaterialUpdateDto>(BillOfMaterials);
             BillOfMaterials = await BillOfMaterialsAppService.UpdateAsync(BillOfMaterials.Id, updateDto);
             await BillOfMaterialsMudDataGrid.ReloadServerData();
             StateHasChanged();
         }
+    }
+
+    private async void OnGenerateQuotation(MouseEventArgs obj)
+    {
+        var quotation = await QuotationsAppService.GenerateQuotation(BillOfMaterials.Id);
+        var message = $"Generated Preventivo {quotation.Code}";
+        await UiMessageService.Success(message);
+        BillOfMaterials.Status = BomStatusType.RFP_GENERATED;
+        StateHasChanged();
     }
 }
 

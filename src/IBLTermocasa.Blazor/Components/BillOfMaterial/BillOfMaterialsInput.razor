@@ -5,8 +5,11 @@
 @using MudBlazor
 @using IBLTermocasa.Blazor.Components.Product
 @using Volo.Abp.AspNetCore.Components.Messages
+@using IBLTermocasa.Types
+@using IBLTermocasa.Quotations
 @using Blazorise.Charts
 @inject IUiMessageService UiMessageService
+@inject IQuotationsAppService QuotationsAppService
 @inherits IBLTermocasaComponentBase
 @inject IComponentsAppService ComponentsAppService
 @inject IBillOfMaterialsAppService BillOfMaterialsAppService
@@ -29,7 +32,13 @@
     <MudGrid>
         <MudItem xs="12" sm="12">
             <MudPaper Class="pa-2 mt-12">
-                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" DisableElevation="true" OnClick="@(()=>formBillOfMaterials.Validate())">@L["Validate"]</MudButton>
+                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" DisableElevation="true" OnClick="@OnGenerateQuotation">Genera Preventivo</MudButton>
+                @if(BillOfMaterials.Status == BomStatusType.WORKS_BILLED)
+                {
+                }
+                @*
+                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" DisableElevation="true" OnClick="@(() => formBillOfMaterials.Validate())">@L["Validate"]</MudButton>
+            *@
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="12">

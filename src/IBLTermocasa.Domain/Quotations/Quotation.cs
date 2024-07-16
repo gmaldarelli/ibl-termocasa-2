@@ -27,9 +27,10 @@ namespace IBLTermocasa.Quotations
 
         public virtual string Name { get; set; }
 
-        public virtual DateTime SentDate { get; set; }
+        public virtual DateTime CreationDate { get; set; }
+        public virtual DateTime? SentDate { get; set; }
 
-        public virtual DateTime QuotationValidDate { get; set; }
+        public virtual DateTime? QuotationValidDate { get; set; }
 
         public virtual DateTime? ConfirmedDate { get; set; }
 
@@ -47,7 +48,7 @@ namespace IBLTermocasa.Quotations
 
         }
         
-        public Quotation(Guid id, Guid idRFQ, Guid idBOM, string code, string name, DateTime sentDate, DateTime quotationValidDate, DateTime? confirmedDate, QuotationStatus status, bool depositRequired, double? depositRequiredValue, List<QuotationItem>? quotationItems) : base(id)
+        public Quotation(Guid id, Guid idRFQ, Guid idBOM, string code, string name, DateTime creationDate,  DateTime? sentDate, DateTime? quotationValidDate, DateTime? confirmedDate, QuotationStatus status, bool depositRequired, double? depositRequiredValue, List<QuotationItem>? quotationItems) : base(id)
         {
             Id = id;
             Check.NotNull(idRFQ, nameof(idRFQ));
@@ -58,6 +59,7 @@ namespace IBLTermocasa.Quotations
             IdBOM = idBOM;
             Code = code;
             Name = name;
+            CreationDate = creationDate;
             SentDate = sentDate;
             QuotationValidDate = quotationValidDate;
             ConfirmedDate = confirmedDate;

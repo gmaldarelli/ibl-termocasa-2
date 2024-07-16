@@ -10,11 +10,11 @@ namespace IBLTermocasa.Quotations
 {
     public class QuotationDto : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
     {
-        public Guid? TenantId { get; set; }
         public Guid IdRFQ { get; set; }
         public Guid IdBOM { get; set; }
         public string Code { get; set; }
         public string Name { get; set; }
+        public DateTime CreationDate { get; set; }
         public DateTime SentDate { get; set; }
         public DateTime QuotationValidDate { get; set; }
         public DateTime? ConfirmedDate { get; set; }

@@ -72,5 +72,11 @@ namespace IBLTermocasa.Controllers.Quotations
         {
             return _quotationsAppService.GetDownloadTokenAsync();
         }
+        [HttpGet]
+        [Route("generate/{id}")]
+        public virtual Task<QuotationDto>  GenerateQuotation(Guid id)
+        {
+            return _quotationsAppService.GenerateQuotation(id);
+        }
     }
 }

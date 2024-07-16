@@ -24,5 +24,6 @@ namespace IBLTermocasa.Quotations
         Task<IRemoteStreamContent> GetListAsExcelFileAsync(QuotationExcelDownloadDto input);
 
         Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync();
+        Task<QuotationDto> GenerateQuotation(Guid id);
     }
 }
