@@ -67,6 +67,11 @@ namespace IBLTermocasa.Types
                 MailType.EMAIL_WORK => "EMAIL_WORK",
                 MailType.EMAIL_NEWSLETTER => "EMAIL_NEWSLETTER",
                 MailType.OTHER => "OTHER",
+                SourceType.ExternalSystem => "ExternalSystem",
+                SourceType.MassImport => "MassImport",
+                SourceType.Manual => "Manual",
+                SourceType.System => "System",
+                SourceType.Unknown => "Unknown",
                 _ => value.ToString()
             };
         }

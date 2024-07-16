@@ -1,0 +1,14 @@
+mongoimport --uri mongodb://localhost:27017 --db tpcdb --collection AppBillOfMaterials --file AppBillOfMaterials.json               
+mongoimport --uri mongodb://localhost:27017 --db tpcdb --collection AppCatalogs --file AppCatalogs.json                             
+mongoimport --uri mongodb://localhost:27017 --db tpcdb --collection AppComponents --file AppComponents.json                         
+mongoimport --uri mongodb://localhost:27017 --db tpcdb --collection AppConsumptionEstimations --file AppConsumptionEstimations.json 
+mongoimport --uri mongodb://localhost:27017 --db tpcdb --collection AppContacts --file AppContacts.json                             
+mongoimport --uri mongodb://localhost:27017 --db tpcdb --collection AppIndustries --file AppIndustries.json                         
+mongoimport --uri mongodb://localhost:27017 --db tpcdb --collection AppInteractions --file AppInteractions.json                     
+mongoimport --uri mongodb://localhost:27017 --db tpcdb --collection AppMaterials --file AppMaterials.json                           
+mongoimport --uri mongodb://localhost:27017 --db tpcdb --collection AppProducts --file AppProducts.json                             
+mongoimport --uri mongodb://localhost:27017 --db tpcdb --collection AppProfessionalProfiles --file AppProfessionalProfiles.json     
+mongoimport --uri mongodb://localhost:27017 --db tpcdb --collection AppQuestionTemplates --file AppQuestionTemplates.json           
+mongoimport --uri mongodb://localhost:27017 --db tpcdb --collection AppRequestForQuotations --file AppRequestForQuotations.json     
+mongoimport --uri mongodb://localhost:27017 --db tpcdb --collection AppSubProducts --file AppSubProducts.json        
+mongoimport --uri mongodb://localhost:27017 --db tpcdb --collection AppQuotations --file AppQuotations.json        

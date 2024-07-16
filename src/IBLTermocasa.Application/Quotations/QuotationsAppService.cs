@@ -11,7 +11,6 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
 using IBLTermocasa.Permissions;
-using IBLTermocasa.Quotations;
 using IBLTermocasa.RequestForQuotations;
 using MiniExcelLibs;
 using Volo.Abp.Content;
@@ -98,7 +97,7 @@ namespace IBLTermocasa.Quotations
             await memoryStream.SaveAsAsync(ObjectMapper.Map<List<Quotation>, List<QuotationExcelDto>>(items));
             memoryStream.Seek(0, SeekOrigin.Begin);
 
-            return new RemoteStreamContent(memoryStream, "Quotations.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            return new RemoteStreamContent(memoryStream, "Quotations.xlsx", "public Task GenerateQuotation(Guid id);application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
 
         public virtual async Task<DownloadTokenResultDto> GetDownloadTokenAsync()

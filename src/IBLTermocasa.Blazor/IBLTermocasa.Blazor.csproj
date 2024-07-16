@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Remove="Pages\Profiles.razor.cs" />
     <Compile Remove="Components\Product\ModalProductComponentInput.razor.cs" />
+    <Compile Remove="Pages\Materials.Extended.razor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Components\Product\ComponentAutocompleteInput.razor" />
