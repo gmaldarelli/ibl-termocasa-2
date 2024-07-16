@@ -10,8 +10,7 @@
 @using Volo.Abp.AspNetCore.Components.Web
 @using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
 @using Volo.Abp.Http.Client
-@using Color = MudBlazor.Color
-@using Margin = MudBlazor.Margin
+@using IBLTermocasa.Types
 @using MudBlazor
 @using IBLTermocasa.Blazor.Components.BillOfMaterial
 @inherits IBLTermocasaComponentBase
@@ -37,7 +36,11 @@
         <MudDataGrid Items="BillOfMaterialList">
             <Columns>
                 <PropertyColumn Property="x => x.BomNumber" Title="@L["Name"]"/>
-                <PropertyColumn Property="x => x.Status" Title="@L["BomStatus"]"/>
+                <TemplateColumn Title="@L["BomStatus"]">
+                    <CellTemplate Context="context">
+                        @L[$"Enum:BomStatusType.{EnumExtensions.GetDisplayName(context.Item.Status)}"]
+                    </CellTemplate>
+                </TemplateColumn>
                 <PropertyColumn Property="x => x.CreationTime" Title="@L["BomDate"]" Format="dd/MM/yyyy"/>
                 <PropertyColumn Property="x => x.RequestForQuotationProperty.RfqNumber" Title="@L["RfqNumber"]"/>
                 <PropertyColumn Property="x => x.RequestForQuotationProperty.OrganizationName" Title="@L["Organization"]"/>
@@ -57,114 +60,6 @@
                           OnCancel="CloseModalBillOfMaterialAsync"
                           OnSave="SaveModalBillOfMaterialInputAsync"/>
 
-
-@*<Card>
-    <CardBody>        
-        @if (SelectedBillOfMaterials.Any())
-        {
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                @if (AllBillOfMaterialsSelected)
-                {
-                    <p class="lead mb-0">
-                        @L["AllItemsAreSelected", TotalCount]
-                    </p>
-                }
-                else
-                {
-                    <p class="lead mb-0">
-                        @if (SelectedBillOfMaterials.Count > 1)
-                        {
-                            @L["NumberOfItemsOnThisPageAreSelected", SelectedBillOfMaterials.Count]
-                        }
-                        else
-                        {
-                            @L["OneItemOnThisPageIsSelected"]
-                        }
-                    </p>
-                }
-                    
-                <div>
-                    @if ((SelectedBillOfMaterials.Count == PageSize || SelectedBillOfMaterials.Count == BillOfMaterialList.Count) && TotalCount > SelectedBillOfMaterials.Count)
-                    {
-                        if (!AllBillOfMaterialsSelected)
-                        {
-                            <Button Clicked="SelectAllItems" Class="mx-1 btn-outline-secondary">@L["SelectAllItems", TotalCount]</Button>
-                        }
-                        else
-                        {
-                            <Button Clicked="ClearSelection" Class="mx-1 btn-outline-secondary">@L["ClearSelection"]</Button>
-                        }
-                    }
-                    
-                    <Button Color="Color.Danger" Class="mx-1" Size="Size.Medium" Clicked="DeleteSelectedBillOfMaterialsAsync">
-                        <Icon Name="@IconName.Delete" /> @L["Delete"]
-                    </Button>
-                </div>
-            </div>
-            
-            <hr class="my-1 mx-0"/>
-        }
-        <DataGrid TItem="BillOfMaterialDto"
-                  Data="BillOfMaterialList"
-                  
-                  SelectionMode="DataGridSelectionMode.Multiple"
-                  SelectedRows="SelectedBillOfMaterials"
-                  RowSelectable="@((args) => CanDeleteBillOfMaterial)"
-                  SelectedRowsChanged="SelectedBillOfMaterialRowsChanged"
-                  
-                  
-                  
-                  ReadData="OnDataGridReadAsync"
-                  TotalItems="TotalCount"
-                  ShowPager="true"
-                  Responsive="true"
-                  PageSize="PageSize"
-                  Class="datagrid-detail">
-            <DataGridColumns>
-                
-                @if (CanDeleteBillOfMaterial)
-                {
-                    <DataGridMultiSelectColumn TItem="BillOfMaterialDto" Width="30px" Displayable="@(BillOfMaterialList.Any())"></DataGridMultiSelectColumn>
-                }
-                
-                <DataGridEntityActionsColumn TItem="BillOfMaterialDto" @ref="@EntityActionsColumn">
-                    <DisplayTemplate>
-                        <EntityActions TItem="BillOfMaterialDto" EntityActionsColumn="@EntityActionsColumn">
-                            <EntityAction TItem="BillOfMaterialDto"
-                                          Visible="@CanEditBillOfMaterial"
-                                          Clicked="async () => await OpenEditBillOfMaterialModalAsync(context)"
-                                          Text="@L["Edit"]"></EntityAction>
-                            <EntityAction TItem="BillOfMaterialDto"
-                                          Visible="@CanDeleteBillOfMaterial"
-                                          Clicked="() => DeleteBillOfMaterialAsync(context)"
-                                          ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
-                                          Text="@L["Delete"]"></EntityAction>
-
-                        </EntityActions>
-                    </DisplayTemplate>
-                </DataGridEntityActionsColumn>
-               
-              <DataGridColumn TItem="BillOfMaterialDto"
-                      Field="Name"
-                      Caption="@L["Name"]">
-              </DataGridColumn>
-
-              <DataGridColumn TItem="BillOfMaterialDto"
-                      Field="RequestForQuotationProperty.Name"
-                      Caption="@L["RequestForQuotation"]">
-              </DataGridColumn>
-
-              <DataGridColumn TItem="BillOfMaterialDto"
-                      Field="ListItems"
-                      Caption="@L["ListItems"]">
-              </DataGridColumn>
-
-            </DataGridColumns>
-            
-            
-        </DataGrid>
-    </CardBody>
-</Card>*@
 <MudThemeProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider />

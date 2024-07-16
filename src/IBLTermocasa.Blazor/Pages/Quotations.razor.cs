@@ -4,8 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Globalization;
 using System.Web;
+using AutoMapper;
 using Blazorise;
 using Blazorise.DataGrid;
+using IBLTermocasa.BillOfMaterials;
 using IBLTermocasa.Blazor.Components;
 using Volo.Abp.BlazoriseUI.Components;
 using Microsoft.AspNetCore.Authorization;
@@ -49,7 +51,8 @@ namespace IBLTermocasa.Blazor.Pages
         
         [Inject]
         private SecureConfirmationService _SecureConfirmationService { get; set; }
-        
+        [Inject]
+        private IBillOfMaterialsAppService BillOfMaterialsAppService { get; set; }
         
         
         public Quotations()
@@ -211,6 +214,10 @@ namespace IBLTermocasa.Blazor.Pages
             {
                 // Procedi con la cancellazione
                 Console.WriteLine("Cancellazione in corso preventivo : " + input.Id);
+                var billOfMaterial =  await BillOfMaterialsAppService.GetAsync(input.IdBOM);
+                var billOfMaterialUpdate = ObjectMapper.Map<BillOfMaterialDto, BillOfMaterialUpdateDto>(billOfMaterial);
+                billOfMaterialUpdate.Status = BomStatusType.COMPLETED;
+                await BillOfMaterialsAppService.UpdateAsync(billOfMaterial.Id, billOfMaterialUpdate);
                 await QuotationsAppService.DeleteAsync(input.Id);
                 await GetQuotationsAsync();
             }

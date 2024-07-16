@@ -215,13 +215,6 @@ namespace IBLTermocasa.Blazor.Pages
             await ClearSelection();
         }
 
-        protected virtual async Task SearchAsync()
-        {
-            CurrentPage = 1;
-            await GetBillOfMaterialsAsync();
-            await InvokeAsync(StateHasChanged);
-        }
-
         private async Task DownloadAsExcelAsync()
         {
             var token = (await BillOfMaterialsAppService.GetDownloadTokenAsync()).Token;
@@ -234,30 +227,6 @@ namespace IBLTermocasa.Blazor.Pages
             await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
             NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/bill-of-materials/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&Name={HttpUtility.UrlEncode(Filter.Name)}&RequestForQuotationId={HttpUtility.UrlEncode(Filter.RequestForQuotationProperty.Name)}", forceLoad: true);
         }
-
-        private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<BillOfMaterialDto> e)
-        {
-            CurrentSorting = e.Columns
-                .Where(c => c.SortDirection != SortDirection.Default)
-                .Select(c => c.Field + (c.SortDirection == SortDirection.Descending ? " DESC" : ""))
-                .JoinAsString(",");
-            CurrentPage = e.Page;
-            await GetBillOfMaterialsAsync();
-            await InvokeAsync(StateHasChanged);
-        }
-
-
-        private async Task DeleteBillOfMaterialAsync(BillOfMaterialDto input)
-        {
-            await BillOfMaterialsAppService.DeleteAsync(input.Id);
-            await GetBillOfMaterialsAsync();
-        }
-
-        /*protected virtual async Task OnListItemsChangedAsync(string? listItems)
-        {
-            Filter.ListItems = listItems;
-            await SearchAsync();
-        }*/
         
         private Task ClearSelection()
         {
@@ -265,40 +234,6 @@ namespace IBLTermocasa.Blazor.Pages
             SelectedBillOfMaterials.Clear();
             
             return Task.CompletedTask;
-        }
-
-        private Task SelectedBillOfMaterialRowsChanged()
-        {
-            if (SelectedBillOfMaterials.Count != PageSize)
-            {
-                AllBillOfMaterialsSelected = false;
-            }
-            
-            return Task.CompletedTask;
-        }
-
-        private async Task DeleteSelectedBillOfMaterialsAsync()
-        {
-            var message = AllBillOfMaterialsSelected ? L["DeleteAllRecords"].Value : L["DeleteSelectedRecords", SelectedBillOfMaterials.Count].Value;
-            
-            if (!await UiMessageService.Confirm(message))
-            {
-                return;
-            }
-
-            if (AllBillOfMaterialsSelected)
-            {
-                await BillOfMaterialsAppService.DeleteAllAsync(Filter);
-            }
-            else
-            {
-                await BillOfMaterialsAppService.DeleteByIdsAsync(SelectedBillOfMaterials.Select(x => x.Id).ToList());
-            }
-
-            SelectedBillOfMaterials.Clear();
-            AllBillOfMaterialsSelected = false;
-
-            await GetBillOfMaterialsAsync();
         }
 
         private void CloseModalBillOfMaterialAsync()
