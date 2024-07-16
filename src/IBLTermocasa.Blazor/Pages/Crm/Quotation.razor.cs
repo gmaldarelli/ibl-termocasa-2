@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using IBLTermocasa.BillOfMaterials;
+using IBLTermocasa.Blazor.Components.RequestForQuotation;
 using IBLTermocasa.Permissions;
 using IBLTermocasa.Quotations;
 using IBLTermocasa.RequestForQuotations;
@@ -29,6 +30,7 @@ public partial class Quotation
     [Parameter] public string? Id { get; set; }
     public List<BreadcrumbItem> BreadcrumbItems { get; set; } = new();
     public PageToolbar? Toolbar { get; set; } = new PageToolbar();
+    public bool IsDepositRequired => QuotationInput is { DepositRequired: false };
 
     protected override async Task OnInitializedAsync()
     {
@@ -46,6 +48,7 @@ public partial class Quotation
                 QuotationInput = quotation;
                 RfqInput = await RequestForQuotationsAppService.GetAsync(quotation.IdRFQ);
                 BillOfMaterialsInput = await BillOfMaterialsAppService.GetAsync(quotation.IdBOM);
+               
             }
             IsLoading = false;
         }
@@ -75,5 +78,29 @@ public partial class Quotation
 
         }
         return ValueTask.CompletedTask;
+    }
+
+    private async Task OpenRfqDetailAsync()
+    {
+        var parameters = new DialogParameters
+        {
+            { "RequestForQuotation", RfqInput },
+            { "DisplayReadOnly", true }
+        };
+
+        var dialog = await DialogService.ShowAsync<RequestForQuotationInput>(L["RequestForQuotation"],
+            parameters, new DialogOptions
+            {
+                Position = DialogPosition.Custom,
+                FullWidth = true,
+                MaxWidth = MaxWidth.Medium
+            });
+        var result = await dialog.Result;
+        StateHasChanged();
+    }
+
+    private DateTime? ToNullableDateTime(DateTime creationTime)
+    {
+        return creationTime == DateTime.MinValue ? null : creationTime;
     }
 }

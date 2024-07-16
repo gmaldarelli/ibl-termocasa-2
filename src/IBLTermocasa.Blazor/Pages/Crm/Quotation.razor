@@ -1,6 +1,8 @@
 ﻿@page "/quotation/{id}"
 @using IBLTermocasa.BillOfMaterials
+@using IBLTermocasa.Contacts
 @using IBLTermocasa.Localization
+@using IBLTermocasa.Organizations
 @using IBLTermocasa.Quotations
 @using IBLTermocasa.RequestForQuotations
 @using Volo.Abp.AspNetCore.Components.Messages
@@ -9,6 +11,9 @@
 @using MudBlazor
 @using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
 @using Volo.Abp.AspNetCore.Components.Web.Theming.Toolbars
+@using ButtonType = MudBlazor.ButtonType
+@using Size = MudBlazor.Size
+@using Volo.Abp.Identity
 @inherits IBLTermocasaComponentBase
 @inject IUiMessageService UiMessageService
 @inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
@@ -17,6 +22,11 @@
 @inject NavigationManager NavigationManager
 @inject IRequestForQuotationsAppService RequestForQuotationsAppService
 @inject IBillOfMaterialsAppService BillOfMaterialsAppService
+@inject IOrganizationsAppService OrganizationsAppService
+@inject IIdentityUserAppService IdentityUserAppService
+@inject IDialogService DialogService 
+@inject IContactsAppService ContactsAppService
+
 <PageHeader Title="@L["Products"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
 </PageHeader>
 @if(IsLoading)
@@ -31,67 +41,98 @@
 }
 else
 {
-    <MudForm @ref="formQuotation"
-             IsValid=" successValidationQuotation"
-             Errors="errorsValidationQuotation"
-             Model="typeof(QuotationDto)">
+
         <MudGrid>
             <MudItem xs="12" sm="12">
                 <MudPaper Class="pa-2 mt-12">
                     <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" DisableElevation="true" OnClick="@OnSentQuotation">Invia Preventivo</MudButton>
                 </MudPaper>
             </MudItem>
-            <MudItem xs="12" sm="12">
+            <MudItem xs="12">
                 <MudPaper Class="pa-4">
-                    <MudText Typo="Typo.h5">Dati Richiesta Prventivo e Distinta</MudText>
-                    <MudTextField @bind-Value="BillOfMaterialsInput.BomNumber"
-                                  Label="@L["BomNumber"]"
-                                  ReadOnly="true"/>
-                    <MudTextField @bind-Value="BillOfMaterialsInput.Status"
-                                  Label="@L["BomStatus"]"
-                                  ReadOnly="true"/>
-                    <MudTextField @bind-Value="BillOfMaterialsInput.CreationTime"
-                                  Label="@L["BomDate"]" Format="dd/MM/yyyy"
-                                  ReadOnly="true"/>
-                    <MudTextField @bind-Value="RfqInput.QuoteNumber"
-                                  Label="@L["RfqNumber"]"
-                                  ReadOnly="true"/>
-                    <MudTextField @bind-Value="BillOfMaterialsInput.RequestForQuotationProperty.OrganizationName"
-                                  Label="@L["Organization"]"
-                                  ReadOnly="true"/>
+                    <MudGrid>
+                        <MudItem xs="12" sm="6">
+                            <MudStack Row="true" >
+                                <MudText Typo="Typo.h5">Dati Richiesta Prventivo </MudText>
+                                <MudAvatar Color="MudBlazor.Color.Primary" Size="Size.Small" @onclick="() => OpenRfqDetailAsync()">I</MudAvatar>
+                            </MudStack>
+                            <MudTextField @bind-Value="RfqInput.QuoteNumber"
+                                          Label="@L["RfqNumber"]"
+                                          ReadOnly="true"/>
+                            <MudTextField @bind-Value="RfqInput.OrganizationProperty.Name"
+                                          Label="@L["Customer"]"
+                                          ReadOnly="true"/>
+                            <MudTextField @bind-Value="RfqInput.AgentProperty.Name"
+                                          Label="@L["Agent"]"
+                                          ReadOnly="true"/>
+                            <MudDatePicker @bind-Date="@RfqInput.DateDocument" Label="@L["Date"]" DisableToolbar="true" ReadOnly="true"/>
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                                <MudStack Row="true" >
+                                    <MudText Typo="Typo.h5">Dati Distina Base</MudText>
+                                    <MudAvatar Color="MudBlazor.Color.Primary" Size="Size.Small" @onclick="() => OpenRfqDetailAsync()">I</MudAvatar>
+                                </MudStack>
+                            <MudTextField @bind-Value="BillOfMaterialsInput.BomNumber"
+                                          Label="@L["BomNumber"]"
+                                          ReadOnly="true"/>
+                            <MudTextField @bind-Value="BillOfMaterialsInput.Status"
+                                          Label="@L["BomStatus"]"
+                                          ReadOnly="true"/>
+                            <MudDatePicker  bind-Date="ToNullableDateTime(BillOfMaterialsInput.CreationTime)" Label="@L["BomDate"]" DisableToolbar="true" ReadOnly="true"/>
+                        </MudItem>
+                    </MudGrid>
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" sm="12">
                 @* ************************* Main Info on left side ************************* *@
                 <MudPaper Class="pa-4">
+                    <MudForm @ref="formQuotation"
+                             IsValid=" successValidationQuotation"
+                             Errors="errorsValidationQuotation"
+                             Model="typeof(QuotationDto)">
 
-                    <MudText Typo="Typo.h5">Dati Prventivo</MudText>
-                    <MudTextField @bind-Value="QuotationInput.Code"
-                                  Label="Numero"
-                                  ReadOnly="true"/>
-                    <MudTextField @bind-Value="QuotationInput.Status"
-                                  Label="Stato"
-                                  ReadOnly="true"/>
-                    <MudTextField @bind-Value="QuotationInput.CreationTime"
-                                  Label="Data Creazione" Format="dd/MM/yyyy"
-                                  ReadOnly="true"/>
-                    <MudTextField @bind-Value="QuotationInput.SentDate"
-                                  Label="Data Invio" Format="dd/MM/yyyy"
-                                  ReadOnly="false"/>
-                    <MudTextField @bind-Value="QuotationInput.QuotationValidDate"
-                                  Label="Valido Fino" Format="dd/MM/yyyy"
-                                  ReadOnly="false"/>
-                    <MudTextField @bind-Value="QuotationInput.ConfirmedDate"
-                                  Label="Data Conferma" Format="dd/MM/yyyy"
-                                  ReadOnly="false"/>
-                    <MudCheckBox @bind-Value="QuotationInput.DepositRequired" Label="Richiesto Acconto"/>
-                    <MudTextField @bind-Value="QuotationInput.DepositRequiredValue"
-                                  Label="Acconto Richiesto"
-                                  ReadOnly="@QuotationInput.DepositRequired"/>
+                        <MudItem xs="12" sm="12">
+                        <MudStack Row="true" >
+                            <MudText Typo="Typo.h5">Dati Prventivo</MudText>
+                        </MudStack>
+                        </MudItem>
+                        <MudGrid>
+                            <MudItem xs="12" sm="6">
+                                <MudTextField @bind-Value="QuotationInput.Code"
+                                              Label="Numero"
+                                              ReadOnly="true"/>
+                                <MudTextField @bind-Value="QuotationInput.CreationTime"
+                                              Label="Data Creazione" Format="dd/MM/yyyy"
+                                              ReadOnly="true"/>
+                                <MudTextField @bind-Value="QuotationInput.QuotationValidDate"
+                                              Label="Valido Fino" Format="dd/MM/yyyy"
+                                              ReadOnly="false"/>
+                                <MudStack Row="true"  AlignItems="AlignItems.Center" Class="d-flex justify-center">
+                                    <MudCheckBox @bind-Value="QuotationInput.DepositRequired" Label="Richiesto Acconto" />
+                                    <MudTextField @bind-Value="QuotationInput.DepositRequiredValue"
+                                                  Label="Acconto Richiesto"
+                                                  ReadOnly="@IsDepositRequired" Required="@IsDepositRequired"/>
+                                </MudStack>
+                            </MudItem>
+                            <MudItem xs="12" sm="6">
+                                <MudTextField @bind-Value="QuotationInput.Status"
+                                              Label="Stato"
+                                              ReadOnly="true"/>
+                                <MudTextField @bind-Value="QuotationInput.SentDate"
+                                              Label="Data Invio" Format="dd/MM/yyyy"
+                                              ReadOnly="false"/>
+                                <MudTextField @bind-Value="QuotationInput.ConfirmedDate"
+                                              Label="Data Conferma" Format="dd/MM/yyyy"
+                                              ReadOnly="false"/>
+                            </MudItem>
+                        </MudGrid>
+                    </MudForm>
                 </MudPaper>
             </MudItem>
         </MudGrid>
-    </MudForm>
+    <MudThemeProvider/>
+    <MudDialogProvider/>
+    <MudSnackbarProvider />
 }
 
 @code {
