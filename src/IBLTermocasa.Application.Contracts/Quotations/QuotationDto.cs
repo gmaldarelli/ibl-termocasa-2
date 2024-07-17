@@ -1,6 +1,7 @@
 using IBLTermocasa.Types;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using IBLTermocasa.RequestForQuotations;
 using JetBrains.Annotations;
 using Volo.Abp.Application.Dtos;
@@ -21,8 +22,19 @@ namespace IBLTermocasa.Quotations
         public QuotationStatus Status { get; set; }
         public bool DepositRequired { get; set; }
         public double? DepositRequiredValue { get; set; }
-        public List<QuotationItem>? QuotationItems { get; set; }
+        public decimal? Discount { get; set; }        
+        public double? MarkUp { get; set; }
+        public List<QuotationItemDto>? QuotationItems { get; set; }
         public string ConcurrencyStamp { get; set; } = null!;
 
+        public double TotalCost => QuotationItems?.Sum(x => x.TotalCost) ?? 0;
+        public double TotalSellingPrice => QuotationItems?.Sum(x => x.FinalSellingPrice) ?? 0;
+        public double TotalWorkCost => QuotationItems?.Sum(x => x.WorkCost) ?? 0;
+        public double TotalMaterialCost => QuotationItems?.Sum(x => x.MaterialCost) ?? 0;
+        public double FinalSellingPrice => QuotationItems?.Sum(x => x.FinalSellingPrice) ?? 0;
+        public double TotalMargin => TotalSellingPrice - TotalCost;
+        public double AverageDiscount => QuotationItems?.Average(x => x.Discount) ?? 0;
+        public double AverageMarkUp => QuotationItems?.Average(x => x.MarkUp) ?? 0;
+        
     }
 }

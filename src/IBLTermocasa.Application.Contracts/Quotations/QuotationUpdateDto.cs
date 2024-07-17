@@ -21,6 +21,8 @@ namespace IBLTermocasa.Quotations
         public DateTime QuotationValidDate { get; set; }
         public DateTime? ConfirmedDate { get; set; }
         public QuotationStatus Status { get; set; }
+        public decimal? Discount { get; set; }        
+        public double? MarkUp { get; set; }
         public bool DepositRequired { get; set; }
         public double? DepositRequiredValue { get; set; }
         public List<QuotationItemDto>? QuotationItems { get; set; }

@@ -122,15 +122,23 @@ namespace IBLTermocasa.Quotations
         {
             var bom = await _billOfMaterialRepository.GetAsync(id);
             var rfq = await _requestForQuotationRepository.GetAsync(bom.RequestForQuotationProperty.Id);
-
-            var quotation = new Quotation(Guid.NewGuid(), 
-                rfq.Id, bom.Id, 
-                bom.BomNumber.Replace("BOM","QUOT"), 
-                $"Quotation for {rfq.QuoteNumber} of date {rfq.DateDocument.ToString()}", 
-                DateTime.Now,
-                null, 
-                null, null, 
-                QuotationStatus.NEW, true, 0, new List<QuotationItem>());
+           
+            var quotation = new Quotation(
+                id: Guid.NewGuid(), 
+                idRFQ: rfq.Id, 
+                idBOM: bom.Id, 
+                code: bom.BomNumber.Replace("BOM","QUOT"), 
+                name: $"Quotation for {rfq.QuoteNumber} of date {rfq.DateDocument.ToString()}", 
+                creationDate: DateTime.Now,
+                sentDate: null, 
+                quotationValidDate: null, 
+                status: QuotationStatus.NEW, 
+                confirmedDate: null, 
+                depositRequired: true, 
+                depositRequiredValue: 0, 
+                quotationItems: new List<QuotationItem>(),
+                discount: rfq.Discount,
+                markUp: IBLTermocasaConsts.Markup);
             foreach (var rfqRequestForQuotationItem in rfq.RequestForQuotationItems)
             {
                 var parenProductItem = rfqRequestForQuotationItem.ProductItems.FirstOrDefault(x => x.ParentId is null);
@@ -156,10 +164,10 @@ namespace IBLTermocasa.Quotations
                 }
                 int quantity = rfqRequestForQuotationItem.Quantity;
                 totalCost = (materialCost *  (double)quantity) + (laborCost *  (double)quantity);
-                double markup = 0.3;
+                double markup = quotation.MarkUp??0;
                 double discount = (double)rfq.Discount;
-                double sellingPrice = totalCost * (1 + markup);
-                double finalSellingPrice = sellingPrice * (1 - discount);
+                double sellingPrice = totalCost * (100 + markup) / 100; 
+                double finalSellingPrice = sellingPrice * (100- discount) / 100;
                 quotation.QuotationItems.Add(new QuotationItem(
                     Guid.NewGuid(), 
                     rfqRequestForQuotationItem.Id, 

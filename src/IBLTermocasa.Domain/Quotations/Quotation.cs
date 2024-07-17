@@ -10,7 +10,6 @@ using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
 using JetBrains.Annotations;
-
 using Volo.Abp;
 
 namespace IBLTermocasa.Quotations
@@ -18,7 +17,7 @@ namespace IBLTermocasa.Quotations
     public class Quotation : FullAuditedAggregateRoot<Guid>, IMultiTenant
     {
         public virtual Guid? TenantId { get; set; }
-        
+
         public virtual Guid IdRFQ { get; set; }
 
         public virtual Guid IdBOM { get; set; }
@@ -33,6 +32,8 @@ namespace IBLTermocasa.Quotations
         public virtual DateTime? QuotationValidDate { get; set; }
 
         public virtual DateTime? ConfirmedDate { get; set; }
+        public virtual decimal? Discount { get; set; }
+        public virtual double? MarkUp { get; set; }
 
         public virtual QuotationStatus Status { get; set; }
 
@@ -40,15 +41,17 @@ namespace IBLTermocasa.Quotations
 
         public virtual double? DepositRequiredValue { get; set; }
 
-        [CanBeNull]
-        public virtual List<QuotationItem>? QuotationItems { get; set; }
+        [CanBeNull] public virtual List<QuotationItem>? QuotationItems { get; set; }
 
         protected Quotation()
         {
-
         }
-        
-        public Quotation(Guid id, Guid idRFQ, Guid idBOM, string code, string name, DateTime creationDate,  DateTime? sentDate, DateTime? quotationValidDate, DateTime? confirmedDate, QuotationStatus status, bool depositRequired, double? depositRequiredValue, List<QuotationItem>? quotationItems) : base(id)
+
+        public Quotation(Guid id, Guid idRFQ,
+            Guid idBOM,
+            string code, string name, DateTime creationDate, DateTime? sentDate, DateTime? quotationValidDate, QuotationStatus status,
+            DateTime? confirmedDate,  bool depositRequired, double? depositRequiredValue,
+            List<QuotationItem>? quotationItems, decimal discount = 0, double? markUp = 0) : base(id)
         {
             Id = id;
             Check.NotNull(idRFQ, nameof(idRFQ));
@@ -64,11 +67,13 @@ namespace IBLTermocasa.Quotations
             QuotationValidDate = quotationValidDate;
             ConfirmedDate = confirmedDate;
             Status = status;
+            Discount = discount;
+            MarkUp = markUp;
             DepositRequired = depositRequired;
             DepositRequiredValue = depositRequiredValue;
             QuotationItems = quotationItems;
         }
-        
+
         //generate static method to fill all properties of the Quotation except the Id using reflection with 2 variants source and destination
         public static Quotation FillProperties(Quotation source, Quotation destination,
             IEnumerable<PropertyInfo> properties)
@@ -97,6 +102,5 @@ namespace IBLTermocasa.Quotations
                 .Where(p => p.CanRead && p.CanWrite && p.Name != "Id");
             return FillProperties(source, destination, properties);
         }
-
     }
 }

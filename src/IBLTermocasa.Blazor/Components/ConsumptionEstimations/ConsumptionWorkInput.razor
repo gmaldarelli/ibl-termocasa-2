@@ -49,7 +49,7 @@
             </MudSelect>
             <MudTextField @bind-Value="@ConsumptionWork.Code" Label="@L["Code"]" Variant="Variant.Text" Required="true" />
             <MudTextField @bind-Value="@ConsumptionWork.Name" Label="@L["Name"]" Variant="Variant.Text" Required="true" />
-            <MudTextField T="double" @bind-Value="@ConsumptionWork.Price" Label="@L["Price"]" Variant="Variant.Text" Required="true" Culture="@_cultureInfo"/>
+            <MudTextField T="double" @bind-Value="@ConsumptionWork.Price" Label="@L["Price"]" Variant="Variant.Text" Required="true" Culture="@_cultureInfo" Format="C2"/>
             <MudNumericField @bind-Value="@ConsumptionWork.WorkTime" Label="@L["WorkTime"]" Variant="Variant.Text" Required="true" Min="0"/>
             <MudTextField @bind-Value="@ConsumptionWork.ConsumptionWorkFormula" Label="@L["Formula"]" Variant="Variant.Text"/>
         </DialogContent>

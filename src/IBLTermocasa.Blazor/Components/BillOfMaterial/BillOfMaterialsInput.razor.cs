@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Blazorise.Charts;
 using IBLTermocasa.BillOfMaterials;
 using IBLTermocasa.Materials;
 using IBLTermocasa.Types;
@@ -41,6 +42,9 @@ public partial class BillOfMaterialsInput
 
     };
 
+    public Chart<double> barChart { get; set; }
+
+
     protected override async Task OnParametersSetAsync()
     {
         if(BillOfMaterials == null)
@@ -49,7 +53,29 @@ public partial class BillOfMaterialsInput
         }
         this.LoadBillOfMaterialsMudDataGridItems();
         this.LoadBillOfWorksMudDataGridItems();
+        //await LoadCharts();
         await  base.OnParametersSetAsync();
+    }
+    
+    private async Task LoadCharts()
+    {
+        barChart = new Chart<double>()
+        {
+            Type = Blazorise.Charts.ChartType.Bar, 
+            Options = new ChartOptions() { Responsive = true },
+        };
+        await barChart.Clear();
+        await barChart.AddLabelsDatasetsAndUpdate( WorksCostLabels, GetBarChartDataset(WorksCostData) );
+        StateHasChanged();
+    }
+    private PieChartDataset<double> GetBarChartDataset(double[] worksCostData)
+    {
+        return new()
+        {
+            Label = "# of randoms",
+            Data = new List<double>(WorksCostData),
+            BorderWidth = 1
+        };
     }
 
     private void LoadBillOfWorksMudDataGridItems()
@@ -321,4 +347,7 @@ public class BillOfWorksMudDataGridItem
         //Stampa in ToStrin tutti gli attributi della classe
         return $"RequestForQuotationItemId: {RequestForQuotationItemId} RequestForQuotationItemQuantity: {RequestForQuotationItemQuantity} BomProductItemId: {BomProductItemId} ProductItemId: {ProductItemId} ProductItemName: {ProductItemName} ProductItemProductId: {ProductItemProductId} ParentBOMProductItemId: {ParentBOMProductItemId} IdProfessionalProfile: {IdProfessionalProfile} ProductId: {ProductId} Code: {Code} Name: {Name} Price: {Price} ConsumptionWorkFormula: {ConsumptionWorkFormula} WorkTime: {WorkTime} HourPrice: {HourPrice}";
     }
+    
+
+
 }

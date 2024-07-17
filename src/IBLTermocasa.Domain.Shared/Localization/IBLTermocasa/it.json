@@ -369,6 +369,7 @@
     "QuotationData": "Dati Preventivo",
     "Number": "Numero",
     "CreationDate": "Data Creazione",
-    "ValidUntil": "Valido Fino"
+    "ValidUntil": "Valido Fino",
+    "QuotationUpdated": "Preventivo Aggiornato"
   }
 }

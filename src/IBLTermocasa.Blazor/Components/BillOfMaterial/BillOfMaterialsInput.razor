@@ -101,10 +101,10 @@
                                             <MudSelectMaterial Context="@context" MaterialList="MaterialDictionary[context.Item.BomComponentId]" />
                                         </EditTemplate>
                                     </TemplateColumn>
-                                    <PropertyColumn Property="x => x.MaterialPrice" Title="@L["Price"]" IsEditable="true"  Format="C2" Culture="cultureInfo"/>
+                                    <PropertyColumn Property="x => x.MaterialPrice" Title="@L["Price"]" IsEditable="true"  Culture="cultureInfo" Format="C2"/>
                                     <PropertyColumn Property="x => x.MeasureUnit" Title="@L["MeasureUnitShort"]" IsEditable="false"/>
-                                    <PropertyColumn Property="x => x.Quantity" Title="@L["Quantity"]" IsEditable="true"   Format="0.##"/>
-                                    <PropertyColumn Property="x => x.Price" Title="@L["TotalPrice"]" IsEditable="false" Format="C2" Culture="cultureInfo"/>
+                                    <PropertyColumn Property="x => x.Quantity" Title="@L["Quantity"]" IsEditable="true"   Format="N2"/>
+                                    <PropertyColumn Property="x => x.Price" Title="@L["TotalPrice"]" IsEditable="false" Format="C2" Culture="cultureInfo" />
                                 </Columns>
                             </MudDataGrid>
                         </MudPaper>
@@ -123,9 +123,9 @@
                                     <PropertyColumn Property="x => x.ProductItemName" Title="@L["Product"]" Grouping="true"/>
                                     <PropertyColumn Property="x => x.Code" Title="@L["Code"]"/>
                                     <PropertyColumn Property="x => x.Name" Title="@L["Profile"]"/>
-                                    <PropertyColumn Property="x => x.HourPrice" Title="@L["HourPrice"]" IsEditable="true"  Format="C2" Culture="cultureInfo" Groupable="false" Sortable="false"/>
+                                    <PropertyColumn Property="x => x.HourPrice" Title="@L["HourPrice"]" IsEditable="true"  Format="C2" Culture="cultureInfo" Groupable="false" Sortable="false" />
                                     <PropertyColumn Property="x => x.WorkTime" Title="@L["WorkTime"]" IsEditable="true"  Groupable="false" Sortable="false"/>
-                                    <PropertyColumn Property="x => x.Price" Title="@L["TotalPrice"]" IsEditable="false"  Format="C2" Culture="cultureInfo"  Groupable="false" Sortable="false"/>
+                                    <PropertyColumn Property="x => x.Price" Title="@L["TotalPrice"]" IsEditable="false"  Format="C2" Culture="cultureInfo"  Groupable="false" Sortable="false" />
                                 </Columns>
                             </MudDataGrid>
                         </MudPaper>
@@ -140,23 +140,52 @@
                                     <MudText Typo="Typo.body1">Costo Materiali</MudText>
                                 </CardHeaderContent>
                                 <CardHeaderActions>
-                                    <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="MudBlazor.Color.Default" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="MudBlazor.Color.Default"/>
                                 </CardHeaderActions>
                             </MudCardHeader>
                             <MudCardContent>
                                 <MudChart ChartType="MudBlazor.ChartType.Donut" LegendPosition="@MudBlazor.Position.Bottom" Width="300px" Height="300px" @ref="MaterialsCostChart"
                                           InputData="@MaterialsCostData" InputLabels="@MaterialsCostLabels">
                                     <CustomGraphics>
-                                        <text class="donut-inner-text" x="47%" y="35%" dominant-baseline="middle" text-anchor="middle" fill="black" font-size="2">Total</text>
-                                        <text class="donut-inner-text" x="47%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="black" font-size="4">@MaterialsCostData.Sum().ToString()</text>
+                                        <text class="donut-inner-text" x="47%" y="35%" dominant-baseline="middle" text-anchor="middle" fill="black" font-size="2">Totale</text>
+                                        <text class="donut-inner-text" x="47%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="black" font-size="4">@MaterialsCostData.Sum().ToString("N2")</text>
                                     </CustomGraphics>
                                 </MudChart>
                             </MudCardContent>
                             <MudCardActions>
-                                <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="MudBlazor.Color.Default" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Share" Color="MudBlazor.Color.Default" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="MudBlazor.Color.Default"/>
+                                <MudIconButton Icon="@Icons.Material.Filled.Share" Color="MudBlazor.Color.Default"/>
                             </MudCardActions>
                         </MudCard>
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderAvatar>
+                                    <MudAvatar Color="MudBlazor.Color.Primary">I</MudAvatar>
+                                </CardHeaderAvatar>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.body1">Costo Lavoro</MudText>
+                                </CardHeaderContent>
+                                <CardHeaderActions>
+                                    <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="MudBlazor.Color.Default"/>
+                                </CardHeaderActions>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudChart ChartType="MudBlazor.ChartType.Donut" LegendPosition="MudBlazor.Position.Bottom" Width="300px" Height="300px" @ref="WorksCostChart"
+                                          InputData="@WorksCostData" InputLabels="@WorksCostLabels" ChartOptions="@WorksCostChartOptions">
+                                    <CustomGraphics>
+                                        <text class="donut-inner-text" x="47%" y="35%" dominant-baseline="middle" text-anchor="middle" fill="black" font-size="2">Totale</text>
+                                        <text class="donut-inner-text" x="47%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="black" font-size="4">@WorksCostData.Sum().ToString("N2")</text>
+                                    </CustomGraphics>
+                                </MudChart>
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="MudBlazor.Color.Default"/>
+                                <MudIconButton Icon="@Icons.Material.Filled.Share" Color="MudBlazor.Color.Default"/>
+                            </MudCardActions>
+                        </MudCard>
+
+
+                        @*
                         <MudCard>
                             <MudCardHeader>
                                 <CardHeaderAvatar>
@@ -170,22 +199,17 @@
                                 </CardHeaderActions>
                             </MudCardHeader>
                             <MudCardContent>
-                                <MudChart ChartType="MudBlazor.ChartType.Donut" LegendPosition="MudBlazor.Position.Bottom" Width="300px" Height="300px" @ref="WorksCostChart"
-                                          InputData="@WorksCostData" InputLabels="@WorksCostLabels" ChartOptions="@WorksCostChartOptions">
-                                    <CustomGraphics>
-                                        <text class="donut-inner-text" x="47%" y="35%" dominant-baseline="middle" text-anchor="middle" fill="black" font-size="2">Total</text>
-                                        <text class="donut-inner-text" x="47%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="black" font-size="4">@WorksCostData.Sum().ToString()</text>
-                                    </CustomGraphics>
-                                </MudChart>
+                                <Chart @ref="barChart" Type="Blazorise.Charts.ChartType.Pie" TItem="double" />
                             </MudCardContent>
                             <MudCardActions>
                                 <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="MudBlazor.Color.Default" />
                                 <MudIconButton Icon="@Icons.Material.Filled.Share" Color="MudBlazor.Color.Default" />
                             </MudCardActions>
                         </MudCard>
-                        
-                        
-                        
+                        *@
+
+
+
 
 
                     </MudTabPanel>
@@ -197,6 +221,5 @@
 
 @code {
     private readonly CultureInfo cultureInfo = new CultureInfo("it-IT");
-
-
+    
 }

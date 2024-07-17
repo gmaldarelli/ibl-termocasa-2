@@ -52,7 +52,7 @@
     <Columns>
         <PropertyColumn Property="x => x.Code" Title="@L["Code"]"/>
         <PropertyColumn Property="x => x.Name" Title="@L["Name"]"/>
-        <PropertyColumn Property="x => x.StandardPrice" Title="@L["StandardPrice"]"/>
+        <PropertyColumn Property="x => x.StandardPrice" Title="@L["StandardPrice"]" Format="C2"/>
         <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenNewOrReadOrEditProfessionalProfile(context.Item, true, false))"/>

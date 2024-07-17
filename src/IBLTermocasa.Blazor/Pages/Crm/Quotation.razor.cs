@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using IBLTermocasa.BillOfMaterials;
 using IBLTermocasa.Blazor.Components.RequestForQuotation;
@@ -31,6 +32,8 @@ public partial class Quotation
     public List<BreadcrumbItem> BreadcrumbItems { get; set; } = new();
     public PageToolbar? Toolbar { get; set; } = new PageToolbar();
     public bool IsDepositRequired => QuotationInput is { DepositRequired: false };
+    public MudDataGrid<QuotationItemDto> QuotationProductMudDataGrid { get; set; }
+    public int DesideredMarkup { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -48,6 +51,7 @@ public partial class Quotation
                 QuotationInput = quotation;
                 RfqInput = await RequestForQuotationsAppService.GetAsync(quotation.IdRFQ);
                 BillOfMaterialsInput = await BillOfMaterialsAppService.GetAsync(quotation.IdBOM);
+                DesideredMarkup = (int)quotation.QuotationItems!.Average(x => x.MarkUp);
                
             }
             IsLoading = false;
@@ -102,5 +106,36 @@ public partial class Quotation
     private DateTime? ToNullableDateTime(DateTime creationTime)
     {
         return creationTime == DateTime.MinValue ? null : creationTime;
+    }
+
+    private void OnChangeDiscount()
+    {
+        foreach (var quotationItem in QuotationInput.QuotationItems)
+        {
+            quotationItem.Discount = (double)QuotationInput.Discount;
+            quotationItem.SellingPrice = quotationItem.TotalCost + (quotationItem.TotalCost * quotationItem.MarkUp / 100);
+            quotationItem.FinalSellingPrice = quotationItem.SellingPrice - (quotationItem.SellingPrice * quotationItem.Discount / 100);
+        }
+        QuotationProductMudDataGrid.ReloadServerData();
+        StateHasChanged();
+    }
+    
+    private void OnChangeMarkUp(MouseEventArgs obj)
+    {
+        foreach (var quotationItem in QuotationInput.QuotationItems)
+        {
+            quotationItem.MarkUp = QuotationInput.MarkUp ?? 0;
+            quotationItem.SellingPrice = quotationItem.TotalCost + (quotationItem.TotalCost * quotationItem.MarkUp / 100);
+            quotationItem.FinalSellingPrice = quotationItem.SellingPrice - (quotationItem.SellingPrice * quotationItem.Discount / 100);
+        }
+        QuotationProductMudDataGrid.ReloadServerData();
+        StateHasChanged();
+    }
+
+    private void OnSaveQuotation(MouseEventArgs obj)
+    {
+        var updateDto = ObjectMapper.Map<QuotationDto, QuotationUpdateDto>(QuotationInput!);
+        QuotationsAppService.UpdateAsync(QuotationInput!.Id, updateDto);
+        UiMessageService.Success(L["QuotationUpdated"]);
     }
 }

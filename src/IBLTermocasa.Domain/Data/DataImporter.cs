@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using ClosedXML.Excel;
 using Force.DeepCloner;
 using IBLTermocasa.Common;
@@ -177,7 +179,7 @@ public class DataImporter
         else
             return input.ToString().Replace(charToRemove, "");
     }
-    public void ImportMaterialDataFromExcel(string filePath)
+    public async Task ImportMaterialDataFromExcel(string filePath)
     {
         using var workbook = new XLWorkbook(filePath);
         var worksheet = workbook.Worksheet(1); // Assuming data is in the first sheet
@@ -212,7 +214,24 @@ public class DataImporter
         
         
         var records = new List<Material>();
+        /*Dictionary<string,decimal> codes = new Dictionary<string,decimal>();
+        List<Material> materials = await _materialRepository.GetListAsync();
+        foreach (var row in rows)
+        {
+            var code = ConvertToString(row.Cell("A").Value);
+            var price = ConvertStringToDecima(row.Cell("F").Value);
+            materials.Where(x => x.Code == code).ToList().ForEach(m =>
+            {
+                m.StandardPrice = m.StandardPrice/m.Quantity;
+            });
+        }
+
+        await _materialRepository.UpdateManyAsync(materials);*/
         
+        
+        
+        
+        /*
         foreach (var row in rows)
         {
             if (row.RowNumber() == 1) continue; // Skip header
@@ -242,7 +261,7 @@ public class DataImporter
         catch (Exception ex)
         {
             Console.WriteLine("Error occurred during data import: " + ex.Message);
-        }
+        }*/
     }
 
     private decimal ConvertStringToDecima(object value)

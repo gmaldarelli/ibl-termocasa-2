@@ -172,7 +172,7 @@
 
               <DataGridColumn TItem="MaterialDto"
                       Field="StandardPrice"
-                      Caption="@L["StandardPrice"]">
+                      Caption="@L["StandardPrice"]" DisplayFormat="{0:C}">
               </DataGridColumn>
 
               <DataGridColumn TItem="MaterialDto"
@@ -298,7 +298,7 @@
                     <Validation MessageLocalizer="@LH.Localize">
                         <Field>
                             <FieldLabel>@L["StandardPrice"]</FieldLabel>
-                            <NumericPicker TValue="decimal" @bind-Value="@NewMaterial.StandardPrice"   >
+                            <NumericPicker TValue="decimal" @bind-Value="@NewMaterial.StandardPrice"    >
                                 <Feedback>
                                     <ValidationError />
                                 </Feedback>

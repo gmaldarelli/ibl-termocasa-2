@@ -138,6 +138,6 @@ public class IBLTermocasaDbMigrationService : ITransientDependency
         string filePath = Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\..\\..\\..\\etc\\Import\\", "materials.xlsx");
         BsonSerializer.RegisterSerializationProvider( new CustomGuidSerializationProvider());
         var importer = new DataImporter(_organizationRepository, _identityUserRepository, _industryRepository, _materialRepository);
-        importer.ImportMaterialDataFromExcel(filePath);
+        await importer.ImportMaterialDataFromExcel(filePath);
     }
 }

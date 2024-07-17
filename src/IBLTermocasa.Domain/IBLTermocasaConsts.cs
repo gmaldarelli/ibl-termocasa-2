@@ -8,4 +8,5 @@ public static class IBLTermocasaConsts
     public const string? DbSchema = null;
     public const string AdminEmailDefaultValue = IdentityDataSeedContributor.AdminEmailDefaultValue;
     public const string AdminPasswordDefaultValue = IdentityDataSeedContributor.AdminPasswordDefaultValue;
+    public static double? Markup { get; set; } = 30;
 }
