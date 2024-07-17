@@ -1,11 +1,13 @@
 ﻿@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
 @using Blazorise.Extensions
+@using Force.DeepCloner
 @using IBLTermocasa.Blazor.Components
 @using IBLTermocasa.Catalogs
 @using IBLTermocasa.Contacts
 @using IBLTermocasa.Localization
 @using IBLTermocasa.Organizations
 @using IBLTermocasa.Products
+@using IBLTermocasa.RequestForQuotations
 @using IBLTermocasa.Shared
 @using IBLTermocasa.Types
 @using MudBlazor
@@ -229,16 +231,23 @@ else
                                                             if (rfqItem.ProductItems.Any(productItem => productItem.ParentId != null))
                                                             {
                                                                 var rfqParent = rfqItem.ProductItems.FirstOrDefault(prdItemParent => prdItemParent.ParentId == null);
-                                                                <MudListItem OnClick="() => OnClickSelectSingleItem(rfqItem)"
-                                                                             Text="@rfqParent.ProductName">
+                                                                <MudListItem OnClick="() => OnClickSelectSingleItem(rfqItem)" Class="d-flex align-center">
+                                                                    @rfqParent.ProductName
+                                                                    <MudSpacer />
+                                                                    <MudTooltip Inline="true" Text="@L["CloneObject"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                                                                        <MudIconButton Class="mx-2" Icon="@Icons.Material.Filled.ContentCopy" Color="Color.Primary" OnClick="() => OnClickClone(rfqItem)" Size="Size.Small"/>
+                                                                    </MudTooltip>
                                                                 </MudListItem>
                                                             }
                                                             else
                                                             {
                                                                 @foreach (var productItem in rfqItem.ProductItems)
                                                                 {
-                                                                    <MudListItem OnClick="() => OnClickSelectSingleItem(rfqItem)"
-                                                                                 Text="@productItem.ProductName">
+                                                                    <MudListItem OnClick="() => OnClickSelectSingleItem(rfqItem)" Class="d-flex align-center">
+                                                                        @productItem.ProductName
+                                                                        <MudTooltip Inline="true" Text="@L["CloneObject"]" Arrow="true"  Placement="MudBlazor.Placement.Top">
+                                                                            <MudIconButton Class="mx-2" Icon="@Icons.Material.Filled.ContentCopy" Color="Color.Primary" OnClick="() => OnClickClone(rfqItem)" Size="Size.Small"/>
+                                                                        </MudTooltip>
                                                                     </MudListItem>
                                                                 }
                                                             }
@@ -328,4 +337,18 @@ else
     private string maskDecimal = @"^(\d+,\d*|\d*)$";
     private IMask maskDate = new DateMask("dd/MM/yyyy");
     private MudList MudListRef { get; set; } = new MudList();
+    
+    private void OnClickClone(RequestForQuotationItemDto item)
+    {
+        var clonedItem = item.DeepClone();
+        clonedItem.Id = Guid.NewGuid();
+        clonedItem.Order = ListRequestForQuotationItems.Count + 1;
+        clonedItem.ProductItems.ForEach(x => x.Id =  Guid.NewGuid());
+        ListRequestForQuotationItems.Add(clonedItem);
+        CatalogAutocompleteRef.Clear();
+        ClearAllFor2Step();
+        isSelecting = false;
+        StateHasChanged();
+    }
+    
 }

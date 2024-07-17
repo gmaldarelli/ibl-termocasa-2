@@ -334,6 +334,7 @@
     "Number": "Number",
     "CreationDate": "Creation Date",
     "ValidUntil": "Valid Until",
-    "Status": "Status"
+    "Status": "Status",
+    "CloneObject": "Clone Object",
   }
 }
