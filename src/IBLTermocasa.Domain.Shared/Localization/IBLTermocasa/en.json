@@ -217,7 +217,6 @@
     "OrganizationProperty": "Organization Property",
     "ContactProperty": "Contact Property",
     "Discount": "Discount",
-    "Status": "Status",
     "RequestForQuotations": "Request For Quotations",
     "MinDiscount": "Min Discount",
     "MaxDiscount": "Max Discount",
@@ -335,6 +334,8 @@
     "CreationDate": "Creation Date",
     "ValidUntil": "Valid Until",
     "Status": "Status",
-    "CloneObject": "Clone Object",
+    "CloneProduct": "Clone Product",
+    "ProductNameAssembled": "Product Name Assembled",
+    "SubproductName": "Subproduct Name",
   }
 }

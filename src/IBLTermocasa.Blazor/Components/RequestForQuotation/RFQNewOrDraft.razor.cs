@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security.Principal;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Blazorise;
+using Force.DeepCloner;
 using IBLTermocasa.Catalogs;
 using IBLTermocasa.Common;
 using IBLTermocasa.Contacts;
@@ -227,6 +229,7 @@ public partial class RFQNewOrDraft
         {
             SelectedProduct = arg;
             RFQProductAndQuestions.Clear();
+            ProductName = SelectedProduct.Name;
             if (!SelectedProduct.IsAssembled)
             {
                 var questionTemplateIds = SelectedProduct.ProductQuestionTemplates.Select(qt => qt.QuestionTemplateId)
@@ -301,7 +304,7 @@ public partial class RFQNewOrDraft
                         {
                             Id = Guid.NewGuid(),
                             ProductId = questionTemplateValue.ProductId,
-                            ProductName = questionTemplateValue.ProductName,
+                            ProductName = ProductName,
                             Answers = new List<AnswerDto>
                             {
                                 new()
@@ -346,7 +349,7 @@ public partial class RFQNewOrDraft
             {
                 Id = Guid.NewGuid(),
                 ProductId = SelectedProduct.Id,
-                ProductName = SelectedProduct.Name,
+                ProductName = ProductName,
                 Answers = QuestionTemplateValues.Select(x => new AnswerDto
                 {
                     QuestionId = x.QuestionId,
@@ -385,6 +388,7 @@ public partial class RFQNewOrDraft
         // Recupera il prodotto selezionato
         if (selectedItem.ProductItems.Count > 1)
         {
+            ProductName = selectedItem.ProductItems.First(x => x.ParentId == null).ProductName;
             SelectedProduct = Catalogs.Items
                 .SelectMany(catalog => catalog.Products)
                 .FirstOrDefault(item =>
@@ -392,6 +396,7 @@ public partial class RFQNewOrDraft
         }
         else
         {
+            ProductName = selectedItem.ProductItems.First().ProductName;
             SelectedProduct = Catalogs.Items
                 .SelectMany(catalog => catalog.Products)
                 .FirstOrDefault(item => item.Id == selectedItem.ProductItems.First().ProductId);
@@ -620,5 +625,73 @@ public partial class RFQNewOrDraft
         SelectedCatalogItemQuantity = 1;
         QuestionTemplateValues.Clear();
         RFQProductAndQuestions.Clear();
+    }
+    
+    /*private void OnClickClone(RequestForQuotationItemDto item)
+    {
+        var clonedItem = item.DeepClone();
+        clonedItem.Id = Guid.NewGuid();
+        clonedItem.Order = ListRequestForQuotationItems.Count + 1;
+        clonedItem.ProductItems.ForEach(x => x.Id =  Guid.NewGuid());
+        ListRequestForQuotationItems.Add(clonedItem);
+        CatalogAutocompleteRef.Clear();
+        ClearAllFor2Step();
+        isSelecting = false;
+        StateHasChanged();
+    }*/
+    
+    private void OnClickClone(RequestForQuotationItemDto item)
+    {
+        var clonedItem = item.DeepClone();
+        clonedItem.Id = Guid.NewGuid();
+        clonedItem.Order = ListRequestForQuotationItems.Count + 1;
+
+        // Controlla se ci sono più elementi in ProductItems
+        if (clonedItem.ProductItems.Count > 1)
+        {
+            // Trova l'elemento con ParentId == null
+            var parentItem = clonedItem.ProductItems.FirstOrDefault(x => x.ParentId == null);
+            if (parentItem != null)
+            {
+                // Aggiorna il nome del prodotto con la logica di incremento
+                parentItem.ProductName = GetUpdatedProductName(parentItem.ProductName);
+            }
+        }
+        else
+        {
+            clonedItem.ProductItems.First().ProductName = GetUpdatedProductName(clonedItem.ProductItems.First().ProductName);
+        }
+
+        // Aggiorna gli ID per tutti gli elementi in ProductItems
+        clonedItem.ProductItems.ForEach(x => x.Id = Guid.NewGuid());
+
+        ListRequestForQuotationItems.Add(clonedItem);
+        CatalogAutocompleteRef.Clear();
+        ClearAllFor2Step();
+        isSelecting = false;
+        StateHasChanged();
+    }
+
+// Metodo per aggiornare il nome del prodotto
+    private string GetUpdatedProductName(string productName)
+    {
+        var pattern = @"^(.*?)(\((\d+)\))?$";
+        var match = Regex.Match(productName, pattern);
+
+        if (match.Success)
+        {
+            var baseName = match.Groups[1].Value.Trim(); // Rimuove gli spazi superflui
+            var numberGroup = match.Groups[3];
+            int number = 1;
+
+            if (numberGroup.Success)
+            {
+                number = int.Parse(numberGroup.Value) + 1;
+            }
+
+            return $"{baseName} ({number})";
+        }
+
+        return $"{productName.Trim()} (1)"; // Rimuove gli spazi superflui
     }
 }
