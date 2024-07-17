@@ -370,6 +370,7 @@
     "Number": "Numero",
     "CreationDate": "Data Creazione",
     "ValidUntil": "Valido Fino",
+    "CloneObject": "Clona Oggetto",
     "QuotationUpdated": "Preventivo Aggiornato"
   }
 }
