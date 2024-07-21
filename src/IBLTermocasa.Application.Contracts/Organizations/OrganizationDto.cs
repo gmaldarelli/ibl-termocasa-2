@@ -26,8 +26,42 @@ namespace IBLTermocasa.Organizations
         public DateTime? LastSync { get; set; }
 
         public string ConcurrencyStamp { get; set; } = null!;
-        public string Phones => PhoneInfo.PhoneItems.Count > 0 ? string.Join(", ", PhoneInfo.PhoneItems) : string.Empty;
-        public string Emails => MailInfo.MailItems.Count > 0 ? string.Join(", ", MailInfo.MailItems) : string.Empty;
+        
+        public string Phones => PhoneToString();
+
+        public string Emails => MailToString();
+        
+        private string PhoneToString()
+        {
+            switch (PhoneInfo.PhoneItems.Count)
+            {
+                case 0:
+                    return string.Empty;
+                case 1:
+                    return PhoneInfo.PhoneItems[0].ToString();
+                default:
+                {
+                    var count = PhoneInfo.PhoneItems.Count -1; 
+                    return $"{PhoneInfo.PhoneItems[0].ToString()} (+{count})";
+                }
+            }
+        }
+        
+        private string MailToString()
+        {
+            switch (MailInfo.MailItems.Count)
+            {
+                case 0:
+                    return string.Empty;
+                case 1:
+                    return MailInfo.MailItems[0].ToString();
+                default:
+                {
+                    var count = MailInfo.MailItems.Count -1; 
+                    return $"{MailInfo.MailItems[0].ToString()} (+{count})";
+                }
+            }
+        }
 
     }
 }

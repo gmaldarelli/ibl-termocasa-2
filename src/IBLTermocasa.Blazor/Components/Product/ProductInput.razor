@@ -180,6 +180,10 @@
             <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Secondary"  DisableElevation="true" OnClick="@Cancel">@L["Cancel"]</MudButton>
         </MudItem>
     </MudGrid>
+
+<MudThemeProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider />
 @code {
 
     private string _searchComponentString;

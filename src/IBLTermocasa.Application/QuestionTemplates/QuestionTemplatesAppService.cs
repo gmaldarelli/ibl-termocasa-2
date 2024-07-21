@@ -1,22 +1,17 @@
 using System;
-using System.IO;
-using System.Linq;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
-using System.Linq.Dynamic.Core;
+using IBLTermocasa.Permissions;
+using IBLTermocasa.Shared;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Distributed;
+using MiniExcelLibs;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
-using Volo.Abp.Application.Services;
-using Volo.Abp.Domain.Repositories;
-using IBLTermocasa.Permissions;
-using IBLTermocasa.QuestionTemplates;
-using MiniExcelLibs;
-using Volo.Abp.Content;
 using Volo.Abp.Authorization;
 using Volo.Abp.Caching;
-using Microsoft.Extensions.Caching.Distributed;
-using IBLTermocasa.Shared;
+using Volo.Abp.Content;
 
 namespace IBLTermocasa.QuestionTemplates
 {
@@ -99,7 +94,7 @@ namespace IBLTermocasa.QuestionTemplates
             return new RemoteStreamContent(memoryStream, "ProductQuestionTemplates.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
 
-        public virtual async Task<IBLTermocasa.Shared.DownloadTokenResultDto> GetDownloadTokenAsync()
+        public virtual async Task<DownloadTokenResultDto> GetDownloadTokenAsync()
         {
             var token = Guid.NewGuid().ToString("N");
 
@@ -111,7 +106,7 @@ namespace IBLTermocasa.QuestionTemplates
                     AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30)
                 });
 
-            return new IBLTermocasa.Shared.DownloadTokenResultDto
+            return new DownloadTokenResultDto
             {
                 Token = token
             };
