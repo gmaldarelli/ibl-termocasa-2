@@ -1,11 +1,13 @@
 ﻿@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
 @using Blazorise.Extensions
+@using Force.DeepCloner
 @using IBLTermocasa.Blazor.Components
 @using IBLTermocasa.Catalogs
 @using IBLTermocasa.Contacts
 @using IBLTermocasa.Localization
 @using IBLTermocasa.Organizations
 @using IBLTermocasa.Products
+@using IBLTermocasa.RequestForQuotations
 @using IBLTermocasa.Shared
 @using IBLTermocasa.Types
 @using MudBlazor
@@ -162,8 +164,15 @@ else
                                             {
                                                 <MudItem xs="12">
                                                     <MudPaper Style="background-color: lavender; padding: 0.5rem" Elevation="0">
-                                                        <MudItem xs="12">
-                                                            <MudText Typo="Typo.h6">@productAndQuestion.Product.Name</MudText>
+                                                        <MudItem xs="12" Class="d-flex">
+                                                            @if (RFQProductAndQuestions.Count < 2 || productAndQuestion.Product.IsAssembled)
+                                                            {
+                                                                    <MudTextField T="string" @bind-Text="ProductName" Label="@L["ProductNameAssembled"]" Variant="Variant.Outlined"></MudTextField>
+                                                            }
+                                                            else
+                                                            {
+                                                                    <MudTextField T="string" @bind-Value="productAndQuestion.Product.Name" Label="@L["SubproductName"]" Variant="Variant.Outlined" ReadOnly="true"></MudTextField>
+                                                            }
                                                         </MudItem>
                                                         @foreach (var questionTemplate in productAndQuestion.QuestionTemplates)
                                                         {
@@ -228,18 +237,26 @@ else
                                                         {
                                                             if (rfqItem.ProductItems.Any(productItem => productItem.ParentId != null))
                                                             {
-                                                                var rfqParent = rfqItem.ProductItems.FirstOrDefault(prdItemParent => prdItemParent.ParentId == null);
-                                                                <MudListItem OnClick="() => OnClickSelectSingleItem(rfqItem)"
-                                                                             Text="@rfqParent.ProductName">
+                                                                var rfqParentName = rfqItem.ProductItems.FirstOrDefault(prdItemParent => prdItemParent.ParentId == null)!.ProductName;
+                                                                
+                                                                <MudListItem OnClick="() => OnClickSelectSingleItem(rfqItem)" Class="d-flex align-center">
+                                                                    @rfqParentName
+                                                                    <MudTooltip Inline="true" Text="@L["CloneProduct"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                                                                        <MudIconButton  Class="mx-2" Icon="@Icons.Material.Filled.ContentCopy" Color="Color.Primary" OnClick="() => OnClickClone(rfqItem)" Size="Size.Small"/>
+                                                                    </MudTooltip>
                                                                 </MudListItem>
                                                             }
                                                             else
                                                             {
                                                                 @foreach (var productItem in rfqItem.ProductItems)
                                                                 {
-                                                                    <MudListItem OnClick="() => OnClickSelectSingleItem(rfqItem)"
-                                                                                 Text="@productItem.ProductName">
-                                                                    </MudListItem>
+                                                                    
+                                                                <MudListItem OnClick="() => OnClickSelectSingleItem(rfqItem)" Class="d-flex align-center">
+                                                                    @productItem.ProductName
+                                                                    <MudTooltip Inline="true" Text="@L["CloneProduct"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                                                                        <MudIconButton Class="mx-2" Icon="@Icons.Material.Filled.ContentCopy" Color="Color.Primary" OnClick="() => OnClickClone(rfqItem)" Size="Size.Small"/>
+                                                                    </MudTooltip>
+                                                                </MudListItem>
                                                                 }
                                                             }
                                                         }
@@ -328,4 +345,5 @@ else
     private string maskDecimal = @"^(\d+,\d*|\d*)$";
     private IMask maskDate = new DateMask("dd/MM/yyyy");
     private MudList MudListRef { get; set; } = new MudList();
+    private string ProductName;
 }

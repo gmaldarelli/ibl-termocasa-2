@@ -370,6 +370,9 @@
     "Number": "Numero",
     "CreationDate": "Data Creazione",
     "ValidUntil": "Valido Fino",
-    "QuotationUpdated": "Preventivo Aggiornato"
+    "CloneProduct": "Clona Prodotto",
+    "QuotationUpdated": "Preventivo Aggiornato",
+    "ProductNameAssembled": "Nome Prodotto Assemblato",
+    "SubproductName": "Nome Sottoprodotto"
   }
 }
