@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using IBLTermocasa.Common;
+using IBLTermocasa.Types;
 using Volo.Abp.Domain.Repositories;
 
 namespace IBLTermocasa.BillOfMaterials
@@ -12,13 +13,15 @@ namespace IBLTermocasa.BillOfMaterials
 
         Task DeleteAllAsync(
             string? filterText = null,
-            string? name = null,
-            RequestForQuotationProperty? requestForQuotationId = null,
+            string? bomNumber = null,
+            RequestForQuotationProperty? requestForQuotationProperty = null,
+            BomStatusType? status = null,
             CancellationToken cancellationToken = default);
         Task<List<BillOfMaterial>> GetListAsync(
                     string? filterText = null,
-                    string? name = null,
-                    RequestForQuotationProperty? requestForQuotationId = null,
+                    string? bomNumber = null,
+                    RequestForQuotationProperty? requestForQuotationProperty = null,
+                    BomStatusType? status = null,
                     string? sorting = null,
                     int maxResultCount = int.MaxValue,
                     int skipCount = 0,
@@ -27,8 +30,9 @@ namespace IBLTermocasa.BillOfMaterials
 
         Task<long> GetCountAsync(
             string? filterText = null,
-            string? name = null,
-            RequestForQuotationProperty? requestForQuotationId = null,
+            string? bomNumber = null,
+            RequestForQuotationProperty? requestForQuotationProperty = null,
+            BomStatusType? status = null,
             CancellationToken cancellationToken = default);
     }
 }

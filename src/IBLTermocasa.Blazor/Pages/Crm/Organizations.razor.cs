@@ -1,35 +1,30 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Threading.Tasks;
 using Blazorise;
-using Blazorise.DataGrid;
 using IBLTermocasa.Blazor.Components;
 using IBLTermocasa.Industries;
-using Volo.Abp.BlazoriseUI.Components;
-using Microsoft.AspNetCore.Authorization;
-using Volo.Abp.Application.Dtos;
-using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
 using IBLTermocasa.Organizations;
 using IBLTermocasa.Permissions;
-using IBLTermocasa.Products;
 using IBLTermocasa.Shared;
 using IBLTermocasa.Types;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using NUglify.Helpers;
-using SortDirection = Blazorise.SortDirection;
-
+using Volo.Abp.Application.Dtos;
+using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
+using BreadcrumbItem = Volo.Abp.BlazoriseUI.BreadcrumbItem;
 
 namespace IBLTermocasa.Blazor.Pages.Crm
 {
     public partial class Organizations
     {
-        protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems = new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
-        protected PageToolbar Toolbar {get;} = new PageToolbar();
-        protected bool ShowAdvancedFilters { get; set; }
+        protected List<BreadcrumbItem> BreadcrumbItems = new();
+        protected PageToolbar Toolbar { get; } = new();
         private IReadOnlyList<OrganizationDto> OrganizationList { get; set; }
         private MudDataGrid<OrganizationDto> OrganizationMudDataGrid { get; set; }
         private int PageSize { get; } = LimitedResultRequestDto.MaxMaxResultCount;
@@ -41,24 +36,18 @@ namespace IBLTermocasa.Blazor.Pages.Crm
         private bool CanDeleteOrganization { get; set; }
         private OrganizationDto OrganizationInput { get; set; }
         private Modal CreateOrganizationModal { get; set; } = new();
-        private Modal EditOrganizationModal { get; set; } = new();
         private GetOrganizationsInput Filter { get; set; }
-        private DataGridEntityActionsColumn<OrganizationDto> EntityActionsColumn { get; set; } = new();
-        protected string SelectedCreateTab = "organization-create-tab";
-        protected string SelectedEditTab = "organization-edit-tab";
         private OrganizationDto? SelectedOrganization;
-        protected Progress progressRef;
-        protected int progress;
         private IReadOnlyList<LookupDto<Guid>> IndustriesCollection { get; set; } = new List<LookupDto<Guid>>();
 
-        [Inject]
-        private IIndustriesAppService _industriesAppService { get; set; }
-        [Inject]
-        private SecureConfirmationService _SecureConfirmationService { get; set; }
+        [Inject] private IIndustriesAppService _industriesAppService { get; set; }
+        [Inject] private SecureConfirmationService _SecureConfirmationService { get; set; }
 
-        protected List<IndustryDto> Industries { get; set; } = new List<IndustryDto>();
-        protected List<OrganizationType> OrganizationTypes {get; set;} = new List<OrganizationType>();
-        
+        private List<IndustryDto> Industries { get; set; } = [];
+        protected List<OrganizationType> OrganizationTypes { get; set; }
+        private string _searchString;
+
+
         public Organizations()
         {
             OrganizationInput = new OrganizationDto();
@@ -84,38 +73,25 @@ namespace IBLTermocasa.Blazor.Pages.Crm
             if (firstRender)
             {
                 await SetBreadcrumbItemsAsync();
-                await SetToolbarItemsAsync();
                 StateHasChanged();
             }
-        }  
+        }
 
         protected virtual ValueTask SetBreadcrumbItemsAsync()
         {
-            BreadcrumbItems.Add(new Volo.Abp.BlazoriseUI.BreadcrumbItem(L["Menu:Organizations"]));
+            BreadcrumbItems.Add(new BreadcrumbItem(L["Menu:Organizations"]));
             return ValueTask.CompletedTask;
         }
 
-        protected virtual ValueTask SetToolbarItemsAsync()
-        {
-            Toolbar.AddButton(L["ExportToExcel"], async () =>{ await DownloadAsExcelAsync(); }, IconName.Download);
-            Toolbar.AddButton(L["NewOrganization"], async () =>
-            {
-                await OpenCreateOrganizationModalAsync();
-            }, IconName.Add, requiredPolicyName: IBLTermocasaPermissions.Organizations.Create);
-
-            return ValueTask.CompletedTask;
-        }
 
         private async Task SetPermissionsAsync()
         {
             CanCreateOrganization = await AuthorizationService
                 .IsGrantedAsync(IBLTermocasaPermissions.Organizations.Create);
             CanEditOrganization = await AuthorizationService
-                            .IsGrantedAsync(IBLTermocasaPermissions.Organizations.Edit);
+                .IsGrantedAsync(IBLTermocasaPermissions.Organizations.Edit);
             CanDeleteOrganization = await AuthorizationService
-                            .IsGrantedAsync(IBLTermocasaPermissions.Organizations.Delete);
-                            
-                            
+                .IsGrantedAsync(IBLTermocasaPermissions.Organizations.Delete);
         }
 
         private async Task GetOrganizationsAsync()
@@ -127,10 +103,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
             var result = await OrganizationsAppService.GetListAsync(Filter);
 
             var temp = new List<OrganizationDto>();
-            result.Items.ForEach(item =>
-            {
-                temp.Add(item.Organization);
-            });
+            result.Items.ForEach(item => { temp.Add(item.Organization); });
             OrganizationList = temp;
             TotalCount = (int)result.TotalCount;
             await IndustriesAppService.GetListAsync(new GetIndustriesInput
@@ -138,54 +111,30 @@ namespace IBLTermocasa.Blazor.Pages.Crm
                 MaxResultCount = 100,
                 SkipCount = (1 - 1) * 100,
                 Sorting = "Code"
-            }).ContinueWith(task =>
-            {
-                Industries = task.Result.Items.ToList();
-            });
-        }
-
-        protected virtual async Task SearchAsync()
-        {
-            CurrentPage = 1;
-            await GetOrganizationsAsync();
-            await InvokeAsync(StateHasChanged);
+            }).ContinueWith(task => { Industries = task.Result.Items.ToList(); });
         }
 
         private async Task DownloadAsExcelAsync()
         {
             var token = (await OrganizationsAppService.GetDownloadTokenAsync()).Token;
-            var remoteService = await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("IBLTermocasa") ?? await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
+            var remoteService =
+                await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("IBLTermocasa") ??
+                await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
             var culture = CultureInfo.CurrentUICulture.Name ?? CultureInfo.CurrentCulture.Name;
-            if(!culture.IsNullOrEmpty())
+            if (!culture.IsNullOrEmpty())
             {
                 culture = "&culture=" + culture;
             }
+
             await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
-            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/organizations/as-excel-file?DownloadToken={token}&FilterText={Filter.FilterText}{culture}&Name={Filter.Name}", forceLoad: true);
-        }
-        
-        private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<OrganizationDto> e)
-        {
-            progress = 25;
-            await InvokeAsync( StateHasChanged );
-            CurrentSorting = e.Columns
-                .Where(c => c.SortDirection != SortDirection.Default)
-                .Select(c => c.Field + (c.SortDirection == SortDirection.Descending ? " DESC" : ""))
-                .JoinAsString(",");
-            CurrentPage = e.Page;
-            progress = 50;
-            await InvokeAsync( StateHasChanged );
-            await GetOrganizationsAsync();
-            progress = 75;
-            await InvokeAsync(StateHasChanged);
-            progress = 100;
-            await InvokeAsync( StateHasChanged );
-            progress = 0;
+            NavigationManager.NavigateTo(
+                $"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/organizations/as-excel-file?DownloadToken={token}&FilterText={Filter.FilterText}{culture}&Name={Filter.Name}",
+                forceLoad: true);
         }
 
         private async Task OpenCreateOrganizationModalAsync()
         {
-            OrganizationInput = new OrganizationDto(){};
+            OrganizationInput = new OrganizationDto() { };
             SelectedOrganization = OrganizationInput;
             NavigationManager.NavigateTo($"/organization/{Guid.Empty}");
             //await CreateOrganizationModal.Show();
@@ -196,16 +145,16 @@ namespace IBLTermocasa.Blazor.Pages.Crm
             OrganizationInput = new OrganizationDto();
             await CreateOrganizationModal.Hide();
         }
+
         private void OpenEditOrganizationPageAsync(OrganizationDto input)
         {
             //navigate to the page OrganizationDetails
             SelectedOrganization = input;
             NavigationManager.NavigateTo($"/organization/{input.Id}");
         }
-        
+
         private async Task DeleteOrganizationAsync(OrganizationDto input)
         {
-            
             bool result = await _SecureConfirmationService.ShowConfirmation(
                 "Sei sicuro di voler eliminare questa organizzazione?",
                 "Scrivi il nome dell'organizzazione {0} per confermare l'eliminazione",
@@ -223,94 +172,92 @@ namespace IBLTermocasa.Blazor.Pages.Crm
                 // Cancellazione annullata
                 Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>Cancellazione annullata...");
             }
+
             StateHasChanged();
         }
 
-        private async Task CreateOrganizationAsync()
-        {
-            try
-            {
-                await GetOrganizationsAsync();
-                await CloseCreateOrganizationModalAsync();
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
-        }
-
-        private async Task CloseEditOrganizationModalAsync()
-        {
-            await EditOrganizationModal.Hide();
-        }
-
-        private async Task UpdateOrganizationAsync()
-        {
-            try
-            {
-                await GetOrganizationsAsync();
-                await EditOrganizationModal.Hide();                
-            } catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
-        }
-
-        private void OnSelectedCreateTabChanged(string name)
-        {
-            SelectedCreateTab = name;
-        }
-
-        private void OnSelectedEditTabChanged(string name)
-        {
-            SelectedEditTab = name;
-        }
-        
-        protected virtual async Task OnCodeChangedAsync(string? code)
-        {
-            Filter.Code = code;
-            await SearchAsync();
-        }
-        protected virtual async Task OnNameChangedAsync(string? name)
-        {
-            Filter.Name = name;
-            await SearchAsync();
-        }
-        protected virtual async Task OnOrganizationTypeChangedAsync(OrganizationType? organizationType)
-        {
-            Filter.OrganizationType = organizationType;
-            await SearchAsync();
-        }
-        protected virtual async Task OnMailInfoChangedAsync(string? mailInfo)
-        {
-            Filter.MailInfo = mailInfo;
-            await SearchAsync();
-        }
-        protected virtual async Task OnPhoneInfoChangedAsync(string? phoneInfo)
-        {
-            Filter.PhoneInfo = phoneInfo;
-            await SearchAsync();
-        }
-        protected virtual async Task OnTagsChangedAsync(string? tags)
-        {
-            Filter.Tags = tags;
-            await SearchAsync();
-        }
-        protected virtual async Task OnIndustryIdChangedAsync(Guid? industryId)
-        {
-            Filter.IndustryId = industryId;
-            await SearchAsync();
-        }
-        
-
         private async Task GetIndustryCollectionLookupAsync(string? newValue = null)
         {
-            IndustriesCollection = (await OrganizationsAppService.GetIndustryLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
+            IndustriesCollection =
+                (await OrganizationsAppService.GetIndustryLookupAsync(new LookupRequestDto { Filter = newValue }))
+                .Items;
         }
-        protected virtual async Task OnSourceTypeChangedAsync(SourceType? sourceType)
+
+        private async void SearchAsync(string filterText)
         {
-            Filter.SourceType = sourceType;
-            await SearchAsync();
+            _searchString = filterText;
+            if ((_searchString.IsNullOrEmpty() || _searchString.Length < 3) &&
+                OrganizationMudDataGrid.Items != null && OrganizationMudDataGrid.Items.Any())
+            {
+                return;
+            }
+
+            await LoadGridData(new GridState<OrganizationDto>
+            {
+                Page = 0,
+                PageSize = PageSize,
+                SortDefinitions = OrganizationMudDataGrid.SortDefinitions.Values.ToList()
+            });
+            await OrganizationMudDataGrid.ReloadServerData();
+            StateHasChanged();
+        }
+
+        private async Task<GridData<OrganizationDto>> LoadGridData(GridState<OrganizationDto> state)
+        {
+            state.SortDefinitions.ForEach(sortDef =>
+            {
+                CurrentSorting = sortDef.Descending ? $" {sortDef.SortBy} DESC" : $" {sortDef.SortBy} ";
+            });
+            Filter.SkipCount = state.Page * state.PageSize;
+            Filter.Sorting = CurrentSorting;
+            Filter.MaxResultCount = state.PageSize;
+            Filter.FilterText = _searchString;
+            var firstOrDefault = OrganizationMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(OrganizationDto.Code) });
+            if (firstOrDefault != null)
+            {
+                Filter.Code = (string?)firstOrDefault.Value;
+            }
+
+            var firstOrDefault1 = OrganizationMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(OrganizationDto.Phones) });
+            if (firstOrDefault1 != null)
+            {
+                Filter.PhoneInfo = (string?)firstOrDefault1.Value;
+            }
+
+            var firstOrDefault2 = OrganizationMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(OrganizationDto.Emails) });
+            if (firstOrDefault2 != null)
+            {
+                Filter.MailInfo = (string)firstOrDefault2.Value!;
+            }
+
+            var firstOrDefault3 = OrganizationMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(OrganizationDto.OrganizationType) });
+            if (firstOrDefault3 != null)
+            {
+                Filter.OrganizationType = (OrganizationType)firstOrDefault3.Value!;
+            }
+
+            var firstOrDefault4 = OrganizationMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(OrganizationDto.SourceType) });
+            if (firstOrDefault4 != null)
+            {
+                Filter.SourceType = (SourceType)firstOrDefault4.Value!;
+            }
+
+            var result = await OrganizationsAppService.GetListAsync(Filter);
+
+            var temp = new List<OrganizationDto>();
+            result.Items.ForEach(item => { temp.Add(item.Organization); });
+            OrganizationList = temp;
+            GridData<OrganizationDto> data = new()
+            {
+                Items = OrganizationList,
+                TotalItems = (int)result.TotalCount
+            };
+            return data;
         }
     }
 }

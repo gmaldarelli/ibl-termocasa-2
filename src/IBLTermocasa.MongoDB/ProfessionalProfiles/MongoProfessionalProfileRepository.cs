@@ -83,11 +83,11 @@ namespace IBLTermocasa.ProfessionalProfiles
             //Ritornerà la query con i filtri applicati in base ai parametri passati in input che non sia case sensitive
             return query
                 .WhereIf(!string.IsNullOrWhiteSpace(filterText), e =>
-                    (e.Name != null && e.Name.Contains(filterText)))
+                    e.Name != null && e.Name.Contains(filterText, StringComparison.CurrentCultureIgnoreCase))
                 .WhereIf(!string.IsNullOrWhiteSpace(code),
-                    e => e.Code != null && e.Code.Contains(code))
+                    e => e.Code != null && e.Code.Contains(code, StringComparison.CurrentCultureIgnoreCase))
                 .WhereIf(!string.IsNullOrWhiteSpace(name),
-                    e => e.Name != null && e.Name.Contains(name));
+                    e => e.Name != null && e.Name.Contains(name, StringComparison.CurrentCultureIgnoreCase));
         }
     }
 }

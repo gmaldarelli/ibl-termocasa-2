@@ -1,0 +1,347 @@
+@page "/interactions"
+
+@attribute [Authorize(IBLTermocasaPermissions.Interactions.Default)]
+@using IBLTermocasa.Interactions
+@using IBLTermocasa.Localization
+@using IBLTermocasa.Permissions
+@using IBLTermocasa.Types
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using Volo.Abp.Http.Client
+@using Button = Blazorise.Button
+@using Size = MudBlazor.Size
+@using Color = MudBlazor.Color
+@inherits IBLTermocasaComponentBase
+@inject IInteractionsAppService InteractionsAppService
+
+@inject IUiMessageService UiMessageService
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["Interactions"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* SEARCH AND DATA GRID ************************* *@
+
+<MudDataGrid @ref="InteractionMudDataGrid"
+             ServerData="LoadGridData"
+             T="InteractionDto"
+             ReadOnly="false"
+             Virtualize="true" FixedHeader="true"
+             Hover="true"
+             Bordered="false" Dense="false"
+             Filterable="true" RowsPerPage="10"
+             SortMode="SortMode.Multiple"
+             Class="mud-data-grid-custom">
+    <ToolBarContent>
+        <MudTextField T="string" Placeholder="@L["Search"]" Adornment="Adornment.Start" Immediate="true" ValueChanged="arg => SearchAsync(arg)" DebounceInterval="1000"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 mb-2">
+        </MudTextField>
+        <MudSpacer/>
+        <MudButton Class="mr-2" StartIcon="@Icons.Material.Outlined.FileDownload" Size="Size.Small" Variant="Variant.Filled" Color="@Color.Primary" OnClick="DownloadAsExcelAsync">@L["ExportToExcel"]</MudButton>
+        <MudButton StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" Variant="Variant.Filled" Color="@Color.Primary" OnClick="OpenCreateInteractionModalAsync">@L["NewInteraction"]</MudButton>
+    </ToolBarContent>
+    <Columns>
+        <TemplateColumn Title="@L["InteractionType"]">
+            <CellTemplate Context="context">
+                @L[$"Enum:InteractionType.{EnumExtensions.GetDisplayName(context.Item.InteractionType)}"]
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="x => x.InteractionDate" Title="@L["InteractionDate"]"/>
+        <PropertyColumn Property="x => x.ReferenceObject" Title="@L["ReferenceObject"]"/>
+        <PropertyColumn Property="x => x.WriterUserId" Title="@L["WriterUserId"]"/>
+        <PropertyColumn Property="x => x.NotificationOrganizationUnitId" Title="@L["NotificationOrganizationUnitId"]"/>
+        <PropertyColumn Property="x => x.IdentityUserId" Title="@L["IdentityUserId"]"/>
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenEditInteractionModalAsync(context.Item))"/>
+                </MudTooltip>
+                <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteInteractionAsync(context.Item)"/>
+                </MudTooltip>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="InteractionDto"/>
+    </PagerContent>
+</MudDataGrid>
+<MudThemeProvider/>
+<MudDialogProvider/>
+
+
+@* ************************* CREATE MODAL ************************* *@
+<Modal @ref="CreateInteractionModal" Closing="@CreateInteractionModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+
+        <Form id="CreateInteractionForm">
+            <ModalHeader>
+                <ModalTitle>@L["NewInteraction"]</ModalTitle>
+                <CloseButton Clicked="CloseCreateInteractionModalAsync"/>
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@NewInteractionValidations"
+                             Mode="ValidationMode.Auto"
+                             Model="@NewInteraction"
+                             ValidateOnLoad="false">
+
+
+                    <Field>
+                        <FieldLabel>@L["InteractionType"]</FieldLabel>
+                        <Select TValue="InteractionType" @bind-SelectedValue="@NewInteraction.InteractionType">
+                            @foreach (var itemValue in Enum.GetValues(typeof(InteractionType)))
+                            {
+                                var enumValue = (InteractionType)itemValue;
+                                <SelectItem TValue="InteractionType" Value="@enumValue">
+                                    @L[$"Enum:InteractionType.{EnumExtensions.GetDisplayName(enumValue)}"]
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["InteractionDate"]</FieldLabel>
+                            <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@NewInteraction.InteractionDate">
+                                <Feedback>
+                                    <ValidationError/>
+                                </Feedback>
+                            </DateEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Content"]</FieldLabel>
+                            <MemoEdit @bind-Text="@NewInteraction.Content" MaxLength="InteractionConsts.ContentMaxLength">
+                                <Feedback>
+                                    <ValidationError/>
+                                </Feedback>
+                            </MemoEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["ReferenceObject"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewInteraction.ReferenceObject">
+                                <Feedback>
+                                    <ValidationError/>
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["WriterNotes"]</FieldLabel>
+                            <MemoEdit @bind-Text="@NewInteraction.WriterNotes">
+                                <Feedback>
+                                    <ValidationError/>
+                                </Feedback>
+                            </MemoEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <FieldLabel>@L["IdentityUser"]</FieldLabel>
+                        <Select TValue="Guid" @bind-SelectedValue="@NewInteraction.WriterUserId">
+                            @foreach (var identityUser in IdentityUsersCollection)
+                            {
+                                <SelectItem TValue="Guid" Value="@(identityUser.Id)">
+                                    @(identityUser.DisplayName)
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Field>
+                        <FieldLabel>@L["OrganizationUnit"]</FieldLabel>
+                        <Select TValue="Guid?" @bind-SelectedValue="@NewInteraction.NotificationOrganizationUnitId">
+                            <SelectItem TValue="Guid?" Value="null"></SelectItem>
+                            @foreach (var organizationUnit in OrganizationUnitsCollection)
+                            {
+                                <SelectItem TValue="Guid?" Value="@(organizationUnit.Id)">
+                                    @(organizationUnit.DisplayName)
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Field>
+                        <FieldLabel>@L["IdentityUser"]</FieldLabel>
+                        <Select TValue="Guid?" @bind-SelectedValue="@NewInteraction.IdentityUserId">
+                            <SelectItem TValue="Guid?" Value="null"></SelectItem>
+                            @foreach (var identityUser in IdentityUsersCollection)
+                            {
+                                <SelectItem TValue="Guid?" Value="@(identityUser.Id)">
+                                    @(identityUser.DisplayName)
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Blazorise.Color.Secondary"
+                        Clicked="CloseCreateInteractionModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="CreateInteractionForm" Clicked="CreateInteractionAsync"/>
+
+            </ModalFooter>
+        </Form>
+
+    </ModalContent>
+</Modal>
+
+@* ************************* EDIT MODAL ************************* *@
+<Modal @ref="EditInteractionModal" Closing="@EditInteractionModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+
+        <Form id="EditInteractionForm">
+            <ModalHeader>
+                <ModalTitle>@L["Update"]</ModalTitle>
+                <CloseButton Clicked="CloseEditInteractionModalAsync"/>
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@EditingInteractionValidations"
+                             Mode="ValidationMode.Auto"
+                             Model="@EditingInteraction"
+                             ValidateOnLoad="false">
+
+
+                    <Field>
+                        <FieldLabel>@L["InteractionType"]</FieldLabel>
+                        <Select TValue="InteractionType" @bind-SelectedValue="@EditingInteraction.InteractionType">
+                            @foreach (var itemValue in Enum.GetValues(typeof(InteractionType)))
+                            {
+                                var enumValue = (InteractionType)itemValue;
+                                <SelectItem TValue="InteractionType" Value="@enumValue">
+                                    @L[$"Enum:InteractionType.{EnumExtensions.GetDisplayName(enumValue)}"]
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["InteractionDate"]</FieldLabel>
+                            <DateEdit TValue="DateTime" InputMode="DateInputMode.DateTime" @bind-Date="@EditingInteraction.InteractionDate">
+                                <Feedback>
+                                    <ValidationError/>
+                                </Feedback>
+                            </DateEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Content"]</FieldLabel>
+                            <MemoEdit @bind-Text="@EditingInteraction.Content" MaxLength="InteractionConsts.ContentMaxLength">
+                                <Feedback>
+                                    <ValidationError/>
+                                </Feedback>
+                            </MemoEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["ReferenceObject"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingInteraction.ReferenceObject">
+                                <Feedback>
+                                    <ValidationError/>
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["WriterNotes"]</FieldLabel>
+                            <MemoEdit @bind-Text="@EditingInteraction.WriterNotes">
+                                <Feedback>
+                                    <ValidationError/>
+                                </Feedback>
+                            </MemoEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Field>
+                        <FieldLabel>@L["IdentityUser"]</FieldLabel>
+                        <Select TValue="Guid" @bind-SelectedValue="@EditingInteraction.WriterUserId">
+                            @foreach (var identityUser in IdentityUsersCollection)
+                            {
+                                <SelectItem TValue="Guid" Value="@(identityUser.Id)">
+                                    @(identityUser.DisplayName)
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Field>
+                        <FieldLabel>@L["OrganizationUnit"]</FieldLabel>
+                        <Select TValue="Guid?" @bind-SelectedValue="@EditingInteraction.NotificationOrganizationUnitId">
+                            <SelectItem TValue="Guid?" Value="null"></SelectItem>
+                            @foreach (var organizationUnit in OrganizationUnitsCollection)
+                            {
+                                <SelectItem TValue="Guid?" Value="@(organizationUnit.Id)">
+                                    @(organizationUnit.DisplayName)
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                    <Field>
+                        <FieldLabel>@L["IdentityUser"]</FieldLabel>
+                        <Select TValue="Guid?" @bind-SelectedValue="@EditingInteraction.IdentityUserId">
+                            <SelectItem TValue="Guid?" Value="null"></SelectItem>
+                            @foreach (var identityUser in IdentityUsersCollection)
+                            {
+                                <SelectItem TValue="Guid?" Value="@(identityUser.Id)">
+                                    @(identityUser.DisplayName)
+                                </SelectItem>
+                            }
+                        </Select>
+                    </Field>
+
+
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Blazorise.Color.Secondary"
+                        Clicked="CloseEditInteractionModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="EditInteractionForm" Clicked="UpdateInteractionAsync"/>
+
+            </ModalFooter>
+        </Form>
+
+    </ModalContent>
+</Modal>

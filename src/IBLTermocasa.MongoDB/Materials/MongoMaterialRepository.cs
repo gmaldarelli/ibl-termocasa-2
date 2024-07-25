@@ -55,10 +55,11 @@ namespace IBLTermocasa.Materials
             string? name = null,
             SourceType? sourceType = null)
         {
+            filterText = filterText?.ToLower();
             return query
-                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Code!.Contains(filterText!) || e.Name!.Contains(filterText!))
-                    .WhereIf(!string.IsNullOrWhiteSpace(code), e => e.Code.Contains(code))
-                    .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name))
+                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Code!.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase) || e.Name!.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase))
+                    .WhereIf(!string.IsNullOrWhiteSpace(code), e => e.Code.Contains(code!, StringComparison.CurrentCultureIgnoreCase))
+                    .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name!, StringComparison.CurrentCultureIgnoreCase))
                     .WhereIf(sourceType.HasValue, e => e.SourceType == sourceType);
         }
     }

@@ -121,14 +121,15 @@ namespace IBLTermocasa.Interactions
             Guid? writerUserId = null,
             Guid? identityUserId = null)
         {
+            filterText = filterText?.ToLower();
             return query
-                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Content!.Contains(filterText!) || e.ReferenceObject!.Contains(filterText!) || e.WriterNotes!.Contains(filterText!))
+                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Content!.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase) || e.ReferenceObject!.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase) || e.WriterNotes!.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase))
                     .WhereIf(interactionType.HasValue, e => e.InteractionType == interactionType)
                     .WhereIf(interactionDateMin.HasValue, e => e.InteractionDate >= interactionDateMin!.Value)
                     .WhereIf(interactionDateMax.HasValue, e => e.InteractionDate <= interactionDateMax!.Value)
-                    .WhereIf(!string.IsNullOrWhiteSpace(content), e => e.Content.Contains(content))
-                    .WhereIf(!string.IsNullOrWhiteSpace(referenceObject), e => e.ReferenceObject.Contains(referenceObject))
-                    .WhereIf(!string.IsNullOrWhiteSpace(writerNotes), e => e.WriterNotes.Contains(writerNotes))
+                    .WhereIf(!string.IsNullOrWhiteSpace(content), e => e.Content != null && e.Content.Contains(content!, StringComparison.CurrentCultureIgnoreCase))
+                    .WhereIf(!string.IsNullOrWhiteSpace(referenceObject), e => e.ReferenceObject != null && e.ReferenceObject.Contains(referenceObject!, StringComparison.CurrentCultureIgnoreCase))
+                    .WhereIf(!string.IsNullOrWhiteSpace(writerNotes), e => e.WriterNotes != null && e.WriterNotes.Contains(writerNotes!, StringComparison.CurrentCultureIgnoreCase))
                     .WhereIf(writerUserId != null && writerUserId != Guid.Empty, e => e.WriterUserId == writerUserId)
                     .WhereIf(identityUserId != null && identityUserId != Guid.Empty, e => e.IdentityUserId == identityUserId);
         }

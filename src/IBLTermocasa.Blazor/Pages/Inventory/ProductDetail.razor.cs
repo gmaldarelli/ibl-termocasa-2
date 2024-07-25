@@ -10,7 +10,7 @@ using BreadcrumbItem = Volo.Abp.BlazoriseUI.BreadcrumbItem;
 using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
 using Volo.Abp.Http.Client;
 
-namespace IBLTermocasa.Blazor.Pages.Crm;
+namespace IBLTermocasa.Blazor.Pages.Inventory;
 
 public partial class ProductDetail
 {

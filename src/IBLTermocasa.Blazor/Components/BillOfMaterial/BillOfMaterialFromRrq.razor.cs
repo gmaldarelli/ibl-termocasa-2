@@ -18,15 +18,14 @@ public partial class BillOfMaterialFromRrq
     public MudDataGrid<RequestForQuotationWithNavigationPropertiesDto> RequestForQuotationDataGrid { get; set; }
 
     private bool nestedVisible = false;
-    private MudDialog ConfirmGenerationMudDialog { get; set; }
-    public DialogOptions ConfirmGenerationMudDialogOption { get; set; } = new DialogOptions()
+    public DialogOptions ConfirmGenerationMudDialogOption { get; set; } = new()
     {
         FullWidth= true,
         MaxWidth=MaxWidth.Medium,
         CloseButton= true,
         DisableBackdropClick= true,
         NoHeader=false,
-        Position=DialogPosition.Center,
+        Position=DialogPosition.Custom,
         CloseOnEscapeKey=false
     };
     public string ConfirmGenerationMudDialogText { get; set; }

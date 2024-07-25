@@ -2,9 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Globalization;
-using System.Web;
-using Blazorise;
 using IBLTermocasa.Blazor.Components.ConsumptionEstimations;
 using IBLTermocasa.Common;
 using Microsoft.AspNetCore.Authorization;
@@ -21,7 +18,7 @@ using Microsoft.JSInterop;
 using MudBlazor;
 
 
-namespace IBLTermocasa.Blazor.Pages
+namespace IBLTermocasa.Blazor.Pages.Production
 {
     public partial class ConsumptionEstimations
     {
@@ -76,7 +73,7 @@ namespace IBLTermocasa.Blazor.Pages
 
         private async Task GetListProductsCollectionLookupAsync()
         {
-            ProductsList = (await ProductsAppService.GetProductLookupAsync(new LookupRequestDto())).Items.ToList();
+            ProductsList = (await ProductsAppService.GetProductLookupAsync(new LookupRequestDto())).Items.OrderBy(x => x.DisplayName).ToList();
         }
         
         private async Task GetListProfessionalProfilesCollectionLookupAsync()
@@ -153,24 +150,6 @@ namespace IBLTermocasa.Blazor.Pages
             }
         }
 
-        protected virtual ValueTask SetBreadcrumbItemsAsync()
-        {
-            BreadcrumbItems.Add(new Volo.Abp.BlazoriseUI.BreadcrumbItem(L["Menu:ConsumptionEstimations"]));
-            return ValueTask.CompletedTask;
-        }
-
-        protected virtual ValueTask SetToolbarItemsAsync()
-        {
-            Toolbar.AddButton(L["ExportToExcel"], async () =>{ await DownloadAsExcelAsync(); }, IconName.Download);
-            
-            Toolbar.AddButton(L["NewConsumptionEstimation"], async () =>
-            {
-                
-            }, IconName.Add, requiredPolicyName: IBLTermocasaPermissions.ConsumptionEstimations.Create);
-
-            return ValueTask.CompletedTask;
-        }
-
         private async Task SetPermissionsAsync()
         {
             CanCreateConsumptionEstimation = await AuthorizationService
@@ -181,19 +160,6 @@ namespace IBLTermocasa.Blazor.Pages
                             .IsGrantedAsync(IBLTermocasaPermissions.ConsumptionEstimations.Delete);
                             
                             
-        }
-
-        private async Task DownloadAsExcelAsync()
-        {
-            var token = (await ConsumptionEstimationsAppService.GetDownloadTokenAsync()).Token;
-            var remoteService = await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("IBLTermocasa") ?? await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
-            var culture = CultureInfo.CurrentUICulture.Name ?? CultureInfo.CurrentCulture.Name;
-            if(!culture.IsNullOrEmpty())
-            {
-                culture = "&culture=" + culture;
-            }
-            await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
-            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/consumption-estimations/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&ConsumptionProduct={HttpUtility.UrlEncode(Filter.IdProduct.ToString())}", forceLoad: true);
         }
         
         private Task OnBlurConsumptionComponentFormula(ConsumptionProductDto item)
@@ -233,54 +199,6 @@ namespace IBLTermocasa.Blazor.Pages
                 await ConsumptionEstimationsAppService.UpdateAsync(SelectedConsumptionEstimation.Id, element);
                 await UiMessageService.Success("Consumption Component added successfully");
             }
-        }
-        
-        private void OnTabIndexChanged(int newIndex)
-        {
-            activeTabIndex = newIndex;
-            switch (activeTabIndex)
-            {
-                //ConsumptionComponent
-                case 0 when SelectedProduct.Id != Guid.Empty:
-                    _open = false;
-                    _openEnd = true;
-                    break;
-                case 0:
-                    _open = true;
-                    _openEnd = false;
-                    break;
-                //ConsumptionProfessionalProfile
-                case 1 when SelectedProduct.Id != Guid.Empty:
-                    _open = false;
-                    _openEnd = true;
-                    break;
-                case 1:
-                    _open = true;
-                    _openEnd = false;
-                    break;
-            }
-        }
-        
-        private async Task<IEnumerable<LookupDto<Guid>>> SearchConsumptionProfessional(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return ProfessionalProfilesList;
-            }
-            var lookupDtos = ProfessionalProfilesList.Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-            return lookupDtos;
-        }
-        
-        private async Task OnConsumptionProfessionalSelected(LookupDto<Guid>? lookupDto)
-        {
-            if (lookupDto == null)
-            {
-                return;
-            }
-            
-            var consumptionProfessionalSelected = await ProfessionalProfilesAppService.GetAsync(lookupDto.Id);
-            //SelectedConsumptionWorkDto = new ConsumptionWorkDto(Guid.NewGuid(), consumptionProfessionalSelected.Id, consumptionProfessionalSelected.Code, consumptionProfessionalSelected.Name, consumptionProfessionalSelected.StandardPrice, "", 0);
-            StateHasChanged();
         }
 
         private void SaveConsumptionWork(ConsumptionWorkDto consumptionWorkDto)

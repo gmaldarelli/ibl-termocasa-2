@@ -4,12 +4,14 @@
 @using IBLTermocasa.Contacts
 @using IBLTermocasa.Localization
 @using IBLTermocasa.Permissions
-@using IBLTermocasa.Blazor.Components.Contact
 @using Microsoft.AspNetCore.Authorization
+@using MudBlazor
 @using Volo.Abp.AspNetCore.Components.Messages
 @using Volo.Abp.AspNetCore.Components.Web
 @using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
 @using Volo.Abp.Http.Client
+@using Size = MudBlazor.Size
+@using Color = MudBlazor.Color
 @inherits IBLTermocasaComponentBase
 @inject IContactsAppService ContactsAppService
 
@@ -18,126 +20,53 @@
 @inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
 @inject NavigationManager NavigationManager
 
-@{
-    string selectedTab;
-}
-
-
 @* ************************* PAGE HEADER ************************* *@
+
 <PageHeader Title="@L["Contacts"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
 
 </PageHeader>
 
-@* ************************* SEARCH ************************* *@
-<Card>
-    <CardBody>
-@*//<suite-custom-code-block-1>*@
-@*//</suite-custom-code-block-1>*@
-        <Form id="ContactSearchForm" class="mb-3">
-            <Addons>
-                <Addon AddonType="AddonType.Body">
-                    <TextEdit @bind-Text="@Filter.FilterText"
-                              Autofocus="true"
-                              Placeholder="@L["Search"]">
-                    </TextEdit>
-                </Addon>
-                <Addon AddonType="AddonType.End">
-                    <SubmitButton Form="ContactSearchForm" Clicked="GetContactsAsync">
-                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
-                    </SubmitButton>
-                </Addon>
-            </Addons>
-        </Form>
-        
-        <Row Class="mt-3 mb-3"> 
-            <div class="col-md-12">
-                <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
-            </div>
-        </Row>
-        
-        <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
-            <Row>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["Title"]</FieldLabel>
-                        <TextEdit Text="@Filter.Title" TextChanged="@OnTitleChangedAsync" />                       
-                    </Field>
-                </Column>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["Name"]</FieldLabel>
-                        <TextEdit Text="@Filter.Name" TextChanged="@OnNameChangedAsync" />                       
-                    </Field>
-                </Column>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["Surname"]</FieldLabel>
-                        <TextEdit Text="@Filter.Surname" TextChanged="@OnSurnameChangedAsync" />                       
-                    </Field>
-                </Column>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["Phone"]</FieldLabel>
-                        <TextEdit Text="@Filter.PhoneInfo" TextChanged="@OnPhoneChangedAsync" />                       
-                    </Field>
-                </Column>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["Mail"]</FieldLabel>
-                        <TextEdit Text="@Filter.MailInfo" TextChanged="@OnMailChangedAsync" />                       
-                    </Field>
-                </Column>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["ConfidentialName"]</FieldLabel>
-                        <TextEdit Text="@Filter.ConfidentialName" TextChanged="@OnConfidentialNameChangedAsync" />                       
-                    </Field>
-                </Column>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["JobRole"]</FieldLabel>
-                        <TextEdit Text="@Filter.JobRole" TextChanged="@OnJobRoleChangedAsync" />                       
-                    </Field>
-                </Column>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["Tag"]</FieldLabel>
-                        <TextEdit Text="@Filter.Tag" TextChanged="@OnTagChangedAsync" />                       
-                    </Field>
-                </Column>
-            </Row>
-@*//<suite-custom-code-block-2>*@
-@*//</suite-custom-code-block-2>*@
-        </div>
-@*//<suite-custom-code-block-3>*@
-@*//</suite-custom-code-block-3>*@
-    </CardBody>
-</Card>
+@* ************************* SEARCH AND DATA GRID ************************* *@
 
-@* ************************* DATA GRID ************************* *@
-<MudBlazor.MudCard>
-    <MudBlazor.MudCardContent>
-        <MudBlazor.MudDataGrid Dense="true" Striped="@true" Bordered="true" Items="ContactList">
-            <Columns>
-                <MudBlazor.PropertyColumn Property="x => x.Title" Title="@L["Title"]"/>
-                <MudBlazor.PropertyColumn Property="x => x.Name" Title="@L["Name"]"/>
-                <MudBlazor.PropertyColumn Property="x => x.Surname" Title="@L["Surname"]"/>
-                <MudBlazor.PropertyColumn Property="x => x.ConfidentialName" Title="@L["ConfidentialName"]"/>
-                <MudBlazor.PropertyColumn Property="x => x.JobRole" Title="@L["JobRole"]"/>
-                <MudBlazor.PropertyColumn Property="x => x.Phones" Title="@L["Phones"]"/>
-                <MudBlazor.PropertyColumn Property="x => x.Emails" Title="@L["Emails"]"/>
-                <MudBlazor.TemplateColumn CellClass="d-flex justify-end">
-                    <CellTemplate>
-                        <MudBlazor.MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Outlined.RemoveRedEye" OnClick="() => OpenEditContactPageAsync(context.Item)"/>
-                        <MudBlazor.MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Outlined.Remove" OnClick="() => DeleteContactAsync(context.Item)"/>
-                    </CellTemplate>
-                </MudBlazor.TemplateColumn>
-            </Columns>
-            <PagerContent>
-                <MudBlazor.MudDataGridPager T="ContactDto" />
-            </PagerContent>
-        </MudBlazor.MudDataGrid>
-    </MudBlazor.MudCardContent>
-</MudBlazor.MudCard>
-<MudBlazor.MudThemeProvider/>
-<MudBlazor.MudDialogProvider/>
+<MudDataGrid @ref="ContactMudDataGrid"
+             ServerData="LoadGridData"
+             T="ContactDto"
+             ReadOnly="false"
+             Virtualize="true" FixedHeader="true"
+             Hover="true"
+             Bordered="false" Dense="false"
+             Filterable="true" RowsPerPage="10"
+             SortMode="SortMode.Multiple"
+             Class="mud-data-grid-custom">
+    <ToolBarContent>
+        <MudTextField T="string" Placeholder="@L["Search"]" Adornment="Adornment.Start" Immediate="true" ValueChanged="arg => SearchAsync(arg)" DebounceInterval="1000"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 mb-2">
+        </MudTextField>
+        <MudSpacer/>
+        <MudButton Class="mr-2" StartIcon="@Icons.Material.Outlined.FileDownload" Size="Size.Small" Variant="Variant.Filled" Color="@Color.Primary" OnClick="DownloadAsExcelAsync">@L["ExportToExcel"]</MudButton>
+        <MudButton StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" Variant="Variant.Filled" Color="@Color.Primary" OnClick="OpenCreateContactModalAsync">@L["NewContact"]</MudButton>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.Title" Title="@L["Title"]"/>
+        <PropertyColumn Property="x => x.Name" Title="@L["Name"]"/>
+        <PropertyColumn Property="x => x.Surname" Title="@L["Surname"]"/>
+        <PropertyColumn Property="x => x.JobRole" Title="@L["JobRole"]"/>
+        <PropertyColumn Property="x => x.Phones" Title="@L["Phones"]"/>
+        <PropertyColumn Property="x => x.Emails" Title="@L["Emails"]"/>
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenEditContactPageAsync(context.Item))"/>
+                </MudTooltip>
+                <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteContactAsync(context.Item)"/>
+                </MudTooltip>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="ContactDto"/>
+    </PagerContent>
+</MudDataGrid>
+<MudThemeProvider/>
+<MudDialogProvider/>

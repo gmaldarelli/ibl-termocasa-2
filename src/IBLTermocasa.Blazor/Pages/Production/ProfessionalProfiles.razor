@@ -26,11 +26,8 @@
 
 </PageHeader>
 
-<style>
-    .mud-data-grid-custom .mud-data-grid-toolbar {
-        padding-bottom: 2rem; /* 8 * 0.25rem = 2rem */
-    }
-</style>
+@* ************************* SEARCH AND DATA GRID ************************* *@
+
 <MudDataGrid @ref="ProfessionalProfileMudDataGrid"
              ServerData="LoadGridData"
              T="ProfessionalProfileDto"
@@ -38,7 +35,7 @@
              Virtualize="true" FixedHeader="true"
              Hover="true"
              Bordered="false" Dense="false"
-             Filterable="true" RowsPerPage="5"
+             Filterable="true" RowsPerPage="10"
              SortMode="SortMode.Multiple"
              Class="mud-data-grid-custom">
     <ToolBarContent>
@@ -55,12 +52,21 @@
         <PropertyColumn Property="x => x.StandardPrice" Title="@L["StandardPrice"]" Format="C2"/>
         <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
-                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenNewOrReadOrEditProfessionalProfile(context.Item, true, false))"/>
-                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(() => OpenNewOrReadOrEditProfessionalProfile(context.Item, false, false))"/>
-                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteProfessionalProfileAsync(context.Item)"/>
+                <MudTooltip Inline="true" Text="@L["View"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenNewOrReadOrEditProfessionalProfile(context.Item, true, false))"/>
+                </MudTooltip>
+                <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(() => OpenNewOrReadOrEditProfessionalProfile(context.Item, false, false))"/>
+                </MudTooltip>
+                <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteProfessionalProfileAsync(context.Item)"/>
+                </MudTooltip>
             </CellTemplate>
         </TemplateColumn>
     </Columns>
+    <PagerContent>
+        <MudDataGridPager T="ProfessionalProfileDto" />
+    </PagerContent>
 </MudDataGrid>
 
 <MudThemeProvider/>

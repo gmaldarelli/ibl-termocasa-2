@@ -70,3 +70,14 @@
     left: 0;
     min-width: 20px;
 }
+
+.mud-data-grid-custom .mud-table-toolbar {
+    margin-bottom: 1.5rem;
+}
+
+.mud-data-grid-custom .mud-table-cell {
+    border-bottom: none;
+}
+.mud-data-grid-custom .mud-table-row {
+    border-bottom: 2px solid #d3d3d3; /* Colore e spessore del bordo */
+}

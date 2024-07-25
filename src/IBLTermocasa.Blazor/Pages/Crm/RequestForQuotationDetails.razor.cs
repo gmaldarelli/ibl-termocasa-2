@@ -6,25 +6,22 @@ using IBLTermocasa.Permissions;
 using IBLTermocasa.RequestForQuotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
-using BreadcrumbItem = Volo.Abp.BlazoriseUI.BreadcrumbItem;
 using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
 using Volo.Abp.Http.Client;
+using BreadcrumbItem = Volo.Abp.BlazoriseUI.BreadcrumbItem;
 
 namespace IBLTermocasa.Blazor.Pages.Crm;
 
 public partial class RequestForQuotationDetails
 
 {
-    [Inject]
-    public IRequestForQuotationsAppService RequestForQuotationService { get; set; }
-    [Inject]
-    public IAuthorizationService AuthorizationService { get; set; }
-    
-    
+    [Inject] public IRequestForQuotationsAppService RequestForQuotationService { get; set; }
+    [Inject] public IAuthorizationService AuthorizationService { get; set; }
+
+
     [Parameter] public string? Id { get; set; }
-    
-    
+
+
     protected List<BreadcrumbItem> BreadcrumbItems = new();
     protected PageToolbar Toolbar { get; } = new PageToolbar();
     private bool CanCreateRequestForQuotation { get; set; }
@@ -37,7 +34,7 @@ public partial class RequestForQuotationDetails
 
     protected override async Task OnInitializedAsync()
     {
-        if(Id != null && Guid.TryParse(Id, out _) && Id != Guid.Empty.ToString())
+        if (Id != null && Guid.TryParse(Id, out _) && Id != Guid.Empty.ToString())
         {
             IsNew = false;
             Guid id = Guid.Parse(Id);
@@ -48,6 +45,7 @@ public partial class RequestForQuotationDetails
             IsNew = true;
             RequestForQuotation = new RequestForQuotationDto();
         }
+
         await SetBreadcrumbItemsAsync();
         await SetPermissionsAsync();
     }
@@ -64,8 +62,9 @@ public partial class RequestForQuotationDetails
             await UiMessageService.Warn(L["RequestForQuotationNotFound"]);
             NavigationManager.NavigateTo("/request-for-quotations");
         }
+
         return null;
-    }   
+    }
 
 
     private async Task SetPermissionsAsync()
@@ -89,9 +88,12 @@ public partial class RequestForQuotationDetails
             }
             else
             {
-                BreadcrumbItems.Add(new BreadcrumbItem($"{L["Menu:RequestForQuotationDraft"]} - {RequestForQuotation.QuoteNumber} ", $"/rfq-draft/{RequestForQuotation.Id}"));
+                BreadcrumbItems.Add(new BreadcrumbItem(
+                    $"{L["Menu:RequestForQuotationDraft"]} - {RequestForQuotation.QuoteNumber} ",
+                    $"/rfq-draft/{RequestForQuotation.Id}"));
             }
         }
+
         return ValueTask.CompletedTask;
     }
 

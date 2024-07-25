@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
 
-namespace IBLTermocasa.Blazor.Pages;
+namespace IBLTermocasa.Blazor.Pages.Production;
 
 public partial class BillOfMaterialsDetail
 {

@@ -40,20 +40,20 @@ public partial class Quotation
         await SetBreadcrumbItemsAsync();
         await SetPermissionsAsync();
     }
-    
+
     protected override async Task OnParametersSetAsync()
     {
-        if(Id != null && Guid.TryParse(Id, out _) && Id != Guid.Empty.ToString())
+        if (Id != null && Guid.TryParse(Id, out _) && Id != Guid.Empty.ToString())
         {
             var quotation = await QuotationsAppService.GetAsync(Guid.Parse(Id));
-            if(quotation != null)
+            if (quotation != null)
             {
                 QuotationInput = quotation;
                 RfqInput = await RequestForQuotationsAppService.GetAsync(quotation.IdRFQ);
                 BillOfMaterialsInput = await BillOfMaterialsAppService.GetAsync(quotation.IdBOM);
                 DesideredMarkup = (int)quotation.QuotationItems!.Average(x => x.MarkUp);
-               
             }
+
             IsLoading = false;
         }
     }
@@ -62,7 +62,7 @@ public partial class Quotation
     {
         throw new NotImplementedException();
     }
-    
+
     private async Task SetPermissionsAsync()
     {
         CanCreateQuotation = await AuthorizationService
@@ -78,9 +78,10 @@ public partial class Quotation
         BreadcrumbItems.Add(new BreadcrumbItem(L["Menu:Quotations"], "/quotations"));
         if (QuotationInput != null)
         {
-            BreadcrumbItems.Add(new BreadcrumbItem($"{L["Menu:Quotation"]} - {QuotationInput.Code} ", $"/quotation/{QuotationInput.Id}"));
-
+            BreadcrumbItems.Add(new BreadcrumbItem($"{L["Menu:Quotation"]} - {QuotationInput.Code} ",
+                $"/quotation/{QuotationInput.Id}"));
         }
+
         return ValueTask.CompletedTask;
     }
 
@@ -113,21 +114,27 @@ public partial class Quotation
         foreach (var quotationItem in QuotationInput.QuotationItems)
         {
             quotationItem.Discount = (double)QuotationInput.Discount;
-            quotationItem.SellingPrice = quotationItem.TotalCost + (quotationItem.TotalCost * quotationItem.MarkUp / 100);
-            quotationItem.FinalSellingPrice = quotationItem.SellingPrice - (quotationItem.SellingPrice * quotationItem.Discount / 100);
+            quotationItem.SellingPrice =
+                quotationItem.TotalCost + (quotationItem.TotalCost * quotationItem.MarkUp / 100);
+            quotationItem.FinalSellingPrice = quotationItem.SellingPrice -
+                                              (quotationItem.SellingPrice * quotationItem.Discount / 100);
         }
+
         QuotationProductMudDataGrid.ReloadServerData();
         StateHasChanged();
     }
-    
+
     private void OnChangeMarkUp(MouseEventArgs obj)
     {
         foreach (var quotationItem in QuotationInput.QuotationItems)
         {
             quotationItem.MarkUp = QuotationInput.MarkUp ?? 0;
-            quotationItem.SellingPrice = quotationItem.TotalCost + (quotationItem.TotalCost * quotationItem.MarkUp / 100);
-            quotationItem.FinalSellingPrice = quotationItem.SellingPrice - (quotationItem.SellingPrice * quotationItem.Discount / 100);
+            quotationItem.SellingPrice =
+                quotationItem.TotalCost + (quotationItem.TotalCost * quotationItem.MarkUp / 100);
+            quotationItem.FinalSellingPrice = quotationItem.SellingPrice -
+                                              (quotationItem.SellingPrice * quotationItem.Discount / 100);
         }
+
         QuotationProductMudDataGrid.ReloadServerData();
         StateHasChanged();
     }

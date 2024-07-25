@@ -3,25 +3,23 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using Blazorise;
-using Blazorise.DataGrid;
 using IBLTermocasa.Blazor.Components;
 using IBLTermocasa.Contacts;
 using IBLTermocasa.Permissions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
+using NUglify.Helpers;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
-using Volo.Abp.BlazoriseUI.Components;
 using BreadcrumbItem = Volo.Abp.BlazoriseUI.BreadcrumbItem;
 
 namespace IBLTermocasa.Blazor.Pages.Crm
 {
     public partial class Contacts
     {
-        protected List<BreadcrumbItem> BreadcrumbItems = new List<BreadcrumbItem>();
-        protected PageToolbar Toolbar {get;} = new PageToolbar();
-        protected bool ShowAdvancedFilters { get; set; }
+        protected List<BreadcrumbItem> BreadcrumbItems = new();
+        protected PageToolbar Toolbar { get; } = new();
         private IReadOnlyList<ContactDto> ContactList { get; set; }
         private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
         private int CurrentPage { get; set; } = 1;
@@ -32,13 +30,13 @@ namespace IBLTermocasa.Blazor.Pages.Crm
         private bool CanDeleteContact { get; set; }
         private ContactDto ContactInput { get; set; }
         private GetContactsInput Filter { get; set; }
-        private DataGridEntityActionsColumn<ContactDto> EntityActionsColumn { get; set; } = new();
-        protected string SelectedCreateTab = "contact-create-tab";
-        protected string SelectedEditTab = "contact-edit-tab";
         private ContactDto? SelectedContact;
-        [Inject]
-        private SecureConfirmationService _SecureConfirmationService { get; set; }
-        
+        private MudDataGrid<ContactDto> ContactMudDataGrid { get; set; } = new();
+        private string _searchString;
+
+        [Inject] private SecureConfirmationService _SecureConfirmationService { get; set; }
+
+
         public Contacts()
         {
             ContactInput = new ContactDto();
@@ -62,10 +60,9 @@ namespace IBLTermocasa.Blazor.Pages.Crm
             if (firstRender)
             {
                 await SetBreadcrumbItemsAsync();
-                await SetToolbarItemsAsync();
                 StateHasChanged();
             }
-        }  
+        }
 
         protected virtual ValueTask SetBreadcrumbItemsAsync()
         {
@@ -73,26 +70,15 @@ namespace IBLTermocasa.Blazor.Pages.Crm
             return ValueTask.CompletedTask;
         }
 
-        protected virtual ValueTask SetToolbarItemsAsync()
-        {
-            Toolbar.AddButton(L["ExportToExcel"], async () =>{ await DownloadAsExcelAsync(); }, IconName.Download);
-            
-            Toolbar.AddButton(L["NewContact"], async () =>
-            {
-                await OpenCreateContactModalAsync();
-            }, IconName.Add, requiredPolicyName: IBLTermocasaPermissions.Contacts.Create);
-
-            return ValueTask.CompletedTask;
-        }
 
         private async Task SetPermissionsAsync()
         {
             CanCreateContact = await AuthorizationService
                 .IsGrantedAsync(IBLTermocasaPermissions.Contacts.Create);
             CanEditContact = await AuthorizationService
-                            .IsGrantedAsync(IBLTermocasaPermissions.Contacts.Edit);
+                .IsGrantedAsync(IBLTermocasaPermissions.Contacts.Edit);
             CanDeleteContact = await AuthorizationService
-                            .IsGrantedAsync(IBLTermocasaPermissions.Contacts.Delete);
+                .IsGrantedAsync(IBLTermocasaPermissions.Contacts.Delete);
         }
 
         private async Task GetContactsAsync()
@@ -106,44 +92,44 @@ namespace IBLTermocasa.Blazor.Pages.Crm
             TotalCount = (int)result.TotalCount;
         }
 
-        protected virtual async Task SearchAsync()
-        {
-            CurrentPage = 1;
-            await GetContactsAsync();
-            await InvokeAsync(StateHasChanged);
-        }
-
         private async Task DownloadAsExcelAsync()
         {
             var token = (await ContactsAppService.GetDownloadTokenAsync()).Token;
-            var remoteService = await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("IBLTermocasa") ?? await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
+            var remoteService =
+                await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("IBLTermocasa") ??
+                await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
             var culture = CultureInfo.CurrentUICulture.Name ?? CultureInfo.CurrentCulture.Name;
-            if(!culture.IsNullOrEmpty())
+            if (!culture.IsNullOrEmpty())
             {
                 culture = "&culture=" + culture;
             }
+
             await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
-            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/contacts/as-excel-file?DownloadToken={token}&FilterText={Filter.FilterText}{culture}&Title={Filter.Title}&Name={Filter.Name}&Surname={Filter.Surname}&Phone={Filter.PhoneInfo}&Mail={Filter.MailInfo}&ConfidentialName={Filter.ConfidentialName}&JobRole={Filter.JobRole}&Tag={Filter.Tag}", forceLoad: true);
+            NavigationManager.NavigateTo(
+                $"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/contacts/as-excel-file?DownloadToken={token}&FilterText={Filter.FilterText}{culture}&Title={Filter.Title}&Name={Filter.Name}&Surname={Filter.Surname}&Phone={Filter.PhoneInfo}&Mail={Filter.MailInfo}&ConfidentialName={Filter.ConfidentialName}&JobRole={Filter.JobRole}&Tag={Filter.Tag}",
+                forceLoad: true);
         }
 
-        private async Task OpenCreateContactModalAsync()
+        private Task OpenCreateContactModalAsync()
         {
-            ContactInput = new ContactDto(){
+            ContactInput = new ContactDto()
+            {
             };
-            
+
             SelectedContact = ContactInput;
             NavigationManager.NavigateTo($"/contact/{Guid.Empty}");
-            //await CreateContactModal.Show();
+            return Task.CompletedTask;
         }
+
         private void OpenEditContactPageAsync(ContactDto input)
         {
             //navigate to the page ContactDetail
             SelectedContact = input;
             NavigationManager.NavigateTo($"/contact/{input.Id}");
         }
+
         private async Task DeleteContactAsync(ContactDto input)
         {
-            
             bool result = await _SecureConfirmationService.ShowConfirmation(
                 "Sei sicuro di voler eliminare questo contatto?",
                 "Scrivi il nome dell contatto {0} per confermare l'eliminazione",
@@ -161,57 +147,97 @@ namespace IBLTermocasa.Blazor.Pages.Crm
                 // Cancellazione annullata
                 Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>Cancellazione annullata...");
             }
+
             StateHasChanged();
         }
-        private void OnSelectedCreateTabChanged(string name)
+
+
+        private async void SearchAsync(string filterText)
         {
-            SelectedCreateTab = name;
+            _searchString = filterText;
+            if ((_searchString.IsNullOrEmpty() || _searchString.Length < 3) &&
+                ContactMudDataGrid.Items != null && ContactMudDataGrid.Items.Any())
+            {
+                return;
+            }
+
+            await LoadGridData(new GridState<ContactDto>
+            {
+                Page = 0,
+                PageSize = PageSize,
+                SortDefinitions = ContactMudDataGrid.SortDefinitions.Values.ToList()
+            });
+            await ContactMudDataGrid.ReloadServerData();
+            StateHasChanged();
         }
 
-        private void OnSelectedEditTabChanged(string name)
+        private async Task<GridData<ContactDto>> LoadGridData(GridState<ContactDto> state)
         {
-            SelectedEditTab = name;
-        }
+            state.SortDefinitions.ForEach(sortDef =>
+            {
+                CurrentSorting = sortDef.Descending ? $" {sortDef.SortBy} DESC" : $" {sortDef.SortBy} ";
+            });
+            Filter.SkipCount = state.Page * state.PageSize;
+            Filter.Sorting = CurrentSorting;
+            Filter.MaxResultCount = state.PageSize;
+            Filter.FilterText = _searchString;
+            var firstOrDefault = ContactMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(ContactDto.Title) });
+            if (firstOrDefault != null)
+            {
+                Filter.Title = (string?)firstOrDefault.Value;
+            }
 
-        protected virtual async Task OnTitleChangedAsync(string? title)
-        {
-            Filter.Title = title;
-            await SearchAsync();
-        }
-        protected virtual async Task OnNameChangedAsync(string? name)
-        {
-            Filter.Name = name;
-            await SearchAsync();
-        }
-        protected virtual async Task OnSurnameChangedAsync(string? surname)
-        {
-            Filter.Surname = surname;
-            await SearchAsync();
-        }
-        protected virtual async Task OnPhoneChangedAsync(string? phone)
-        {
-            Filter.PhoneInfo = phone;
-            await SearchAsync();
-        }
-        protected virtual async Task OnMailChangedAsync(string? mail)
-        {
-            Filter.MailInfo = mail;
-            await SearchAsync();
-        }
-        protected virtual async Task OnConfidentialNameChangedAsync(string? confidentialName)
-        {
-            Filter.ConfidentialName = confidentialName;
-            await SearchAsync();
-        }
-        protected virtual async Task OnJobRoleChangedAsync(string? jobRole)
-        {
-            Filter.JobRole = jobRole;
-            await SearchAsync();
-        }
-        protected virtual async Task OnTagChangedAsync(string? tag)
-        {
-            Filter.Tag = tag;
-            await SearchAsync();
+            var firstOrDefault1 = ContactMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(ContactDto.Name) });
+            if (firstOrDefault1 != null)
+            {
+                Filter.Name = (string?)firstOrDefault1.Value;
+            }
+
+            var firstOrDefault2 = ContactMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(ContactDto.Surname) });
+            if (firstOrDefault2 != null)
+            {
+                Filter.Surname = (string)firstOrDefault2.Value!;
+            }
+
+            var firstOrDefault3 = ContactMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(ContactDto.ConfidentialName) });
+            if (firstOrDefault3 != null)
+            {
+                Filter.ConfidentialName = (string)firstOrDefault3.Value!;
+            }
+
+            var firstOrDefault4 = ContactMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(ContactDto.JobRole) });
+            if (firstOrDefault4 != null)
+            {
+                Filter.JobRole = (string)firstOrDefault4.Value!;
+            }
+
+            var firstOrDefault5 = ContactMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(ContactDto.Phones) });
+            if (firstOrDefault5 != null)
+            {
+                Filter.PhoneInfo = (string)firstOrDefault5.Value!;
+            }
+
+            var firstOrDefault6 = ContactMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(ContactDto.Emails) });
+            if (firstOrDefault6 != null)
+            {
+                Filter.MailInfo = (string)firstOrDefault6.Value!;
+            }
+
+            var result = await ContactsAppService.GetListAsync(Filter);
+            ContactList = result.Items;
+            GridData<ContactDto> data = new()
+            {
+                Items = ContactList,
+                TotalItems = (int)result.TotalCount
+            };
+            return data;
         }
     }
 }

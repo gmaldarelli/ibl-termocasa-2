@@ -60,36 +60,37 @@ namespace IBLTermocasa.Contacts
         }
 
         protected virtual IQueryable<Contact> ApplyFilter(
-            IQueryable<Contact> query,
-            string? filterText = null,
-            string? title = null,
-            string? name = null,
-            string? surname = null,
-            string? confidentialName = null,
-            string? jobRole = null,
-            string? mailInfo = null,
-            string? phoneInfo = null,
-            string? addressInfo = null,
-            string? tag = null)
+        IQueryable<Contact> query,
+        string? filterText = null,
+        string? title = null,
+        string? name = null,
+        string? surname = null,
+        string? confidentialName = null,
+        string? jobRole = null,
+        string? mailInfo = null,
+        string? phoneInfo = null,
+        string? addressInfo = null,
+        string? tag = null)
         {
+            filterText = filterText?.ToLower();
             return query
                 .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => 
-                    e.Title!.Contains(filterText!) 
-                    || e.Name!.Contains(filterText!) 
-                    || e.Surname!.Contains(filterText!) 
-                    || e.ConfidentialName!.Contains(filterText!) 
-                    || e.JobRole!.Contains(filterText!) 
-                    || e.MailInfo!.MailItems.Any(x => x.Email.Contains(filterText!)) 
-                    || e.PhoneInfo!.PhoneItems.Any(x => x.Number.Contains(filterText!))
-                    || e.Tags!.Contains(filterText!))
-                    .WhereIf(!string.IsNullOrWhiteSpace(title), e => e.Title.Contains(title))
-                    .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name))
-                    .WhereIf(!string.IsNullOrWhiteSpace(surname), e => e.Surname.Contains(surname))
-                    .WhereIf(!string.IsNullOrWhiteSpace(confidentialName), e => e.ConfidentialName.Contains(confidentialName))
-                    .WhereIf(!string.IsNullOrWhiteSpace(jobRole), e => e.JobRole.Contains(jobRole))
-                    .WhereIf(!string.IsNullOrWhiteSpace(mailInfo), e => e.MailInfo.MailItems.Any(x => x.Email.Contains(mailInfo)))
-                    .WhereIf(!string.IsNullOrWhiteSpace(phoneInfo), e => e.PhoneInfo.PhoneItems.Any(x => x.Number.Contains(phoneInfo)))
-                    .WhereIf(!string.IsNullOrWhiteSpace(tag), e => e.Tags.Contains(tag));
+                    e.Title != null && e.Title.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)
+                    || e.Name.ToLower().Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)
+                    || e.Surname.ToLower().Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)
+                    || e.ConfidentialName != null && e.ConfidentialName.ToLower().Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)
+                    || e.JobRole != null && e.JobRole.ToLower().Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)
+                    || e.MailInfo.MailItems.Any(x => x.Email.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)) 
+                    || e.PhoneInfo.PhoneItems.Any(x => x.Number.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)) 
+                    || e.Tags.Any(t => t.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)))
+                .WhereIf(!string.IsNullOrWhiteSpace(title), e => e.Title != null && e.Title.Contains(title!, StringComparison.CurrentCultureIgnoreCase))
+                .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name!, StringComparison.CurrentCultureIgnoreCase))
+                .WhereIf(!string.IsNullOrWhiteSpace(surname), e => e.Surname.Contains(surname!, StringComparison.CurrentCultureIgnoreCase))
+                .WhereIf(!string.IsNullOrWhiteSpace(confidentialName), e => e.ConfidentialName != null && e.ConfidentialName.Contains(confidentialName!, StringComparison.CurrentCultureIgnoreCase))
+                .WhereIf(!string.IsNullOrWhiteSpace(jobRole), e => e.JobRole != null && e.JobRole.Contains(jobRole!, StringComparison.CurrentCultureIgnoreCase))
+                .WhereIf(!string.IsNullOrWhiteSpace(mailInfo), e => e.MailInfo.MailItems.Any(x => x.Email.Contains(mailInfo!, StringComparison.CurrentCultureIgnoreCase)))
+                .WhereIf(!string.IsNullOrWhiteSpace(phoneInfo), e => e.PhoneInfo.PhoneItems.Any(x => x.Number.Contains(phoneInfo!, StringComparison.CurrentCultureIgnoreCase)))
+                .WhereIf(!string.IsNullOrWhiteSpace(tag), e => e.Tags.Any(t => t.Contains(tag!, StringComparison.CurrentCultureIgnoreCase)));
         }
     }
 }

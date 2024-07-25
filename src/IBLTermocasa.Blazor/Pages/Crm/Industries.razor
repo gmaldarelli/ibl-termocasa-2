@@ -1,0 +1,183 @@
+
+
+@page "/industries"
+
+@attribute [Authorize(IBLTermocasaPermissions.Industries.Default)]
+@using IBLTermocasa.Industries
+@using IBLTermocasa.Localization
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using IBLTermocasa.Permissions
+@using Volo.Abp.AspNetCore.Components.Web
+@using MudBlazor
+@using Size = MudBlazor.Size
+@using Color = MudBlazor.Color
+
+@inherits IBLTermocasaComponentBase
+@inject IIndustriesAppService IndustriesAppService
+
+@inject IUiMessageService UiMessageService
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+
+
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["Industries"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* SEARCH AND DATA GRID ************************* *@
+
+<MudDataGrid @ref="IndustryMudDataGrid"
+             ServerData="LoadGridData"
+             T="IndustryDto"
+             ReadOnly="false"
+             Virtualize="true" FixedHeader="true"
+             Hover="true"
+             Bordered="false" Dense="false"
+             Filterable="true" RowsPerPage="10"
+             SortMode="SortMode.Multiple"
+             Class="mud-data-grid-custom">
+    <ToolBarContent>
+        <MudTextField T="string" Placeholder="@L["Search"]" Adornment="Adornment.Start" Immediate="true" ValueChanged="arg => SearchAsync(arg)" DebounceInterval="1000"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 mb-2">
+        </MudTextField>
+        <MudSpacer/>
+        <MudButton StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" Variant="Variant.Filled" Color="@Color.Primary" OnClick="OpenCreateIndustryModalAsync">@L["NewIndustry"]</MudButton>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.Code" Title="@L["Code"]"/>
+        <PropertyColumn Property="x => x.Description" Title="@L["Description"]"/>
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenEditIndustryModalAsync(context.Item))"/>
+                </MudTooltip>
+                <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteIndustryAsync(context.Item)"/>
+                </MudTooltip>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="IndustryDto" />
+    </PagerContent>
+</MudDataGrid>
+<MudThemeProvider/>
+<MudDialogProvider/>
+
+@* ************************* CREATE MODAL ************************* *@
+<Modal @ref="CreateIndustryModal" Closing="@CreateIndustryModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+
+        <Form id="CreateIndustryForm">
+            <ModalHeader>
+                <ModalTitle>@L["NewIndustry"]</ModalTitle>
+                <CloseButton Clicked="CloseCreateIndustryModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@NewIndustryValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@NewIndustry"
+                            ValidateOnLoad="false">
+                     
+                    
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Code"] *</FieldLabel>
+                            <TextEdit @bind-Text="@NewIndustry.Code" MaxLength="IndustryConsts.CodeMaxLength" >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Description"]</FieldLabel>
+                            <MemoEdit @bind-Text="@NewIndustry.Description" MaxLength="IndustryConsts.DescriptionMaxLength" >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </MemoEdit>
+                        </Field>
+                    </Validation>
+
+
+                    
+                    
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Blazorise.Color.Secondary"
+                        Clicked="CloseCreateIndustryModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="CreateIndustryForm" Clicked="CreateIndustryAsync" />
+
+            </ModalFooter>
+        </Form>
+
+    </ModalContent>
+</Modal>
+
+@* ************************* EDIT MODAL ************************* *@
+<Modal @ref="EditIndustryModal" Closing="@EditIndustryModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+
+        <Form id="EditIndustryForm">
+            <ModalHeader>
+                <ModalTitle>@L["Update"]</ModalTitle>
+                <CloseButton Clicked="CloseEditIndustryModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@EditingIndustryValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@EditingIndustry"
+                            ValidateOnLoad="false">
+                     
+                    
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Code"] *</FieldLabel>
+                            <TextEdit @bind-Text="@EditingIndustry.Code" MaxLength="IndustryConsts.CodeMaxLength" >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Description"]</FieldLabel>
+                            <MemoEdit @bind-Text="@EditingIndustry.Description" MaxLength="IndustryConsts.DescriptionMaxLength" >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </MemoEdit>
+                        </Field>
+                    </Validation>
+
+
+                    
+                    
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Blazorise.Color.Secondary"
+                        Clicked="CloseEditIndustryModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="EditIndustryForm" Clicked="UpdateIndustryAsync" />
+
+            </ModalFooter>
+        </Form>
+
+    </ModalContent>
+</Modal>
+

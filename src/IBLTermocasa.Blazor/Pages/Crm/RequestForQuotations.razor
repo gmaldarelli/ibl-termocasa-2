@@ -1,7 +1,6 @@
 @page "/request-for-quotations"
 
 @attribute [Authorize(IBLTermocasaPermissions.RequestForQuotations.Default)]
-@using IBLTermocasa.Blazor.Components.RequestForQuotation
 @using IBLTermocasa.Localization
 @using IBLTermocasa.Permissions
 @using IBLTermocasa.RequestForQuotations
@@ -29,20 +28,16 @@
 
 </PageHeader>
 
-@* ************************* DATA GRID ************************* *@
-<style>
-    .mud-data-grid-custom .mud-data-grid-toolbar {
-        padding-bottom: 2rem; /* 8 * 0.25rem = 2rem */
-    }
-</style>
+@* ************************* SEARCH AND DATA GRID ************************* *@
+
 <MudDataGrid @ref="RequestForQuotationMudDataGrid"
-             ServerData="LoadGridData" 
+             ServerData="LoadGridData"
              T="RequestForQuotationDto"
              ReadOnly="false"
              Virtualize="true" FixedHeader="true"
              Hover="true"
              Bordered="false" Dense="false"
-             Filterable="true" RowsPerPage="5"
+             Filterable="true" RowsPerPage="10"
              SortMode="SortMode.Multiple"
              Class="mud-data-grid-custom">
     <ToolBarContent>
@@ -67,15 +62,22 @@
         </TemplateColumn>
         <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
-                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenReadOrEditRfq(context.Item, true))"/>
-                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Disabled="context.Item.Status == RfqStatus.IN_PROGRESS_BOM" OnClick="@(() => OpenReadOrEditRfq(context.Item, false))"/>
-                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" Disabled="context.Item.Status == RfqStatus.IN_PROGRESS_BOM" OnClick="() => DeleteRequestForQuotationAsync(context.Item)"/>
-            </CellTemplate>
+                <MudTooltip Inline="true" Text="@L["View"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenReadOrEditRfq(context.Item, true))"/>
+                </MudTooltip>
+                <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Disabled="context.Item.Status == RfqStatus.IN_PROGRESS_BOM" OnClick="@(() => OpenReadOrEditRfq(context.Item, false))"/>
+                </MudTooltip>
+                <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" Disabled="context.Item.Status == RfqStatus.IN_PROGRESS_BOM" OnClick="() => DeleteRequestForQuotationAsync(context.Item)"/>
+                </MudTooltip>
+                </CellTemplate>
         </TemplateColumn>
     </Columns>
+    <PagerContent>
+        <MudDataGridPager T="RequestForQuotationDto"/>
+    </PagerContent>
 </MudDataGrid>
-
-@* ************************* READ AND EDIT MODAL ************************* *@
 <MudThemeProvider/>
 <MudDialogProvider/>
-<MudSnackbarProvider />
+<MudSnackbarProvider/>

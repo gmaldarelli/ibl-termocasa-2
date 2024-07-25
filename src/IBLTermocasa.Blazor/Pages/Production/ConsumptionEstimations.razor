@@ -36,7 +36,7 @@
 <MudPaper Style="overflow:hidden; position:relative; height: 80vh">
     <MudDrawerContainer Class="mud-height-full" Style="height: 100%;">
         <MudDrawer @bind-Open="@_open" Elevation="0" Variant="@DrawerVariant.Persistent" 
-                   Color="MudBlazor.Color.Transparent" Width="30%" Height="100%"  Style="min-height: 350px">
+                   Color="Color.Transparent" Width="30%" Height="100%"  Style="min-height: 350px">
             <MudDrawerHeader Style="min-width: 300px; width: 300px;">
                 <MudText Align="Align.Center" 
                          Style="box-shadow: 0 2px #cdcdcd;">@L["ProductsList"]</MudText>
@@ -69,7 +69,7 @@
                         <MudTreeViewItem @bind-Expanded="@context.IsExpanded"
                                          Items="@context.TreeItems"
                                          Icon="@context.Icon"
-                                         LoadingIconColor="MudBlazor.Color.Info"
+                                         LoadingIconColor="Color.Info"
                                          Text="@context.CodeAndName"
                                          OnDoubleClick="() => OnDoubleClickSelectConsumptionComponent(context)"/>
                     </ItemTemplate>
@@ -80,11 +80,11 @@
         <div class="d-flex justify-content-start align-left">
             <MudPaper Elevation="25" Class="w-100">
                 <MudToolBar>
-                    <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="MudBlazor.Color.Info" Class="mr-5" OnClick="@ToggleDrawer"/>
-                    <MudIconButton Icon="@Icons.Material.Outlined.Save" Color="MudBlazor.Color.Primary" Class="mr-5" OnClick="@OnClickSaveConsumptionComponent"/>
+                    <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Info" Class="mr-5" OnClick="@ToggleDrawer"/>
+                    <MudIconButton Icon="@Icons.Material.Outlined.Save" Color="Color.Primary" Class="mr-5" OnClick="@OnClickSaveConsumptionComponent"/>
                     @if (MudTabsConsumptionEstimationsActiveIndex == 1)
                     {
-                        <MudIconButton Icon="@Icons.Material.Outlined.Add" Color="MudBlazor.Color.Primary" Class="mr-5" OnClick="@OnClickAddProfessionaProfile"/>
+                        <MudIconButton Icon="@Icons.Material.Outlined.Add" Color="Color.Primary" Class="mr-5" OnClick="@OnClickAddProfessionaProfile"/>
                     }
                     
                     <MudSpacer />
@@ -93,10 +93,10 @@
                         <MudText Typo="Typo.h5">@SelectedProduct.CodeAndName</MudText>
                     }
                     <MudSpacer />
-                    <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="MudBlazor.Color.Info" Class="mr-5" OnClick="@ToggleEndDrawer"/>
+                    <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Info" Class="mr-5" OnClick="@ToggleEndDrawer"/>
                     
                 </MudToolBar>
-                <MudTabs  Outlined="true" Position="Position.Top" Rounded="true" Border="true"  ActivePanelIndexChanged="OnActivePanelIndexChanged"
+                <MudTabs Outlined="true" Position="Position.Top" Rounded="true" Border="true"  ActivePanelIndexChanged="OnActivePanelIndexChanged"
                           ApplyEffectsToContainer="true" PanelClass="pa-2 " Style="overflow-y: auto; height: 73vh;" @ref="MudTabsConsumptionEstimations">
                     <MudTabPanel Text="@L["ConsumptionComponent"]" @ref="MudTabPanelConsumptionComponent">
                         @if (SelectedConsumptionEstimation != null)
@@ -121,7 +121,7 @@
                         {
                             <MudDataGrid Items="@SelectedConsumptionEstimation.ConsumptionWork" ReadOnly="true" Filterable="false" Groupable="true" GroupExpanded="true">
                                 <Columns>
-                                    <TemplateColumn CellClass="d-flex justify-end" Title="@L["Product"]" >
+                                    <TemplateColumn CellClass="d-table-cell" Title="@L["Product"]" >
                                         <CellTemplate>
                                             <MudText>@DisplayProductFromId(context.Item.ProductId)</MudText>
                                         </CellTemplate>
@@ -130,10 +130,14 @@
                                     <PropertyColumn Property="x => x.Name" Title="@L["Name"]" Groupable="false"/>
                                     <PropertyColumn Property="x => x.Price" Title="@L["Price"]" Groupable="false" Format="C2"/>
                                     <PropertyColumn Property="x => x.WorkTime" Title="@L["WorkTime"]" Groupable="false"/>
-                                    <TemplateColumn CellClass="d-flex justify-end" Groupable="false">
+                                    <TemplateColumn CellClass="d-table-cell justify-end" Groupable="false">
                                         <CellTemplate>
-                                            <MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Outlined.EditNote" OnClick="() => OnClickEditProfessionaProfile(context.Item)"/>
-                                            <MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Outlined.Remove" OnClick="() => OnClickDeleteProfessionaProfile(context.Item)"/>
+                                            <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                                                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.EditNote" OnClick="() => OnClickEditProfessionaProfile(context.Item)"/>
+                                            </MudTooltip>
+                                            <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                                                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => OnClickDeleteProfessionaProfile(context.Item)"/>
+                                            </MudTooltip>
                                         </CellTemplate>
                                     </TemplateColumn>
                                 </Columns>

@@ -11,7 +11,7 @@ public class RequestForQuotationPropertyDto : EntityPropertyDto
     {
     }
     
-    public RequestForQuotationPropertyDto(Guid id, string? name, string? organizationName, DateTime? rfqDateDocument, string? rfqNumber)
+    public RequestForQuotationPropertyDto(Guid id, string? name, string? organizationName, DateTime? rfqDateDocument, string rfqNumber)
     {
         Id = id;
         Name = name;

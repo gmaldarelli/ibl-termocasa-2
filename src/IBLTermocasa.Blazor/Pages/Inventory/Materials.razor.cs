@@ -1,31 +1,30 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Globalization;
 using System.Web;
 using Blazorise;
 using Blazorise.DataGrid;
-using Volo.Abp.BlazoriseUI.Components;
-using Microsoft.AspNetCore.Authorization;
-using Volo.Abp.Application.Dtos;
-using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
 using IBLTermocasa.Materials;
 using IBLTermocasa.Permissions;
-using IBLTermocasa.Shared;
-
 using IBLTermocasa.Types;
+using Microsoft.AspNetCore.Authorization;
+using MudBlazor;
+using NUglify.Helpers;
+using Volo.Abp.Application.Dtos;
+using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
+using Volo.Abp.BlazoriseUI.Components;
+using BreadcrumbItem = Volo.Abp.BlazoriseUI.BreadcrumbItem;
+using SortDirection = Blazorise.SortDirection;
 
-using IBLTermocasa.Types;
 
-
-
-namespace IBLTermocasa.Blazor.Pages
+namespace IBLTermocasa.Blazor.Pages.Inventory
 {
     public partial class Materials
     {
-        protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems = new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
-        protected PageToolbar Toolbar {get;} = new PageToolbar();
+        protected List<BreadcrumbItem> BreadcrumbItems = new List<BreadcrumbItem>();
+        protected PageToolbar Toolbar { get; } = new PageToolbar();
         protected bool ShowAdvancedFilters { get; set; }
         private IReadOnlyList<MaterialDto> MaterialList { get; set; }
         private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
@@ -44,15 +43,11 @@ namespace IBLTermocasa.Blazor.Pages
         private Modal EditMaterialModal { get; set; } = new();
         private GetMaterialsInput Filter { get; set; }
         private DataGridEntityActionsColumn<MaterialDto> EntityActionsColumn { get; set; } = new();
-        protected string SelectedCreateTab = "material-create-tab";
-        protected string SelectedEditTab = "material-edit-tab";
         private MaterialDto? SelectedMaterial;
-        
-        
-        
-        
-        
-        
+        private MudDataGrid<MaterialDto> MaterialMudDataGrid { get; set; }
+        private string _searchString;
+
+
         public Materials()
         {
             NewMaterial = new MaterialCreateDto();
@@ -64,14 +59,12 @@ namespace IBLTermocasa.Blazor.Pages
                 Sorting = CurrentSorting
             };
             MaterialList = new List<MaterialDto>();
-            
-            
         }
 
         protected override async Task OnInitializedAsync()
         {
             await SetPermissionsAsync();
-            
+            await GetMaterialsAsync();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -79,39 +72,23 @@ namespace IBLTermocasa.Blazor.Pages
             if (firstRender)
             {
                 await SetBreadcrumbItemsAsync();
-                await SetToolbarItemsAsync();
                 StateHasChanged();
             }
-        }  
+        }
 
         protected virtual ValueTask SetBreadcrumbItemsAsync()
         {
-            BreadcrumbItems.Add(new Volo.Abp.BlazoriseUI.BreadcrumbItem(L["Menu:Materials"]));
+            BreadcrumbItems.Add(new BreadcrumbItem(L["Menu:Materials"]));
             return ValueTask.CompletedTask;
         }
-
-        protected virtual ValueTask SetToolbarItemsAsync()
-        {
-            Toolbar.AddButton(L["ExportToExcel"], async () =>{ await DownloadAsExcelAsync(); }, IconName.Download);
-            
-            Toolbar.AddButton(L["NewMaterial"], async () =>
-            {
-                await OpenCreateMaterialModalAsync();
-            }, IconName.Add, requiredPolicyName: IBLTermocasaPermissions.Materials.Create);
-
-            return ValueTask.CompletedTask;
-        }
-
         private async Task SetPermissionsAsync()
         {
             CanCreateMaterial = await AuthorizationService
                 .IsGrantedAsync(IBLTermocasaPermissions.Materials.Create);
             CanEditMaterial = await AuthorizationService
-                            .IsGrantedAsync(IBLTermocasaPermissions.Materials.Edit);
+                .IsGrantedAsync(IBLTermocasaPermissions.Materials.Edit);
             CanDeleteMaterial = await AuthorizationService
-                            .IsGrantedAsync(IBLTermocasaPermissions.Materials.Delete);
-                            
-                            
+                .IsGrantedAsync(IBLTermocasaPermissions.Materials.Delete);
         }
 
         private async Task GetMaterialsAsync()
@@ -123,46 +100,30 @@ namespace IBLTermocasa.Blazor.Pages
             var result = await MaterialsAppService.GetListAsync(Filter);
             MaterialList = result.Items;
             TotalCount = (int)result.TotalCount;
-            
-            
-        }
-
-        protected virtual async Task SearchAsync()
-        {
-            CurrentPage = 1;
-            await GetMaterialsAsync();
-            await InvokeAsync(StateHasChanged);
         }
 
         private async Task DownloadAsExcelAsync()
         {
             var token = (await MaterialsAppService.GetDownloadTokenAsync()).Token;
-            var remoteService = await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("IBLTermocasa") ?? await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
+            var remoteService =
+                await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("IBLTermocasa") ??
+                await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
             var culture = CultureInfo.CurrentUICulture.Name ?? CultureInfo.CurrentCulture.Name;
-            if(!culture.IsNullOrEmpty())
+            if (!culture.IsNullOrEmpty())
             {
                 culture = "&culture=" + culture;
             }
-            await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
-            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/materials/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&Code={HttpUtility.UrlEncode(Filter.Code)}&Name={HttpUtility.UrlEncode(Filter.Name)}&SourceType={Filter.SourceType}", forceLoad: true);
-        }
 
-        private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<MaterialDto> e)
-        {
-            CurrentSorting = e.Columns
-                .Where(c => c.SortDirection != SortDirection.Default)
-                .Select(c => c.Field + (c.SortDirection == SortDirection.Descending ? " DESC" : ""))
-                .JoinAsString(",");
-            CurrentPage = e.Page;
-            await GetMaterialsAsync();
-            await InvokeAsync(StateHasChanged);
+            await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
+            NavigationManager.NavigateTo(
+                $"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/materials/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&Code={HttpUtility.UrlEncode(Filter.Code)}&Name={HttpUtility.UrlEncode(Filter.Name)}&SourceType={Filter.SourceType}",
+                forceLoad: true);
         }
 
         private async Task OpenCreateMaterialModalAsync()
         {
-            NewMaterial = new MaterialCreateDto{
-                
-                
+            NewMaterial = new MaterialCreateDto
+            {
             };
             await NewMaterialValidations.ClearAll();
             await CreateMaterialModal.Show();
@@ -170,9 +131,8 @@ namespace IBLTermocasa.Blazor.Pages
 
         private async Task CloseCreateMaterialModalAsync()
         {
-            NewMaterial = new MaterialCreateDto{
-                
-                
+            NewMaterial = new MaterialCreateDto
+            {
             };
             await CreateMaterialModal.Hide();
         }
@@ -180,7 +140,7 @@ namespace IBLTermocasa.Blazor.Pages
         private async Task OpenEditMaterialModalAsync(MaterialDto input)
         {
             var material = await MaterialsAppService.GetAsync(input.Id);
-            
+
             EditingMaterialId = material.Id;
             EditingMaterial = ObjectMapper.Map<MaterialDto, MaterialUpdateDto>(material);
             await EditingMaterialValidations.ClearAll();
@@ -228,7 +188,7 @@ namespace IBLTermocasa.Blazor.Pages
 
                 await MaterialsAppService.UpdateAsync(EditingMaterialId, EditingMaterial);
                 await GetMaterialsAsync();
-                await EditMaterialModal.Hide();                
+                await EditMaterialModal.Hide();
             }
             catch (Exception ex)
             {
@@ -236,38 +196,64 @@ namespace IBLTermocasa.Blazor.Pages
             }
         }
 
-        private void OnSelectedCreateTabChanged(string name)
+        private async void SearchAsync(string filterText)
         {
-            SelectedCreateTab = name;
+            _searchString = filterText;
+            if ((_searchString.IsNullOrEmpty() || _searchString.Length < 3) &&
+                MaterialMudDataGrid.Items != null && MaterialMudDataGrid.Items.Any())
+            {
+                return; 
+            }
+
+            await LoadGridData(new GridState<MaterialDto>
+            {
+                Page = 0,
+                PageSize = PageSize,
+                SortDefinitions = MaterialMudDataGrid.SortDefinitions.Values.ToList()
+            });
+            await MaterialMudDataGrid.ReloadServerData();
+            StateHasChanged();
         }
 
-        private void OnSelectedEditTabChanged(string name)
+        private async Task<GridData<MaterialDto>> LoadGridData(GridState<MaterialDto> state)
         {
-            SelectedEditTab = name;
+            state.SortDefinitions.ForEach(sortDef =>
+            {
+                CurrentSorting = sortDef.Descending ? $" {sortDef.SortBy} DESC" : $" {sortDef.SortBy} ";
+            });
+            Filter.SkipCount = state.Page * state.PageSize;
+            Filter.Sorting = CurrentSorting;
+            Filter.MaxResultCount = state.PageSize;
+            Filter.FilterText = _searchString;
+            var firstOrDefault = MaterialMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(MaterialDto.Code) });
+            if (firstOrDefault != null)
+            {
+                Filter.Code = (string?)firstOrDefault.Value;
+            }
+
+            var firstOrDefault1 = MaterialMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(MaterialDto.Name) });
+            if (firstOrDefault1 != null)
+            {
+                Filter.Name = (string?)firstOrDefault1.Value;
+            }
+
+            var firstOrDefault2 = MaterialMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(MaterialDto.SourceType) });
+            if (firstOrDefault2 != null)
+            {
+                Filter.SourceType = (SourceType)firstOrDefault2.Value!;
+            }
+
+            var result = await MaterialsAppService.GetListAsync(Filter);
+            MaterialList = result.Items;
+            GridData<MaterialDto> data = new()
+            {
+                Items = MaterialList,
+                TotalItems = (int)result.TotalCount
+            };
+            return data;
         }
-
-        protected virtual async Task OnCodeChangedAsync(string? code)
-        {
-            Filter.Code = code;
-            await SearchAsync();
-        }
-        protected virtual async Task OnNameChangedAsync(string? name)
-        {
-            Filter.Name = name;
-            await SearchAsync();
-        }
-        protected virtual async Task OnSourceTypeChangedAsync(SourceType? sourceType)
-        {
-            Filter.SourceType = sourceType;
-            await SearchAsync();
-        }
-        
-
-
-
-
-
-
-
     }
 }
