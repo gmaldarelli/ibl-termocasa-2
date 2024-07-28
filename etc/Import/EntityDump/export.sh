@@ -12,4 +12,4 @@ mongoexport --uri mongodb://localhost:27017 --db tpcdb2 --collection=AppProfessi
 mongoexport --uri mongodb://localhost:27017 --db tpcdb2 --collection=AppQuestionTemplates --out=AppQuestionTemplates.json          
 mongoexport --uri mongodb://localhost:27017 --db tpcdb2 --collection=AppRequestForQuotations --out=AppRequestForQuotations.json    
 mongoexport --uri mongodb://localhost:27017 --db tpcdb2 --collection=AppQuotations --out=AppQuotations.json          
-            
+mongoexport --db tpcdb2 --collection=AppBillOfMaterials --out=AppBillOfMaterials.json   

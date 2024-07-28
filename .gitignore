@@ -264,7 +264,9 @@ src/IBLTermocasa.Blazor.Server/Logs/*
 src/IBLTermocasa.Blazor.Server.Tiered/Logs/*
 
 # Use abp install-libs to restore.
-**/wwwroot/libs/*
+**/IBLTermocasa.Web.Public/wwwroot/libs/*
+
+/src/IBLTermocasa.DbMigrator/appsettings.Production.json
 
 # IdentityServer temp files
 tempkey.rsa

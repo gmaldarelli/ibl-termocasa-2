@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using IBLTermocasa.Localization;
@@ -15,6 +16,7 @@ using Volo.Abp.TextTemplateManagement.Blazor.Menus;
 using Volo.Abp.UI.Navigation;
 using Volo.Abp.Authorization.Permissions;
 using Volo.Abp.OpenIddict.Pro.Blazor.Menus;
+using Volo.Abp.Users;
 using Volo.Saas.Host.Blazor.Navigation;
 
 namespace IBLTermocasa.Blazor.Navigation;
@@ -32,6 +34,8 @@ public class IBLTermocasaMenuContributor : IMenuContributor
     {
         if (context.Menu.Name == StandardMenus.Main)
         {
+            
+            Thread.Sleep(1000);
             await ConfigureMainMenuAsync(context);
         }
         else if (context.Menu.Name == StandardMenus.User)
@@ -206,7 +210,7 @@ public class IBLTermocasaMenuContributor : IMenuContributor
                 IBLTermocasaMenus.Crm,
                 l["Menu:CRM"],
                 icon: "fas fa-handshake",
-                order: IBLTermocasaMenus.CrmOrder).AddItem(
+                order: IBLTermocasaMenus.CrmOrder).UseComponent().AddItem(
                 new ApplicationMenuItem(
                     IBLTermocasaMenus.Contacts,
                     l["Menu:Contacts"],

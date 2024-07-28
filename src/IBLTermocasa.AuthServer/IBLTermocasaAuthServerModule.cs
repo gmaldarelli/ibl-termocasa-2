@@ -97,7 +97,19 @@ public class IBLTermocasaAuthServerModule : AbpModule
 
             PreConfigure<OpenIddictServerBuilder>(serverBuilder =>
             {
-                serverBuilder.AddProductionEncryptionAndSigningCertificate("openiddict.pfx", "b40d4664-8e26-4172-b6a8-6a8c8de03ab7");
+                
+                //leggi variabile d'ambiente
+                var certPath = Environment.GetEnvironmentVariable("Kestrel__Certificates__Default__Path");
+                if(certPath == null)
+                {
+                    certPath = "openiddict.pfx";
+                }
+                var certPass = Environment.GetEnvironmentVariable("Kestrel__Certificates__Default__Password");
+                if (certPass == null)
+                {
+                    certPass = "b40d4664-8e26-4172-b6a8-6a8c8de03ab7";
+                }
+                serverBuilder.AddProductionEncryptionAndSigningCertificate(certPath, certPass);
                 serverBuilder.SetIssuer(new Uri(configuration["AuthServer:Authority"]!));
             });
         }
