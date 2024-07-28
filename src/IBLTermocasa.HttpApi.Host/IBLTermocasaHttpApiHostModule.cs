@@ -253,6 +253,7 @@ namespace IBLTermocasa;
         {
             app.UseDeveloperExceptionPage();
         }
+        env.IsProduction()
 
         app.UseAbpRequestLocalization();
         app.UseStaticFiles();
