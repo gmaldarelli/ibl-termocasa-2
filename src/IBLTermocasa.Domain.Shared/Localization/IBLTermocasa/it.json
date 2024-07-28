@@ -373,6 +373,9 @@
     "CloneProduct": "Clona Prodotto",
     "QuotationUpdated": "Preventivo Aggiornato",
     "ProductNameAssembled": "Nome Prodotto Assemblato",
-    "SubproductName": "Nome Sottoprodotto"
+    "SubproductName": "Nome Sottoprodotto",
+    "Enum:CostType.CALCULATED_FOR_PRODUCT": "Calcolato per Prodotto",
+    "Enum:CostType.FIXED_FOR_PRODUCT": "Fisso per Prodotto",
+    "Enum:CostType.FIXED_FOR_WORK": "Fissato per Lavoro"
   }
 }

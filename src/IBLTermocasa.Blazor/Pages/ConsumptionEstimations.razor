@@ -123,7 +123,22 @@
                                 <Columns>
                                     <TemplateColumn CellClass="d-flex justify-end" Title="@L["Product"]" >
                                         <CellTemplate>
-                                            <MudText>@DisplayProductFromId(context.Item.ProductId)</MudText>
+                                            @if (context.Item.CostType == CostType.CALCULATED_FOR_PRODUCT || context.Item.CostType == null)
+                                            {
+                                                if(context.Item.CostType == null)
+                                                {
+                                                    context.Item.CostType = CostType.CALCULATED_FOR_PRODUCT;
+                                                }
+                                                <MudText>@DisplayProductFromId(context.Item.ProductId)</MudText>
+                                            }
+                                            @if (context.Item.CostType == CostType.FIXED_FOR_PRODUCT)
+                                            {
+                                            <MudText>[F] @DisplayProductFromId(context.Item.ProductId)</MudText>
+                                            }
+                                            @if (context.Item.CostType == CostType.FIXED_FOR_WORK)
+                                            {
+                                                <MudText>@L[$"Enum:CostType.{CostType.FIXED_FOR_WORK}"]</MudText>
+                                            }
                                         </CellTemplate>
                                     </TemplateColumn>
                                     <PropertyColumn Property="x => x.Code" Title="@L["Code"]" Groupable="false"/>

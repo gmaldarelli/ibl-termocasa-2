@@ -175,7 +175,8 @@ namespace IBLTermocasa;
         var dataProtectionBuilder = context.Services.AddDataProtection().SetApplicationName("IBLTermocasa");
         if (!hostingEnvironment.IsDevelopment())
         {
-            var redis = ConnectionMultiplexer.Connect(configuration["Redis:Configuration"]!);
+            var redis = ConnectionMultiplexer.Connect("redis-10768.c282.east-us-mz.azure.redns.redis-cloud.com:10768,password=te5yy0TgtdAInOCPEHkrbiJzWQEIrx4O,abortConnect=False");
+            //var redis = ConnectionMultiplexer.Connect(configuration["Redis:Configuration"]!);
             dataProtectionBuilder.PersistKeysToStackExchangeRedis(redis, "IBLTermocasa-Protection-Keys");
         }
     }
@@ -240,6 +241,7 @@ namespace IBLTermocasa;
                     options.WithProperty(x => x.ConsumerSecret, isSecret: true);
                 }
             );
+
     }
 
     public override void OnApplicationInitialization(ApplicationInitializationContext context)

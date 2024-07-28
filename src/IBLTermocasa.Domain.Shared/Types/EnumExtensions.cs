@@ -72,6 +72,9 @@ namespace IBLTermocasa.Types
                 SourceType.Manual => "Manual",
                 SourceType.System => "System",
                 SourceType.Unknown => "Unknown",
+                CostType.CALCULATED_FOR_PRODUCT => "CALCULATED_FOR_PRODUCT",
+                CostType.FIXED_FOR_WORK => "FIXED_FOR_WORK",
+                CostType.FIXED_FOR_PRODUCT => "FIXED_FOR_PRODUCT",
                 _ => value.ToString()
             };
         }

@@ -1,4 +1,5 @@
 using System;
+using IBLTermocasa.Common;
 using Volo.Abp.Domain.Entities;
 
 namespace IBLTermocasa.ConsumptionEstimations
@@ -6,6 +7,7 @@ namespace IBLTermocasa.ConsumptionEstimations
     public class ConsumptionWork : Entity<Guid>
     {
         public virtual Guid IdProfessionalProfile { get; set; }
+        public virtual CostType? CostType { get; set; }
         public virtual Guid ProductId { get; set; }
         public virtual string Code { get; set; }
         public virtual string Name { get; set; }

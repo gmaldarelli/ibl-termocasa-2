@@ -29,6 +29,7 @@
         <DialogContent>
 
             <MudAutocomplete T="LookupDto<Guid>" Label="@L["ProfessionalProfile"]" ValueChanged="@OnConsumptionProfessionalSelected" SearchFunc="@SearchConsumptionProfessional"
+                             Value="@ConsumptionProfessionalSelected"
                              ResetValueOnEmptyText="@true"
                              CoerceText="true" CoerceValue="true"
                              ToStringFunc="@((LookupDto<Guid> x) => x.DisplayName)"
@@ -41,12 +42,20 @@
                     <MudText>@item.DisplayName</MudText>
                 </ItemDisabledTemplate>
             </MudAutocomplete>
-            <MudSelect  T="Guid" Label="@L["Product"]" @bind-Value="@ConsumptionWork.ProductId" Required="true">
-                @foreach (var item in ProductListLookup)
-                {
-                    <MudSelectItem Value="@item.Id">@item.DisplayName</MudSelectItem>
-                }
-            </MudSelect>
+            <MudRadioGroup T="string?" Value="@SelectedCostTypeIdString" ValueChanged="@OnSelectedCostTypeChanged" Disabled="false" ReadOnly="false"> 
+                <MudRadio Value="@CostType.CALCULATED_FOR_PRODUCT.ToString()">@L[$"Enum:CostType.{CostType.CALCULATED_FOR_PRODUCT}"]</MudRadio>
+                <MudRadio Value="@CostType.FIXED_FOR_PRODUCT.ToString()">@L[$"Enum:CostType.{CostType.FIXED_FOR_PRODUCT}"]</MudRadio>
+                <MudRadio Value="@CostType.FIXED_FOR_WORK.ToString()">@L[$"Enum:CostType.{CostType.FIXED_FOR_WORK}"]</MudRadio>
+            </MudRadioGroup>
+            @if(IsProductDependent)
+            {
+                <MudSelect  T="Guid" Label="@L["Product"]" @bind-Value="@ConsumptionWork.ProductId" Required="true">
+                    @foreach (var item in ProductListLookup)
+                    {
+                        <MudSelectItem Value="@item.Id">@item.DisplayName</MudSelectItem>
+                    }
+                </MudSelect>
+            }
             <MudTextField @bind-Value="@ConsumptionWork.Code" Label="@L["Code"]" Variant="Variant.Text" Required="true" />
             <MudTextField @bind-Value="@ConsumptionWork.Name" Label="@L["Name"]" Variant="Variant.Text" Required="true" />
             <MudTextField T="double" @bind-Value="@ConsumptionWork.Price" Label="@L["Price"]" Variant="Variant.Text" Required="true" Culture="@_cultureInfo" Format="C2"/>

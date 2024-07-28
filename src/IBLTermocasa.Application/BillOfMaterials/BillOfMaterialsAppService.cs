@@ -428,6 +428,7 @@ namespace IBLTermocasa.BillOfMaterials
                 {
                     x.BowItems.ForEach(y =>
                     {
+                        
                         y.Price = y.HourPrice / 60  * y.WorkTime * listItem.Quantity;
                     });
                 });

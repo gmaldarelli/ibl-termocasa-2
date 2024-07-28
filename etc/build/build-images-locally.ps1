@@ -7,29 +7,29 @@ Write-Host "********* BUILDING DbMigrator *********" -ForegroundColor Green
 $dbMigratorFolder = Join-Path $slnFolder "src/IBLTermocasa.DbMigrator"
 Set-Location $dbMigratorFolder
 dotnet publish -c Release
-docker build -f Dockerfile.local -t mycompanyname/ibltermocasa-db-migrator:$version .
+docker build -f Dockerfile.local -t registry.gitlab.com/ibl6810230/tcp/ibltermocasa-db-migrator:$version .
 
 Write-Host "********* BUILDING Blazor Application *********" -ForegroundColor Green
 $blazorFolder = Join-Path $slnFolder "src/IBLTermocasa.Blazor"
 Set-Location $blazorFolder
 dotnet publish -c Release -p:PublishTrimmed=false
-docker build -f Dockerfile.local -t mycompanyname/ibltermocasa-blazor:$version .
+docker build -f Dockerfile.local -t registry.gitlab.com/ibl6810230/tcp/ibltermocasa-blazor:$version .
 
 Write-Host "********* BUILDING Api.Host Application *********" -ForegroundColor Green
 $hostFolder = Join-Path $slnFolder "src/IBLTermocasa.HttpApi.Host"
 Set-Location $hostFolder
 dotnet publish -c Release
-docker build -f Dockerfile.local -t mycompanyname/ibltermocasa-api:$version .
+docker build -f Dockerfile.local -t registry.gitlab.com/ibl6810230/tcp/ibltermocasa-api:$version .
 
 $authServerAppFolder = Join-Path $slnFolder "src/IBLTermocasa.AuthServer"
 Set-Location $authServerAppFolder
 dotnet publish -c Release
-docker build -f Dockerfile.local -t mycompanyname/ibltermocasa-authserver:$version .
+docker build -f Dockerfile.local -t registry.gitlab.com/ibl6810230/tcp/ibltermocasa-authserver:$version .
 Write-Host "********* BUILDING Public Web Application *********" -ForegroundColor Green
 $webPublicFolder = Join-Path $slnFolder "src/IBLTermocasa.Web.Public"
 Set-Location $webPublicFolder
 dotnet publish -c Release
-docker build -f Dockerfile.local -t mycompanyname/ibltermocasa-web-public:$version .
+docker build -f Dockerfile.local -t registry.gitlab.com/ibl6810230/tcp/ibltermocasa-web-public:$version .
 
 ### ALL COMPLETED
 Write-Host "COMPLETED" -ForegroundColor Green

@@ -164,10 +164,13 @@ namespace IBLTermocasa.Quotations
                 }
                 int quantity = rfqRequestForQuotationItem.Quantity;
                 totalCost = (materialCost *  (double)quantity) + (laborCost *  (double)quantity);
-                double markup = quotation.MarkUp??0;
+                List<double> markUps = quotation.MarkUps;
                 double discount = (double)rfq.Discount;
-                double sellingPrice = totalCost * (100 + markup) / 100; 
-                double finalSellingPrice = sellingPrice * (100- discount) / 100;
+                double sellingPrice1 = totalCost * (1 + (markUps[0] / 100));
+                double sellingPrice2 = sellingPrice1 * (1 + (markUps[1] / 100));
+                double sellingPrice3 = sellingPrice2 * (1 + (markUps[2] / 100));
+                double finalSellingPrice = sellingPrice3 * (100- discount) / 100;
+                double markup = (sellingPrice3 - totalCost) / totalCost * 100;
                 quotation.QuotationItems.Add(new QuotationItem(
                     Guid.NewGuid(), 
                     rfqRequestForQuotationItem.Id, 
@@ -175,8 +178,9 @@ namespace IBLTermocasa.Quotations
                     parenProductItem.ProductId, 
                     "", 
                     parenProductItem.ProductName, 
-                    laborCost, materialCost, totalCost, sellingPrice, markup, discount, finalSellingPrice, quantity));
+                    laborCost, materialCost, totalCost, sellingPrice3, markup, discount, finalSellingPrice, quantity));
             }
+            
             var quotationResult =  ObjectMapper.Map<Quotation, QuotationDto>(
                 await _quotationManager.CreateAsync(quotation));
             bom.Status = BomStatusType.RFP_GENERATED;

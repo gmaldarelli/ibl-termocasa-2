@@ -34,7 +34,7 @@ namespace IBLTermocasa.Quotations
         public virtual DateTime? ConfirmedDate { get; set; }
         public virtual decimal? Discount { get; set; }
         public virtual double? MarkUp { get; set; }
-
+        public List<double> MarkUps { get; set; } = new List<double>(){0,0,0};
         public virtual QuotationStatus Status { get; set; }
 
         public virtual bool DepositRequired { get; set; }
@@ -49,9 +49,11 @@ namespace IBLTermocasa.Quotations
 
         public Quotation(Guid id, Guid idRFQ,
             Guid idBOM,
-            string code, string name, DateTime creationDate, DateTime? sentDate, DateTime? quotationValidDate, QuotationStatus status,
-            DateTime? confirmedDate,  bool depositRequired, double? depositRequiredValue,
-            List<QuotationItem>? quotationItems, decimal discount = 0, double? markUp = 0) : base(id)
+            string code, string name, DateTime creationDate, DateTime? sentDate, DateTime? quotationValidDate,
+            QuotationStatus status,
+            DateTime? confirmedDate, bool depositRequired, double? depositRequiredValue,
+            List<QuotationItem>? quotationItems, decimal discount = 0,
+            double? markUp = 0) : base(id)
         {
             Id = id;
             Check.NotNull(idRFQ, nameof(idRFQ));
@@ -72,6 +74,35 @@ namespace IBLTermocasa.Quotations
             DepositRequired = depositRequired;
             DepositRequiredValue = depositRequiredValue;
             QuotationItems = quotationItems;
+            MarkUps = IBLTermocasaConsts.MarkUps;
+        }
+
+        public Quotation(Guid id, Guid idRFQ,
+            Guid idBOM,
+            string code, string name, DateTime creationDate, DateTime? sentDate, DateTime? quotationValidDate, QuotationStatus status,
+            DateTime? confirmedDate,  bool depositRequired, double? depositRequiredValue,
+            List<QuotationItem>? quotationItems, List<double>? markups, decimal discount = 0, double? markUp = 0) : base(id)
+        {
+            Id = id;
+            Check.NotNull(idRFQ, nameof(idRFQ));
+            Check.NotNull(idBOM, nameof(idBOM));
+            Check.NotNull(code, nameof(code));
+            Check.NotNull(name, nameof(name));
+            IdRFQ = idRFQ;
+            IdBOM = idBOM;
+            Code = code;
+            Name = name;
+            CreationDate = creationDate;
+            SentDate = sentDate;
+            QuotationValidDate = quotationValidDate;
+            ConfirmedDate = confirmedDate;
+            Status = status;
+            Discount = discount;
+            MarkUp = markUp;
+            DepositRequired = depositRequired;
+            DepositRequiredValue = depositRequiredValue;
+            QuotationItems = quotationItems;
+            MarkUps = markups ?? IBLTermocasaConsts.MarkUps;
         }
 
         //generate static method to fill all properties of the Quotation except the Id using reflection with 2 variants source and destination

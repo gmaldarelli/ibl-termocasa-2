@@ -79,37 +79,37 @@ services:
     networks:
       - abp-network
 
-#  ibltermocasa-web-public:
-#    image: registry.gitlab.com/ibl6810230/tcp/ibltermocasa-web-public:latest
-#    container_name: ibltermocasa-web-public
-#    build:
-#      context: ../../
-#      dockerfile: src/IBLTermocasa.Web.Public/Dockerfile.local
-#    environment:
-#      - ASPNETCORE_URLS=https://+:443;http://+:80;
-#      - Kestrel__Certificates__Default__Path=/root/certificate/localhost.pfx
-#      - Kestrel__Certificates__Default__Password=c2461192-cc67-40b6-9f59-ce68a2da55f0
-#      - App__SelfUrl=https://localhost:44306
-#      - AuthServer__RequireHttpsMetadata=false
-#      - AuthServer__IsContainerized=true
-#      - AuthServer__Authority=https://localhost:44334/
-#      - RemoteServices__Default__BaseUrl=http://ibltermocasa-api      
-#      - AuthServer__MetaAddress=http://ibltermocasa-authserver
-#      - RemoteServices__AbpAccountPublic__BaseUrl=http://ibltermocasa-authserver
-#      - ConnectionStrings__Default=mongodb://mongodb/IBLTermocasa
-#      - Redis__Configuration=redis
-#    ports:
-#      - "44306:443"
-#    depends_on:
-#      mongodb:
-#        condition: service_healthy
-#      redis:
-#        condition: service_healthy
-#    restart: on-failure
-#    volumes:
-#      - ./certs:/root/certificate
-#    networks:
-#      - abp-network  
+  ibltermocasa-web-public:
+    image: registry.gitlab.com/ibl6810230/tcp/ibltermocasa-web-public:latest
+    container_name: ibltermocasa-web-public
+    build:
+      context: ../../
+      dockerfile: src/IBLTermocasa.Web.Public/Dockerfile.local
+    environment:
+      - ASPNETCORE_URLS=https://+:443;http://+:80;
+      - Kestrel__Certificates__Default__Path=/root/certificate/localhost.pfx
+      - Kestrel__Certificates__Default__Password=c2461192-cc67-40b6-9f59-ce68a2da55f0
+      - App__SelfUrl=https://localhost:44306
+      - AuthServer__RequireHttpsMetadata=false
+      - AuthServer__IsContainerized=true
+      - AuthServer__Authority=https://localhost:44334/
+      - RemoteServices__Default__BaseUrl=http://ibltermocasa-api      
+      - AuthServer__MetaAddress=http://ibltermocasa-authserver
+      - RemoteServices__AbpAccountPublic__BaseUrl=http://ibltermocasa-authserver
+      - ConnectionStrings__Default=mongodb://mongodb/IBLTermocasa
+      - Redis__Configuration=redis
+    ports:
+      - "44306:443"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: on-failure
+    volumes:
+      - ./certs:/root/certificate
+    networks:
+      - abp-network  
 
   db-migrator:
     image: registry.gitlab.com/ibl6810230/tcp/ibltermocasa-db-migrator:latest

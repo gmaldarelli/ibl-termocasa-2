@@ -23,6 +23,7 @@ namespace IBLTermocasa.Quotations
         public QuotationStatus Status { get; set; }
         public decimal? Discount { get; set; }        
         public double? MarkUp { get; set; }
+        public List<double> MarkUps { get; set; } = new List<double>(){0,0,0};
         public bool DepositRequired { get; set; }
         public double? DepositRequiredValue { get; set; }
         public List<QuotationItemDto>? QuotationItems { get; set; }

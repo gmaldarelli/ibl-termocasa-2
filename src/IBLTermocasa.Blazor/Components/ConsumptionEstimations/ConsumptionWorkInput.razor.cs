@@ -27,6 +27,7 @@ public partial class ConsumptionWorkInput
     
     private async Task OnConsumptionProfessionalSelected(LookupDto<Guid>? lookupDto)
     {
+        ConsumptionProfessionalSelected = lookupDto;
         if (lookupDto == null)
         {
             return;
@@ -61,6 +62,38 @@ public partial class ConsumptionWorkInput
         {
             return;
         }
+        if(ConsumptionWork.CostType == CostType.FIXED_FOR_WORK)
+        {
+            ConsumptionWork.ProductId = Guid.Empty;
+        }
         MudDialog.Close(DialogResult.Ok(ConsumptionWork));
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        if (ConsumptionWork.IdProfessionalProfile != Guid.Empty)
+        {
+            ConsumptionProfessionalSelected = ProfessionalProfilesListLookup.FirstOrDefault(x => x.Id == ConsumptionWork.IdProfessionalProfile);
+        }
+        if(ConsumptionWork.CostType == null)
+        {
+            ConsumptionWork.CostType = CostType.CALCULATED_FOR_PRODUCT;
+            IsProductDependent = true;
+        }
+        SelectedCostTypeIdString = ConsumptionWork.CostType.ToString();
+        return base.OnParametersSetAsync();
+    }
+
+    public LookupDto<Guid>? ConsumptionProfessionalSelected { get; set; }
+    public string? SelectedCostTypeIdString { get; set; }
+    public bool IsProductDependent { get; set; }
+
+    private void OnSelectedCostTypeChanged(string? costTypeIdString)
+    {
+        Enum.TryParse<CostType>(costTypeIdString, out var costType);
+        ConsumptionWork.CostType = costType;
+        SelectedCostTypeIdString = costTypeIdString;
+        IsProductDependent = costType is CostType.CALCULATED_FOR_PRODUCT or CostType.FIXED_FOR_PRODUCT;
+        
     }
 }

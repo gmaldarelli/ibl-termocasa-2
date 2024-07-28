@@ -24,6 +24,7 @@ namespace IBLTermocasa.Quotations
         public double? DepositRequiredValue { get; set; }
         public decimal? Discount { get; set; }        
         public double? MarkUp { get; set; }
+        public List<double> MarkUps { get; set; } = new List<double>(){0,0,0};
         public List<QuotationItemDto>? QuotationItems { get; set; }
         public string ConcurrencyStamp { get; set; } = null!;
 

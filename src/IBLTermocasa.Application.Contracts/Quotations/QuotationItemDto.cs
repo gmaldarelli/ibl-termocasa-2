@@ -11,8 +11,8 @@ namespace IBLTermocasa.Quotations
     public class QuotationItemDto : EntityDto<Guid>
     {
         public Guid RFQItemId { get; set; }
-        public Guid BOMItemId { get; set; }
-        public Guid ProductId { get; set; }
+        public Guid? BOMItemId { get; set; }
+        public Guid? ProductId { get; set; }
         public string Code { get; set; }
         public string Name { get; set; }
         public double WorkCost { get; set; }

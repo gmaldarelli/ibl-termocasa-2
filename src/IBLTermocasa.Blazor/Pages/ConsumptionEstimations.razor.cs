@@ -316,14 +316,14 @@ namespace IBLTermocasa.Blazor.Pages
         }
         private async Task OnClickAddProfessionaProfile(MouseEventArgs obj)
         {
-            await OperProfileDialog();
+            await OpenProfileDialog();
         }
         private async Task OnClickEditProfessionaProfile(ConsumptionWorkDto dto)
         {
-            await OperProfileDialog(dto);
+            await OpenProfileDialog(dto);
         }
 
-        private async Task OperProfileDialog(ConsumptionWorkDto dto = null)
+        private async Task OpenProfileDialog(ConsumptionWorkDto dto = null)
         {
 
             if (dto == null)
