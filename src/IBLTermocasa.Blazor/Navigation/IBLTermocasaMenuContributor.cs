@@ -210,7 +210,7 @@ public class IBLTermocasaMenuContributor : IMenuContributor
                 IBLTermocasaMenus.Crm,
                 l["Menu:CRM"],
                 icon: "fas fa-handshake",
-                order: IBLTermocasaMenus.CrmOrder).UseComponent().AddItem(
+                order: IBLTermocasaMenus.CrmOrder).AddItem(
                 new ApplicationMenuItem(
                     IBLTermocasaMenus.Contacts,
                     l["Menu:Contacts"],
