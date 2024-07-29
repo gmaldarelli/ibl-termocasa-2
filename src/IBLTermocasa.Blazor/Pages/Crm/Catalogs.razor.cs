@@ -1,27 +1,27 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Globalization;
 using System.Web;
 using Blazorise;
-using Blazorise.DataGrid;
-using Volo.Abp.BlazoriseUI.Components;
-using Microsoft.AspNetCore.Authorization;
-using Volo.Abp.Application.Dtos;
-using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
 using IBLTermocasa.Catalogs;
 using IBLTermocasa.Permissions;
 using IBLTermocasa.Shared;
+using Microsoft.AspNetCore.Authorization;
+using MudBlazor;
+using NUglify.Helpers;
+using Volo.Abp.Application.Dtos;
+using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
+using Volo.Abp.BlazoriseUI.Components;
+using BreadcrumbItem = Volo.Abp.BlazoriseUI.BreadcrumbItem;
 
-
-
-namespace IBLTermocasa.Blazor.Pages
+namespace IBLTermocasa.Blazor.Pages.Crm
 {
     public partial class Catalogs
     {
-        protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems = new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
-        protected PageToolbar Toolbar {get;} = new PageToolbar();
+        protected List<BreadcrumbItem> BreadcrumbItems = new();
+        protected PageToolbar Toolbar { get; } = new();
         protected bool ShowAdvancedFilters { get; set; }
         private IReadOnlyList<CatalogWithNavigationPropertiesDto> CatalogList { get; set; }
         private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
@@ -39,22 +39,21 @@ namespace IBLTermocasa.Blazor.Pages
         private Modal CreateCatalogModal { get; set; } = new();
         private Modal EditCatalogModal { get; set; } = new();
         private GetCatalogsInput Filter { get; set; }
-        private DataGridEntityActionsColumn<CatalogWithNavigationPropertiesDto> EntityActionsColumn { get; set; } = new();
+
         protected string SelectedCreateTab = "catalog-create-tab";
         protected string SelectedEditTab = "catalog-edit-tab";
         private CatalogWithNavigationPropertiesDto? SelectedCatalog;
         private IReadOnlyList<LookupDto<Guid>> Products { get; set; } = new List<LookupDto<Guid>>();
-        
+
         private string SelectedProductId { get; set; }
-        
+
         private string SelectedProductText { get; set; }
 
-        private List<LookupDto<Guid>> SelectedProducts { get; set; } = new List<LookupDto<Guid>>();
-        
-        
-        
-        
-        
+        private List<LookupDto<Guid>> SelectedProducts { get; set; } = new();
+        private MudDataGrid<CatalogWithNavigationPropertiesDto> CatalogMudDataGrid { get; set; } = new();
+        private string _searchString;
+
+
         public Catalogs()
         {
             NewCatalog = new CatalogCreateDto();
@@ -66,8 +65,6 @@ namespace IBLTermocasa.Blazor.Pages
                 Sorting = CurrentSorting
             };
             CatalogList = new List<CatalogWithNavigationPropertiesDto>();
-            
-            
         }
 
         protected override async Task OnInitializedAsync()
@@ -82,26 +79,13 @@ namespace IBLTermocasa.Blazor.Pages
             if (firstRender)
             {
                 await SetBreadcrumbItemsAsync();
-                await SetToolbarItemsAsync();
                 StateHasChanged();
             }
-        }  
+        }
 
         protected virtual ValueTask SetBreadcrumbItemsAsync()
         {
-            BreadcrumbItems.Add(new Volo.Abp.BlazoriseUI.BreadcrumbItem(L["Menu:Catalogs"]));
-            return ValueTask.CompletedTask;
-        }
-
-        protected virtual ValueTask SetToolbarItemsAsync()
-        {
-            Toolbar.AddButton(L["ExportToExcel"], async () =>{ await DownloadAsExcelAsync(); }, IconName.Download);
-            
-            Toolbar.AddButton(L["NewCatalog"], async () =>
-            {
-                await OpenCreateCatalogModalAsync();
-            }, IconName.Add, requiredPolicyName: IBLTermocasaPermissions.Catalogs.Create);
-
+            BreadcrumbItems.Add(new BreadcrumbItem(L["Menu:Catalogs"]));
             return ValueTask.CompletedTask;
         }
 
@@ -110,11 +94,9 @@ namespace IBLTermocasa.Blazor.Pages
             CanCreateCatalog = await AuthorizationService
                 .IsGrantedAsync(IBLTermocasaPermissions.Catalogs.Create);
             CanEditCatalog = await AuthorizationService
-                            .IsGrantedAsync(IBLTermocasaPermissions.Catalogs.Edit);
+                .IsGrantedAsync(IBLTermocasaPermissions.Catalogs.Edit);
             CanDeleteCatalog = await AuthorizationService
-                            .IsGrantedAsync(IBLTermocasaPermissions.Catalogs.Delete);
-                            
-                            
+                .IsGrantedAsync(IBLTermocasaPermissions.Catalogs.Delete);
         }
 
         private async Task GetCatalogsAsync()
@@ -126,51 +108,36 @@ namespace IBLTermocasa.Blazor.Pages
             var result = await CatalogsAppService.GetListAsync(Filter);
             CatalogList = result.Items;
             TotalCount = (int)result.TotalCount;
-            
-            
         }
 
-        protected virtual async Task SearchAsync()
-        {
-            CurrentPage = 1;
-            await GetCatalogsAsync();
-            await InvokeAsync(StateHasChanged);
-        }
 
         private async Task DownloadAsExcelAsync()
         {
             var token = (await CatalogsAppService.GetDownloadTokenAsync()).Token;
-            var remoteService = await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("IBLTermocasa") ?? await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
+            var remoteService =
+                await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("IBLTermocasa") ??
+                await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
             var culture = CultureInfo.CurrentUICulture.Name ?? CultureInfo.CurrentCulture.Name;
-            if(!culture.IsNullOrEmpty())
+            if (!culture.IsNullOrEmpty())
             {
                 culture = "&culture=" + culture;
             }
-            await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
-            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/catalogs/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&Name={HttpUtility.UrlEncode(Filter.Name)}&FromMin={Filter.FromMin?.ToString("O")}&FromMax={Filter.FromMax?.ToString("O")}&ToMin={Filter.ToMin?.ToString("O")}&ToMax={Filter.ToMax?.ToString("O")}&Description={HttpUtility.UrlEncode(Filter.Description)}&ProductId={Filter.ProductId}", forceLoad: true);
-        }
 
-        private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<CatalogWithNavigationPropertiesDto> e)
-        {
-            CurrentSorting = e.Columns
-                .Where(c => c.SortDirection != SortDirection.Default)
-                .Select(c => c.Field + (c.SortDirection == SortDirection.Descending ? " DESC" : ""))
-                .JoinAsString(",");
-            CurrentPage = e.Page;
-            await GetCatalogsAsync();
-            await InvokeAsync(StateHasChanged);
+            await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
+            NavigationManager.NavigateTo(
+                $"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/catalogs/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&Name={HttpUtility.UrlEncode(Filter.Name)}&FromMin={Filter.FromMin?.ToString("O")}&FromMax={Filter.FromMax?.ToString("O")}&ToMin={Filter.ToMin?.ToString("O")}&ToMax={Filter.ToMax?.ToString("O")}&Description={HttpUtility.UrlEncode(Filter.Description)}&ProductId={Filter.ProductId}",
+                forceLoad: true);
         }
 
         private async Task OpenCreateCatalogModalAsync()
         {
             SelectedProducts = new List<LookupDto<Guid>>();
-            
 
-            NewCatalog = new CatalogCreateDto{
+
+            NewCatalog = new CatalogCreateDto
+            {
                 From = DateTime.Now,
-To = DateTime.Now,
-
-                
+                To = DateTime.Now,
             };
             await NewCatalogValidations.ClearAll();
             await CreateCatalogModal.Show();
@@ -178,11 +145,10 @@ To = DateTime.Now,
 
         private async Task CloseCreateCatalogModalAsync()
         {
-            NewCatalog = new CatalogCreateDto{
+            NewCatalog = new CatalogCreateDto
+            {
                 From = DateTime.Now,
-To = DateTime.Now,
-
-                
+                To = DateTime.Now,
             };
             await CreateCatalogModal.Hide();
         }
@@ -190,10 +156,11 @@ To = DateTime.Now,
         private async Task OpenEditCatalogModalAsync(CatalogWithNavigationPropertiesDto input)
         {
             var catalog = await CatalogsAppService.GetWithNavigationPropertiesAsync(input.Catalog.Id);
-            
+
             EditingCatalogId = catalog.Catalog.Id;
             EditingCatalog = ObjectMapper.Map<CatalogDto, CatalogUpdateDto>(catalog.Catalog);
-            SelectedProducts = catalog.Products.Select(a => new LookupDto<Guid>{ Id = a.Id, DisplayName = a.Name}).ToList();
+            SelectedProducts = catalog.Products.Select(a => new LookupDto<Guid> { Id = a.Id, DisplayName = a.Name })
+                .ToList();
 
             await EditingCatalogValidations.ClearAll();
             await EditCatalogModal.Show();
@@ -213,6 +180,7 @@ To = DateTime.Now,
                 {
                     return;
                 }
+
                 NewCatalog.ProductIds = SelectedProducts.Select(x => x.Id).ToList();
 
 
@@ -239,12 +207,13 @@ To = DateTime.Now,
                 {
                     return;
                 }
+
                 EditingCatalog.ProductIds = SelectedProducts.Select(x => x.Id).ToList();
 
 
                 await CatalogsAppService.UpdateAsync(EditingCatalogId, EditingCatalog);
                 await GetCatalogsAsync();
-                await EditCatalogModal.Hide();                
+                await EditCatalogModal.Hide();
             }
             catch (Exception ex)
             {
@@ -262,46 +231,11 @@ To = DateTime.Now,
             SelectedEditTab = name;
         }
 
-        protected virtual async Task OnNameChangedAsync(string? name)
-        {
-            Filter.Name = name;
-            await SearchAsync();
-        }
-        protected virtual async Task OnFromMinChangedAsync(DateTime? fromMin)
-        {
-            Filter.FromMin = fromMin.HasValue ? fromMin.Value.Date : fromMin;
-            await SearchAsync();
-        }
-        protected virtual async Task OnFromMaxChangedAsync(DateTime? fromMax)
-        {
-            Filter.FromMax = fromMax.HasValue ? fromMax.Value.Date.AddDays(1).AddSeconds(-1) : fromMax;
-            await SearchAsync();
-        }
-        protected virtual async Task OnToMinChangedAsync(DateTime? toMin)
-        {
-            Filter.ToMin = toMin.HasValue ? toMin.Value.Date : toMin;
-            await SearchAsync();
-        }
-        protected virtual async Task OnToMaxChangedAsync(DateTime? toMax)
-        {
-            Filter.ToMax = toMax.HasValue ? toMax.Value.Date.AddDays(1).AddSeconds(-1) : toMax;
-            await SearchAsync();
-        }
-        protected virtual async Task OnDescriptionChangedAsync(string? description)
-        {
-            Filter.Description = description;
-            await SearchAsync();
-        }
-        protected virtual async Task OnProductIdChangedAsync(Guid? productId)
-        {
-            Filter.ProductId = productId;
-            await SearchAsync();
-        }
-        
 
         private async Task GetProductLookupAsync(string? newValue = null)
         {
-            Products = (await CatalogsAppService.GetProductLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
+            Products = (await CatalogsAppService.GetProductLookupAsync(new LookupRequestDto { Filter = newValue }))
+                .Items;
         }
 
         private void AddProduct()
@@ -310,7 +244,7 @@ To = DateTime.Now,
             {
                 return;
             }
-            
+
             if (SelectedProducts.Any(p => p.Id.ToString() == SelectedProductId))
             {
                 UiMessageService.Warn(L["ItemAlreadyAdded"]);
@@ -324,11 +258,52 @@ To = DateTime.Now,
             });
         }
 
+        private async void SearchAsync(string filterText)
+        {
+            _searchString = filterText;
+            if ((_searchString.IsNullOrEmpty() || _searchString.Length < 3) &&
+                CatalogMudDataGrid.Items != null && CatalogMudDataGrid.Items.Any())
+            {
+                return;
+            }
+
+            await LoadGridData(new GridState<CatalogWithNavigationPropertiesDto>
+            {
+                Page = 0,
+                PageSize = PageSize,
+                SortDefinitions = CatalogMudDataGrid.SortDefinitions.Values.ToList()
+            });
+            await CatalogMudDataGrid.ReloadServerData();
+            StateHasChanged();
+        }
+
+        private async Task<GridData<CatalogWithNavigationPropertiesDto>> LoadGridData(
+            GridState<CatalogWithNavigationPropertiesDto> state)
+        {
+            state.SortDefinitions.ForEach(sortDef =>
+            {
+                CurrentSorting = sortDef.Descending ? $" {sortDef.SortBy} DESC" : $" {sortDef.SortBy} ";
+            });
+            Filter.SkipCount = state.Page * state.PageSize;
+            Filter.Sorting = CurrentSorting;
+            Filter.MaxResultCount = state.PageSize;
+            Filter.FilterText = _searchString;
+            var firstOrDefault = CatalogMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(CatalogWithNavigationPropertiesDto.Catalog.Name) });
+            if (firstOrDefault != null)
+            {
+                Filter.Name = (string?)firstOrDefault.Value;
+            }
 
 
-
-
-
-
+            var result = await CatalogsAppService.GetListAsync(Filter);
+            CatalogList = result.Items;
+            GridData<CatalogWithNavigationPropertiesDto> data = new()
+            {
+                Items = CatalogList,
+                TotalItems = (int)result.TotalCount
+            };
+            return data;
+        }
     }
 }

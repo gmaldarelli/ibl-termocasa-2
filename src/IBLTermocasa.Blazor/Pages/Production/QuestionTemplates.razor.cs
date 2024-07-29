@@ -15,10 +15,12 @@ using IBLTermocasa.Permissions;
 using IBLTermocasa.Shared;
 
 using IBLTermocasa.Types;
+using MudBlazor;
+using NUglify.Helpers;
+using SortDirection = Blazorise.SortDirection;
 
 
-
-namespace IBLTermocasa.Blazor.Pages
+namespace IBLTermocasa.Blazor.Pages.Production
 {
     public partial class QuestionTemplates
     {
@@ -41,11 +43,9 @@ namespace IBLTermocasa.Blazor.Pages
         private Modal CreateQuestionTemplateModal { get; set; } = new();
         private Modal EditQuestionTemplateModal { get; set; } = new();
         private GetQuestionTemplatesInput Filter { get; set; }
-        private DataGridEntityActionsColumn<QuestionTemplateDto> EntityActionsColumn { get; set; } = new();
-        protected string SelectedCreateTab = "questionTemplate-create-tab";
-        protected string SelectedEditTab = "questionTemplate-edit-tab";
         private QuestionTemplateDto? SelectedQuestionTemplate;
-        
+        private MudDataGrid<QuestionTemplateDto> QuestionTemplateMudDataGrid { get; set; }
+        private string _searchString = string.Empty;
         
         
         
@@ -69,6 +69,7 @@ namespace IBLTermocasa.Blazor.Pages
         protected override async Task OnInitializedAsync()
         {
             await SetPermissionsAsync();
+            await GetQuestionTemplatesAsync();
             
         }
 
@@ -77,7 +78,6 @@ namespace IBLTermocasa.Blazor.Pages
             if (firstRender)
             {
                 await SetBreadcrumbItemsAsync();
-                await SetToolbarItemsAsync();
                 StateHasChanged();
             }
         }  
@@ -85,18 +85,6 @@ namespace IBLTermocasa.Blazor.Pages
         protected virtual ValueTask SetBreadcrumbItemsAsync()
         {
             BreadcrumbItems.Add(new Volo.Abp.BlazoriseUI.BreadcrumbItem(L["Menu:QuestionTemplates"]));
-            return ValueTask.CompletedTask;
-        }
-
-        protected virtual ValueTask SetToolbarItemsAsync()
-        {
-            Toolbar.AddButton(L["ExportToExcel"], async () =>{ await DownloadAsExcelAsync(); }, IconName.Download);
-            
-            Toolbar.AddButton(L["NewQuestionTemplate"], async () =>
-            {
-                await OpenCreateQuestionTemplateModalAsync();
-            }, IconName.Add, requiredPolicyName: IBLTermocasaPermissions.QuestionTemplates.Create);
-
             return ValueTask.CompletedTask;
         }
 
@@ -125,13 +113,6 @@ namespace IBLTermocasa.Blazor.Pages
             
         }
 
-        protected virtual async Task SearchAsync()
-        {
-            CurrentPage = 1;
-            await GetQuestionTemplatesAsync();
-            await InvokeAsync(StateHasChanged);
-        }
-
         private async Task DownloadAsExcelAsync()
         {
             var token = (await QuestionTemplatesAppService.GetDownloadTokenAsync()).Token;
@@ -144,18 +125,6 @@ namespace IBLTermocasa.Blazor.Pages
             await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
             NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/question-templates/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&Code={HttpUtility.UrlEncode(Filter.Code)}&QuestionText={HttpUtility.UrlEncode(Filter.QuestionText)}&AnswerType={Filter.AnswerType}&ChoiceValue={HttpUtility.UrlEncode(Filter.ChoiceValue)}", forceLoad: true);
         }
-
-        private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<QuestionTemplateDto> e)
-        {
-            CurrentSorting = e.Columns
-                .Where(c => c.SortDirection != SortDirection.Default)
-                .Select(c => c.Field + (c.SortDirection == SortDirection.Descending ? " DESC" : ""))
-                .JoinAsString(",");
-            CurrentPage = e.Page;
-            await GetQuestionTemplatesAsync();
-            await InvokeAsync(StateHasChanged);
-        }
-
         private async Task OpenCreateQuestionTemplateModalAsync()
         {
             NewQuestionTemplate = new QuestionTemplateCreateDto{
@@ -233,44 +202,65 @@ namespace IBLTermocasa.Blazor.Pages
                 await HandleErrorAsync(ex);
             }
         }
-
-        private void OnSelectedCreateTabChanged(string name)
-        {
-            SelectedCreateTab = name;
-        }
-
-        private void OnSelectedEditTabChanged(string name)
-        {
-            SelectedEditTab = name;
-        }
-
-        protected virtual async Task OnCodeChangedAsync(string? code)
-        {
-            Filter.Code = code;
-            await SearchAsync();
-        }
-        protected virtual async Task OnQuestionTextChangedAsync(string? questionText)
-        {
-            Filter.QuestionText = questionText;
-            await SearchAsync();
-        }
-        protected virtual async Task OnAnswerTypeChangedAsync(AnswerType? answerType)
-        {
-            Filter.AnswerType = answerType;
-            await SearchAsync();
-        }
-        protected virtual async Task OnChoiceValueChangedAsync(string? choiceValue)
-        {
-            Filter.ChoiceValue = choiceValue;
-            await SearchAsync();
-        }
         
+        private async void SearchAsync(string filterText)
+        {
+            _searchString = filterText;
+            if ((_searchString.IsNullOrEmpty() || _searchString.Length < 3) &&
+                QuestionTemplateMudDataGrid.Items != null && QuestionTemplateMudDataGrid.Items.Any())
+            {
+                return;
+            }
 
+            await LoadGridData(new GridState<QuestionTemplateDto>
+            {
+                Page = 0,
+                PageSize = PageSize,
+                SortDefinitions = QuestionTemplateMudDataGrid.SortDefinitions.Values.ToList()
+            });
+            await QuestionTemplateMudDataGrid.ReloadServerData();
+            StateHasChanged();
+        }
 
+        private async Task<GridData<QuestionTemplateDto>> LoadGridData(GridState<QuestionTemplateDto> state)
+        {
+            state.SortDefinitions.ForEach(sortDef =>
+            {
+                CurrentSorting = sortDef.Descending ? $" {sortDef.SortBy} DESC" : $" {sortDef.SortBy} ";
+            });
+            Filter.SkipCount = state.Page * state.PageSize;
+            Filter.Sorting = CurrentSorting;
+            Filter.MaxResultCount = state.PageSize;
+            Filter.FilterText = _searchString;
+            var firstOrDefault = QuestionTemplateMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(QuestionTemplateDto.Code) });
+            if (firstOrDefault != null)
+            {
+                Filter.Code = (string?)firstOrDefault.Value;
+            }
 
+            var firstOrDefault1 = QuestionTemplateMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(QuestionTemplateDto.QuestionText) });
+            if (firstOrDefault1 != null)
+            {
+                Filter.QuestionText = (string?)firstOrDefault1.Value;
+            }
 
+            var firstOrDefault2 = QuestionTemplateMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(QuestionTemplateDto.AnswerType) });
+            if (firstOrDefault2 != null)
+            {
+                Filter.AnswerType = (AnswerType?)firstOrDefault2.Value!;
+            }
 
-
-
+            var result = await QuestionTemplatesAppService.GetListAsync(Filter);
+            QuestionTemplateList = result.Items;
+            GridData<QuestionTemplateDto> data = new()
+            {
+                Items = QuestionTemplateList,
+                TotalItems = (int)result.TotalCount
+            };
+            return data;
+        }
     }
 }

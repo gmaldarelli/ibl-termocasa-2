@@ -1,0 +1,92 @@
+@page "/quotations"
+
+@attribute [Authorize(IBLTermocasaPermissions.Quotations.Default)]
+@using IBLTermocasa.Localization
+@using IBLTermocasa.Permissions
+@using IBLTermocasa.Quotations
+@using IBLTermocasa.Types
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using Volo.Abp.Http.Client
+@using Size = MudBlazor.Size
+@inherits IBLTermocasaComponentBase
+@inject IQuotationsAppService QuotationsAppService
+
+@inject IUiMessageService UiMessageService
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["Quotations"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+@* ************************* SEARCH AND DATA GRID ************************* *@
+
+<MudDataGrid @ref="QuotationMudDataGrid"
+             ServerData="LoadGridData"
+             T="QuotationDto"
+             ReadOnly="false"
+             Virtualize="true" FixedHeader="true"
+             Hover="true"
+             Bordered="false" Dense="true"
+             RowsPerPage="10"
+             SortMode="SortMode.Multiple"
+             Class="mud-data-grid-custom">
+    <ToolBarContent>
+        <MudTextField T="string" Placeholder="@L["Search"]" Adornment="Adornment.Start" Immediate="true" ValueChanged="arg => SearchAsync(arg)" DebounceInterval="1000"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 mb-2">
+        </MudTextField>
+        <MudSpacer/>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.Code" Title="@L["Code"]"/>
+        <PropertyColumn Property="x => x.Name" Title="@L["Name"]"/>
+        <PropertyColumn Property="x => x.CreationDate" Filterable="true" Title="@L["CreationDate"]"/>
+        <PropertyColumn Property="x => x.SentDate" Filterable="true" Title="@L["SentDate"]"/>
+        <PropertyColumn Property="x => x.QuotationValidDate" Filterable="true" Title="@L["QuotationValidDate"]"/>
+        <TemplateColumn Title="@L["ConfirmedDate"]">
+            <CellTemplate Context="context">
+                @(context.Item.ConfirmedDate.HasValue ? context.Item.ConfirmedDate.Value.ToShortDateString() : string.Empty)
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="@L["Status"]">
+            <CellTemplate Context="context">
+                @L[$"Enum:QuotationStatus.{EnumExtensions.GetDisplayName(context.Item.Status)}"]
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="@L["DepositRequired"]">
+            <CellTemplate Context="context">
+                @if (context.Item.DepositRequired)
+                {
+                    <Icon TextColor="TextColor.Success" Name="@IconName.Check"/>
+                }
+                else
+                {
+                    <Icon TextColor="TextColor.Danger" Name="@IconName.Times"/>
+                }
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="x => x.DepositRequiredValue" Title="@L["DepositRequiredValue"]"/>
+        <TemplateColumn StickyRight="true">
+            <CellTemplate>
+                <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="() => OpenEditQuotationPageAsync(context.Item)"/>
+                </MudTooltip>
+                <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteQuotationAsync(context.Item)"/>
+                </MudTooltip>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="QuotationDto"/>
+    </PagerContent>
+</MudDataGrid>
+<MudThemeProvider/>
+<MudDialogProvider/>

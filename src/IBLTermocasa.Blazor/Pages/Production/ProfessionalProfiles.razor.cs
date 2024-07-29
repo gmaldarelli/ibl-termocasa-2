@@ -16,7 +16,7 @@ using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
 using BreadcrumbItem = Volo.Abp.BlazoriseUI.BreadcrumbItem;
 
 
-namespace IBLTermocasa.Blazor.Pages
+namespace IBLTermocasa.Blazor.Pages.Production
 {
     public partial class ProfessionalProfiles
     {

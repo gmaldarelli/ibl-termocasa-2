@@ -1,32 +1,31 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Globalization;
 using System.Web;
 using Blazorise;
 using Blazorise.DataGrid;
-using Volo.Abp.BlazoriseUI.Components;
-using Microsoft.AspNetCore.Authorization;
-using Volo.Abp.Application.Dtos;
-using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
-using IBLTermocasa.Products;
 using IBLTermocasa.Permissions;
+using IBLTermocasa.Products;
 using IBLTermocasa.Shared;
+using Microsoft.AspNetCore.Authorization;
 using MudBlazor;
 using NUglify.Helpers;
+using Volo.Abp.Application.Dtos;
+using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
+using Volo.Abp.BlazoriseUI.Components;
+using BreadcrumbItem = Volo.Abp.BlazoriseUI.BreadcrumbItem;
 using SortDirection = Blazorise.SortDirection;
 
 
-namespace IBLTermocasa.Blazor.Pages.Crm;
+namespace IBLTermocasa.Blazor.Pages.Inventory;
 
 public partial class Products
 {
-    protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems =
-        new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
+    protected List<BreadcrumbItem> BreadcrumbItems = new();
 
-    protected PageToolbar Toolbar { get; } = new PageToolbar();
-    protected bool ShowAdvancedFilters { get; set; }
+    protected PageToolbar Toolbar { get; } = new();
     private IReadOnlyList<ProductDto> ProductList { get; set; }
     private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
     private int CurrentPage { get; set; } = 1;
@@ -96,7 +95,7 @@ public partial class Products
 
     protected virtual ValueTask SetBreadcrumbItemsAsync()
     {
-        BreadcrumbItems.Add(new Volo.Abp.BlazoriseUI.BreadcrumbItem(L["Menu:Products"]));
+        BreadcrumbItems.Add(new BreadcrumbItem(L["Menu:Products"]));
         return ValueTask.CompletedTask;
     }
 
@@ -150,26 +149,38 @@ public partial class Products
         Filter.Sorting = CurrentSorting;
         Filter.MaxResultCount = state.PageSize;
         Filter.FilterText = _searchString;
-        var firstOrDefault = ProductMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is { PropertyName: nameof(ProductDto.IsAssembled) });
+        var firstOrDefault =
+            ProductMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is
+                { PropertyName: nameof(ProductDto.IsAssembled) });
         if (firstOrDefault != null)
         {
             Filter.IsAssembled = (bool?)firstOrDefault.Value;
         }
-        var firstOrDefault1 = ProductMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is { PropertyName: nameof(ProductDto.IsInternal) });
+
+        var firstOrDefault1 =
+            ProductMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is
+                { PropertyName: nameof(ProductDto.IsInternal) });
         if (firstOrDefault1 != null)
         {
             Filter.IsInternal = (bool?)firstOrDefault1.Value;
         }
-        var firstOrDefault2 = ProductMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is { PropertyName: nameof(ProductDto.Code) });
+
+        var firstOrDefault2 =
+            ProductMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is
+                { PropertyName: nameof(ProductDto.Code) });
         if (firstOrDefault2 != null)
         {
             Filter.Code = (string)firstOrDefault2.Value!;
         }
-        var firstOrDefault3 = ProductMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is { PropertyName: nameof(ProductDto.Name) });
+
+        var firstOrDefault3 =
+            ProductMudDataGrid.FilterDefinitions.FirstOrDefault(x => x.Column is
+                { PropertyName: nameof(ProductDto.Name) });
         if (firstOrDefault3 != null)
         {
             Filter.Name = (string)firstOrDefault3.Value!;
         }
+
         var result = await ProductsAppService.GetListAsync(Filter);
         ProductList = result.Items;
         GridData<ProductDto> data = new()
@@ -181,10 +192,7 @@ public partial class Products
     }
 
 
-
-
-
-protected virtual async Task SearchAsync()
+    protected virtual async Task SearchAsync()
     {
         CurrentPage = 1;
         await GetProductsAsync();
@@ -390,8 +398,7 @@ protected virtual async Task SearchAsync()
     }
 
     private Func<ProductDto, bool> _quickFilter => x =>
-    {   
-        
+    {
         if (string.IsNullOrWhiteSpace(_searchString))
             return true;
 
@@ -400,17 +407,19 @@ protected virtual async Task SearchAsync()
 
         if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
             return true;
-        
+
         return false;
     };
 
-    private async void SearchAsync1(string filterText)
+    private async void SearchAsync(string filterText)
     {
         _searchString = filterText;
-        if((_searchString.IsNullOrEmpty() || _searchString.Length < 3) &&  (ProductMudDataGrid.Items != null && ProductMudDataGrid.Items.Any()))
+        if ((_searchString.IsNullOrEmpty() || _searchString.Length < 3) &&
+            (ProductMudDataGrid.Items != null && ProductMudDataGrid.Items.Any()))
         {
             return;
         }
+
         await LoadGridData(new GridState<ProductDto>
         {
             Page = 0,
@@ -418,6 +427,6 @@ protected virtual async Task SearchAsync()
             SortDefinitions = ProductMudDataGrid.SortDefinitions.Values.ToList()
         });
         await ProductMudDataGrid.ReloadServerData();
-         StateHasChanged();
+        StateHasChanged();
     }
 }

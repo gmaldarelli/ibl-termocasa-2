@@ -5,23 +5,16 @@
 @attribute [Authorize(IBLTermocasaPermissions.QuestionTemplates.Default)]
 @using IBLTermocasa.QuestionTemplates
 @using IBLTermocasa.Localization
-@using IBLTermocasa.Shared
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.Extensions.Localization
-@using Microsoft.AspNetCore.Components.Web
-@using Blazorise
-@using Blazorise.Components
-@using Blazorise.DataGrid
-@using Volo.Abp.BlazoriseUI
-@using Volo.Abp.BlazoriseUI.Components
-@using Volo.Abp.ObjectMapping
 @using Volo.Abp.AspNetCore.Components.Messages
 @using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
 
 @using IBLTermocasa.Permissions
 @using Volo.Abp.AspNetCore.Components.Web
-@using Microsoft.AspNetCore.Components
 @using Volo.Abp.Http.Client
+@using MudBlazor
+@using Color = MudBlazor.Color
+@using Size = MudBlazor.Size
 @inherits IBLTermocasaComponentBase
 @inject IQuestionTemplatesAppService QuestionTemplatesAppService
 
@@ -37,139 +30,53 @@
 
 </PageHeader>
 
-@* ************************* SEARCH ************************* *@
-<Card>
-    <CardBody>
+@* ************************* SEARCH AND DATA GRID ************************* *@
 
-        <Form id="QuestionTemplateSearchForm" class="mb-3">
-            <Addons>
-                <Addon AddonType="AddonType.Body">
-                    <TextEdit @bind-Text="@Filter.FilterText"
-                              Autofocus="true"
-                              Placeholder="@L["Search"]">
-                    </TextEdit>
-                </Addon>
-                <Addon AddonType="AddonType.End">
-                    <SubmitButton Form="QuestionTemplateSearchForm" Clicked="GetQuestionTemplatesAsync">
-                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
-                    </SubmitButton>
-                </Addon>
-            </Addons>
-        </Form>
-        
-        <Row Class="mt-3 mb-3"> 
-            <div class="col-md-12">
-                <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
-            </div>
-        </Row>
-        
-        <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
-            <Row>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["Code"]</FieldLabel>
-                        <TextEdit Text="@Filter.Code" TextChanged="@OnCodeChangedAsync" />                       
-                    </Field>
-                </Column>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["QuestionText"]</FieldLabel>
-                        <TextEdit Text="@Filter.QuestionText" TextChanged="@OnQuestionTextChangedAsync" />                       
-                    </Field>
-                </Column>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["AnswerType"]</FieldLabel>
-                        <Select TValue="AnswerType?"
-		SelectedValue="@Filter.AnswerType"
-		SelectedValueChanged="@OnAnswerTypeChangedAsync">
+<MudDataGrid @ref="QuestionTemplateMudDataGrid"
+             ServerData="LoadGridData"
+             T="QuestionTemplateDto"
+             ReadOnly="false"
+             Virtualize="true" FixedHeader="true"
+             Hover="true"
+             Bordered="false" Dense="false"
+             Filterable="true" RowsPerPage="10"
+             SortMode="SortMode.Multiple"
+             Class="mud-data-grid-custom">
+    <ToolBarContent>
+        <MudTextField T="string" Placeholder="@L["Search"]" Adornment="Adornment.Start" Immediate="true" ValueChanged="arg => SearchAsync(arg)" DebounceInterval="1000"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 mb-2">
+        </MudTextField>
+        <MudSpacer/>
+        <MudButton Class="mr-2" StartIcon="@Icons.Material.Outlined.FileDownload" Size="Size.Small" Variant="Variant.Filled" Color="@Color.Primary" OnClick="DownloadAsExcelAsync">@L["ExportToExcel"]</MudButton>
+        <MudButton StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" Variant="Variant.Filled" Color="@Color.Primary" OnClick="OpenCreateQuestionTemplateModalAsync">@L["NewQuestionTemplate"]</MudButton>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.Code" Title="@L["Code"]"/>
+        <PropertyColumn Property="x => x.QuestionText" Title="@L["QuestionText"]"/>
+        <TemplateColumn Title="@L["AnswerType"]">
+            <CellTemplate Context="context">
+                @L[$"Enum:AnswerType.{EnumExtensions.GetDisplayName(context.Item.AnswerType)}"]
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenEditQuestionTemplateModalAsync(context.Item))"/>
+                </MudTooltip>
+                <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteQuestionTemplateAsync(context.Item)"/>
+                </MudTooltip>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="QuestionTemplateDto"/>
+    </PagerContent>
+</MudDataGrid>
+<MudThemeProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
 
-<SelectItem></SelectItem>
-
-@foreach(AnswerType value in Enum.GetValues(typeof(AnswerType)))
-{
-	<SelectItem Value="value">
-		@value
-	</SelectItem>
-}
-
-</Select>                       
-                    </Field>
-                </Column>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["ChoiceValue"]</FieldLabel>
-                        <TextEdit Text="@Filter.ChoiceValue" TextChanged="@OnChoiceValueChangedAsync" />                       
-                    </Field>
-                </Column>
-            </Row>
-
-        </div>
-
-
-    </CardBody>
-</Card>
-
-@* ************************* DATA GRID ************************* *@
-<Card>
-    <CardBody>
-        <DataGrid TItem="QuestionTemplateDto"
-                  Data="QuestionTemplateList"
-                  
-                  
-                  
-                  
-                  ReadData="OnDataGridReadAsync"
-                  TotalItems="TotalCount"
-                  ShowPager="true"
-                  Responsive="true"
-                  PageSize="PageSize"
-                  Class="datagrid-detail">
-            <DataGridColumns>
-                
-                
-                <DataGridEntityActionsColumn TItem="QuestionTemplateDto" @ref="@EntityActionsColumn">
-                    <DisplayTemplate>
-                        <EntityActions TItem="QuestionTemplateDto" EntityActionsColumn="@EntityActionsColumn">
-                            <EntityAction TItem="QuestionTemplateDto"
-                                          Visible="@CanEditQuestionTemplate"
-                                          Clicked="async () => await OpenEditQuestionTemplateModalAsync(context)"
-                                          Text="@L["Edit"]"></EntityAction>
-                            <EntityAction TItem="QuestionTemplateDto"
-                                          Visible="@CanDeleteQuestionTemplate"
-                                          Clicked="() => DeleteQuestionTemplateAsync(context)"
-                                          ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
-                                          Text="@L["Delete"]"></EntityAction>
-
-                        </EntityActions>
-                    </DisplayTemplate>
-                </DataGridEntityActionsColumn>
-               
-              <DataGridColumn TItem="QuestionTemplateDto"
-                      Field="Code"
-                      Caption="@L["Code"]">
-              </DataGridColumn>
-
-              <DataGridColumn TItem="QuestionTemplateDto"
-                      Field="QuestionText"
-                      Caption="@L["QuestionText"]">
-              </DataGridColumn>
-
-              <DataGridColumn TItem="QuestionTemplateDto"
-                      Field="AnswerType"
-                      Caption="@L["AnswerType"]">
-                    <DisplayTemplate>
-                        @L[$"Enum:AnswerType.{EnumExtensions.GetDisplayName(context.AnswerType)}"]
-                    </DisplayTemplate>
-              </DataGridColumn>
-
-
-            </DataGridColumns>
-            
-            
-        </DataGrid>
-    </CardBody>
-</Card>
 
 @* ************************* CREATE MODAL ************************* *@
 <Modal @ref="CreateQuestionTemplateModal" Closing="@CreateQuestionTemplateModal.CancelClosingModalWhenFocusLost">
@@ -242,7 +149,7 @@
                 </Validations>
             </ModalBody>
             <ModalFooter>
-                <Button Color="Color.Secondary"
+                <Button Color="Blazorise.Color.Secondary"
                         Clicked="CloseCreateQuestionTemplateModalAsync">
                     @L["Cancel"]
                 </Button>
@@ -325,7 +232,7 @@
                 </Validations>
             </ModalBody>
             <ModalFooter>
-                <Button Color="Color.Secondary"
+                <Button Color="Blazorise.Color.Secondary"
                         Clicked="CloseEditQuestionTemplateModalAsync">
                     @L["Cancel"]
                 </Button>

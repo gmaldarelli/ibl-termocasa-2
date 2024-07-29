@@ -167,38 +167,38 @@ namespace IBLTermocasa.RequestForQuotations
             string? description = null,
             RfqStatus? status = null)
         {
+            filterText = filterText?.ToLower();
             return query
                 .WhereIf(!string.IsNullOrWhiteSpace(filterText), e =>
-                    (e.QuoteNumber != null && e.QuoteNumber.Contains(filterText)) ||
-                    (e.WorkSite != null && e.WorkSite.Contains(filterText)) ||
-                    (e.City != null && e.City.Contains(filterText)) ||
-                    (e.AgentProperty != null && e.AgentProperty.Name.Contains(filterText)) ||
-                    (e.OrganizationProperty != null && e.OrganizationProperty.Name.Contains(filterText)) ||
-                    (e.ContactProperty != null && e.ContactProperty.Name.Contains(filterText)) ||
-                    (e.PhoneInfo != null && e.PhoneInfo.PhoneItems.Any(item => item.Number.Contains(filterText))) ||
-                    (e.MailInfo != null && e.MailInfo.MailItems.Any(item => item.Email.Contains(filterText))) ||
-                    (e.Description != null && e.Description.Contains(filterText)))
+                    (e.QuoteNumber != null && e.QuoteNumber.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)) ||
+                    (e.WorkSite != null && e.WorkSite.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)) ||
+                    (e.City != null && e.City.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)) ||
+                    (e.AgentProperty != null && e.AgentProperty.Name.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)) ||
+                    (e.OrganizationProperty != null && e.OrganizationProperty.Name.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)) ||
+                    (e.ContactProperty != null && e.ContactProperty.Name.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)) ||
+                    (e.PhoneInfo != null && e.PhoneInfo.PhoneItems.Any(item => item.Number.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase))) ||
+                    (e.MailInfo != null && e.MailInfo.MailItems.Any(item => item.Email.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase))) ||
+                    (e.Description != null && e.Description.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)))
                 .WhereIf(!string.IsNullOrWhiteSpace(quoteNumber),
-                    e => e.QuoteNumber != null && e.QuoteNumber.Contains(quoteNumber))
-                .WhereIf(!string.IsNullOrWhiteSpace(workSite), e => e.WorkSite != null && e.WorkSite.Contains(workSite))
-                .WhereIf(!string.IsNullOrWhiteSpace(city), e => e.City != null && e.City.Contains(city))
-                .WhereIf(agentProperty != null,
-                    e => e.AgentProperty != null && e.AgentProperty.Name.Contains(agentProperty.Name))
-                .WhereIf(organizationProperty != null,
-                    e => e.OrganizationProperty != null &&
-                         e.OrganizationProperty.Name.Contains(organizationProperty.Name))
-                .WhereIf(contactProperty != null,
-                    e => e.ContactProperty != null && e.ContactProperty.Name.Contains(contactProperty.Name))
-                .WhereIf(phoneInfo != null,
+                    e => e.QuoteNumber.Contains(quoteNumber!, StringComparison.CurrentCultureIgnoreCase))
+                .WhereIf(!string.IsNullOrWhiteSpace(workSite), e => e.WorkSite != null && e.WorkSite.Contains(workSite!, StringComparison.CurrentCultureIgnoreCase))
+                .WhereIf(!string.IsNullOrWhiteSpace(city), e => e.City != null && e.City.Contains(city!, StringComparison.CurrentCultureIgnoreCase))
+                .WhereIf(agentProperty != null && !agentProperty.Name.IsNullOrWhiteSpace(),
+                    e => e.AgentProperty != null && e.AgentProperty.Name != null && e.AgentProperty.Name.Contains(agentProperty!.Name!, StringComparison.CurrentCultureIgnoreCase))
+                .WhereIf(organizationProperty != null && !organizationProperty.Name.IsNullOrWhiteSpace(),
+                    e => e.OrganizationProperty != null && e.OrganizationProperty.Name != null && e.OrganizationProperty.Name.Contains(organizationProperty!.Name!, StringComparison.CurrentCultureIgnoreCase))
+                .WhereIf(contactProperty != null && !contactProperty.Name.IsNullOrWhiteSpace(),
+                    e => e.ContactProperty != null && e.ContactProperty.Name != null && e.ContactProperty.Name.Contains(contactProperty!.Name!, StringComparison.CurrentCultureIgnoreCase))
+                .WhereIf(phoneInfo != null && !phoneInfo.PhoneItems.First().Number.IsNullOrWhiteSpace(),
                     e => e.PhoneInfo != null && e.PhoneInfo.PhoneItems.Any(item =>
-                        item.Number.Contains(phoneInfo.PhoneItems.First().Number)))
+                        item.Number.Contains(phoneInfo!.PhoneItems.First().Number, StringComparison.CurrentCultureIgnoreCase)))
                 .WhereIf(mailInfo != null,
                     e => e.MailInfo != null &&
                          e.MailInfo.MailItems.Any(item => item.Email.Contains(mailInfo.MailItems.First().Email)))
                 .WhereIf(discountMin.HasValue, e => e.Discount >= discountMin.Value)
                 .WhereIf(discountMax.HasValue, e => e.Discount <= discountMax.Value)
                 .WhereIf(!string.IsNullOrWhiteSpace(description),
-                    e => e.Description != null && e.Description.Contains(description))
+                    e => e.Description != null && e.Description.Contains(description!, StringComparison.CurrentCultureIgnoreCase))
                 .WhereIf(status.HasValue, e => e.Status == status);
         }
     }

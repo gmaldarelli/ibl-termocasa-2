@@ -2,17 +2,15 @@
 @page "/rfq-draft/{id}"
 
 @attribute [Authorize(IBLTermocasaPermissions.RequestForQuotations.Default)]
-@using IBLTermocasa.Blazor.Components.Product
-@using IBLTermocasa.RequestForQuotations
+@using IBLTermocasa.Blazor.Components.RequestForQuotation
 @using IBLTermocasa.Localization
 @using IBLTermocasa.Permissions
+@using IBLTermocasa.RequestForQuotations
 @using Microsoft.AspNetCore.Authorization
 @using Volo.Abp.AspNetCore.Components.Messages
 @using Volo.Abp.AspNetCore.Components.Web
 @using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
 @using Volo.Abp.Http.Client
-@using MudBlazor
-@using IBLTermocasa.Blazor.Components.RequestForQuotation
 @inherits IBLTermocasaComponentBase
 @inject IRequestForQuotationsAppService RequestForQuotationsAppService
 @inject NavigationManager NavigationManager

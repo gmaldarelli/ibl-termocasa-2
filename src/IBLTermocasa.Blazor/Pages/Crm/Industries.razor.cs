@@ -2,26 +2,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Globalization;
-using System.Web;
 using Blazorise;
-using Blazorise.DataGrid;
-using Volo.Abp.BlazoriseUI.Components;
-using Microsoft.AspNetCore.Authorization;
-using Volo.Abp.Application.Dtos;
-using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
 using IBLTermocasa.Industries;
 using IBLTermocasa.Permissions;
-using IBLTermocasa.Shared;
+using Microsoft.AspNetCore.Authorization;
+using MudBlazor;
+using NUglify.Helpers;
+using Volo.Abp.Application.Dtos;
+using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
+using Volo.Abp.BlazoriseUI.Components;
+using BreadcrumbItem = Volo.Abp.BlazoriseUI.BreadcrumbItem;
 
-
-
-namespace IBLTermocasa.Blazor.Pages
+namespace IBLTermocasa.Blazor.Pages.Crm
 {
     public partial class Industries
     {
-        protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems = new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
-        protected PageToolbar Toolbar {get;} = new PageToolbar();
+        protected List<BreadcrumbItem> BreadcrumbItems = new();
+        protected PageToolbar Toolbar { get; } = new();
         protected bool ShowAdvancedFilters { get; set; }
         private IReadOnlyList<IndustryDto> IndustryList { get; set; }
         private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
@@ -39,18 +36,12 @@ namespace IBLTermocasa.Blazor.Pages
         private Modal CreateIndustryModal { get; set; } = new();
         private Modal EditIndustryModal { get; set; } = new();
         private GetIndustriesInput Filter { get; set; }
-        private DataGridEntityActionsColumn<IndustryDto> EntityActionsColumn { get; set; } = new();
-        protected string SelectedCreateTab = "industry-create-tab";
-        protected string SelectedEditTab = "industry-edit-tab";
         private IndustryDto? SelectedIndustry;
-        
-        
-        
-        
-        
+        private MudDataGrid<IndustryDto> IndustryMudDataGrid { get; set; }
+        private string _searchString;
         private List<IndustryDto> SelectedIndustries { get; set; } = new();
         private bool AllIndustriesSelected { get; set; }
-        
+
         public Industries()
         {
             NewIndustry = new IndustryCreateDto();
@@ -62,14 +53,12 @@ namespace IBLTermocasa.Blazor.Pages
                 Sorting = CurrentSorting
             };
             IndustryList = new List<IndustryDto>();
-            
-            
         }
 
         protected override async Task OnInitializedAsync()
         {
             await SetPermissionsAsync();
-            
+            await GetIndustriesAsync();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -77,26 +66,13 @@ namespace IBLTermocasa.Blazor.Pages
             if (firstRender)
             {
                 await SetBreadcrumbItemsAsync();
-                await SetToolbarItemsAsync();
                 StateHasChanged();
             }
-        }  
+        }
 
         protected virtual ValueTask SetBreadcrumbItemsAsync()
         {
-            BreadcrumbItems.Add(new Volo.Abp.BlazoriseUI.BreadcrumbItem(L["Menu:Industries"]));
-            return ValueTask.CompletedTask;
-        }
-
-        protected virtual ValueTask SetToolbarItemsAsync()
-        {
-            
-            
-            Toolbar.AddButton(L["NewIndustry"], async () =>
-            {
-                await OpenCreateIndustryModalAsync();
-            }, IconName.Add, requiredPolicyName: IBLTermocasaPermissions.Industries.Create);
-
+            BreadcrumbItems.Add(new BreadcrumbItem(L["Menu:Industries"]));
             return ValueTask.CompletedTask;
         }
 
@@ -105,11 +81,9 @@ namespace IBLTermocasa.Blazor.Pages
             CanCreateIndustry = await AuthorizationService
                 .IsGrantedAsync(IBLTermocasaPermissions.Industries.Create);
             CanEditIndustry = await AuthorizationService
-                            .IsGrantedAsync(IBLTermocasaPermissions.Industries.Edit);
+                .IsGrantedAsync(IBLTermocasaPermissions.Industries.Edit);
             CanDeleteIndustry = await AuthorizationService
-                            .IsGrantedAsync(IBLTermocasaPermissions.Industries.Delete);
-                            
-                            
+                .IsGrantedAsync(IBLTermocasaPermissions.Industries.Delete);
         }
 
         private async Task GetIndustriesAsync()
@@ -121,7 +95,7 @@ namespace IBLTermocasa.Blazor.Pages
             var result = await IndustriesAppService.GetListAsync(Filter);
             IndustryList = result.Items;
             TotalCount = (int)result.TotalCount;
-            
+
             await ClearSelection();
         }
 
@@ -132,22 +106,10 @@ namespace IBLTermocasa.Blazor.Pages
             await InvokeAsync(StateHasChanged);
         }
 
-        private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<IndustryDto> e)
-        {
-            CurrentSorting = e.Columns
-                .Where(c => c.SortDirection != SortDirection.Default)
-                .Select(c => c.Field + (c.SortDirection == SortDirection.Descending ? " DESC" : ""))
-                .JoinAsString(",");
-            CurrentPage = e.Page;
-            await GetIndustriesAsync();
-            await InvokeAsync(StateHasChanged);
-        }
-
         private async Task OpenCreateIndustryModalAsync()
         {
-            NewIndustry = new IndustryCreateDto{
-                
-                
+            NewIndustry = new IndustryCreateDto
+            {
             };
             await NewIndustryValidations.ClearAll();
             await CreateIndustryModal.Show();
@@ -155,9 +117,8 @@ namespace IBLTermocasa.Blazor.Pages
 
         private async Task CloseCreateIndustryModalAsync()
         {
-            NewIndustry = new IndustryCreateDto{
-                
-                
+            NewIndustry = new IndustryCreateDto
+            {
             };
             await CreateIndustryModal.Hide();
         }
@@ -165,7 +126,7 @@ namespace IBLTermocasa.Blazor.Pages
         private async Task OpenEditIndustryModalAsync(IndustryDto input)
         {
             var industry = await IndustriesAppService.GetAsync(input.Id);
-            
+
             EditingIndustryId = industry.Id;
             EditingIndustry = ObjectMapper.Map<IndustryDto, IndustryUpdateDto>(industry);
             await EditingIndustryValidations.ClearAll();
@@ -213,7 +174,7 @@ namespace IBLTermocasa.Blazor.Pages
 
                 await IndustriesAppService.UpdateAsync(EditingIndustryId, EditingIndustry);
                 await GetIndustriesAsync();
-                await EditIndustryModal.Hide();                
+                await EditIndustryModal.Hide();
             }
             catch (Exception ex)
             {
@@ -221,81 +182,72 @@ namespace IBLTermocasa.Blazor.Pages
             }
         }
 
-        private void OnSelectedCreateTabChanged(string name)
-        {
-            SelectedCreateTab = name;
-        }
-
-        private void OnSelectedEditTabChanged(string name)
-        {
-            SelectedEditTab = name;
-        }
-
-        protected virtual async Task OnCodeChangedAsync(string? code)
-        {
-            Filter.Code = code;
-            await SearchAsync();
-        }
-        protected virtual async Task OnDescriptionChangedAsync(string? description)
-        {
-            Filter.Description = description;
-            await SearchAsync();
-        }
-        
-
-
-
-
-
-        private Task SelectAllItems()
-        {
-            AllIndustriesSelected = true;
-            
-            return Task.CompletedTask;
-        }
-
         private Task ClearSelection()
         {
             AllIndustriesSelected = false;
             SelectedIndustries.Clear();
-            
+
             return Task.CompletedTask;
         }
 
-        private Task SelectedIndustryRowsChanged()
+        private async void SearchAsync(string filterText)
         {
-            if (SelectedIndustries.Count != PageSize)
-            {
-                AllIndustriesSelected = false;
-            }
-            
-            return Task.CompletedTask;
-        }
-
-        private async Task DeleteSelectedIndustriesAsync()
-        {
-            var message = AllIndustriesSelected ? L["DeleteAllRecords"].Value : L["DeleteSelectedRecords", SelectedIndustries.Count].Value;
-            
-            if (!await UiMessageService.Confirm(message))
+            _searchString = filterText;
+            if ((_searchString.IsNullOrEmpty() || _searchString.Length < 3) &&
+                IndustryMudDataGrid.Items != null && IndustryMudDataGrid.Items.Any())
             {
                 return;
             }
 
-            if (AllIndustriesSelected)
+            await LoadGridData(new GridState<IndustryDto>
             {
-                await IndustriesAppService.DeleteAllAsync(Filter);
-            }
-            else
-            {
-                await IndustriesAppService.DeleteByIdsAsync(SelectedIndustries.Select(x => x.Id).ToList());
-            }
-
-            SelectedIndustries.Clear();
-            AllIndustriesSelected = false;
-
-            await GetIndustriesAsync();
+                Page = 0,
+                PageSize = PageSize,
+                SortDefinitions = IndustryMudDataGrid.SortDefinitions.Values.ToList()
+            });
+            await IndustryMudDataGrid.ReloadServerData();
+            StateHasChanged();
         }
 
+        private async Task<GridData<IndustryDto>> LoadGridData(GridState<IndustryDto> state)
+        {
+            state.SortDefinitions.ForEach(sortDef =>
+            {
+                CurrentSorting = sortDef.Descending ? $" {sortDef.SortBy} DESC" : $" {sortDef.SortBy} ";
+            });
+            Filter.SkipCount = state.Page * state.PageSize;
+            Filter.Sorting = CurrentSorting;
+            Filter.MaxResultCount = state.PageSize;
+            Filter.FilterText = _searchString;
+            var firstOrDefault = IndustryMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(IndustryDto.Code) });
+            if (firstOrDefault != null)
+            {
+                Filter.Code = (string?)firstOrDefault.Value;
+            }
 
+            var firstOrDefault1 = IndustryMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(IndustryDto.Code) });
+            if (firstOrDefault1 != null)
+            {
+                Filter.Code = (string?)firstOrDefault1.Value;
+            }
+
+            var firstOrDefault2 = IndustryMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(IndustryDto.Description) });
+            if (firstOrDefault2 != null)
+            {
+                Filter.Description = (string)firstOrDefault2.Value!;
+            }
+
+            var result = await IndustriesAppService.GetListAsync(Filter);
+            IndustryList = result.Items;
+            GridData<IndustryDto> data = new()
+            {
+                Items = IndustryList,
+                TotalItems = (int)result.TotalCount
+            };
+            return data;
+        }
     }
 }

@@ -7,5 +7,6 @@ public enum BomStatusType
     MATERIALS_BILLED,
     WORKS_BILLED,
     COMPLETED,
-    RFP_GENERATED
+    RFP_GENERATED,
+    QUOTATION_REJECTED
 }

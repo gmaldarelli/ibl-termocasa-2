@@ -1,0 +1,96 @@
+﻿@page "/bill-of-materials"
+
+@attribute [Authorize(IBLTermocasaPermissions.BillOfMaterials.Default)]
+@using IBLTermocasa.BillOfMaterials
+@using IBLTermocasa.Localization
+@using IBLTermocasa.Permissions
+@using IBLTermocasa.RequestForQuotations
+@using Microsoft.AspNetCore.Authorization
+@using Volo.Abp.AspNetCore.Components.Messages
+@using Volo.Abp.AspNetCore.Components.Web
+@using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+@using Volo.Abp.Http.Client
+@using IBLTermocasa.Types
+@using MudBlazor
+@using Color = MudBlazor.Color
+@using Size = MudBlazor.Size
+@using IBLTermocasa.Blazor.Components.BillOfMaterial
+@inherits IBLTermocasaComponentBase
+@inject IBillOfMaterialsAppService BillOfMaterialsAppService
+@inject IRequestForQuotationsAppService RequestForQuotationsAppService
+
+@inject IUiMessageService UiMessageService
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
+@inject NavigationManager NavigationManager
+
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["BillOfMaterials"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
+
+</PageHeader>
+
+
+
+@* ************************* DATA GRID ************************* *@
+
+
+<MudDataGrid @ref="BillOfMaterialMudDataGrid"
+             ServerData="LoadGridData"
+             T="BillOfMaterialDto"
+             ReadOnly="false"
+             Virtualize="true" FixedHeader="true"
+             Hover="true"
+             Bordered="false" Dense="false"
+             Filterable="true" RowsPerPage="10"
+             SortMode="SortMode.Multiple"
+             Class="mud-data-grid-custom">
+    <ToolBarContent>
+        <MudTextField T="string" Placeholder="@L["Search"]" Adornment="Adornment.Start" Immediate="true" ValueChanged="arg => SearchAsync(arg)" DebounceInterval="1000"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 mb-2">
+        </MudTextField>
+        <MudSpacer/>
+        <MudButton Class="mr-2" StartIcon="@Icons.Material.Outlined.FileDownload" Size="Size.Small" Variant="Variant.Filled" Color="@Color.Primary" OnClick="DownloadAsExcelAsync">@L["ExportToExcel"]</MudButton>
+        <MudBadge Color="Color.Primary" Content="@BadgeContent"
+                  Max="100" Overlap="false" Dot="false" Bordered="true">
+            <ChildContent>
+                <MudButton StartIcon="@Icons.Material.Filled.Search" Size="Size.Small"
+                           Variant="Variant.Filled" Color="Color.Primary"
+                           OnClick="OpenDialogRfqChoiceAsync">@L["NewRequestsForQuotation"]</MudButton>
+            </ChildContent>
+        </MudBadge>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.BomNumber" Title="@L["Name"]"/>
+        <TemplateColumn Title="@L["BomStatus"]">
+            <CellTemplate Context="context">
+                @L[$"Enum:BomStatusType.{EnumExtensions.GetDisplayName(context.Item.Status)}"]
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="x => x.CreationTime" Title="@L["BomDate"]" Format="dd/MM/yyyy"/>
+        <PropertyColumn Property="x => x.RequestForQuotationProperty.RfqNumber" Title="@L["RfqNumber"]"/>
+        <PropertyColumn Property="x => x.RequestForQuotationProperty.OrganizationName" Title="@L["Organization"]"/>
+        <PropertyColumn Property="x => x.RequestForQuotationProperty.RfqDateDocument" Title="@L["RfqDateDocument"]" Format="dd/MM/yyyy"/>
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudTooltip Inline="true" Text="@L["View"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Outlined.RemoveRedEye" OnClick="() => OpenBillOfMaterialDetailAsync(context.Item)"/>
+                </MudTooltip>
+                <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@MudBlazor.Size.Small" Icon="@MudBlazor.Icons.Material.Outlined.Remove" OnClick="() => RemoveBillOfMaterialDetailAsync(context.Item)"/>
+                </MudTooltip>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="BillOfMaterialDto" />
+    </PagerContent>
+</MudDataGrid>
+
+<ModalBillOfMaterialInput @ref="AddBillOfMaterialModal"
+                          OnCancel="CloseModalBillOfMaterialAsync"
+                          OnSave="SaveModalBillOfMaterialInputAsync"/>
+
+<MudThemeProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider />
+

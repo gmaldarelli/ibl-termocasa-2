@@ -129,11 +129,12 @@ namespace IBLTermocasa.Products
             bool? isAssembled = null,
             bool? isInternal = null)
         {
+            filterText = filterText?.ToLower();
             return query
-                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Code!.Contains(filterText!) || e.Name!.Contains(filterText!) || e.Description!.Contains(filterText!))
-                    .WhereIf(!string.IsNullOrWhiteSpace(code), e => e.Code.Contains(code))
-                    .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name))
-                    .WhereIf(!string.IsNullOrWhiteSpace(description), e => e.Description.Contains(description))
+                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Code!.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase) || e.Name!.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase) || e.Description!.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase))
+                    .WhereIf(!string.IsNullOrWhiteSpace(code), e => e.Code.Contains(code!, StringComparison.CurrentCultureIgnoreCase))
+                    .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name!, StringComparison.CurrentCultureIgnoreCase))
+                    .WhereIf(!string.IsNullOrWhiteSpace(description), e => e.Description != null && e.Description.Contains(description!, StringComparison.CurrentCultureIgnoreCase))
                     .WhereIf(isAssembled.HasValue, e => e.IsAssembled == isAssembled)
                     .WhereIf(isInternal.HasValue, e => e.IsInternal == isInternal);
         }

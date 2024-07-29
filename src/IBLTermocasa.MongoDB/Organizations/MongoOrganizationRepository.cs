@@ -115,21 +115,22 @@ namespace IBLTermocasa.Organizations
             Guid? industryId = null,
             OrganizationType? organizationTypePreFiilter = null)
         {
+            filterText = filterText?.ToLower();
             return query
                 .WhereIf(!string.IsNullOrWhiteSpace(filterText),
                     e => (
-                        e.Code!.Contains(filterText!) 
-                        ||  e.Name!.Contains(filterText!) 
-                        ||  e.Tags!.Contains(filterText!) 
-                        || e.PhoneInfo.PhoneItems.Any(x => x.Number.Contains(filterText!))
-                        || e.MailInfo.MailItems.Any(x => x.Email.Contains(filterText!))
+                        e.Code!.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)
+                        || e.Name!.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)
+                        || e.Tags.Any(t => t.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase))
+                        || e.PhoneInfo.PhoneItems.Any(x => x.Number.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase))
+                        || e.MailInfo.MailItems.Any(x => x.Email.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase))
                         ))
-                .WhereIf(!string.IsNullOrWhiteSpace(code), e => e.Code.Contains(code))
-                .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name))
+                .WhereIf(!string.IsNullOrWhiteSpace(code), e => e.Code.Contains(code!, StringComparison.CurrentCultureIgnoreCase))
+                .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name!, StringComparison.CurrentCultureIgnoreCase))
                 .WhereIf(organizationType.HasValue, e => e.OrganizationType == organizationType)
-                .WhereIf(!string.IsNullOrWhiteSpace(phoneInfo), e => e.PhoneInfo.PhoneItems.Any(x => x.Number.Contains(phoneInfo)))
-                .WhereIf(!string.IsNullOrWhiteSpace(mailInfo), e => e.MailInfo.MailItems.Any(x => x.Email.Contains(mailInfo)))
-                .WhereIf(!string.IsNullOrWhiteSpace(tags), e => e.Tags.Contains(tags))
+                .WhereIf(!string.IsNullOrWhiteSpace(phoneInfo), e => e.PhoneInfo.PhoneItems.Any(x => x.Number.Contains(phoneInfo!, StringComparison.CurrentCultureIgnoreCase)))
+                .WhereIf(!string.IsNullOrWhiteSpace(mailInfo), e => e.MailInfo.MailItems.Any(x => x.Email.Contains(mailInfo!, StringComparison.CurrentCultureIgnoreCase)))
+                .WhereIf(!string.IsNullOrWhiteSpace(tags), e => e.Tags.Any(t => t.Contains(tags!, StringComparison.CurrentCultureIgnoreCase)))
                 .WhereIf(industryId != null && industryId != Guid.Empty, e => e.IndustryId == industryId);
         }
         

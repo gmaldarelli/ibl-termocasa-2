@@ -146,14 +146,16 @@ namespace IBLTermocasa.Catalogs
             string? description = null,
             Guid? productId = null)
         {
+            filterText = filterText?.ToLower();
             return query
-                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Name!.Contains(filterText!) || e.Description!.Contains(filterText!))
-                    .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name))
+                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Name.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase) || 
+                                                                      e.Description != null && e.Description.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase))
+                    .WhereIf(!string.IsNullOrWhiteSpace(name), e => name != null && e.Name.Contains(name!, StringComparison.CurrentCultureIgnoreCase))
                     .WhereIf(fromMin.HasValue, e => e.From >= fromMin!.Value)
                     .WhereIf(fromMax.HasValue, e => e.From <= fromMax!.Value)
                     .WhereIf(toMin.HasValue, e => e.To >= toMin!.Value)
                     .WhereIf(toMax.HasValue, e => e.To <= toMax!.Value)
-                    .WhereIf(!string.IsNullOrWhiteSpace(description), e => e.Description.Contains(description))
+                    .WhereIf(!string.IsNullOrWhiteSpace(description), e => e.Description != null && description != null && e.Description.Contains(description, StringComparison.CurrentCultureIgnoreCase))
                     .WhereIf(productId != null && productId != Guid.Empty, e => e.Products.Any(x => x.ProductId == productId));
         }
     }

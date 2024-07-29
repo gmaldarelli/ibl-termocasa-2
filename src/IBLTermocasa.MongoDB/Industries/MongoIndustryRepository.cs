@@ -63,10 +63,11 @@ namespace IBLTermocasa.Industries
             string? code = null,
             string? description = null)
         {
+            filterText = filterText?.ToLower();
             return query
-                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Code!.Contains(filterText!) || e.Description!.Contains(filterText!))
-                    .WhereIf(!string.IsNullOrWhiteSpace(code), e => e.Code.Contains(code))
-                    .WhereIf(!string.IsNullOrWhiteSpace(description), e => e.Description.Contains(description));
+                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Code!.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase) || e.Description!.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase))
+                    .WhereIf(!string.IsNullOrWhiteSpace(code), e => e.Code.Contains(code!, StringComparison.CurrentCultureIgnoreCase))
+                    .WhereIf(!string.IsNullOrWhiteSpace(description), e => e.Description != null && e.Description.Contains(description!, StringComparison.CurrentCultureIgnoreCase));
         }
     }
 }

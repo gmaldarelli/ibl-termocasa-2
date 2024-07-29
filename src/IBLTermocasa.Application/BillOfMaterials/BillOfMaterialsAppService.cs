@@ -63,8 +63,8 @@ namespace IBLTermocasa.BillOfMaterials
 
         public virtual async Task<PagedResultDto<BillOfMaterialDto>> GetListAsync(GetBillOfMaterialsInput input)
         {
-            var totalCount = await _billOfMaterialRepository.GetCountAsync(input.FilterText, input.Name, input.RequestForQuotationProperty);
-            var items = await _billOfMaterialRepository.GetListAsync(input.FilterText, input.Name, input.RequestForQuotationProperty, input.Sorting, input.MaxResultCount, input.SkipCount);
+            var totalCount = await _billOfMaterialRepository.GetCountAsync(input.FilterText, input.BomNumber, input.RequestForQuotationProperty, input.Status);
+            var items = await _billOfMaterialRepository.GetListAsync(input.FilterText, input.BomNumber, input.RequestForQuotationProperty, input.Status, input.Sorting, input.MaxResultCount, input.SkipCount);
 
             return new PagedResultDto<BillOfMaterialDto>
             {
@@ -147,7 +147,7 @@ namespace IBLTermocasa.BillOfMaterials
         [Authorize(IBLTermocasaPermissions.BillOfMaterials.Delete)]
         public virtual async Task DeleteAllAsync(GetBillOfMaterialsInput input)
         {
-            await _billOfMaterialRepository.DeleteAllAsync(input.FilterText, input.Name, input.RequestForQuotationProperty);
+            await _billOfMaterialRepository.DeleteAllAsync(input.FilterText, input.BomNumber, input.RequestForQuotationProperty, input.Status);
         }
 
         public virtual async Task<List<ViewElementPropertyDto<object>>> GenerateBillOfMaterial(Guid id)

@@ -20,8 +20,11 @@
 
 @using IBLTermocasa.Permissions
 @using Volo.Abp.AspNetCore.Components.Web
-@using Microsoft.AspNetCore.Components
 @using Volo.Abp.Http.Client
+@using IBLTermocasa.Types
+@using MudBlazor
+@using Size = MudBlazor.Size
+@using Color = MudBlazor.Color
 @inherits IBLTermocasaComponentBase
 @inject IMaterialsAppService MaterialsAppService
 
@@ -29,9 +32,6 @@
 @inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
 @inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
 @inject NavigationManager NavigationManager
-@using IBLTermocasa.Types
-
-@using IBLTermocasa.Types
 
 
 @* ************************* PAGE HEADER ************************* *@
@@ -39,183 +39,62 @@
 
 </PageHeader>
 
-@* ************************* SEARCH ************************* *@
-<Card>
-    <CardBody>
 
-        <Form id="MaterialSearchForm" class="mb-3">
-            <Addons>
-                <Addon AddonType="AddonType.Body">
-                    <TextEdit @bind-Text="@Filter.FilterText"
-                              Autofocus="true"
-                              Placeholder="@L["Search"]">
-                    </TextEdit>
-                </Addon>
-                <Addon AddonType="AddonType.End">
-                    <SubmitButton Form="MaterialSearchForm" Clicked="GetMaterialsAsync">
-                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
-                    </SubmitButton>
-                </Addon>
-            </Addons>
-        </Form>
-        
-        <Row Class="mt-3 mb-3"> 
-            <div class="col-md-12">
-                <a href="javascript:;" class="text-decoration-none" @onclick="() => ShowAdvancedFilters = !ShowAdvancedFilters">@L["SeeAdvancedFilters"]</a>
-            </div>
-        </Row>
-        
-        <div style="display: @(!ShowAdvancedFilters ? "none" : "block")">
-            <Row>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["Code"]</FieldLabel>
-                        <TextEdit Text="@Filter.Code" TextChanged="@OnCodeChangedAsync" />                       
-                    </Field>
-                </Column>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["Name"]</FieldLabel>
-                        <TextEdit Text="@Filter.Name" TextChanged="@OnNameChangedAsync" />                       
-                    </Field>
-                </Column>
-                <Column ColumnSize="ColumnSize.Is3">
-                    <Field>
-                        <FieldLabel>@L["SourceType"]</FieldLabel>
-                        <Select TValue="SourceType?"
-		SelectedValue="@Filter.SourceType"
-		SelectedValueChanged="@OnSourceTypeChangedAsync">
+@* ************************* SEARCH AND DATA GRID ************************* *@
 
-<SelectItem></SelectItem>
+<MudDataGrid @ref="MaterialMudDataGrid"
+             ServerData="LoadGridData"
+             T="MaterialDto"
+             ReadOnly="false"
+             Virtualize="true" FixedHeader="true"
+             Hover="true"
+             Bordered="false" Dense="false"
+             Filterable="true" RowsPerPage="10"
+             SortMode="SortMode.Multiple"
+             Class="mud-data-grid-custom">
+    <ToolBarContent>
+        <MudTextField T="string" Placeholder="@L["Search"]" Adornment="Adornment.Start" Immediate="true" ValueChanged="arg => SearchAsync(arg)" DebounceInterval="1000"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 mb-2">
+        </MudTextField>
+        <MudSpacer/>
+        <MudButton Class="mr-2" StartIcon="@Icons.Material.Outlined.FileDownload" Size="Size.Small" Variant="Variant.Filled" Color="@Color.Primary" OnClick="DownloadAsExcelAsync">@L["ExportToExcel"]</MudButton>
+        <MudButton StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" Variant="Variant.Filled" Color="@Color.Primary" OnClick="OpenCreateMaterialModalAsync">@L["NewMaterial"]</MudButton>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.Code" Title="@L["Code"]"/>
+        <PropertyColumn Property="x => x.Name" Title="@L["Name"]"/>
+        <PropertyColumn Property="x => x.MeasureUnit" Title="@L["MeasureUnitShort"]"/>
+        <PropertyColumn Property="x => x.Quantity" Title="@L["Quantity"]"/>
+        <PropertyColumn Property="x => x.Lifo" Title="@L["Lifo"]"/>
+        <PropertyColumn Property="x => x.StandardPrice" Title="@L["StandardPrice"]"/>
+        <PropertyColumn Property="x => x.AveragePrice" Title="@L["AveragePrice"]"/>
+        <PropertyColumn Property="x => x.LastPrice" Title="@L["LastPrice"]"/>
+        <TemplateColumn Title="@L["SourceType"]">
+            <CellTemplate Context="context">
+                @L[$"Enum:SourceType.{EnumExtensions.GetDisplayName(context.Item.SourceType)}"]
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="x => x.FirstSync" Title="@L["FirstSync"]"/>
+        <PropertyColumn Property="x => x.LastSync" Title="@L["LastSync"]"/>
+        <TemplateColumn StickyRight="true">
+            <CellTemplate>
+                <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenEditMaterialModalAsync(context.Item))"/>
+                </MudTooltip>
+                <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteMaterialAsync(context.Item)"/>
+                </MudTooltip>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="MaterialDto"/>
+    </PagerContent>
+</MudDataGrid>
+<MudThemeProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
 
-@foreach(SourceType value in Enum.GetValues(typeof(SourceType)))
-{
-	<SelectItem Value="value">
-		@value
-	</SelectItem>
-}
-
-</Select>                       
-                    </Field>
-                </Column>
-            </Row>
-
-        </div>
-
-
-    </CardBody>
-</Card>
-
-@* ************************* DATA GRID ************************* *@
-<Card>
-    <CardBody>
-        <DataGrid TItem="MaterialDto"
-                  Data="MaterialList"
-                  
-                  
-                  
-                  
-                  ReadData="OnDataGridReadAsync"
-                  TotalItems="TotalCount"
-                  ShowPager="true"
-                  Responsive="true"
-                  PageSize="PageSize"
-                  Class="datagrid-detail">
-            <DataGridColumns>
-                
-                
-                <DataGridEntityActionsColumn TItem="MaterialDto" @ref="@EntityActionsColumn">
-                    <DisplayTemplate>
-                        <EntityActions TItem="MaterialDto" EntityActionsColumn="@EntityActionsColumn">
-                            <EntityAction TItem="MaterialDto"
-                                          Visible="@CanEditMaterial"
-                                          Clicked="async () => await OpenEditMaterialModalAsync(context)"
-                                          Text="@L["Edit"]"></EntityAction>
-                            <EntityAction TItem="MaterialDto"
-                                          Visible="@CanDeleteMaterial"
-                                          Clicked="() => DeleteMaterialAsync(context)"
-                                          ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
-                                          Text="@L["Delete"]"></EntityAction>
-
-                        </EntityActions>
-                    </DisplayTemplate>
-                </DataGridEntityActionsColumn>
-               
-              <DataGridColumn TItem="MaterialDto"
-                      Field="Code"
-                      Caption="@L["Code"]">
-              </DataGridColumn>
-
-              <DataGridColumn TItem="MaterialDto"
-                      Field="Name"
-                      Caption="@L["Name"]">
-              </DataGridColumn>
-
-              <DataGridColumn TItem="MaterialDto"
-                      Field="MeasureUnit"
-                      Caption="@L["MeasureUnitShort"]">
-                    <DisplayTemplate>
-                        @L[$"Enum:MeasureUnit.{EnumExtensions.GetDisplayName(context.MeasureUnit)}"]
-                    </DisplayTemplate>
-              </DataGridColumn>
-
-
-              <DataGridColumn TItem="MaterialDto"
-                      Field="Quantity"
-                      Caption="@L["Quantity"]">
-              </DataGridColumn>
-
-              <DataGridColumn TItem="MaterialDto"
-                      Field="Lifo"
-                      Caption="@L["Lifo"]">
-              </DataGridColumn>
-
-              <DataGridColumn TItem="MaterialDto"
-                      Field="StandardPrice"
-                      Caption="@L["StandardPrice"]" DisplayFormat="{0:C}">
-              </DataGridColumn>
-
-              <DataGridColumn TItem="MaterialDto"
-                      Field="AveragePrice"
-                      Caption="@L["AveragePrice"]">
-              </DataGridColumn>
-
-              <DataGridColumn TItem="MaterialDto"
-                      Field="LastPrice"
-                      Caption="@L["LastPrice"]">
-              </DataGridColumn>
-
-              <DataGridColumn TItem="MaterialDto"
-                      Field="SourceType"
-                      Caption="@L["SourceType"]">
-                    <DisplayTemplate>
-                        @L[$"Enum:SourceType.{EnumExtensions.GetDisplayName(context.SourceType)}"]
-                    </DisplayTemplate>
-              </DataGridColumn>
-
-
-              <DataGridColumn TItem="MaterialDto"
-                      Field="FirstSync"
-                      Caption="@L["FirstSync"]">
-                  <DisplayTemplate>
-                        @(context.FirstSync.HasValue ? context.FirstSync.Value.ToShortDateString() : string.Empty)
-                  </DisplayTemplate>
-              </DataGridColumn>
-
-              <DataGridColumn TItem="MaterialDto"
-                      Field="LastSync"
-                      Caption="@L["LastSync"]">
-                  <DisplayTemplate>
-                        @(context.LastSync.HasValue ? context.LastSync.Value.ToShortDateString() : string.Empty)
-                  </DisplayTemplate>
-              </DataGridColumn>
-
-            </DataGridColumns>
-            
-            
-        </DataGrid>
-    </CardBody>
-</Card>
 
 @* ************************* CREATE MODAL ************************* *@
 <Modal @ref="CreateMaterialModal" Closing="@CreateMaterialModal.CancelClosingModalWhenFocusLost">
@@ -348,7 +227,7 @@
                 </Validations>
             </ModalBody>
             <ModalFooter>
-                <Button Color="Color.Secondary"
+                <Button Color="Blazorise.Color.Secondary"
                         Clicked="CloseCreateMaterialModalAsync">
                     @L["Cancel"]
                 </Button>
@@ -529,7 +408,7 @@
                 </Validations>
             </ModalBody>
             <ModalFooter>
-                <Button Color="Color.Secondary"
+                <Button Color="Blazorise.Color.Secondary"
                         Clicked="CloseEditMaterialModalAsync">
                     @L["Cancel"]
                 </Button>

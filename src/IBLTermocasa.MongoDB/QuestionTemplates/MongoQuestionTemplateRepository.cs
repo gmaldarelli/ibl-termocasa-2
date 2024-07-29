@@ -58,12 +58,13 @@ namespace IBLTermocasa.QuestionTemplates
             AnswerType? answerType = null,
             string? choiceValue = null)
         {
+            filterText = filterText?.ToLower();
             return query
-                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Code!.Contains(filterText!) || e.QuestionText!.Contains(filterText!) || e.ChoiceValue!.Contains(filterText!))
-                    .WhereIf(!string.IsNullOrWhiteSpace(code), e => e.Code.Contains(code))
-                    .WhereIf(!string.IsNullOrWhiteSpace(questionText), e => e.QuestionText.Contains(questionText))
+                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Code!.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase) || e.QuestionText!.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase) || e.ChoiceValue!.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase))
+                    .WhereIf(!string.IsNullOrWhiteSpace(code), e => e.Code.Contains(code!, StringComparison.CurrentCultureIgnoreCase))
+                    .WhereIf(!string.IsNullOrWhiteSpace(questionText), e => e.QuestionText.Contains(questionText!, StringComparison.CurrentCultureIgnoreCase))
                     .WhereIf(answerType.HasValue, e => e.AnswerType == answerType)
-                    .WhereIf(!string.IsNullOrWhiteSpace(choiceValue), e => e.ChoiceValue.Contains(choiceValue));
+                    .WhereIf(!string.IsNullOrWhiteSpace(choiceValue), e => e.ChoiceValue != null && e.ChoiceValue.Contains(choiceValue!, StringComparison.CurrentCultureIgnoreCase));
         }
     }
 }

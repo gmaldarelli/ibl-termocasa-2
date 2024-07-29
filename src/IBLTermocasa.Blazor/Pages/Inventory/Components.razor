@@ -63,9 +63,9 @@
                     </PropertyColumn>
                     <TemplateColumn>
                         <EditTemplate>
-                            <MudIconButton Size="@Size.Small"
-                                                     Icon="@Icons.Material.Filled.DeleteSweep"
-                                                     OnClick="() => DeleteComponentAsync(context.Item)"/>
+                            <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Filled.DeleteSweep" OnClick="() => DeleteComponentAsync(context.Item)"/>
+                            </MudTooltip>
                         </EditTemplate>
                     </TemplateColumn>
                 </Columns>
@@ -100,7 +100,9 @@
                             <MudSpacer></MudSpacer>
                         </HeaderTemplate>
                         <EditTemplate>
-                            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Filled.DeleteSweep" OnClick="() => DeleteComponentItemAsync(context.Item)"/>
+                            <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Filled.DeleteSweep" OnClick="() => DeleteComponentItemAsync(context.Item)"/>
+                            </MudTooltip>
                         </EditTemplate>
                     </PropertyColumn>
                 </Columns>

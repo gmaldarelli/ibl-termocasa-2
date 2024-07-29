@@ -82,12 +82,13 @@ namespace IBLTermocasa.Quotations
             double? depositRequiredValueMin = null,
             double? depositRequiredValueMax = null)
         {
+            filterText = filterText?.ToLower();
             return query
                 .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => 
-                    (e.Code != null && e.Code.Contains(filterText)) ||
-                    (e.Name != null && e.Name.Contains(filterText)))
-                .WhereIf(!string.IsNullOrWhiteSpace(code), e => e.Code.Contains(code))
-                .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name))
+                    (e.Code != null && e.Code.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)) ||
+                    (e.Name != null && e.Name.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase)))
+                .WhereIf(!string.IsNullOrWhiteSpace(code), e => e.Code.Contains(code!, StringComparison.CurrentCultureIgnoreCase))
+                .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name!, StringComparison.CurrentCultureIgnoreCase))
                 .WhereIf(sentDateMin.HasValue, e => e.SentDate >= sentDateMin!.Value)
                 .WhereIf(sentDateMax.HasValue, e => e.SentDate <= sentDateMax!.Value)
                 .WhereIf(quotationValidDateMin.HasValue, e => e.QuotationValidDate >= quotationValidDateMin!.Value)

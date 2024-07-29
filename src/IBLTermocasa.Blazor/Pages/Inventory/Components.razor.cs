@@ -27,7 +27,7 @@ using ComponentItemDto = IBLTermocasa.Components.ComponentItemDto;
 using SortDirection = Blazorise.SortDirection;
 
 
-namespace IBLTermocasa.Blazor.Pages
+namespace IBLTermocasa.Blazor.Pages.Inventory
 {
     public partial class Components
     {
@@ -125,10 +125,6 @@ namespace IBLTermocasa.Blazor.Pages
         protected virtual ValueTask SetToolbarItemsAsync()
         {
             Toolbar.AddButton(L["ExportToExcel"], async () => { await DownloadAsExcelAsync(); }, IconName.Download);
-
-            Toolbar.AddButton(L["NewComponent"], async () => { await OpenCreateComponentModalAsync(); }, IconName.Add,
-                requiredPolicyName: IBLTermocasaPermissions.Components.Create);
-
             return ValueTask.CompletedTask;
         }
 

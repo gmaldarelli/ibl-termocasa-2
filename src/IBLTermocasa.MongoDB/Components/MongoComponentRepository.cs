@@ -52,10 +52,11 @@ namespace IBLTermocasa.Components
             string? code = null,
             string? name = null)
         {
+            filterText = filterText?.ToLower();
             return query
-                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Name!.Contains(filterText!) || e.Code!.Contains(filterText!))
-                    .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name!))
-                .WhereIf(!string.IsNullOrWhiteSpace(code), e => e.Code.Contains(code!));
+                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.Name.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase) || e.Code!.Contains(filterText!, StringComparison.CurrentCultureIgnoreCase))
+                    .WhereIf(!string.IsNullOrWhiteSpace(name), e => e.Name.Contains(name!, StringComparison.CurrentCultureIgnoreCase))
+                .WhereIf(!string.IsNullOrWhiteSpace(code), e => e.Code.Contains(code!, StringComparison.CurrentCultureIgnoreCase));
         }
     }
 }

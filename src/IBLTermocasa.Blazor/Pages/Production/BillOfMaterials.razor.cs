@@ -17,15 +17,17 @@ using IBLTermocasa.Blazor.Components.BillOfMaterial;
 using IBLTermocasa.Common;
 using IBLTermocasa.Permissions;
 using IBLTermocasa.Shared;
+using IBLTermocasa.Types;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
+using NUglify.Helpers;
 using Volo.Abp.AspNetCore.Components.Web.Theming.Toolbars;
 using Color = Blazorise.Color;
 using SortDirection = Blazorise.SortDirection;
 
 
-namespace IBLTermocasa.Blazor.Pages
+namespace IBLTermocasa.Blazor.Pages.Production
 {
     public partial class BillOfMaterials
     {
@@ -49,6 +51,8 @@ namespace IBLTermocasa.Blazor.Pages
         
         private List<BillOfMaterialDto> SelectedBillOfMaterials { get; set; } = new();
         private bool AllBillOfMaterialsSelected { get; set; }
+        private string _searchString;
+        private MudDataGrid<BillOfMaterialDto> BillOfMaterialMudDataGrid { get; set; } = new();
         
         public BillOfMaterials()
         {
@@ -77,7 +81,7 @@ namespace IBLTermocasa.Blazor.Pages
             if (firstRender)
             {
                 await SetBreadcrumbItemsAsync();
-                await SetToolbarItemsAsync();
+                await NewRefqBadgeContributor();
                 StateHasChanged();
             }
         }  
@@ -87,77 +91,12 @@ namespace IBLTermocasa.Blazor.Pages
             BreadcrumbItems.Add(new Volo.Abp.BlazoriseUI.BreadcrumbItem(L["Menu:BillOfMaterials"]));
             return ValueTask.CompletedTask;
         }
-
-        protected virtual ValueTask SetToolbarItemsAsync()
-        {
-            var badgeContributor = NewRfqBadgeContributor();
-
-            Toolbar.Contributors.Add(badgeContributor);
-            
-            Toolbar.AddButton(text: L["ExportToExcel"], clicked: async () =>{ await DownloadAsExcelAsync(); }, icon: IconName.Download, order: 1);
-            return ValueTask.CompletedTask;
-        }
-
-        private SimplePageToolbarContributor NewRfqBadgeContributor()
-        {
-            ToolbarButton buttonNewRfq = new ToolbarButton()
-            {
-                Color = Color.Primary,
-                Text = "Nuovi Preventivi",
-                Disabled = false,
-                Icon = IconName.Search,
-                Clicked = new Func<Task>(OpenDialogRfqChoiceAsync),
-            };
-            
-            RenderFragment renderFragment = (builder) =>
-            {
-                builder.OpenComponent<ToolbarButton>(0);
-                builder.AddAttribute(1, "Color", buttonNewRfq.Color);
-                builder.AddAttribute(2, "Text", buttonNewRfq.Text);
-                builder.AddAttribute(2, "Disabled", buttonNewRfq.Disabled);
-                builder.AddAttribute(2, "Icon", buttonNewRfq.Icon);
-                builder.AddAttribute(2, "Clicked", buttonNewRfq.Clicked);
-                builder.CloseComponent();
-            };
-           
-            MudBadge badge = new MudBadge()
-            {
-                Color = MudBlazor.Color.Primary,
-                Content = BadgeContent,
-                Max = 100,
-                Overlap = false,
-                Dot = false,
-                Bordered = true,
-                ChildContent = (builder) =>
-                {
-                    builder.AddContent(0, renderFragment);
-                },
-            };
-            SimplePageToolbarContributor badgeContributor = new SimplePageToolbarContributor(
-                badge.GetType(),
-                new Dictionary<string, object?>
-                {
-                    { "Icon", badge.Icon},
-                    { "Color", badge.Color},
-                    { "Content", BadgeContent},
-                    { "Max", badge.Max},
-                    { "Overlap", badge.Overlap},
-                    {"Dot", badge.Dot}
-                    ,{"Bordered", badge.Bordered} ,
-                    { "Class", badge.Class},
-                    { "ChildContent", badge.ChildContent},
-                },
-                5
-            );
-            return badgeContributor;
-        }
+        
 
         private async Task OpenDialogRfqChoiceAsync()
         {
-            var parameters = new DialogParameters<BillOfMaterialFromRrq>
-            {
-            };
-            var dialog = await DialogService.ShowAsync<BillOfMaterialFromRrq>("Seleziona un Preventivo", parameters, new DialogOptions
+            var parameters = new DialogParameters<BillOfMaterialFromRrq>();
+            var dialog = await DialogService.ShowAsync<BillOfMaterialFromRrq>(@L["SelectQuote"], parameters, new DialogOptions
             {
 
                 FullWidth= true,
@@ -225,7 +164,7 @@ namespace IBLTermocasa.Blazor.Pages
                 culture = "&culture=" + culture;
             }
             await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
-            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/bill-of-materials/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&Name={HttpUtility.UrlEncode(Filter.Name)}&RequestForQuotationId={HttpUtility.UrlEncode(Filter.RequestForQuotationProperty.Name)}", forceLoad: true);
+            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/bill-of-materials/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&BomNumber={HttpUtility.UrlEncode(Filter.BomNumber)}", forceLoad: true);
         }
         
         private Task ClearSelection()
@@ -270,7 +209,68 @@ namespace IBLTermocasa.Blazor.Pages
                 // Cancellazione annullata
                 Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>Cancellazione annullata...");
             }
+            await NewRefqBadgeContributor();
             StateHasChanged();
+        }
+        
+        private async void SearchAsync(string filterText)
+        {
+            _searchString = filterText;
+            if ((_searchString.IsNullOrEmpty() || _searchString.Length < 3) &&
+                BillOfMaterialMudDataGrid.Items != null && BillOfMaterialMudDataGrid.Items.Any())
+            {
+                return;
+            }
+
+            await LoadGridData(new GridState<BillOfMaterialDto>
+            {
+                Page = 0,
+                PageSize = PageSize,
+                SortDefinitions = BillOfMaterialMudDataGrid.SortDefinitions.Values.ToList()
+            });
+            await BillOfMaterialMudDataGrid.ReloadServerData();
+            StateHasChanged();
+        }
+
+        private async Task<GridData<BillOfMaterialDto>> LoadGridData(GridState<BillOfMaterialDto> state)
+        {
+            state.SortDefinitions.ForEach(sortDef =>
+            {
+                CurrentSorting = sortDef.Descending ? $" {sortDef.SortBy} DESC" : $" {sortDef.SortBy} ";
+            });
+            Filter.SkipCount = state.Page * state.PageSize;
+            Filter.Sorting = CurrentSorting;
+            Filter.MaxResultCount = state.PageSize;
+            Filter.FilterText = _searchString;
+            var firstOrDefault = BillOfMaterialMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(BillOfMaterialDto.BomNumber) });
+            if (firstOrDefault != null)
+            {
+                Filter.BomNumber = (string?)firstOrDefault.Value!;
+            }
+
+            var firstOrDefault1 = BillOfMaterialMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(BillOfMaterialDto.RequestForQuotationProperty) });
+            if (firstOrDefault1 != null)
+            {
+                Filter.RequestForQuotationProperty.Name = (string?)firstOrDefault1.Value;
+            }
+            
+            var firstOrDefault2 = BillOfMaterialMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(BillOfMaterialDto.RequestForQuotationProperty) });
+            if (firstOrDefault2 != null)
+            {
+                Filter.RequestForQuotationProperty.OrganizationName = (string?)firstOrDefault2.Value;
+            }
+
+            var result = await BillOfMaterialsAppService.GetListAsync(Filter);
+            BillOfMaterialList = result.Items;
+            GridData<BillOfMaterialDto> data = new()
+            {
+                Items = BillOfMaterialList,
+                TotalItems = (int)result.TotalCount
+            };
+            return data;
         }
     }
 }
