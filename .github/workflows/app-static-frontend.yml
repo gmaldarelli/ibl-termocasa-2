@@ -1,17 +1,59 @@
-name: Blazor Build and deploy
+name: TCP Blazor Build and deploy
 
 on:
   workflow_dispatch:
-
-jobs:
+    inputs: 
+      azure_environment: 
+        description: 'Azure Environment'
+        required: true
+        type: choice
+        options:
+          - 'Production'
+          - 'Staging'
+          - 'Development'
+jobs:  
   build_and_deploy_job:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
+      - name: Set Environment Variables
+        run: |
+          echo "Selected Azure Environment: ${{ github.event.inputs.azure_environment }}"
+          case ${{ github.event.inputs.azure_environment }} in
+            Production)
+              echo "WEB_APPS_API_TOKEN=${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_PURPLE_WAVE_005731103 }}" >> $GITHUB_ENV
+              echo "APP_SETTTING_TARGET=appsettings.Production.json" >> $GITHUB_ENV
+              ;;
+            Staging)
+              echo "WEB_APPS_API_TOKEN=${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_PURPLE_WAVE_005731103 }}" >> $GITHUB_ENV
+              echo "APP_SETTTING_TARGET=appsettings.Staging.json" >> $GITHUB_ENV
+              ;;
+            Development)
+              echo "WEB_APPS_API_TOKEN=${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_PURPLE_WAVE_005731103 }}" >> $GITHUB_ENV
+              echo "APP_SETTTING_TARGET=appsettings.Development.json" >> $GITHUB_ENV
+              ;;
+            *)
+              echo "Unknown environment: ${{ github.event.inputs.azure_environment }}"
+              exit 1
+              ;;
+          esac
       - uses: actions/checkout@v3
         with:
           submodules: true
           lfs: false
+      - name: Candidate Application Settings
+        run: |
+          echo "Selected Azure Environment: ${{ github.event.inputs.azure_environment }}"
+          echo "APP_SETTTING_TARGET=${APP_SETTTING_TARGET}"
+          mv src/IBLTermocasa.Blazor/wwwroot/${APP_SETTTING_TARGET} src/IBLTermocasa.Blazor/wwwroot/candidate.appsettings.json
+          rm -f src/IBLTermocasa.Blazor/wwwroot/appsettings*.json
+          mv src/IBLTermocasa.Blazor/wwwroot/candidate.appsettings.json src/IBLTermocasa.Blazor/wwwroot/appsettings.json
+          
+          ls -la src/IBLTermocasa.Blazor/wwwroot/appsettings*
+          
+          cat src/IBLTermocasa.Blazor/wwwroot/appsettings.json
+          
+          
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1

@@ -5,6 +5,15 @@ name: TCP API Build and deploy
 
 on:
   workflow_dispatch:
+    inputs:
+      azure_environment:
+        description: 'Azure Environment'
+        required: true
+        type: choice
+        options:
+          - 'Production'
+          - 'Staging'
+          - 'Development'
 
 jobs:
   build:
@@ -42,6 +51,46 @@ jobs:
       id-token: write #This is required for requesting the JWT
 
     steps:
+      - name: Set Environment Variables
+        env: 
+          azure_environment: ${{ github.event.inputs.azure_environment }}
+          prod_client_id: ${{ secrets.PROD_API_CLIENT_ID }}
+          prod_tenant_id: ${{ secrets.PROD_API_TENANT_ID }}
+          prod_subscription_id: ${{ secrets.PROD_API_SUBSCRIPTION_ID }}
+          stg_client_id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_808D774C976F428B88AE38F84CA45C52 }}
+          stg_tenant_id: ${{ secrets.AZUREAPPSERVICE_TENANTID_5C231986D6DF48C59832D4985333EB03 }}
+          stg_subscription_id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_1B7FC95956E2429C8C27936FA10FE44B }}
+          dev_client_id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_808D774C976F428B88AE38F84CA45C52 }}
+          dev_tenant_id: ${{ secrets.AZUREAPPSERVICE_TENANTID_5C231986D6DF48C59832D4985333EB03 }}
+          dev_subscription_id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_1B7FC95956E2429C8C27936FA10FE44B }}
+        run: |
+          echo "Selected Azure Environment: ${{ github.event.inputs.azure_environment }}"
+          case ${{ github.event.inputs.azure_environment }} in
+            Production)
+              echo "CLIENT_ID=${{ env.prod_client_id }}" >> $GITHUB_ENV
+              echo "TENANT_ID=${{ env.prod_tenant_id }}" >> $GITHUB_ENV
+              echo "SUBSCRIPTION_ID=${{ env.prod_subscription_id }}" >> $GITHUB_ENV
+              echo "APP_NAME=api-tcp" >> $GITHUB_ENV
+              ;;
+            Staging)
+              echo "CLIENT_ID=${{ env.stg_client_id }}" >> $GITHUB_ENV
+              echo "TENANT_ID=${{ env.stg_tenant_id }}" >> $GITHUB_ENV
+              echo "SUBSCRIPTION_ID=${{ env.stg_subscription_id }}" >> $GITHUB_ENV
+              echo "APP_NAME=api-tcp" >> $GITHUB_ENV
+              ;;
+            Development)
+              echo "CLIENT_ID=${{ env.dev_client_id }}" >> $GITHUB_ENV
+              echo "TENANT_ID=${{ env.dev_tenant_id }}" >> $GITHUB_ENV
+              echo "SUBSCRIPTION_ID=${{ env.dev_subscription_id }}" >> $GITHUB_ENV
+              echo "APP_NAME='api-tcp'" >> $GITHUB_ENV
+              ;;
+            *)
+              echo "Unknown environment: ${{ github.event.inputs.azure_environment }}"
+              exit 1
+              ;;
+          esac
+          echo "<<<<<<<<<<<<<<<<ENV>>>>>>>>>>>>>>>>"
+          echo "$GITHUB_ENV"
       - name: Download artifact from Apihost
         uses: actions/download-artifact@v4
         with:
@@ -50,15 +99,15 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_808D774C976F428B88AE38F84CA45C52 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_5C231986D6DF48C59832D4985333EB03 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_1B7FC95956E2429C8C27936FA10FE44B }}
+          client-id: ${{ env.CLIENT_ID }}
+          tenant-id: ${{ env.TENANT_ID }}
+          subscription-id: ${{ env.SUBSCRIPTION_ID }}
 
       - name: Deploy to Azure Apihost [api-tcp]
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'api-tcp'
-          slot-name: 'Production'
+          app-name: '${{ env.APP_NAME }}'
+          slot-name: 'Production' # Only Production slot is supported
           package: .
           
