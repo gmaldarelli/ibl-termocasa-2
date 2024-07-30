@@ -88,6 +88,7 @@
     "ClearSelection": "Clear selection",
     "DeleteAllRecords": "Are you sure you want to delete all records?",
     "DeleteSelectedRecords": "Are you sure you want to delete {0} record(s)?",
+    "ChangeSelectedRecords": "The changes have not been saved, would you like to save them?",
     "Menu:Materials": "Materials",
     "Menu:IBLTermocasa": "I B L Termocasa",
     "Permission:Components": "Components",
@@ -346,5 +347,6 @@
     "View": "View",
     "SelectQuote": "Select a Quote",
     "GenerateBOM": "Generate Bill of Materials",
+    "ApplyChanges": "Apply Changes",
   }
 }

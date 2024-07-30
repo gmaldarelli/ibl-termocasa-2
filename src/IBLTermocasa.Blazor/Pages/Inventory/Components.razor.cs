@@ -159,13 +159,6 @@ namespace IBLTermocasa.Blazor.Pages.Inventory
             TotalCount = (int)result.TotalCount;
         }
 
-        protected virtual async Task SearchAsync()
-        {
-            CurrentPage = 1;
-            await GetComponentsAsync();
-            await InvokeAsync(StateHasChanged);
-        }
-
         private async Task DownloadAsExcelAsync()
         {
             var token = (await ComponentsAppService.GetDownloadTokenAsync()).Token;
@@ -183,30 +176,7 @@ namespace IBLTermocasa.Blazor.Pages.Inventory
                 $"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/components/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&Name={HttpUtility.UrlEncode(Filter.Name)}",
                 forceLoad: true);
         }
-
-        private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<ComponentDto> e)
-        {
-            
-            CurrentSorting = e.Columns
-                .Where(c => c.SortDirection != SortDirection.Default)
-                .Select(c => c.Field + (c.SortDirection == SortDirection.Descending ? " DESC" : ""))
-                .JoinAsString(",");
-            CurrentPage = e.Page;
-            await GetComponentsAsync();
-            await InvokeAsync(StateHasChanged);
-        }
-
-        private async Task OpenCreateComponentModalAsync()
-        {
-            NewComponent = new ComponentCreateDto
-            {
-
-
-            };
-            await NewComponentValidations.ClearAll();
-            await CreateComponentModal.Show();
-        }
-
+        
         private async Task CloseCreateComponentModalAsync()
         {
             NewComponent = new ComponentCreateDto
@@ -226,119 +196,12 @@ namespace IBLTermocasa.Blazor.Pages.Inventory
             }
 
             await ComponentsAppService.DeleteAsync(input.Id);
-            await GetComponentsAsync();
             ComponentItemMudDataGrid.Items = new List<ComponentItemDto>();
+            ComponentMudDataGrid.SelectedItem = null;
+            ComponentSelected = true;
+            await GetComponentsAsync();
             StateHasChanged();
         }
-
-        private async Task CreateComponentAsync()
-        {
-            try
-            {
-                if (await NewComponentValidations.ValidateAll() == false)
-                {
-                    return;
-                }
-
-                await ComponentsAppService.CreateAsync(NewComponent);
-                await GetComponentsAsync();
-                await CloseCreateComponentModalAsync();
-                StateHasChanged();
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
-        }
-
-        private async Task CloseEditComponentModalAsync()
-        {
-            await EditComponentModal.Hide();
-        }
-
-        private async Task UpdateComponentAsync()
-        {
-            try
-            {
-                if (await EditingComponentValidations.ValidateAll() == false)
-                {
-                    return;
-                }
-
-                await ComponentsAppService.UpdateAsync(EditingComponentId, EditingComponent);
-                await GetComponentsAsync();
-                await EditComponentModal.Hide();
-                StateHasChanged();
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
-        }
-
-        private async Task CloseEditComponentItemModalAsync()
-        {
-            await EditComponentItemModal.Hide();
-        }
-
-        private async Task UpdateComponentItemAsync()
-        {
-            try
-            {
-                if (await EditingComponentItemValidations.ValidateAll() == false)
-                {
-                    return;
-                }
-
-                var updated =
-                    await ComponentsAppService.UpdateComponentItemAsync(_selectedComponent.Id, new List<ComponentItemDto>
-                    {
-                        EditingComponentItem
-                    });
-                await ReLoadComponentItemsComponent(updated);
-                await EditComponentItemModal.Hide();
-                StateHasChanged();
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
-        }
-
-        /*
-        private async Task OpenCreateComponentDialog()
-        {
-            var exclusionCodes = !ComponentList.IsNullOrEmpty() ? ComponentList.Select(x => x.Code).ToList() : new List<string>();
-            var dialogComponent = await DialogService.ShowAsync<AddComponentsInput>(L["NewComponent"] , new DialogParameters
-            {
-                { "ExclusionCodes", exclusionCodes }
-            }, new DialogOptions
-            {
-                Position = DialogPosition.Custom,
-                FullWidth = true,
-                MaxWidth = MaxWidth.Medium
-            });
-            
-            var result = await dialogComponent.Result;
-            if (!result.Canceled)
-            {
-                var selectedItem = (ComponentDto)result.Data;
-                if (selectedItem != null)
-                {
-                    return;
-                }
-
-                var create = await ComponentsAppService.CreateAsync(
-                    ObjectMapper.Map<ComponentDto, ComponentCreateDto>(selectedItem));
-                ComponentList.Add(create);
-                ComponentMudDataGrid.Items = ComponentList;
-                ComponentMudDataGrid.SelectedItem = create;
-                
-                await ComponentMudDataGrid.ReloadServerData();
-                StateHasChanged();
-            }
-        }
-        */
         
         private async Task OpenCreateComponentDialog() {
             var exclusionCodes = ComponentList?.Select(x => x.Code).ToList() ?? new List<string>();
@@ -402,50 +265,29 @@ namespace IBLTermocasa.Blazor.Pages.Inventory
                         IsDefault = false
                     });
                 });
-
-                var updated = await ComponentsAppService.UpdateAsync(
-                    ComponentMudDataGrid.SelectedItem.Id,
-                    ObjectMapper.Map<ComponentDto, ComponentUpdateDto>(ComponentMudDataGrid.SelectedItem)
-                );
-                var indexComponent = ComponentList.FindIndex(x => x.Id == updated.Id);
-                ComponentMudDataGrid.SelectedItem = ComponentList[indexComponent];
-                ComponentItemMudDataGrid.Items = ComponentMudDataGrid.SelectedItem.ComponentItems;
-                await ComponentMudDataGrid.ReloadServerData();
-                await ComponentItemMudDataGrid.ReloadServerData();
-                
+                if (exclusionIds.Count == 0)
+                {
+                    ComponentMudDataGrid.SelectedItem.ComponentItems.First().IsDefault = true;
+                }
+                await UpdateComponent(ComponentMudDataGrid.SelectedItem);
                 StateHasChanged();
             }
             
         }
 
-        private async Task CloseCreateComponentItemModalAsync()
+        private async Task UpdateComponent(ComponentDto ComponentDto)
         {
-            NewComponentItem = new ComponentItemDto();
-            await CreateComponentItemModal.Hide();
-        }
-
-        private async Task CreateComponentItemAsync()
-        {
-            try
-            {
-                if (await NewComponentItemValidations.ValidateAll() == false)
-                {
-                    return;
-                }
-
-                var updated =
-                    await ComponentsAppService.CreateComponentItemAsync(_selectedComponent.Id, new List<ComponentItemDto>
-                    {
-                        NewComponentItem
-                    });
-                await ReLoadComponentItemsComponent(updated);
-                await CloseCreateComponentItemModalAsync();
-                StateHasChanged();
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync(ex);
-            }
+            var updated = await ComponentsAppService.UpdateAsync(ComponentDto.Id,
+                ObjectMapper.Map<ComponentDto, ComponentUpdateDto>(ComponentDto)
+            );
+            var indexComponent = ComponentList.FindIndex(x => x.Id == updated.Id);
+            ComponentList[indexComponent] = updated;
+            ComponentMudDataGrid.SelectedItem = ComponentList[indexComponent];
+            ComponentMudDataGrid.Items = ComponentList;
+            ComponentItemMudDataGrid.Items = ComponentMudDataGrid.SelectedItem.ComponentItems;
+            await ComponentMudDataGrid.ReloadServerData();
+            await ComponentItemMudDataGrid.ReloadServerData();
+            StateHasChanged();
         }
 
         private async Task GetMaterialLookupAsync(string? filter = null)
@@ -489,7 +331,7 @@ namespace IBLTermocasa.Blazor.Pages.Inventory
             }
         }
 
-        private void OnSelectedItemChanged(ComponentDto obj)
+        private async Task OnSelectedItemChanged(ComponentDto obj)
         {
             ComponentItemList = new List<ComponentItemDto>();
             if(obj.ComponentItems.Count > 0){
@@ -497,7 +339,7 @@ namespace IBLTermocasa.Blazor.Pages.Inventory
             }
             _selectedComponent = obj;
             ComponentSelected = false;
-            ComponentItemMudDataGrid.ReloadServerData();
+            await ComponentItemMudDataGrid.ReloadServerData();
             StateHasChanged();
         }
 
