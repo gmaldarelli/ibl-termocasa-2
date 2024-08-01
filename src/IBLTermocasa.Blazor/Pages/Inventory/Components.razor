@@ -78,8 +78,8 @@
         @* ************************* Main Info on right side ************************* *@
         <MudPaper Class="pa-4">
             <MudDataGrid @ref="ComponentItemMudDataGrid" T="ComponentItemDto" Items="@ComponentItemList" ReadOnly="false" EditMode="MudBlazor.DataGridEditMode.Cell" Hover="true"
-                                   EditTrigger="DataGridEditTrigger.OnRowClick"
-                                   Bordered="true" Dense="true" Filterable="false" SortMode="SortMode.Single">
+                         EditTrigger="DataGridEditTrigger.OnRowClick"
+                         Bordered="true" Dense="true" Filterable="false" SortMode="SortMode.Single">
                 <ToolBarContent>
                     <MudText Typo="Typo.h6">@L["ComponentItems"]</MudText>
                     <MudSpacer />
@@ -88,7 +88,7 @@
                 <Columns>
                     <PropertyColumn Property="x => x.IsDefault" Title="@L["IsDefault"]" IsEditable="true" Sortable="true" Filterable="true">
                         <EditTemplate>
-                            <MudCheckBox @bind-Checked="context.Item.IsDefault"/>
+                            <MudCheckBox T="bool" Value="context.Item.IsDefault" ValueChanged="() => OnIsDefaultChanged(!context.Item.IsDefault, context.Item)"/>
                         </EditTemplate>
                     </PropertyColumn>
                     <PropertyColumn Property="x => x.MaterialCode" Title="@L["Code"]" IsEditable="false" Sortable="false" Filterable="false">
@@ -113,6 +113,9 @@
                     }
                 </NoRecordsContent>
             </MudDataGrid>
+            <MudItem xs="12" class="pt-3 d-flex justify-end">
+                <MudButton Disabled="@ComponentSelected" Color="Color.Primary" OnClick="ApplyChanges">@L["ApplyChanges"]</MudButton>
+            </MudItem>
         </MudPaper>
     </MudItem>
 </MudGrid>
@@ -120,3 +123,25 @@
 <MudThemeProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider />
+
+
+@code
+{
+    private Task OnIsDefaultChanged(bool newValue, ComponentItemDto item)
+    { 
+        if (ComponentItemList.Any(x => x.IsDefault) && newValue)
+        {
+            ComponentItemList.First(x => x.IsDefault).IsDefault = false;
+        }
+        ComponentItemList.First(x => x.Id == item.Id).IsDefault = newValue;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+    
+    private async Task ApplyChanges()
+    {
+        _selectedComponent.ComponentItems = ComponentItemList.ToList();
+        await UpdateComponent(_selectedComponent);
+        StateHasChanged();
+    }
+}

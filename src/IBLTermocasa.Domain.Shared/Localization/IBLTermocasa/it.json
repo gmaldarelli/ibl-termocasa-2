@@ -128,6 +128,7 @@
     "ClearSelection": "Cancella selezione",
     "DeleteAllRecords": "Sei sicuro di voler eliminare tutti gli elementi?",
     "DeleteSelectedRecords": "Sei sicuro di voler eliminare {0}?",
+    "ChangeSelectedRecords": "\nLe modifiche non sono state salvate, vuoi salvarle?",
     "Menu:Materials": "Materiali",
     "Menu:IBLTermocasa": "I B L Termocasa",
     "Permission:Components": "Componenti",
@@ -386,6 +387,7 @@
     "GenerateBOM": "Genera Distinta Materiali",
     "Enum:CostType.CALCULATED_FOR_PRODUCT": "Calcolato per Prodotto",
     "Enum:CostType.FIXED_FOR_PRODUCT": "Fisso per Prodotto",
-    "Enum:CostType.FIXED_FOR_WORK": "Fissato per Lavoro"
+    "Enum:CostType.FIXED_FOR_WORK": "Fissato per Lavoro",
+    "ApplyChanges": "Applica Modifiche"
   }
 }

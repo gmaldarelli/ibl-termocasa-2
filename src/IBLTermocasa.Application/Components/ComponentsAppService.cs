@@ -69,7 +69,7 @@ namespace IBLTermocasa.Components
             var entity =await _componentRepository.GetAsync(id);
             var  componentDto =  ObjectMapper.Map<Component, ComponentDto>(entity);
             componentDto.ComponentItems = ObjectMapper.Map<List<ComponentItem>, List<ComponentItemDto>>(entity.ComponentItems);
-            this.FillMaterialNameAndCode(componentDto);
+            FillMaterialNameAndCode(componentDto);
             return componentDto;
         }
 
@@ -99,6 +99,7 @@ namespace IBLTermocasa.Components
             );
             var  dto =  ObjectMapper.Map<Component, ComponentDto>(entity);
             dto.ComponentItems = ObjectMapper.Map<List<ComponentItem>, List<ComponentItemDto>>(entity.ComponentItems);
+            FillMaterialNameAndCode(dto);
             return dto;
         }
 
