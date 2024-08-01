@@ -1,0 +1,23 @@
+﻿@page "/authentication/{action}"
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Volo.Abp.AspNetCore.Components.WebAssembly.LeptonTheme.Pages
+@using Volo.Abp.DependencyInjection
+<RemoteAuthenticatorView Action="@Action"  OnLogInSucceeded="OnLogInSucceeded" OnLogOutSucceeded="OnLogOutSucceeded"/>
+@inject WebAssemblyCachedApplicationConfigurationClient WebAssemblyCachedApplicationConfigurationClient
+
+@inherits Authentication
+@attribute [ExposeServices(typeof(Authentication))]
+@attribute [Dependency(ReplaceServices = true)]
+
+@code{
+    [Parameter] public string Action { get; set; }
+
+    private async Task OnLogInSucceeded(RemoteAuthenticationState obj)
+    {
+        await WebAssemblyCachedApplicationConfigurationClient.InitializeAsync();
+    }
+    private async Task OnLogOutSucceeded(RemoteAuthenticationState obj)
+    {
+        await WebAssemblyCachedApplicationConfigurationClient.InitializeAsync();
+    }
+}
