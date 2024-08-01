@@ -36,27 +36,13 @@ public partial class Products
     private bool CanDeleteProduct { get; set; }
     private ProductCreateDto NewProduct { get; set; }
     private ProductUpdateDto EditingProduct { get; set; }
-    private Modal CreateProductModal { get; set; } = new();
     private GetProductsInput Filter { get; set; }
-    private DataGridEntityActionsColumn<ProductDto> EntityActionsColumn { get; set; } = new();
-    protected string SelectedCreateTab = "product-create-tab";
-    protected string SelectedEditTab = "product-edit-tab";
     private ProductDto? SelectedProduct;
     private string _searchString;
     private IReadOnlyList<LookupDto<Guid>> Components { get; set; } = new List<LookupDto<Guid>>();
-
-    private string SelectedComponentId { get; set; }
-
-    private string SelectedComponentText { get; set; }
-
-    private List<LookupDto<Guid>> SelectedComponents { get; set; } = new List<LookupDto<Guid>>();
     private IReadOnlyList<LookupDto<Guid>> QuestionTemplates { get; set; } = new List<LookupDto<Guid>>();
 
-    private string SelectedQuestionTemplateId { get; set; }
-
-    private string SelectedQuestionTemplateText { get; set; }
-
-    private List<LookupDto<Guid>> SelectedQuestionTemplates { get; set; } = new List<LookupDto<Guid>>();
+    private MudDataGrid<ProductDto> ProductMudDataGrid { get; set; }
 
     private List<ProductDto> SelectedProducts { get; set; } = new();
     private bool AllProductsSelected { get; set; }
@@ -78,8 +64,6 @@ public partial class Products
     {
         await SetPermissionsAsync();
         await GetComponentLookupAsync();
-
-
         await GetQuestionTemplateLookupAsync();
     }
 
@@ -88,7 +72,6 @@ public partial class Products
         if (firstRender)
         {
             await SetBreadcrumbItemsAsync();
-            await SetToolbarItemsAsync();
             StateHasChanged();
         }
     }
@@ -96,16 +79,6 @@ public partial class Products
     protected virtual ValueTask SetBreadcrumbItemsAsync()
     {
         BreadcrumbItems.Add(new BreadcrumbItem(L["Menu:Products"]));
-        return ValueTask.CompletedTask;
-    }
-
-    protected virtual ValueTask SetToolbarItemsAsync()
-    {
-        Toolbar.AddButton(L["ExportToExcel"], async () => { await DownloadAsExcelAsync(); }, IconName.Download);
-
-        Toolbar.AddButton(L["NewProduct"], async () => { await OpenCreateProductPageAsync(); }, IconName.Add,
-            requiredPolicyName: IBLTermocasaPermissions.Products.Create);
-
         return ValueTask.CompletedTask;
     }
 
@@ -191,14 +164,6 @@ public partial class Products
         return data;
     }
 
-
-    protected virtual async Task SearchAsync()
-    {
-        CurrentPage = 1;
-        await GetProductsAsync();
-        await InvokeAsync(StateHasChanged);
-    }
-
     private async Task DownloadAsExcelAsync()
     {
         var token = (await ProductsAppService.GetDownloadTokenAsync()).Token;
@@ -217,28 +182,9 @@ public partial class Products
             forceLoad: true);
     }
 
-    private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<ProductDto> e)
-    {
-        CurrentSorting = e.Columns
-            .Where(c => c.SortDirection != SortDirection.Default)
-            .Select(c => c.Field + (c.SortDirection == SortDirection.Descending ? " DESC" : ""))
-            .JoinAsString(",");
-        CurrentPage = e.Page;
-        await GetProductsAsync();
-        await InvokeAsync(StateHasChanged);
-    }
-
     private async Task OpenCreateProductPageAsync()
     {
         NavigationManager.NavigateTo($"/product/new-product");
-    }
-
-    private async Task CloseCreateProductModalAsync()
-    {
-        NewProduct = new ProductCreateDto
-        {
-        };
-        await CreateProductModal.Hide();
     }
 
     private async Task OpenEditProductAsync(ProductDto input)
@@ -252,105 +198,16 @@ public partial class Products
         await GetProductsAsync();
     }
 
-    protected virtual async Task OnCodeChangedAsync(string? code)
-    {
-        Filter.Code = code;
-        await SearchAsync();
-    }
-
-    protected virtual async Task OnNameChangedAsync(string? name)
-    {
-        Filter.Name = name;
-        await SearchAsync();
-    }
-
-    protected virtual async Task OnDescriptionChangedAsync(string? description)
-    {
-        Filter.Description = description;
-        await SearchAsync();
-    }
-
-    protected virtual async Task OnIsAssembledChangedAsync(bool? isAssembled)
-    {
-        Filter.IsAssembled = isAssembled;
-        await SearchAsync();
-    }
-
-    protected virtual async Task OnIsInternalChangedAsync(bool? isInternal)
-    {
-        Filter.IsInternal = isInternal;
-        await SearchAsync();
-    }
-
-
     private async Task GetComponentLookupAsync(string? newValue = null)
     {
         Components = (await ProductsAppService.GetComponentLookupAsync(new LookupRequestDto { Filter = newValue }))
             .Items;
     }
 
-    private void AddComponent()
-    {
-        if (SelectedComponentId.IsNullOrEmpty())
-        {
-            return;
-        }
-
-        if (SelectedComponents.Any(p => p.Id.ToString() == SelectedComponentId))
-        {
-            UiMessageService.Warn(L["ItemAlreadyAdded"]);
-            return;
-        }
-
-        SelectedComponents.Add(new LookupDto<Guid>
-        {
-            Id = Guid.Parse(SelectedComponentId),
-            DisplayName = SelectedComponentText
-        });
-    }
-
     private async Task GetQuestionTemplateLookupAsync(string? newValue = null)
     {
         QuestionTemplates =
             (await ProductsAppService.GetQuestionTemplateLookupAsync(new LookupRequestDto { Filter = newValue })).Items;
-    }
-
-    private void AddQuestionTemplate()
-    {
-        if (SelectedQuestionTemplateId.IsNullOrEmpty())
-        {
-            return;
-        }
-
-        if (SelectedQuestionTemplates.Any(p => p.Id.ToString() == SelectedQuestionTemplateId))
-        {
-            UiMessageService.Warn(L["ItemAlreadyAdded"]);
-            return;
-        }
-
-        SelectedQuestionTemplates.Add(new LookupDto<Guid>
-        {
-            Id = Guid.Parse(SelectedQuestionTemplateId),
-            DisplayName = SelectedQuestionTemplateText
-        });
-    }
-
-    public string SelectedChildTab { get; set; } = "subproduct-tab";
-    public MudDataGrid<ProductDto> ProductMudDataGrid { get; set; }
-
-    private Task OnSelectedChildTabChanged(string name)
-    {
-        SelectedChildTab = name;
-
-        return Task.CompletedTask;
-    }
-
-
-    private Task SelectAllItems()
-    {
-        AllProductsSelected = true;
-
-        return Task.CompletedTask;
     }
 
     private Task ClearSelection()
@@ -360,56 +217,6 @@ public partial class Products
 
         return Task.CompletedTask;
     }
-
-    private Task SelectedProductRowsChanged()
-    {
-        if (SelectedProducts.Count != PageSize)
-        {
-            AllProductsSelected = false;
-        }
-
-        return Task.CompletedTask;
-    }
-
-    private async Task DeleteSelectedProductsAsync()
-    {
-        var message = AllProductsSelected
-            ? L["DeleteAllRecords"].Value
-            : L["DeleteSelectedRecords", SelectedProducts.Count].Value;
-
-        if (!await UiMessageService.Confirm(message))
-        {
-            return;
-        }
-
-        if (AllProductsSelected)
-        {
-            await ProductsAppService.DeleteAllAsync(Filter);
-        }
-        else
-        {
-            await ProductsAppService.DeleteByIdsAsync(SelectedProducts.Select(x => x.Id).ToList());
-        }
-
-        SelectedProducts.Clear();
-        AllProductsSelected = false;
-
-        await GetProductsAsync();
-    }
-
-    private Func<ProductDto, bool> _quickFilter => x =>
-    {
-        if (string.IsNullOrWhiteSpace(_searchString))
-            return true;
-
-        if (x.Code.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        return false;
-    };
 
     private async void SearchAsync(string filterText)
     {

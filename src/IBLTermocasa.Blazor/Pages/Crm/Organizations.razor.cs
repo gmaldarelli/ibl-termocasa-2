@@ -218,33 +218,40 @@ namespace IBLTermocasa.Blazor.Pages.Crm
             {
                 Filter.Code = (string?)firstOrDefault.Value;
             }
-
+            
             var firstOrDefault1 = OrganizationMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
-                x.Column is { PropertyName: nameof(OrganizationDto.Phones) });
+                x.Column is { PropertyName: nameof(OrganizationDto.Name) });
             if (firstOrDefault1 != null)
             {
-                Filter.PhoneInfo = (string?)firstOrDefault1.Value;
+                Filter.Name = (string?)firstOrDefault1.Value;
             }
 
             var firstOrDefault2 = OrganizationMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
-                x.Column is { PropertyName: nameof(OrganizationDto.Emails) });
+                x.Column is { PropertyName: nameof(OrganizationDto.Phones) });
             if (firstOrDefault2 != null)
             {
-                Filter.MailInfo = (string)firstOrDefault2.Value!;
+                Filter.PhoneInfo = (string?)firstOrDefault2.Value;
             }
 
             var firstOrDefault3 = OrganizationMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
-                x.Column is { PropertyName: nameof(OrganizationDto.OrganizationType) });
+                x.Column is { PropertyName: nameof(OrganizationDto.Emails) });
             if (firstOrDefault3 != null)
             {
-                Filter.OrganizationType = (OrganizationType)firstOrDefault3.Value!;
+                Filter.MailInfo = (string)firstOrDefault3.Value!;
             }
 
             var firstOrDefault4 = OrganizationMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
-                x.Column is { PropertyName: nameof(OrganizationDto.SourceType) });
+                x.Column is { PropertyName: nameof(OrganizationDto.OrganizationType) });
             if (firstOrDefault4 != null)
             {
-                Filter.SourceType = (SourceType)firstOrDefault4.Value!;
+                Filter.OrganizationType = (OrganizationType)firstOrDefault4.Value!;
+            }
+
+            var firstOrDefault5 = OrganizationMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
+                x.Column is { PropertyName: nameof(OrganizationDto.SourceType) });
+            if (firstOrDefault5 != null)
+            {
+                Filter.SourceType = (SourceType)firstOrDefault5.Value!;
             }
 
             var result = await OrganizationsAppService.GetListAsync(Filter);

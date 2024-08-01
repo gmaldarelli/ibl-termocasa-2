@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using IBLTermocasa.Common;
+using IBLTermocasa.Contacts;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Uow;
@@ -36,6 +37,7 @@ namespace IBLTermocasa.Organizations
                 id: Guid.NewGuid(), // Generate a new Guid for the id
                 name: "Organization 1",
                 industryId: Guid.NewGuid(), // or provide a Guid
+                listContacts: new List<ContactProperty>(),
                 organizationType: OrganizationType.CUSTOMER, // or provide an OrganizationType
                 shippingAddress: new Address
                 {
@@ -66,6 +68,7 @@ namespace IBLTermocasa.Organizations
                 id: Guid.NewGuid(), // Generate a new Guid for the id
                 name: "Organization 2",
                 industryId: Guid.NewGuid(), // or provide a Guid
+                listContacts: new List<ContactProperty>(),
                 organizationType: OrganizationType.CUSTOMER, // or provide an OrganizationType
                 shippingAddress: new Address
                 {
@@ -96,6 +99,7 @@ namespace IBLTermocasa.Organizations
                 id: Guid.NewGuid(), // Generate a new Guid for the id
                 name: "Organization 3",
                 industryId: Guid.NewGuid(), // or provide a Guid
+                listContacts: new List<ContactProperty>(),
                 organizationType: OrganizationType.CUSTOMER, // or provide an OrganizationType
                 shippingAddress: new Address
                 {

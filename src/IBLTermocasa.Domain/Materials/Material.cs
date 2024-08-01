@@ -78,7 +78,7 @@ namespace IBLTermocasa.Materials
             AveragePrice = averagePrice;
             LastPrice = lastPrice;
             AveragePriceSecond = averagePriceSecond;
-            SourceType = SourceType.Manual;
+            SourceType = SourceType.MANUAL;
             FirstSync = DateTime.Now;
             LastSync = DateTime.Now;
         }

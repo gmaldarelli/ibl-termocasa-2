@@ -2,9 +2,9 @@
 
 public enum SourceType
 {
-    ExternalSystem,
-    MassImport,
-    Manual,
-    System,
-    Unknown
+    EXTERNAL_SYSTEM,
+    MASS_IMPORT,
+    MANUAL,
+    SYSTEM,
+    UNKNOWN
 }

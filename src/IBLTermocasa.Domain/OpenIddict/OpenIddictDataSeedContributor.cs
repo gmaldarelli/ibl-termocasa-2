@@ -167,13 +167,13 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
         string? logoUri = null)
     {
         if (!string.IsNullOrEmpty(secret) && string.Equals(type, OpenIddictConstants.ClientTypes.Public,
-                StringComparison.OrdinalIgnoreCase))
+                StringComparison.CurrentCultureIgnoreCase))
         {
             throw new BusinessException(L["NoClientSecretCanBeSetForPublicApplications"]);
         }
 
         if (string.IsNullOrEmpty(secret) && string.Equals(type, OpenIddictConstants.ClientTypes.Confidential,
-                StringComparison.OrdinalIgnoreCase))
+                StringComparison.CurrentCultureIgnoreCase))
         {
             throw new BusinessException(L["TheClientSecretIsRequiredForConfidentialApplications"]);
         }
@@ -198,7 +198,7 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
         {
             application.Permissions.Add(OpenIddictConstants.Permissions.ResponseTypes.CodeIdToken);
 
-            if (string.Equals(type, OpenIddictConstants.ClientTypes.Public, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(type, OpenIddictConstants.ClientTypes.Public, StringComparison.CurrentCultureIgnoreCase))
             {
                 application.Permissions.Add(OpenIddictConstants.Permissions.ResponseTypes.CodeIdTokenToken);
                 application.Permissions.Add(OpenIddictConstants.Permissions.ResponseTypes.CodeToken);
@@ -270,7 +270,7 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
             if (grantType == OpenIddictConstants.GrantTypes.Implicit)
             {
                 application.Permissions.Add(OpenIddictConstants.Permissions.ResponseTypes.IdToken);
-                if (string.Equals(type, OpenIddictConstants.ClientTypes.Public, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(type, OpenIddictConstants.ClientTypes.Public, StringComparison.CurrentCultureIgnoreCase))
                 {
                     application.Permissions.Add(OpenIddictConstants.Permissions.ResponseTypes.IdTokenToken);
                     application.Permissions.Add(OpenIddictConstants.Permissions.ResponseTypes.Token);

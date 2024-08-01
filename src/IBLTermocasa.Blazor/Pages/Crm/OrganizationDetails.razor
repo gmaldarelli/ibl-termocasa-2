@@ -15,6 +15,7 @@
 @using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars
 @using Volo.Abp.Http.Client
 @using BreadcrumbItem = Volo.Abp.BlazoriseUI.BreadcrumbItem
+@using MudBlazor
 @inherits IBLTermocasaComponentBase
 @inject IOrganizationsAppService OrganizationsAppService
 @inject NavigationManager NavigationManager
@@ -29,10 +30,13 @@
 <OrganizationInput @ref="OrganizationInputComponent" IsNew="@IsNew"
                    Industries="@Industries"
                    OrganizationTypes="@OrganizationTypes"
-                   Organization="@OrganizationInput"
+                   OrganizationParameter="@OrganizationInput"
                    OnOrganizationSaved="HandleOrganizationSaved"
                    OnOrganizationCancel="HandleOrganizationCancel">
 </OrganizationInput>
+<MudThemeProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider />
 
 @code {
     public bool IsNew { get; set; } = false;
@@ -74,12 +78,6 @@
         OrganizationTypes = Enum.GetValuesAsUnderlyingType<OrganizationType>().ToDynamicList<OrganizationType>();
         await SetBreadcrumbItemsAsync();
         await SetPermissionsAsync();
-    }
-
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        base.OnAfterRender(firstRender);
     }
 
     private async Task SetPermissionsAsync()
@@ -155,7 +153,7 @@
         }
     }
 
-    private async Task HandleOrganizationCancel()
+    private void HandleOrganizationCancel()
     {
         NavigationManager.NavigateTo("/organizations");
     }

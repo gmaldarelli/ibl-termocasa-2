@@ -2,10 +2,10 @@
 
 public enum AnswerType
 {
-    TEXT = 0,
-    NUMBER = 1,
-    DATE = 2,
-    BOOLEAN = 3,
-    LARGE_TEXT = 4,
-    CHOICE = 5
+    TEXT,
+    NUMBER,
+    DATE,
+    BOOLEAN,
+    LARGE_TEXT,
+    CHOICE
 }

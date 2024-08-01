@@ -232,7 +232,7 @@ else
                                             <MudItem xs="12">
                                                 <MudPaper MaxWidth="300">
                                                     <MudText Align="Align.Left" Typo="Typo.h5" Class="p-2">@L["ProductsList"]</MudText>
-                                                    <MudList @ref="MudListRef" Clickable="true">
+                                                    <MudList @ref="MudListRef" T="RequestForQuotationItemDto">
                                                         @foreach (var rfqItem in ListRequestForQuotationItems)
                                                         {
                                                             if (rfqItem.ProductItems.Any(productItem => productItem.ParentId != null))
@@ -344,6 +344,6 @@ else
     private bool resetValueOnEmptyText;
     private string maskDecimal = @"^(\d+,\d*|\d*)$";
     private IMask maskDate = new DateMask("dd/MM/yyyy");
-    private MudList MudListRef { get; set; } = new MudList();
+    private MudList MudListRef { get; set; } = new();
     private string ProductName;
 }

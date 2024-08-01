@@ -4,27 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Globalization;
 using System.Web;
-using Blazorise;
-using Blazorise.DataGrid;
-using Castle.Components.DictionaryAdapter.Xml;
-using Volo.Abp.BlazoriseUI.Components;
 using Microsoft.AspNetCore.Authorization;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.AspNetCore.Components.Web.Theming.PageToolbars;
 using IBLTermocasa.BillOfMaterials;
 using IBLTermocasa.Blazor.Components;
 using IBLTermocasa.Blazor.Components.BillOfMaterial;
-using IBLTermocasa.Common;
 using IBLTermocasa.Permissions;
-using IBLTermocasa.Shared;
-using IBLTermocasa.Types;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using NUglify.Helpers;
-using Volo.Abp.AspNetCore.Components.Web.Theming.Toolbars;
-using Color = Blazorise.Color;
-using SortDirection = Blazorise.SortDirection;
 
 
 namespace IBLTermocasa.Blazor.Pages.Production

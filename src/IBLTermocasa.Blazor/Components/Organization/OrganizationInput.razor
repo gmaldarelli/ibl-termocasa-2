@@ -9,239 +9,204 @@
 @inject IUiMessageService UiMessageService
 @using Volo.Abp.AspNetCore.Components.Web
 @using EnumExtensions = IBLTermocasa.Types.EnumExtensions
+@using MudBlazor
+@using Color = MudBlazor.Color
+@using Size = MudBlazor.Size
 @inherits IBLTermocasaComponentBase
-<EditForm Model="@Organization" >
-<Row >
-    <Column Class="col d-flex align-items-baseline">
-        <h1>@Organization.Name</h1>
-    </Column>
-</Row>
-<Row>
-    <Column Class="col-md-4 col-lg-3">
-            <Card Class="card">
-                <CardBody class="card-body text-center">
-                    <Image Class="lpx-avatar-img-lg mb-3" Source="@_organizaionImageString"></Image>
-                    <div class="border-bottom pb-3 mb-3">
-                        <h3 class="card-title mb-0">@Organization.Name</h3>
-                        <h5 class="fw-normal mt-2 mb-0">@L[$"Enum:OrganizationType.{EnumExtensions.GetDisplayName(Organization.OrganizationType)}"]</h5>
-                        <small class="text-muted">
-                            <a href="https://www.google.com/maps/search/?api=1&query=@(Uri.EscapeDataString(Organization.BillingAddress.ResolveAddress()))" target="_blank">
-                                <i class="bi bi-geo-alt-fill"></i>
-                            </a>
-                            @(Organization.BillingAddress.ResolveAddress())
-                        </small>
-                        
-                        <div class="col-12">
-                            <Dropdown>
-                                <DropdownToggle Color="Color.Primary" Size="Size.Small">
-                                    @L["SendMail"]
-                                </DropdownToggle>
-                                <DropdownMenu>
-                                    <Repeater Items="@Organization.MailInfo.MailItems"
-                                              TItem="MailItemDto" Context="mailItem">
-                                        <DropdownItem Clicked="@(() => mailToAction(mailItem))">@mailItem.Email</DropdownItem>
-                                        <DropdownDivider/>
-                                    </Repeater>
-                                </DropdownMenu>
-                            </Dropdown>
-                        </div>
-                    </div>
-                    <SocialBadge  SocialInfo="@InternalOrganization.SocialInfo"/>
-                    <div>
-                        <small class="text-muted">@L["Source"]</small>
-                        <h5 class="mt-0">@L[$"Enum:SourceType.{EnumExtensions.GetDisplayName(Organization.SourceType)}"]</h5>
-                    </div>
-                    <div>
-                        <small class="text-muted">@L["FirsSync"]</small>
-                        @if (Organization.SourceType == SourceType.System)
-                        {
-                            <h5 class="mt-0">@Organization.CreationTime</h5>
-                        } else
-                        {
-                            <h5 class="mt-0">@Organization.FirstSync</h5>
-                        }
-                    </div>
-                    <div>
-                        <small class="text-muted">@L["LastSync"]</small>
-                        @if (Organization.SourceType == SourceType.System)
-                        {
-                        <h5 class="mt-0">@Organization.LastModificationTime</h5>
-                        } else
-                        {
-                        <h5 class="mt-0">@Organization.LastSync</h5>
-                        }
-                    </div>
-
-                </CardBody>
-            </Card>
-    </Column>
-    <Column Class="col-md-8 col-lg-9">
-
-            <Validations @ref="@OrganizationValidations"
-                         Mode="ValidationMode.Auto"
-                         Model="@InternalOrganization"
-                         ValidateOnLoad="false" >
-                <Fields>
-                    <Accordion>
-                        <Collapse Visible="@accordionItemMainInformationVisible">
-                            <CollapseHeader @onclick="ToggleMainInformation">
-                                <Heading Size="HeadingSize.Is5">
-                                    <AccordionToggle>@L["MainInformation"]</AccordionToggle>
-                                </Heading>
-                            </CollapseHeader>
-                            <CollapseBody>
-                                <Fields>
-                                        <Validation MessageLocalizer="@LH.Localize">
-                                            <Field>
-                                                <FieldLabel>@L["Code"] *</FieldLabel>
-                                                <TextEdit @bind-Text="@InternalOrganization.Code" >
-                                                    <Feedback>
-                                                        <ValidationError/>
-                                                    </Feedback>
-                                                </TextEdit>
-                                            </Field>
-                                        </Validation>
-                                        <Validation MessageLocalizer="@LH.Localize">
-                                            <Field>
-                                                <FieldLabel>@L["Name"] *</FieldLabel>
-                                                <TextEdit @bind-Text="@InternalOrganization.Name" >
-                                                    <Feedback>
-                                                        <ValidationError/>
-                                                    </Feedback>
-                                                </TextEdit>
-                                            </Field>
-                                        </Validation>
-                                        <Field>
-                                            <FieldLabel>@L["OrganizationType"]</FieldLabel>
-                                            <Select TValue="OrganizationType" @bind-SelectedValue="@InternalOrganization.OrganizationType" >
-                                                @foreach (var type in OrganizationTypes)
-                                                {
-                                                <SelectItem Value="@type" Text="@type">
-                                                    @L[$"Enum:OrganizationType.{EnumExtensions.GetDisplayName(type)}"]
-                                                </SelectItem>
-                                                }
-                                            </Select>
-                                        </Field>
-                                    <Field>
-                                        <FieldLabel>@L["Industry"]</FieldLabel>
-                                        <Select TValue="Guid?" @bind-SelectedValue="@InternalOrganization.IndustryId">
+<MudGrid Class="mt-8">
+    <MudItem xs="12" sm="3">
+        <MudPaper>
+            <MudCard Class="text-center border-bottom pb-3 mb-3">
+                <MudCardContent Class="d-flex justify-content-center">
+                    <MudGrid>
+                        <MudItem xs="12" sm="12" Class="d-flex justify-content-center">
+                            <MudImage Width="200" Src="https://ht.ksdr1.net/wp-content/uploads/sites/3/2016/06/no-picture-available-icon-8.png" Class="d-flex justify-content-center img-fluid rounded-0"/>
+                        </MudItem>
+                        <MudItem xs="12" sm="12">
+                            <MudDivider/>
+                            <MudText Typo="Typo.h6">@OrganizationParameter.Name</MudText>
+                            <MudText Typo="Typo.h6" Color="Color.Secondary">@L[$"Enum:OrganizationType.{EnumExtensions.GetDisplayName(OrganizationParameter.OrganizationType)}"]</MudText>
+                            <MudText Typo="Typo.body2" Style="font-weight: bold" Color="Color.Tertiary">
+                                <MudLink Href="@GoogleMapsUrl" Target="_blank">
+                                    <MudIcon Color="Color.Secondary" Icon="@Icons.Material.Filled.LocationOn"/>
+                                </MudLink>
+                                @(OrganizationParameter.BillingAddress.ResolveAddress())
+                            </MudText>
+                            <MudButtonGroup Color="Color.Primary" Variant="Variant.Filled" Size="Size.Small">
+                                <MudButton>@L["SendMail"]</MudButton>
+                                <MudMenu Icon="@Icons.Material.Filled.ArrowDropDown" Size="Size.Small">
+                                    @foreach (var mailItem in OrganizationParameter.MailInfo.MailItems)
+                                    {
+                                    <MudMenuItem OnClick="@(() => mailToAction(mailItem))">@mailItem.Email</MudMenuItem>
+                                    }
+                                    @if (OrganizationParameter.MailInfo.MailItems.Count > 1)
+                                    {
+                                    <MudDivider/>
+                                    <MudMenuItem OnClick="@(() => mailToAction(OrganizationParameter.MailInfo.MailItems))">@L["SendAtAll"]</MudMenuItem>
+                                    }
+                                </MudMenu>
+                            </MudButtonGroup>
+                            <SocialBadge SocialInfo="@InternalOrganization.SocialInfo"/>
+                            <MudText Typo="Typo.body2">@L["SourceType"]</MudText>
+                            <MudText Typo="Typo.body2" Style="font-weight: bold">@L[$"Enum:SourceType.{EnumExtensions.GetDisplayName(OrganizationParameter.SourceType)}"]</MudText>
+                            <MudText Typo="Typo.body2">@L["FirstSync"]</MudText>
+                            <MudText Typo="Typo.body2" Style="font-weight: bold">
+                                @if (OrganizationParameter.SourceType == SourceType.SYSTEM)
+                                {
+                                @OrganizationParameter.CreationTime
+                                }
+                                else
+                                {
+                                @OrganizationParameter.FirstSync
+                                }
+                            </MudText>
+                            <MudText Typo="Typo.body2">@L["LastSync"]</MudText>
+                            <MudText Typo="Typo.body2" Style="font-weight: bold">
+                                @if (OrganizationParameter.SourceType == SourceType.SYSTEM)
+                                {
+                                @OrganizationParameter.LastModificationTime
+                                }
+                                else
+                                {
+                                @OrganizationParameter.LastSync
+                                }
+                            </MudText>
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+            </MudCard>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="9">
+        <MudPaper>
+            <MudForm @ref="MudFormInternalOrganization"
+                     Model="@InternalOrganization"
+                     Errors="Errors"
+                     Validation="Validations"
+                     @bind-IsValid="@InternalOrganizationIsValid">
+                <MudGrid>
+                    <MudItem sm="12" xs="12">
+                        <MudExpansionPanels MultiExpansion="true">
+                            <MudExpansionPanel @bind-IsExpanded="accordionItemMainInformationVisible">
+                                <TitleContent>
+                                    <div class="d-flex">
+                                        <MudIcon Icon="@Icons.Material.Filled.Info" class="mr-3" Color="Color.Info"/>
+                                        <MudText>@L["MainInformation"]</MudText>
+                                    </div>
+                                </TitleContent>
+                                <ChildContent>
+                                    <MudStack Row="true" Class="align-content-start">
+                                        <MudTextField @bind-Value="@InternalOrganization.Code" Label="@L["Code"]" Required="true"/>
+                                        <MudTextField @bind-Value="@InternalOrganization.Name" Label="@L["Name"]" Required="true"/>
+                                        <MudSelect T="OrganizationType" @bind-Value="@InternalOrganization.OrganizationType" Label="@L["OrganizationType"]">
+                                            @foreach (var type in OrganizationTypes)
+                                            {
+                                            <MudSelectItem Value="@type">@L[$"Enum:OrganizationType.{type}"]</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                        <MudSelect T="Guid?" @bind-Value="@InternalOrganization.IndustryId" Label="@L["Industry"]">
                                             @foreach (var industry in Industries)
                                             {
-                                            <SelectItem Value="@industry.Id">
-                                                @industry.IndustryFullName
-                                            </SelectItem>
+                                            <MudSelectItem T="Guid?" Value="@industry.Id">@industry.IndustryFullName</MudSelectItem>
                                             }
-                                        </Select>
-                                    </Field>
-                                </Fields>
-                                <Fields>
-                                    <Fields>
-                                        <Field ColumnSize="ColumnSize.IsFull">
-                                            <FieldLabel>@L["Email"]</FieldLabel>
-                                            <MailInfoInput
-                                                MailInfo="@InternalOrganization.MailInfo"/>
-                                        </Field>
-                                    </Fields>
-                                    <Fields>
-                                        <Field>
-                                            <FieldLabel>@L["Phone"]</FieldLabel>
-                                            <PhoneInfoInput
-                                                PhoneInfo="@InternalOrganization.PhoneInfo"/>
-                                        </Field>
-                                    </Fields>
-                                </Fields>
-                                <Fields>
-                                    <Field>
-                                        <FieldLabel>@L["Notes"]</FieldLabel>
-                                        <TextEdit @bind-Text="@InternalOrganization.Notes" Rows="3" MaxLength="1000"/>
-                                    </Field>
-                                </Fields>
-                            </CollapseBody>
-                        </Collapse>
-                        <Collapse  Visible="@accordionItemAddressesInformationVisible">
-                            <CollapseHeader @onclick="ToggleAddressesInformation">
-                                <Heading Size="HeadingSize.Is5">
-                                    <AccordionToggle>@L["AddressesInformation"]</AccordionToggle>
-                                </Heading>
-                            </CollapseHeader>
-                            <CollapseBody>
-                                @* Handling complex types: ShippingAddress & BillingAddress *@
-                                <Field>
-                                    <Divider DividerType="DividerType.TextContent" Text="@L["ShippingAddress"]" TextColor="TextColor.Info"/>
-                                    @* Assume AddressInput is a custom component for address input *@
-                                    <AddressInput @bind-Value="@InternalOrganization.ShippingAddress"/>
-                                </Field>
+                                        </MudSelect>
+                                    </MudStack>
+                                    <MudStack Class="pt-3">
+                                        <MudText Typo="Typo.body1" Color="Color.Secondary"><b>@L["Email"]</b></MudText>
+                                        <MailInfoInput MailInfo="@InternalOrganization.MailInfo"/>
+                                    </MudStack>
+                                    <MudStack Class="pt-3">
+                                        <MudText Typo="Typo.body1" Color="Color.Secondary"><b>@L["Phone"]</b></MudText>
+                                        <PhoneInfoInput PhoneInfo="@InternalOrganization.PhoneInfo"/>
+                                    </MudStack>
+                                    <MudStack Class="pt-3">
+                                        
+                                        
+                                        <!-- *************** Qui è da introdurre la parte di CONTATTI DA ASSOCIARE **************** -->
+                                        
+                                        
+                                        @*<MudSelectExtended MultiSelection="@_multiselection" 
+                                                           ItemCollection="_states" 
+                                                           SearchBox="true" 
+                                                           SearchBoxAutoFocus="@_searchBoxAutoFocus" 
+                                                           T="string" 
+                                                           Label="Standard Search" 
+                                                           AnchorOrigin="Origin.BottomCenter" 
+                                                           Variant="Variant.Outlined" 
+                                                           HelperText="Search with 'Contains' logic" 
+                                                           SearchBoxClearable="_searchBoxClearable" />*@
 
-                                <Field>
-                                    <Divider DividerType="DividerType.TextContent" Text="@L["BillingAddress"]" />
-                                    <AddressInput @bind-Value="@InternalOrganization.BillingAddress"/>
-                                </Field>
-                            </CollapseBody>
-                        </Collapse >
-                        <Collapse  Visible="@accordionItemOtherInformationVisible">
-                            <CollapseHeader @onclick="ToggleOtherInformation">
-                                <Heading Size="HeadingSize.Is5">
-                                    <AccordionToggle>@L["OtherInformation"]</AccordionToggle>
-                                </Heading>
-                            </CollapseHeader>
-                            <CollapseBody>
-                                <Fields>
-                                    <Field ColumnSize="ColumnSize.IsFull">
-                                        <FieldLabel>@L["SocialInfo"]</FieldLabel>
-                                        <SocialInfoInput
-                                            SocialInfo="@InternalOrganization.SocialInfo"/>
-                                    </Field>
-                                </Fields>
-                                <Fields>
-                                    <Field>
-                                        <FieldLabel>@L["Tag"]</FieldLabel>
-                                        <TagInput></TagInput>
-                                    </Field>
-                                </Fields>
-                            </CollapseBody>
-                        </Collapse>
-                    </Accordion>
-                </Fields>
 
-            </Validations>
-            <Fields Class="mt-2">
-                <Field ColumnSize="ColumnSize.IsFull" Position="Position.Relative" Class="text-end">
-                    <Button Color="Color.Primary" Type="ButtonType.Submit" Size="Size.Default" Class="me-2" Clicked="HandleValidSubmit">@L["Save"]</Button>
 
-                    <Button Color="Color.Secondary" Clicked="HandleCancel" Size="Size.Default" Class="me-2">
-                        @L["Cancel"]
-                    </Button>
-                </Field>
-            </Fields>
-        </Column>
-</Row>
-</EditForm>
+                                    </MudStack>
+                                    <MudStack>
+                                        <MudTextField @bind-Value="@InternalOrganization.Notes" Label="@L["Notes"]" Required="false" Lines="3" MaxLength="1000"/>
+                                    </MudStack>
+                                </ChildContent>
+                            </MudExpansionPanel>
+                            <MudExpansionPanel @bind-IsExpanded="accordionItemAddressesInformationVisible">
+                                <TitleContent>
+                                    <div class="d-flex">
+                                        <MudIcon Icon="@Icons.Material.Filled.Info" class="mr-3" Color="Color.Info"/>
+                                        <MudText>@L["AddressesInformation"]</MudText>
+                                    </div>
+                                </TitleContent>
+                                <ChildContent>
+                                    <MudStack>
+                                        <MudText Typo="Typo.body1" Color="Color.Secondary"><b>@L["ShippingAddress"]</b></MudText>
+                                        <AddressInput @bind-Value="@InternalOrganization.ShippingAddress"/>
+                                    </MudStack>
+                                    <MudStack Class="pt-3">
+                                        <MudText Typo="Typo.body1" Color="Color.Secondary"><b>@L["BillingAddress"]</b></MudText>
+                                        <AddressInput @bind-Value="@InternalOrganization.BillingAddress"/>
+                                    </MudStack>
+                                </ChildContent>
+                            </MudExpansionPanel>
+                            <MudExpansionPanel @bind-IsExpanded="accordionItemOtherInformationVisible">
+                                <TitleContent>
+                                    <div class="d-flex">
+                                        <MudIcon Icon="@Icons.Material.Filled.Info" class="mr-3" Color="Color.Info"/>
+                                        <MudText>@L["OtherInformation"]</MudText>
+                                    </div>
+                                </TitleContent>
+                                <ChildContent>
+                                    <MudStack>
+                                        <MudText Typo="Typo.body1" Color="Color.Secondary"><b>@L["SocialInfo"]</b></MudText>
+                                        <SocialInfoInput SocialInfo="@InternalOrganization.SocialInfo"/>
+                                    </MudStack>
+                                    <MudStack Class="pt-3">
+                                        <MudText Typo="Typo.body1" Color="Color.Secondary"><b>@L["Tag"]</b></MudText>
+                                        <TagInput Tags="@InternalOrganization.Tags"></TagInput>
+                                    </MudStack>
+                                </ChildContent>
+                            </MudExpansionPanel>
+                        </MudExpansionPanels>
+                    </MudItem>
+                    <MudItem sm="12" xs="12" Class="d-flex justify-end pr-5">
+                        <MudButton Color="Color.Primary" Type="ButtonType.Submit" OnClick="HandleValidSubmit">@L["Save"]</MudButton>
+                        <MudButton Color="Color.Secondary" OnClick="HandleCancel">@L["Cancel"]</MudButton>
+                    </MudItem>
+                </MudGrid>
+            </MudForm>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
 
 @code
 {
-    protected bool accordionItemMainInformationVisible {get; set;} = true;
-    protected bool accordionItemFinancialInformationVisible {get; set;} = false;
-    protected bool accordionItemAddressesInformationVisible {get; set;} = false;
-    protected bool accordionItemOtherInformationVisible {get; set;} = false;
+    protected bool accordionItemOtherInformationVisible { get; set; } = true;
+    protected bool accordionItemMainInformationVisible { get; set; } = true;
+    protected bool accordionItemAddressesInformationVisible { get; set; } = true;
+    private string GoogleMapsUrl => $"https://www.google.com/maps/search/?api=1&query={Uri.EscapeDataString(OrganizationParameter.BillingAddress.ResolveAddress())}";
     
-    private void ToggleMainInformation()
-    {
-        accordionItemMainInformationVisible = !accordionItemMainInformationVisible;
-    }
-    private void ToggleFinancialformation()
-    {
-        accordionItemFinancialInformationVisible = !accordionItemFinancialInformationVisible;
-    }
-    private void ToggleAddressesInformation()
-    {
-        accordionItemAddressesInformationVisible = !accordionItemAddressesInformationVisible;
-    }
-    private void ToggleOtherInformation()
-    {
-        accordionItemOtherInformationVisible = !accordionItemOtherInformationVisible;
-    }
     private void mailToAction(MailItemDto mailItem)
     {
-        NavigationManager.NavigateTo($"mailto:{mailItem.Email}?subject=[Termocasa] -  {CurrentUser.Name}");
+        NavigationManager.NavigateTo($"mailto:{mailItem.Email}?subject=[Termocasa] - {CurrentUser.Name}");
+    }
+
+    private void mailToAction(List<MailItemDto> mailItems)
+    {
+        var mailToString = string.Join(";", mailItems.Select(x => x.Email));
+        NavigationManager.NavigateTo($"mailto:{mailToString}?subject=[Termocasa] - {CurrentUser.Name}");
     }
 }

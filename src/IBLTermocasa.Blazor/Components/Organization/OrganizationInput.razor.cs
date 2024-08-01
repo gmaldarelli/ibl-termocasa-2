@@ -8,6 +8,7 @@ using IBLTermocasa.Industries;
 using IBLTermocasa.Organizations;
 using IBLTermocasa.Types;
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
 using Volo.Abp;
 
 namespace IBLTermocasa.Blazor.Components.Organization;
@@ -22,7 +23,7 @@ public partial class OrganizationInput
     private string _organizaionImageString = "/images/no-photo.jpeg";
 
     [Inject] private IMapper _mapper { get; set; }
-    [Parameter] public OrganizationDto Organization { get; set; }
+    [Parameter] public OrganizationDto OrganizationParameter { get; set; }
     private OrganizationDto InternalOrganization; 
     [Parameter] public bool IsNew { get; set; }
 
@@ -32,40 +33,43 @@ public partial class OrganizationInput
     [Parameter] public EventCallback<OrganizationDto> OnOrganizationSaved { get; set; }
     
     [Parameter] public EventCallback<OrganizationDto> OnOrganizationCancel { get; set; }
+    public MudForm MudFormInternalOrganization;
 
 
     private bool _isComponentRendered = false;
+    private string[] Errors = [];
+    private object Validations;
+    private bool InternalOrganizationIsValid;
     private async Task HandleValidSubmit()
     {
         if(IsNew)
         {
             InternalOrganization.ConcurrencyStamp = Guid.NewGuid().ToString();
         }
-        if (await OrganizationValidations.ValidateAll() == false)
+        MudFormInternalOrganization.Validate();
+        if(Errors.Length > 0)
         {
             return;
         }
         try
         {
-            // copy organization properties to EditingOrganization with mapper
             if (IsNew)
             {
                 NewOrganization = _mapper.Map<OrganizationDto, OrganizationCreateDto>(InternalOrganization);
                 var result = await OrganizationsAppService.CreateAsync(NewOrganization);
-                Organization = _mapper.Map<OrganizationDto>(result);
-                InternalOrganization = Organization.DeepClone();
+                OrganizationParameter = _mapper.Map<OrganizationDto>(result);
+                InternalOrganization = OrganizationParameter.DeepClone();
             }
             else
             {
                 EditingOrganization = _mapper.Map<OrganizationDto, OrganizationUpdateDto>(InternalOrganization);
                 var result = await OrganizationsAppService.UpdateAsync(InternalOrganization.Id, EditingOrganization);
-                Organization = _mapper.Map<OrganizationDto>(result);
-                InternalOrganization = Organization.DeepClone();
+                InternalOrganization = result.DeepClone();
 
             }
             if (_isComponentRendered)
             {
-                await OnOrganizationSaved.InvokeAsync(Organization);
+                await OnOrganizationSaved.InvokeAsync(OrganizationParameter);
             }
 
         }
@@ -93,11 +97,11 @@ public partial class OrganizationInput
     
     protected override async Task OnParametersSetAsync()
     {
-        if (Organization == null)
+        if (OrganizationParameter == null)
         {
-            Organization = new OrganizationDto();
+            OrganizationParameter = new OrganizationDto();
         }
-        InternalOrganization = Organization.DeepClone();
+        InternalOrganization = OrganizationParameter.DeepClone();
         StateHasChanged();
     }
     protected override void OnAfterRender(bool firstRender)

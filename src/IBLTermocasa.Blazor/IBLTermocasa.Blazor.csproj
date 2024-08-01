@@ -56,9 +56,6 @@
     <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
   </ItemGroup>
   <ItemGroup>
-    <AdditionalFiles Include="Pages\Crm\Products.razor" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Remove="Pages\Profiles.razor.cs" />
     <Compile Remove="Components\Product\ModalProductComponentInput.razor.cs" />
     <Compile Remove="Pages\Materials.Extended.razor.cs" />

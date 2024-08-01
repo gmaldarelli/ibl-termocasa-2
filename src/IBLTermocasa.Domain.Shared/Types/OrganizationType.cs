@@ -5,15 +5,15 @@ namespace IBLTermocasa.Types;
 public enum OrganizationType
 {
     [ContextPath("leads")]
-    LEAD = 1,
+    LEAD,
     [ContextPath("customers")]
-    CUSTOMER = 2,
+    CUSTOMER,
     [ContextPath("partners")]
-    PARTNER = 3,
+    PARTNER,
     [ContextPath("suppliers")]
-    SUPPLIER = 4,
+    SUPPLIER,
     [ContextPath("competitors")]
-    COMPETITOR = 5
+    COMPETITOR
 }
 public class ContextPathAttribute : Attribute
 {

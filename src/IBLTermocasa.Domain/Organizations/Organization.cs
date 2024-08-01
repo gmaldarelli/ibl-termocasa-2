@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using IBLTermocasa.Common;
+using IBLTermocasa.Contacts;
 using IBLTermocasa.Types;
 using JetBrains.Annotations;
 using Volo.Abp;
@@ -22,6 +23,7 @@ namespace IBLTermocasa.Organizations
         public virtual OrganizationType OrganizationType { get; set; }
 
         public Guid IndustryId { get; set; }
+        public List<ContactProperty> ListContacts { get; set; } = new();
 
         [CanBeNull] public virtual string? Notes { get; set; }
 
@@ -49,7 +51,7 @@ namespace IBLTermocasa.Organizations
             Id = id;
         }
 
-        public Organization(Guid id, string name, Guid industryId, OrganizationType organizationType,
+        public Organization(Guid id, string name, Guid industryId, List<ContactProperty> listContacts, OrganizationType organizationType,
             Address shippingAddress, Address billingAddress, SocialInfo socialInfo, PhoneInfo phoneInfo,
             MailInfo mailInfo, List<string> tags, Guid? imageId, string notes)
         {
@@ -57,6 +59,7 @@ namespace IBLTermocasa.Organizations
             Check.NotNull(name, nameof(name));
             Name = name;
             IndustryId = industryId;
+            ListContacts = listContacts;
             OrganizationType = organizationType;
             ShippingAddress = shippingAddress;
             BillingAddress = billingAddress;
@@ -68,7 +71,7 @@ namespace IBLTermocasa.Organizations
             Notes = notes;
         }
 
-        public Organization(Guid id, string name, Guid industryId, OrganizationType organizationType,
+        public Organization(Guid id, string name, Guid industryId, List<ContactProperty> listContacts, OrganizationType organizationType,
             Address shippingAddress, Address billingAddress, SocialInfo socialInfo, PhoneInfo phoneInfo,
             MailInfo mailInfo, List<string> tags, Guid? imageId, string notes,
             SourceType sourceType, DateTime? firstSync, DateTime? lastSync)
@@ -77,6 +80,7 @@ namespace IBLTermocasa.Organizations
             Check.NotNull(name, nameof(name));
             Name = name;
             IndustryId = industryId;
+            ListContacts = listContacts;
             OrganizationType = organizationType;
             ShippingAddress = shippingAddress;
             BillingAddress = billingAddress;
@@ -98,8 +102,33 @@ namespace IBLTermocasa.Organizations
         {
             foreach (var property in properties)
             {
-                var sourceValue = property.GetValue(source);
-                property.SetValue(destination, sourceValue);
+                if (property.Name == "Contacts")
+                {
+                    // Handle the Contacts property separately
+                    var sourceContacts = (List<Contact>)property.GetValue(source) ?? new List<Contact>();
+                    var destinationContacts = (List<Contact>)property.GetValue(destination) ?? new List<Contact>();
+
+                    foreach (var contact in sourceContacts)
+                    {
+                        var existingContact = destinationContacts.FirstOrDefault(c => c.Id == contact.Id);
+                        if (existingContact != null)
+                        {
+                            // Update existing contact
+                            Contact.FillProperties(contact, existingContact, typeof(Contact).GetProperties());
+                        }
+                        else
+                        {
+                            // Add new contact
+                            destinationContacts.Add(contact);
+                        }
+                    }
+                    property.SetValue(destination, destinationContacts);
+                }
+                else
+                {
+                    var sourceValue = property.GetValue(source);
+                    property.SetValue(destination, sourceValue);
+                }
             }
 
             return destination;

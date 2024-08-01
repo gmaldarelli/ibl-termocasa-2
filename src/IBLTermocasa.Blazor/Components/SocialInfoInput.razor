@@ -3,58 +3,56 @@
 @using IBLTermocasa.Localization
 @using Volo.Abp.AspNetCore.Components.Web
 @using EnumExtensions = IBLTermocasa.Types.EnumExtensions
+@using MudBlazor
+@using Color = MudBlazor.Color
+@using Size = MudBlazor.Size
 @inherits IBLTermocasaComponentBase
 @foreach (var socialItem in SocialInfo.SocialItems)
 {
-    <Validations @ref="@SocialInfoValidations"
-                 Mode="ValidationMode.Auto"
-                 Model="@socialItem"
-                 ValidateOnLoad="false">
-    <Fields>
-        <Field ColumnSize="ColumnSize.IsHalf">
-            <Validation MessageLocalizer="@LH.Localize">
-                <TextEdit @bind-Text="socialItem.Url" Placeholder="@L["SocialPlaceholder"]">
-                    <Feedback>
-                        <ValidationError/>
-                    </Feedback>
-                </TextEdit>
-            </Validation>
-        </Field>
-        <Field>
-           <Select TValue="SocialType" @bind-SelectedValue="@socialItem.SocialType">
+<MudForm @ref="SocialInfoValidations" Model="@socialItem">
+    <MudGrid>
+        <MudItem xs="6">
+            <MudTextField T="string" @bind-Value="socialItem.Url" Placeholder="@L["SocialPlaceholder"]" For="@(() => socialItem.Url)">
+            </MudTextField>
+        </MudItem>
+        <MudItem xs="5">
+            <MudSelect T="SocialType" @bind-Value="socialItem.SocialType" Label="@L["SocialType"]">
                 @foreach (var type in Enum.GetValues<SocialType>())
                 {
-                    <SelectItem Value="@type">@L[$"Enum:SocialType.{EnumExtensions.GetDisplayName(type)}"]</SelectItem>
+                    <MudSelectItem T="SocialType" Value="@type">@L[$"Enum:SocialType.{EnumExtensions.GetDisplayName(type)}"]</MudSelectItem>
                 }
-            </Select>
-        </Field>
-        <Field  ColumnSize="ColumnSize.Is1">
-            <Button Color="Color.Danger" Clicked="@(() => RemoveSocialItem(socialItem))">
-                <Icon IconSize="IconSize.ExtraSmall" Name="IconName.Delete"/>
-            </Button>
-        </Field>
-    </Fields>
-    </Validations>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="1" Style="position: relative;">
+            <MudButton Class="button-remove" Color="Color.Secondary" OnClick="@(() => RemoveSocialItem(socialItem))" Size="Size.Small">
+                <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Delete"/>
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudForm>
 }
-<Button Color="Color.Primary"  Clicked="@(() => AddNewSocialItem())">
-    <Icon IconSize="IconSize.ExtraSmall" Name="IconName.Add"/>
-</Button>
+<MudButton Color="Color.Primary" OnClick="@AddNewSocialItem">
+    <MudIcon Icon="@Icons.Material.Filled.Add" />
+</MudButton>
 @code {
     [Parameter] public SocialInfoDto SocialInfo { get; set; }
     [Parameter] public EventCallback<SocialInfoDto> OnAddSocialItem { get; set; }
     [Parameter] public EventCallback<SocialInfoDto> OnRemoveSocialItem { get; set; }
-    [Parameter] public Validations SocialInfoValidations { get; set; }
+    [Parameter] public MudForm SocialInfoValidations { get; set; }
+
     private void AddNewSocialItem()
     {
-        var newItem = new SocialItemDto() { Url = "" }; 
+        var newItem = new SocialItemDto() { Url = "" };
         SocialInfo.SocialItems.Add(newItem);
         StateHasChanged();
     }
+
     private void RemoveSocialItem(SocialItemDto socialItem)
     {
         SocialInfo.SocialItems.Remove(socialItem);
         StateHasChanged();
     }
+
     private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<SocialItemDto> e)
     {
         await Task.CompletedTask;

@@ -1,7 +1,9 @@
 ﻿@using IBLTermocasa.Common
+@inherits IBLTermocasaComponentBase
+
 <div class="border-bottom pb-3 mb-3">
-    <small class="text-muted">Website</small>
-    <h5 class="mt-0 mb-1">
+    <small class="text-muted">@L["Website"]</small>
+    <div class="mt-0 mb-1">
         @if(SocialInfo != null && SocialInfo.SocialItems.Find(x => x.SocialType == SocialType.WEBSITE) != null)
         {
             <a href="@SocialInfo.ResolveSocialUrl(SocialType.WEBSITE)" target="_blank" class="text-dark">
@@ -10,10 +12,10 @@
         }
         else
         {
-            <span class="text-muted">No website</span>
+            <span class="text-muted" style="font-weight: bold">@L["NoWebsite"]</span>
         }
-    </h5>
-    <small class="text-muted">Social Links</small>
+    </div>
+    <small class="text-muted">@L["SocialLinks"]</small>
     <div>
         @if(SocialInfo != null && SocialInfo.SocialItems.Count > 0)
         {
@@ -36,7 +38,7 @@
         }
         else
         {
-            <span class="text-muted">No social links</span>
+            <span class="text-muted" style="font-weight: bold">@L["NoSocialLinks"]</span>
         }@*
         <a href="@SocialInfo.ResolveSocialUrl(SocialType.FACEBOOK)" class="">
             <i class="fab fa-facebook fs-4 px-1 text-muted"></i>

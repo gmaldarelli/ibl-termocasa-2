@@ -1,65 +1,107 @@
-﻿@using Blazorise
+﻿@using MudBlazor
+@using Color = MudBlazor.Color
 
-<Autocomplete @ref="_Autocomplete"
-              TItem="Country"
-              TValue="string"
-              Data="@Countries"
-              TextField="@((item) => item.Name)"
-              ValueField="@((item) => item.Iso)"
-              Placeholder="Search..."
-              SelectionMode="AutocompleteSelectionMode.Checkbox"
-              CloseOnSelection="false"
-              MaxMenuHeight="200"
-              @bind-SelectedValues="multipleSelectionData"
-              @bind-SelectedTexts="multipleSelectionTexts"
-              SearchChanged="@OnSearchChanged"
->
-</Autocomplete>
+<MudAutocomplete T="string"
+                 @ref="_Autocomplete"
+                 ValueChanged="tag => ValueSelected(tag)"
+                 Value="@selectedTag"
+                 Label="Search..."
+                 Variant="Variant.Outlined"
+                 Dense="true"
+                 CoerceValue="true"
+                 CoerceText="false"
+                 SearchFunc="OnSearchChanged">
+    <ItemTemplate>
+        @context
+    </ItemTemplate>
+</MudAutocomplete>
 
-@if(showAddButton)
+@if (showAddButton)
 {
-    <Button Clicked="@(() => AddItem(_Autocomplete.Search.ToUpper()))"
-            Type="ButtonType.Button"
-            Color="Color.Info">
-        Aggiungi: @_Autocomplete.Search.ToUpper()
-    </Button>
+    <MudButton OnClick="AddItem" Color="Color.Info">
+        Aggiungi: @selectedTag.ToUpper()
+    </MudButton>
 }
 
+<MudChipSet T="string">
+    @foreach (var item in Tags)
+    {
+        <MudChip T="string" OnClose="@(e => RemoveItem(item))">@item</MudChip>
+    }
+</MudChipSet>
+
 @code {
-    private Autocomplete<Country, string> _Autocomplete;
-    private List<Country> Countries = new List<Country>();
-    private List<string> multipleSelectionData = new List<string>();
-    private List<string> multipleSelectionTexts = new List<string>();
+    private MudAutocomplete<string> _Autocomplete;
+    [Parameter]
+    public List<string> Tags { get; set; }
+    private List<string> listTagsToSelection = new();
     private bool showAddButton = false;
+    private string selectedTag;
 
     protected override async Task OnInitializedAsync()
     {
-        Countries = new List<Country>(){new Country{Iso = "ITA", Name = "Italy"},
-            new Country{Iso = "DEU", Name = "Germany"},
-            new Country{Iso = "FRA", Name = "France"},
-            new Country{Iso = "ESP", Name = "Spain"},
-            new Country{Iso = "GBR", Name = "United Kingdom"}};
-        multipleSelectionData = new List<string>() { Countries.ElementAt( 1 ).Iso, Countries.ElementAt( 3 ).Iso };
+        // Preimpostazione dei dati
+        listTagsToSelection = new List<string>
+        {
+            "Italy",
+            "Germany",
+            "France",
+            "Spain",
+            "United Kingdom"
+        };
+
+        // Preimpostazione dei dati di selezione
+        if (Tags.IsNullOrEmpty())
+        {
+            Tags = new List<string> { listTagsToSelection[1], listTagsToSelection[3] };
+        }
         await base.OnInitializedAsync();
     }
     
-    
-    
-    
-    private void OnSearchChanged(string searchText)
+    private void ValueSelected(string arg)
     {
-        var isMatch = Countries.Any(country => country.Name.Equals(searchText, StringComparison.OrdinalIgnoreCase));
-        showAddButton = !isMatch && !string.IsNullOrWhiteSpace(searchText);
+        selectedTag = arg ?? string.Empty;
+
+        if (!Tags.Any(x => x.Equals(selectedTag, StringComparison.CurrentCultureIgnoreCase)))
+        {
+            showAddButton = true;
+        }
+        StateHasChanged();
     }
 
-    private void AddItem(string newItem)
+    private Task<IEnumerable<string>> OnSearchChanged(string searchText)
     {
-        // Logica per aggiungere un nuovo elemento alla lista Countries o al database
-        showAddButton = false; // Nascondi il pulsante dopo l'aggiunta
+        // Filtra i risultati in base al testo di ricerca
+        var result = listTagsToSelection.Where(c => c.Contains(searchText, StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+        // Mostra il pulsante se il testo di ricerca non è vuoto e non esiste già in multipleSelectionTexts (case-insensitive)
+        showAddButton = !string.IsNullOrWhiteSpace(searchText) &&
+                        !Tags.Any(x => x.Equals(searchText, StringComparison.CurrentCultureIgnoreCase));
+
+        return Task.FromResult(result.AsEnumerable());
     }
-    public class Country    
+
+    private void AddItem()
     {
-        public string Iso { get; set; }
-        public string Name { get; set; }
+        var newItem = selectedTag;
+
+        // Aggiungi il nuovo tag alla lista
+        if (!Tags.Any(c => c.Equals(newItem, StringComparison.CurrentCultureIgnoreCase)))
+        {
+            Tags.Add(newItem);
+            if (listTagsToSelection.All(c => !c.Equals(newItem, StringComparison.CurrentCultureIgnoreCase)))
+            {
+                listTagsToSelection.Add(newItem);
+            }
+        }
+
+        showAddButton = false; // Nascondi il pulsante dopo l'aggiunta
+        StateHasChanged();
+    }
+
+    private void RemoveItem(string itemName)
+    {
+        // Rimuovi il tag dalla lista
+        Tags.Remove(itemName);
     }
 }

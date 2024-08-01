@@ -115,7 +115,7 @@ public class DataImporter
                 Notes = "Imported from Excel",
                 OrganizationType = OrganizationType.CUSTOMER,
                 IndustryId = industry.Id,
-                SourceType = SourceType.MassImport,
+                SourceType = SourceType.MASS_IMPORT,
                 FirstSync = DateTime.Now,
                 LastSync = DateTime.Now
             };

@@ -36,8 +36,8 @@ public partial class AddMaterialsInput
         var result = await MaterialsAppService.GetListAsync(filterInput);
         _items = result.Items.Where(x => !ExclusionIds.Contains(x.Id) && 
                                          (string.IsNullOrWhiteSpace(_searchString) || 
-                                          x.Code.Contains(_searchString, StringComparison.OrdinalIgnoreCase) || 
-                                          x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase)));
+                                          x.Code.Contains(_searchString, StringComparison.CurrentCultureIgnoreCase) || 
+                                          x.Name.Contains(_searchString, StringComparison.CurrentCultureIgnoreCase)));
     }
 
     private void Submit()

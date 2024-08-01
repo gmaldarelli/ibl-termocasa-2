@@ -22,7 +22,7 @@
     _multiselectionTextChoice = true;
     <MudTextField @bind-Value="_guidStringSelected" Label="@ComponentLabelSingle" Variant="Variant.Filled" />
 }
-<MudSwitch @bind-Checked="_multiselectionTextChoice"
+<MudSwitch @bind-Value="_multiselectionTextChoice"
            Class="mud-width-full"
            Color="MudBlazor.Color.Primary">
     @L["ViewSelectedName"]

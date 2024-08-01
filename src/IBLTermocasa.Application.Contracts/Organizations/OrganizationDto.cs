@@ -13,6 +13,7 @@ namespace IBLTermocasa.Organizations
         public string Name { get; set; } = null!;
         public OrganizationType OrganizationType { get; set; }
         public Guid? IndustryId { get; set; }
+        public List<ContactPropertyDto> ListContacts { get; set; } = new();
         public MailInfoDto MailInfo { get; set; } = new MailInfoDto();
         public PhoneInfoDto PhoneInfo { get; set; } = new PhoneInfoDto();
         public SocialInfoDto SocialInfo { get; set; } = new SocialInfoDto();
@@ -26,6 +27,7 @@ namespace IBLTermocasa.Organizations
         public DateTime? LastSync { get; set; }
 
         public string ConcurrencyStamp { get; set; } = null!;
+        public string Contacts => ContactToString();
         
         public string Phones => PhoneToString();
 
@@ -42,7 +44,7 @@ namespace IBLTermocasa.Organizations
                 default:
                 {
                     var count = PhoneInfo.PhoneItems.Count -1; 
-                    return $"{PhoneInfo.PhoneItems[0].ToString()} (+{count})";
+                    return $"{PhoneInfo.PhoneItems[0]} (+{count})";
                 }
             }
         }
@@ -58,7 +60,23 @@ namespace IBLTermocasa.Organizations
                 default:
                 {
                     var count = MailInfo.MailItems.Count -1; 
-                    return $"{MailInfo.MailItems[0].ToString()} (+{count})";
+                    return $"{MailInfo.MailItems[0]} (+{count})";
+                }
+            }
+        }
+        
+        private string ContactToString()
+        {
+            switch (ListContacts.Count)
+            {
+                case 0:
+                    return string.Empty;
+                case 1:
+                    return ListContacts[0].ToString();
+                default:
+                {
+                    var count = ListContacts.Count -1; 
+                    return $"{ListContacts[0].ToString()} (+{count})";
                 }
             }
         }

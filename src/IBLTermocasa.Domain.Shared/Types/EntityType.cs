@@ -11,13 +11,13 @@ namespace IBLTermocasa.Types
         [Path("/quote")]
         QUOTE,
         [Path("/working-sheet")]
-        WORKINGSHEET,
+        WORKING_SHEET,
         [Path("/technical-sheet")]
-        TECHNICALSHEET,
+        TECHNICAL_SHEET,
         [Path("/bom")]
         BOM,
         [Path("/work-order")]
-        WORKORDER
+        WORK_ORDER
     }
 
     public class PathAttribute : Attribute

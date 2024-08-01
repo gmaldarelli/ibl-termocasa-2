@@ -100,7 +100,7 @@ namespace IBLTermocasa.Organizations
             }
 
             var organization = ObjectMapper.Map<OrganizationCreateDto, Organization>(input);
-            organization.SourceType = SourceType.System;
+            organization.SourceType = SourceType.SYSTEM;
             organization.FirstSync = DateTime.Now;
             organization.LastSync = DateTime.Now;
             return ObjectMapper.Map<Organization, OrganizationDto>(
