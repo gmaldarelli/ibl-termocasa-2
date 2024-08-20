@@ -5,10 +5,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using Blazorise;
+using IBLTermocasa.Blazor.Components.Catalog;
 using IBLTermocasa.Catalogs;
 using IBLTermocasa.Permissions;
 using IBLTermocasa.Shared;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using NUglify.Helpers;
 using Volo.Abp.Application.Dtos;
@@ -23,7 +25,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
         protected List<BreadcrumbItem> BreadcrumbItems = new();
         protected PageToolbar Toolbar { get; } = new();
         protected bool ShowAdvancedFilters { get; set; }
-        private IReadOnlyList<CatalogWithNavigationPropertiesDto> CatalogList { get; set; }
+        private IReadOnlyList<CatalogDto> CatalogList { get; set; }
         private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
         private int CurrentPage { get; set; } = 1;
         private string CurrentSorting { get; set; } = string.Empty;
@@ -50,9 +52,9 @@ namespace IBLTermocasa.Blazor.Pages.Crm
         private string SelectedProductText { get; set; }
 
         private List<LookupDto<Guid>> SelectedProducts { get; set; } = new();
-        private MudDataGrid<CatalogWithNavigationPropertiesDto> CatalogMudDataGrid { get; set; } = new();
+        private MudDataGrid<CatalogDto> CatalogMudDataGrid { get; set; } = new();
         private string _searchString;
-
+        [Inject] public IDialogService DialogService { get; set; }
 
         public Catalogs()
         {
@@ -64,13 +66,12 @@ namespace IBLTermocasa.Blazor.Pages.Crm
                 SkipCount = (CurrentPage - 1) * PageSize,
                 Sorting = CurrentSorting
             };
-            CatalogList = new List<CatalogWithNavigationPropertiesDto>();
+            CatalogList = new List<CatalogDto>();
         }
 
         protected override async Task OnInitializedAsync()
         {
             await SetPermissionsAsync();
-            await GetProductLookupAsync();
             await GetCatalogsAsync();
         }
 
@@ -125,7 +126,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
 
             await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
             NavigationManager.NavigateTo(
-                $"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/catalogs/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&Name={HttpUtility.UrlEncode(Filter.Name)}&FromMin={Filter.FromMin?.ToString("O")}&FromMax={Filter.FromMax?.ToString("O")}&ToMin={Filter.ToMin?.ToString("O")}&ToMax={Filter.ToMax?.ToString("O")}&Description={HttpUtility.UrlEncode(Filter.Description)}&ProductId={Filter.ProductId}",
+                $"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/catalogs/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&Name={HttpUtility.UrlEncode(Filter.Name)}&FromMin={Filter.FromMin?.ToString("O")}&FromMax={Filter.FromMax?.ToString("O")}&ToMin={Filter.ToMin?.ToString("O")}&ToMax={Filter.ToMax?.ToString("O")}&Description={HttpUtility.UrlEncode(Filter.Description)}",
                 forceLoad: true);
         }
 
@@ -153,9 +154,9 @@ namespace IBLTermocasa.Blazor.Pages.Crm
             await CreateCatalogModal.Hide();
         }
 
-        private async Task OpenEditCatalogModalAsync(CatalogWithNavigationPropertiesDto input)
+        private async Task OpenEditCatalogModalAsync(CatalogDto input)
         {
-            var catalog = await CatalogsAppService.GetWithNavigationPropertiesAsync(input.Catalog.Id);
+            var catalog = await CatalogsAppService.GetWithNavigationPropertiesAsync(input.Id);
 
             EditingCatalogId = catalog.Catalog.Id;
             EditingCatalog = ObjectMapper.Map<CatalogDto, CatalogUpdateDto>(catalog.Catalog);
@@ -166,10 +167,11 @@ namespace IBLTermocasa.Blazor.Pages.Crm
             await EditCatalogModal.Show();
         }
 
-        private async Task DeleteCatalogAsync(CatalogWithNavigationPropertiesDto input)
+        private async Task DeleteCatalogAsync(CatalogDto input)
         {
-            await CatalogsAppService.DeleteAsync(input.Catalog.Id);
+            await CatalogsAppService.DeleteAsync(input.Id);
             await GetCatalogsAsync();
+            await CatalogMudDataGrid.ReloadServerData();
         }
 
         private async Task CreateCatalogAsync()
@@ -186,6 +188,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
 
                 await CatalogsAppService.CreateAsync(NewCatalog);
                 await GetCatalogsAsync();
+                await CatalogMudDataGrid.ReloadServerData();
                 await CloseCreateCatalogModalAsync();
             }
             catch (Exception ex)
@@ -193,12 +196,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
                 await HandleErrorAsync(ex);
             }
         }
-
-        private async Task CloseEditCatalogModalAsync()
-        {
-            await EditCatalogModal.Hide();
-        }
-
+        
         private async Task UpdateCatalogAsync()
         {
             try
@@ -213,6 +211,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
 
                 await CatalogsAppService.UpdateAsync(EditingCatalogId, EditingCatalog);
                 await GetCatalogsAsync();
+                await CatalogMudDataGrid.ReloadServerData();
                 await EditCatalogModal.Hide();
             }
             catch (Exception ex)
@@ -220,17 +219,6 @@ namespace IBLTermocasa.Blazor.Pages.Crm
                 await HandleErrorAsync(ex);
             }
         }
-
-        private void OnSelectedCreateTabChanged(string name)
-        {
-            SelectedCreateTab = name;
-        }
-
-        private void OnSelectedEditTabChanged(string name)
-        {
-            SelectedEditTab = name;
-        }
-
 
         private async Task GetProductLookupAsync(string? newValue = null)
         {
@@ -267,7 +255,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
                 return;
             }
 
-            await LoadGridData(new GridState<CatalogWithNavigationPropertiesDto>
+            await LoadGridData(new GridState<CatalogDto>
             {
                 Page = 0,
                 PageSize = PageSize,
@@ -277,8 +265,8 @@ namespace IBLTermocasa.Blazor.Pages.Crm
             StateHasChanged();
         }
 
-        private async Task<GridData<CatalogWithNavigationPropertiesDto>> LoadGridData(
-            GridState<CatalogWithNavigationPropertiesDto> state)
+        private async Task<GridData<CatalogDto>> LoadGridData(
+            GridState<CatalogDto> state)
         {
             state.SortDefinitions.ForEach(sortDef =>
             {
@@ -289,7 +277,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
             Filter.MaxResultCount = state.PageSize;
             Filter.FilterText = _searchString;
             var firstOrDefault = CatalogMudDataGrid.FilterDefinitions.FirstOrDefault(x =>
-                x.Column is { PropertyName: nameof(CatalogWithNavigationPropertiesDto.Catalog.Name) });
+                x.Column is { PropertyName: nameof(CatalogDto.Name) });
             if (firstOrDefault != null)
             {
                 Filter.Name = (string?)firstOrDefault.Value;
@@ -298,12 +286,50 @@ namespace IBLTermocasa.Blazor.Pages.Crm
 
             var result = await CatalogsAppService.GetListAsync(Filter);
             CatalogList = result.Items;
-            GridData<CatalogWithNavigationPropertiesDto> data = new()
+            GridData<CatalogDto> data = new()
             {
                 Items = CatalogList,
                 TotalItems = (int)result.TotalCount
             };
             return data;
+        }
+        
+        private async Task OpenNewOrReadOrEditCatalog(CatalogDto input, bool isReadOnly, bool isNew)
+        {
+            var parameters = new DialogParameters
+            {
+                { "Catalog", input },
+                { "DisplayReadOnly", isReadOnly },
+                { "IsNew", isNew }
+            };
+
+            var dialog = await DialogService.ShowAsync<CatalogInput>(L["Catalog"], parameters,
+                new DialogOptions
+                {
+                    Position = DialogPosition.Custom,
+                    FullWidth = true,
+                    MaxWidth = MaxWidth.Small
+                });
+
+            var result = await dialog.Result;
+            if (!result.Canceled)
+            {
+                List<CatalogDto> _tempList = new List<CatalogDto>();
+                CatalogList.ForEach(catalogDto =>
+                {
+                    if (catalogDto.Id == input.Id)
+                    {
+                        _tempList.Add((CatalogDto)result.Data);
+                    }
+                    else
+                    {
+                        _tempList.Add(catalogDto);
+                    }
+                });
+                CatalogList = _tempList;
+                await CatalogMudDataGrid.ReloadServerData();
+                StateHasChanged();
+            }
         }
     }
 }

@@ -140,12 +140,6 @@ namespace IBLTermocasa.Blazor.Pages.Crm
             //await CreateOrganizationModal.Show();
         }
 
-        private async Task CloseCreateOrganizationModalAsync()
-        {
-            OrganizationInput = new OrganizationDto();
-            await CreateOrganizationModal.Hide();
-        }
-
         private void OpenEditOrganizationPageAsync(OrganizationDto input)
         {
             //navigate to the page OrganizationDetails
@@ -166,6 +160,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
                 Console.WriteLine("Cancellazione in corso organization id: " + input.Id);
                 await OrganizationsAppService.DeleteAsync(input.Id);
                 await GetOrganizationsAsync();
+                await OrganizationMudDataGrid.ReloadServerData();
             }
             else
             {

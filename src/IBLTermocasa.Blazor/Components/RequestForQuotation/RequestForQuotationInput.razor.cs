@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Blazorise;
@@ -184,37 +185,43 @@ public partial class RequestForQuotationInput
         StateHasChanged();
     }
     
-    private async Task<IEnumerable<LookupDto<Guid>>> SearchOrganization(string value)
+    private async Task<IEnumerable<LookupDto<Guid>>> SearchOrganization(string value, CancellationToken token)
     {
         if (OrganizationsCollection == null || OrganizationsCollection.Count == 0)
             return new List<LookupDto<Guid>>();
 
-        // Se il testo è null o vuoto, mostra l'elenco completo
-        return string.IsNullOrEmpty(value)
-            ? OrganizationsCollection.ToList()
-            : OrganizationsCollection
-                .Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        return await Task.Run(() =>
+        {
+            return string.IsNullOrEmpty(value)
+                ? OrganizationsCollection.ToList()
+                : OrganizationsCollection
+                    .Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        }, token);
     }
 
-    private async Task<IEnumerable<LookupDto<Guid>>> SearchContact(string value)
+    private async Task<IEnumerable<LookupDto<Guid>>> SearchContact(string value, CancellationToken token)
     {
         if (ContactsCollection == null || ContactsCollection.Count == 0)
             return new List<LookupDto<Guid>>();
 
-        // Se il testo è null o vuoto, mostra l'elenco completo
-        return string.IsNullOrEmpty(value)
-            ? ContactsCollection.ToList()
-            : ContactsCollection.Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        return await Task.Run(() =>
+        {
+            return string.IsNullOrEmpty(value)
+                ? ContactsCollection.ToList()
+                : ContactsCollection.Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        }, token);
     }
 
-    private async Task<IEnumerable<LookupDto<Guid>>> SearchAgent(string value)
+    private async Task<IEnumerable<LookupDto<Guid>>> SearchAgent(string value, CancellationToken token)
     {
         if (AgentsCollection == null || AgentsCollection.Count == 0)
             return new List<LookupDto<Guid>>();
 
-        // Se il testo è null o vuoto, mostra l'elenco completo
-        return string.IsNullOrEmpty(value)
-            ? AgentsCollection.ToList()
-            : AgentsCollection.Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        return await Task.Run(() =>
+        {
+            return string.IsNullOrEmpty(value)
+                ? AgentsCollection.ToList()
+                : AgentsCollection.Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        }, token);
     }
 }

@@ -5,16 +5,7 @@
 @attribute [Authorize(IBLTermocasaPermissions.Materials.Default)]
 @using IBLTermocasa.Materials
 @using IBLTermocasa.Localization
-@using IBLTermocasa.Shared
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.Extensions.Localization
-@using Microsoft.AspNetCore.Components.Web
-@using Blazorise
-@using Blazorise.Components
-@using Blazorise.DataGrid
-@using Volo.Abp.BlazoriseUI
-@using Volo.Abp.BlazoriseUI.Components
-@using Volo.Abp.ObjectMapping
 @using Volo.Abp.AspNetCore.Components.Messages
 @using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
 
@@ -25,6 +16,8 @@
 @using MudBlazor
 @using Size = MudBlazor.Size
 @using Color = MudBlazor.Color
+@using System.Threading.Tasks
+@using System.Threading
 @inherits IBLTermocasaComponentBase
 @inject IMaterialsAppService MaterialsAppService
 
@@ -48,10 +41,9 @@
              ReadOnly="false"
              Virtualize="true" FixedHeader="true"
              Hover="true"
-             Bordered="false" Dense="false"
+             Bordered="false" Dense="true"
              Filterable="true" RowsPerPage="10"
-             SortMode="SortMode.Multiple"
-             Class="mud-data-grid-custom">
+             SortMode="SortMode.Multiple">
     <ToolBarContent>
         <MudTextField T="string" Placeholder="@L["Search"]" Adornment="Adornment.Start" Immediate="true" ValueChanged="arg => SearchAsync(arg)" DebounceInterval="1000"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 mb-2">
@@ -78,10 +70,10 @@
         <PropertyColumn Property="x => x.LastSync" Title="@L["LastSync"]"/>
         <TemplateColumn StickyRight="true">
             <CellTemplate>
-                <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                <MudTooltip Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top" RootClass="d-table-cell">
                     <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenEditMaterialModalAsync(context.Item))"/>
                 </MudTooltip>
-                <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                <MudTooltip Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top" RootClass="d-table-cell">
                     <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteMaterialAsync(context.Item)"/>
                 </MudTooltip>
             </CellTemplate>
@@ -92,6 +84,7 @@
     </PagerContent>
 </MudDataGrid>
 <MudThemeProvider/>
+<MudPopoverProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
 

@@ -126,6 +126,8 @@ public class IBLTermocasaApplicationAutoMapperProfile : Profile
         CreateMap<RequestForQuotation, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.QuoteNumber));
 
         CreateMap<Catalog, CatalogDto>();
+        CreateMap<CatalogProduct, CatalogProductDto>();
+        CreateMap<CatalogProductDto, CatalogProduct>();
         CreateMap<Catalog, CatalogExcelDto>();
         CreateMap<CatalogWithNavigationProperties, CatalogWithNavigationPropertiesDto>();
         CreateMap<QuestionTemplate, LookupDto<Guid>>().ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.QuestionText));

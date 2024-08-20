@@ -7,21 +7,22 @@ namespace IBLTermocasa.Common;
 
 public class TransformerUtils
 {
-    public PlaceHolderTreeItemData GenerateTreeItems(ProductDto rootProduct,  
+    public PlaceHolderTreeItemData GenerateTreeItems(ProductDto rootProduct,
         List<ProductDto> subProducts,
         Dictionary<PlaceHolderType, string> icons)
     {
         this.ApplyParentToSubProducts(rootProduct, subProducts);
         this.ApplyParentToComponentsAndQuestionTemplate(rootProduct);
-         var treeItemData =new PlaceHolderTreeItemData(
-             product: rootProduct,
+        var treeItemData = new PlaceHolderTreeItemData(
+            product: rootProduct,
             parent: null,
-            icon: icons[PlaceHolderType.PRODUCT], 
-            isExpanded: true, 
+            icon: icons[PlaceHolderType.PRODUCT],
+            isExpanded: true,
             treeItems: new HashSet<PlaceHolderTreeItemData>());
-         var children = GenerateSubTreeItems(rootProduct.SubProducts, rootProduct.ProductComponents, rootProduct.ProductQuestionTemplates, subProducts, treeItemData, icons);
-         treeItemData.TreeItems = children;
-         return treeItemData;
+        var children = GenerateSubTreeItems(rootProduct.SubProducts, rootProduct.ProductComponents,
+            rootProduct.ProductQuestionTemplates, subProducts, treeItemData, icons);
+        treeItemData.TreeItems = children;
+        return treeItemData;
     }
 
     private void ApplyParentToComponentsAndQuestionTemplate(ProductDto rootProduct)
@@ -30,6 +31,7 @@ public class TransformerUtils
         {
             productComponent.ParentPlaceHolder = rootProduct.PlaceHolder;
         }
+
         foreach (var productQuestionTemplate in rootProduct.ProductQuestionTemplates)
         {
             productQuestionTemplate.ParentPlaceHolder = rootProduct.PlaceHolder;
@@ -45,6 +47,7 @@ public class TransformerUtils
             {
                 productComponent.ParentPlaceHolder = subProduct.PlaceHolder;
             }
+
             foreach (var productQuestionTemplate in subProduct.ProductQuestionTemplates)
             {
                 productQuestionTemplate.ParentPlaceHolder = subProduct.PlaceHolder;
@@ -52,50 +55,48 @@ public class TransformerUtils
         }
     }
 
-    private  HashSet<PlaceHolderTreeItemData> GenerateSubTreeItems(List<SubProductDto> productSubProducts,
+    private HashSet<PlaceHolderTreeItemData> GenerateSubTreeItems(
+        List<SubProductDto> productSubProducts,
         List<ProductComponentDto> productProductComponents,
-        List<ProductQuestionTemplateDto> productProductQuestionTemplates, 
+        List<ProductQuestionTemplateDto> productProductQuestionTemplates,
         List<ProductDto> subProducts,
         PlaceHolderTreeItemData? parent, Dictionary<PlaceHolderType, string> icons)
     {
-        Console.WriteLine("Generating sub tree items"); 
+        Console.WriteLine("Generating sub tree items");
+
+        var subProductDict = subProducts.ToDictionary(p => p.Id);
         var treeItems = new HashSet<PlaceHolderTreeItemData>();
-        if (productSubProducts is { Count: > 0 })
+
+        if (productSubProducts.Any())
         {
-            var subProductIds = productSubProducts.Select(subProduct => subProduct.ProductId).ToList();
-          foreach (var id in subProductIds)
+            foreach (var subProduct in productSubProducts)
             {
-                var subProduct = subProducts.FirstOrDefault(p => p.Id == id);
-                if(subProduct == null)
+                if (subProductDict.TryGetValue(subProduct.ProductId, out var product))
                 {
-                    continue;
+                    var treeItemData = new PlaceHolderTreeItemData(
+                        product: product,
+                        parent: parent,
+                        icon: icons[PlaceHolderType.PRODUCT],
+                        isExpanded: false,
+                        treeItems: new HashSet<PlaceHolderTreeItemData>());
+
+                    Console.WriteLine("Generating sub tree items1.4");
+                    treeItemData.TreeItems = GenerateSubTreeItems(
+                        product.SubProducts, product.ProductComponents, product.ProductQuestionTemplates,
+                        subProducts, treeItemData, icons);
+
+                    Console.WriteLine("Generating sub tree items2");
+                    treeItems.Add(treeItemData);
                 }
-                var treeItemData = new PlaceHolderTreeItemData(
-                    product: subProduct,
-                    parent: parent ?? null,
-                    icon: icons[PlaceHolderType.PRODUCT],
-                    isExpanded: false,
-                    treeItems: new HashSet<PlaceHolderTreeItemData>());
-                Console.WriteLine("Generating sub tree items1.4"); 
-                treeItemData.TreeItems = GenerateSubTreeItems(subProduct.SubProducts, subProduct.ProductComponents,
-                    subProduct.ProductQuestionTemplates, subProducts, treeItemData, icons);
-                
-                Console.WriteLine("Generating sub tree items2"); 
-                treeItems.Add(treeItemData);
             }
         }
-        if (productProductComponents is { Count: > 0 })
+
+        if (productProductComponents.Any())
         {
-            var componentIds = productProductComponents.Select(component => component.ComponentId).ToList();
-            foreach (var id in componentIds)
+            foreach (var component in productProductComponents)
             {
-                var productComponent = productProductComponents.FirstOrDefault(c => c.ComponentId == id);
-                if (productComponent == null)
-                {
-                    continue;
-                }
                 var treeItemData = new PlaceHolderTreeItemData(
-                    productComponent: productComponent,
+                    productComponent: component,
                     parent: parent,
                     icon: icons[PlaceHolderType.PRODUCT_COMPONENT],
                     isExpanded: false,
@@ -104,19 +105,12 @@ public class TransformerUtils
             }
         }
 
-        if (productProductQuestionTemplates is { Count: > 0 })
+        if (productProductQuestionTemplates.Any())
         {
-            var questionTemplateIds = productProductQuestionTemplates
-                .Select(questionTemplate => questionTemplate.QuestionTemplateId).ToList();
-            foreach (var id in questionTemplateIds)
+            foreach (var questionTemplate in productProductQuestionTemplates)
             {
-                var productQuestionTemplate = productProductQuestionTemplates.FirstOrDefault(q => q.QuestionTemplateId == id);
-                if (productQuestionTemplate == null)
-                {
-                    continue;
-                }
                 var treeItemData = new PlaceHolderTreeItemData(
-                    productQuestionTemplate: productQuestionTemplate,
+                    productQuestionTemplate: questionTemplate,
                     parent: parent,
                     icon: icons[PlaceHolderType.PRODUCT_QUESTION_TEMPLATE],
                     isExpanded: false,
@@ -124,15 +118,17 @@ public class TransformerUtils
                 treeItems.Add(treeItemData);
             }
         }
-        Console.WriteLine("Sub tree items generated successfully count " + treeItems.Count );
+
+        Console.WriteLine("Sub tree items generated successfully count " + treeItems.Count);
         return treeItems;
     }
 }
+
 public class PlaceHolderTreeItemData
 {
     public Guid Id { get; set; }
     public string Code { get; set; }
-    
+
     public string PlaceHolder { get; set; }
     public string Name { get; set; }
     public string Prefix { get; set; }
@@ -143,7 +139,7 @@ public class PlaceHolderTreeItemData
     public PlaceHolderTreeItemData? Parent { get; set; }
     public HashSet<PlaceHolderTreeItemData> TreeItems { get; set; }
     public string? CodeAndName => $"{Code} - {Name}";
-   
+
     public PlaceHolderTreeItemData(ProductDto product,
         PlaceHolderTreeItemData? parent, string icon, bool isExpanded = false,
         HashSet<PlaceHolderTreeItemData>? treeItems = null)
@@ -159,6 +155,7 @@ public class PlaceHolderTreeItemData
         IsExpanded = isExpanded;
         TreeItems = treeItems ?? [];
     }
+
     public PlaceHolderTreeItemData(ProductComponentDto productComponent,
         PlaceHolderTreeItemData? parent, string icon, bool isExpanded = false,
         HashSet<PlaceHolderTreeItemData>? treeItems = null)
@@ -174,6 +171,7 @@ public class PlaceHolderTreeItemData
         IsExpanded = isExpanded;
         TreeItems = treeItems ?? [];
     }
+
     public PlaceHolderTreeItemData(ProductQuestionTemplateDto productQuestionTemplate,
         PlaceHolderTreeItemData? parent, string icon, bool isExpanded = false,
         HashSet<PlaceHolderTreeItemData>? treeItems = null)

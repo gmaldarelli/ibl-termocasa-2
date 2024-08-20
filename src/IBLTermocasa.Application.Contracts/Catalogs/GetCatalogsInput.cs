@@ -14,7 +14,6 @@ namespace IBLTermocasa.Catalogs
         public DateTime? ToMin { get; set; }
         public DateTime? ToMax { get; set; }
         public string? Description { get; set; }
-        public Guid? ProductId { get; set; }
 
         public GetCatalogsInput()
         {

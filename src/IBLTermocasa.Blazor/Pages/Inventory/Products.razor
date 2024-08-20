@@ -81,10 +81,10 @@
                     </PropertyColumn>
                     <TemplateColumn CellClass="d-flex justify-center">
                         <CellTemplate>
-                            <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                            <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top" RootClass="d-table-cell">
                                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenEditProductAsync(context.Item))"/>
                             </MudTooltip>
-                            <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                            <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top" RootClass="d-table-cell">
                                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteProductAsync(context.Item)"/>
                             </MudTooltip>
                         </CellTemplate>
@@ -99,6 +99,7 @@
 </MudGrid>
 
 <MudThemeProvider/>
+<MudPopoverProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
 @*

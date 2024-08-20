@@ -149,9 +149,12 @@
     "Notes": "Notes",
     "ImageId": "Image Id",
     "Contacts": "Contacts",
+    "NoContacts": "No contacts",
     "MinBirthDate": "Min Birth Date",
     "MaxBirthDate": "Max Birth Date",
     "NewContact": "New Contact",
+    "AssociateContact": "Associate Contact",
+    "AssociatedContacts": "Associated Contacts",
     "Menu:Contacts": "Contacts",
     "Enum:OrganizationType.LEAD": "Lead",
     "Enum:OrganizationType.CUSTOMER": "Customer",
@@ -304,6 +307,7 @@
     "ConsumptionMaterial": "Consumption Material",
     "ConsumptionProfessionalProfile": "Consumption Professional Profile",
     "TheCodeAlreadyExists": "The code already exists!",
+    "TheContactAlreadyExists": "The contact already exists!",
     "TheFieldIsRequired": "The field is required!",
     "ProductVariables": "Product Variables",
     "Price": "Price",
@@ -365,5 +369,7 @@
     "Country": "Country",
     "State": "State",
     "Street": "Street",
+    "OtherInformation": "Other Information",
+    "SocialLink": "Social Link",
   }
 }

@@ -384,7 +384,7 @@ public partial class ProductInput
                 MaxWidth = MaxWidth.Large
             });
         var result = await dialog.Result;
-        if (!result.Cancelled)
+        if (!result.Canceled)
         {
             Dictionary<string,string> formulas = (Dictionary<string, string>)result.Data;
             Product.ProductComponents.ForEach(component =>

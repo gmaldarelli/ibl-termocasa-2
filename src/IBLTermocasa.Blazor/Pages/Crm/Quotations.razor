@@ -75,10 +75,10 @@
         <PropertyColumn Property="x => x.DepositRequiredValue" Title="@L["DepositRequiredValue"]"/>
         <TemplateColumn StickyRight="true">
             <CellTemplate>
-                <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top" RootClass="d-table-cell">
                     <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="() => OpenEditQuotationPageAsync(context.Item)"/>
                 </MudTooltip>
-                <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top" RootClass="d-table-cell">
                     <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteQuotationAsync(context.Item)"/>
                 </MudTooltip>
             </CellTemplate>
@@ -89,4 +89,5 @@
     </PagerContent>
 </MudDataGrid>
 <MudThemeProvider/>
+<MudPopoverProvider/>
 <MudDialogProvider/>

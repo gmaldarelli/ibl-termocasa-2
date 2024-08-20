@@ -151,6 +151,7 @@ namespace IBLTermocasa.Blazor.Pages.Inventory
         {
             await MaterialsAppService.DeleteAsync(input.Id);
             await GetMaterialsAsync();
+            await MaterialMudDataGrid.ReloadServerData();
         }
 
         private async Task CreateMaterialAsync()
@@ -164,6 +165,7 @@ namespace IBLTermocasa.Blazor.Pages.Inventory
 
                 await MaterialsAppService.CreateAsync(NewMaterial);
                 await GetMaterialsAsync();
+                await MaterialMudDataGrid.ReloadServerData();
                 await CloseCreateMaterialModalAsync();
             }
             catch (Exception ex)
@@ -188,6 +190,7 @@ namespace IBLTermocasa.Blazor.Pages.Inventory
 
                 await MaterialsAppService.UpdateAsync(EditingMaterialId, EditingMaterial);
                 await GetMaterialsAsync();
+                await MaterialMudDataGrid.ReloadServerData();
                 await EditMaterialModal.Hide();
             }
             catch (Exception ex)

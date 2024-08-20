@@ -159,6 +159,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
         private async Task DeleteInteractionAsync(InteractionDto input)
         {
             await InteractionsAppService.DeleteAsync(input.Id);
+            await InteractionMudDataGrid.ReloadServerData();
             await GetInteractionsAsync();
         }
 
@@ -173,6 +174,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
 
                 await InteractionsAppService.CreateAsync(NewInteraction);
                 await GetInteractionsAsync();
+                await InteractionMudDataGrid.ReloadServerData();
                 await CloseCreateInteractionModalAsync();
             }
             catch (Exception ex)
@@ -197,6 +199,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
 
                 await InteractionsAppService.UpdateAsync(EditingInteractionId, EditingInteraction);
                 await GetInteractionsAsync();
+                await InteractionMudDataGrid.ReloadServerData();
                 await EditInteractionModal.Hide();
             }
             catch (Exception ex)

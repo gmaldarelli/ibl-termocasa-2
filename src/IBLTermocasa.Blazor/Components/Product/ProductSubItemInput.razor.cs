@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using IBLTermocasa.Common;
 using Microsoft.AspNetCore.Components;
@@ -54,15 +55,22 @@ public partial class ProductSubItemInput
         SelectedName = lookupDto.DisplayName;
         SelectedIsMandatory = (bool)(lookupDto.ViewElementDto.Properties.FirstOrDefault(x => x.Name == "IsMandatory")?.Value ?? true);
     }
-    private Task<IEnumerable<ExtendedLookUpDto<Guid>>> SearchElement(string value)
+    private async Task<IEnumerable<ExtendedLookUpDto<Guid>>> SearchElement(string value, CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            return Task.FromResult(ElementListLookupDto);
+            return await Task.FromResult(ElementListLookupDto);
         }
-        var lookupDtos = ElementListLookupDto.Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-        return Task.FromResult(lookupDtos);
+
+        var lookupDtos = await Task.Run(() => 
+        {
+            return ElementListLookupDto
+                .Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        }, token);
+
+        return lookupDtos;
     }
+
 
     private void Cancel()
     {

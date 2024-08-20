@@ -28,7 +28,7 @@ namespace IBLTermocasa.Controllers.Catalogs
         }
 
         [HttpGet]
-        public virtual Task<PagedResultDto<CatalogWithNavigationPropertiesDto>> GetListAsync(GetCatalogsInput input)
+        public virtual Task<PagedResultDto<CatalogDto>> GetListAsync(GetCatalogsInput input)
         {
             return _catalogsAppService.GetListAsync(input);
         }

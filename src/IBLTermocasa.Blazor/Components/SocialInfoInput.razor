@@ -12,7 +12,7 @@
 <MudForm @ref="SocialInfoValidations" Model="@socialItem">
     <MudGrid>
         <MudItem xs="6">
-            <MudTextField T="string" @bind-Value="socialItem.Url" Placeholder="@L["SocialPlaceholder"]" For="@(() => socialItem.Url)">
+            <MudTextField T="string" @bind-Value="socialItem.Url" Label="@L["SocialLink"]" Placeholder="@L["SocialPlaceholder"]" For="@(() => socialItem.Url)">
             </MudTextField>
         </MudItem>
         <MudItem xs="5">
@@ -23,7 +23,7 @@
                 }
             </MudSelect>
         </MudItem>
-        <MudItem xs="1" Style="position: relative;">
+        <MudItem xs="1" Class="item-button">
             <MudButton Class="button-remove" Color="Color.Secondary" OnClick="@(() => RemoveSocialItem(socialItem))" Size="Size.Small">
                 <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Delete"/>
             </MudButton>

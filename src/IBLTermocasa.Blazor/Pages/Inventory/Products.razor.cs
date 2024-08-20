@@ -196,6 +196,7 @@ public partial class Products
     {
         await ProductsAppService.DeleteAsync(input.Id);
         await GetProductsAsync();
+        await ProductMudDataGrid.ReloadServerData();
     }
 
     private async Task GetComponentLookupAsync(string? newValue = null)

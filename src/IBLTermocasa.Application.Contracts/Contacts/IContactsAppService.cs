@@ -23,5 +23,7 @@ namespace IBLTermocasa.Contacts
         Task<IRemoteStreamContent> GetListAsExcelFileAsync(ContactExcelDownloadDto input);
 
         Task<DownloadTokenResultDto> GetDownloadTokenAsync();
+        
+        Task<PagedResultDto<LookupDto<Guid>>> GetContactLookupAsync(LookupRequestDto input);
     }
 }

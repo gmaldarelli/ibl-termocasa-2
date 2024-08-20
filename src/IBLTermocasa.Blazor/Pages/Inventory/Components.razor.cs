@@ -36,7 +36,6 @@ namespace IBLTermocasa.Blazor.Pages.Inventory
 
         [Inject] public IDialogService DialogService { get; set; }
         protected PageToolbar Toolbar { get; } = new PageToolbar();
-        protected bool ShowAdvancedFilters { get; set; }
         private List<ComponentDto> ComponentList { get; set; }
         private int PageSize { get; } = LimitedResultRequestDto.DefaultMaxResultCount;
         private int CurrentPage { get; set; } = 1;
@@ -46,17 +45,10 @@ namespace IBLTermocasa.Blazor.Pages.Inventory
         private bool CanEditComponent { get; set; }
         private bool CanDeleteComponent { get; set; }
         private ComponentCreateDto NewComponent { get; set; }
-        private Validations NewComponentValidations { get; set; } = new();
         private ComponentUpdateDto EditingComponent { get; set; }
-        private Validations EditingComponentValidations { get; set; } = new();
-        private Guid EditingComponentId { get; set; }
         private Modal CreateComponentModal { get; set; } = new();
-        private Modal EditComponentModal { get; set; } = new();
         private GetComponentsInput Filter { get; set; }
         private ComponentDto? _selectedComponent;
-
-        private ObservableCollection<ComponentItemDto> SelectedComponentItems { get; set; } =
-            new ObservableCollection<ComponentItemDto>();
         
 
         private bool CanListComponentItem { get; set; }
@@ -64,15 +56,7 @@ namespace IBLTermocasa.Blazor.Pages.Inventory
         private bool CanEditComponentItem { get; set; }
         private bool CanDeleteComponentItem { get; set; }
         private ComponentItemDto NewComponentItem { get; set; }
-        private DataGrid<ComponentItemDto> ComponentItemDataGrid { get; set; } = new();
-        private DataGrid<ComponentDto> ComponentDtoDataGrid { get; set; } = new();
-        private int ComponentItemPageSize { get; } = 5;
-        private Validations NewComponentItemValidations { get; set; } = new();
-        private Modal CreateComponentItemModal { get; set; } = new();
-        private Guid EditingComponentItemId { get; set; }
         private ComponentItemDto EditingComponentItem { get; set; }
-        private Validations EditingComponentItemValidations { get; set; } = new();
-        private Modal EditComponentItemModal { get; set; } = new();
         private IReadOnlyList<LookupDto<Guid>> MaterialsCollection { get; set; } = new List<LookupDto<Guid>>();
         private MudDataGrid<ComponentDto> ComponentMudDataGrid { get; set; }
         private MudDataGrid<ComponentItemDto> ComponentItemMudDataGrid { get; set; }
@@ -111,7 +95,6 @@ namespace IBLTermocasa.Blazor.Pages.Inventory
             if (firstRender)
             {
                 await SetBreadcrumbItemsAsync();
-                await SetToolbarItemsAsync();
                 StateHasChanged();
             }
         }
@@ -122,11 +105,6 @@ namespace IBLTermocasa.Blazor.Pages.Inventory
             return ValueTask.CompletedTask;
         }
 
-        protected virtual ValueTask SetToolbarItemsAsync()
-        {
-            Toolbar.AddButton(L["ExportToExcel"], async () => { await DownloadAsExcelAsync(); }, IconName.Download);
-            return ValueTask.CompletedTask;
-        }
 
         private async Task SetPermissionsAsync()
         {
@@ -200,6 +178,7 @@ namespace IBLTermocasa.Blazor.Pages.Inventory
             ComponentMudDataGrid.SelectedItem = null;
             ComponentSelected = true;
             await GetComponentsAsync();
+            await ComponentMudDataGrid.ReloadServerData();
             StateHasChanged();
         }
         

@@ -1,3 +1,4 @@
+using System.Linq;
 using IBLTermocasa.Quotations;
 using IBLTermocasa.ConsumptionEstimations;
 using IBLTermocasa.ProfessionalProfiles;
@@ -14,6 +15,7 @@ using IBLTermocasa.Organizations;
 using IBLTermocasa.Products;
 using IBLTermocasa.QuestionTemplates;
 using IBLTermocasa.RequestForQuotations;
+using NUglify.Helpers;
 using Volo.Abp.AutoMapper;
 
 namespace IBLTermocasa.Blazor;
@@ -56,7 +58,14 @@ public class IBLTermocasaBlazorAutoMapperProfile : Profile
         CreateMap<ProductDto, ProductUpdateDto>();
         CreateMap<ProductDto, ProductCreateDto>();
 
-        CreateMap<CatalogDto, CatalogUpdateDto>().Ignore(x => x.ProductIds);
+        CreateMap<CatalogDto, CatalogUpdateDto>()
+            .ForMember(dest => dest.ProductIds, opt => opt.MapFrom(src => src.Products.Select(p => p.ProductId).ToList()));
+
+        CreateMap<Catalog, CatalogDto>();
+        CreateMap<CatalogDto, CatalogCreateDto>()
+            .ForMember(dest => dest.ProductIds, opt => opt.MapFrom(src => src.Products.Select(p => p.ProductId).ToList()));
+        CreateMap<CatalogCreateDto, Catalog>();
+
         CreateMap<BillOfMaterial, BillOfMaterialDto>();
         CreateMap<BillOfMaterialDto, BillOfMaterial>();
         CreateMap<BillOfMaterialDto, BillOfMaterialCreateDto>();

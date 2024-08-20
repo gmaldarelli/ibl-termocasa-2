@@ -1,0 +1,56 @@
+﻿@using IBLTermocasa.Shared
+@using Color = MudBlazor.Color
+@using MudBlazor
+@inherits IBLTermocasaComponentBase
+
+<style>
+
+    .mud-dialog-custom {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .navbar-open .mud-dialog-custom {
+        left: calc(50% + 264px); /* 264 è stato messo, perchè indica la larghezza della navbar */
+    }
+</style>
+<MudDialog>
+    <TitleContent>@L["AssociateContact"]</TitleContent>
+    <DialogContent>
+        <MudForm @ref="NewComponentForm" Model="@OrganizationDto">
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudTextField T="string" Label="@L["Code"]" @bind-Text="@OrganizationDto.Code" Disabled="true"></MudTextField>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField T="string" Label="@L["Name"]" @bind-Text="@OrganizationDto.Name" Disabled="true"></MudTextField>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudSelect T="LookupDto<Guid>" Label="@L["AssociateContact"]" @bind-Value="@selectedContact" Required="true" Error="@HasDuplicateContact" ErrorText="@(HasDuplicateContact ? DuplicateContactErrorMessage : L["TheFieldIsRequired"])">
+                        @foreach (var item in ContactsCollection)
+                        {
+                            <MudSelectItem T="LookupDto<Guid>" Value="@item">@item.DisplayName</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Secondary" OnClick="Cancel">
+            @L["Cancel"]
+        </MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">
+            @L["Save"]
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    
+}
+

@@ -91,7 +91,7 @@ namespace IBLTermocasa.Blazor.Pages.Production
                 FullWidth= true,
                 MaxWidth=MaxWidth.Large,
                 CloseButton= true,
-                DisableBackdropClick= true,
+                BackdropClick= true,
                 NoHeader=false,
                 Position = DialogPosition.Custom,
                 CloseOnEscapeKey=false
@@ -192,6 +192,7 @@ namespace IBLTermocasa.Blazor.Pages.Production
             {
                 await BillOfMaterialsAppService.DeleteAsync(contextItem.Id);
                 await GetBillOfMaterialsAsync();
+                await BillOfMaterialMudDataGrid.ReloadServerData();
             }
             else
             {

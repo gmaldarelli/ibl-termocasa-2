@@ -23,9 +23,9 @@
                 <InternationalPrefixSelector ReadOnly="@ReadOnly" SelectedPrefix="@phoneItem.Prefix" SelectedPrefixChanged="@(value => phoneItem.Prefix = value)"/>
             </MudItem>
             <MudItem xs="4" Style="display: grid;">
-                <MudMask @bind-Value="phoneItem.Number" Label="@L["Phone"]" Mask="@phoneMask" Style="align-items: flex-end;"/>
+                <MudMask @bind-Value="phoneItem.Number" HelperText="@L["Inserisci il numero di telefono"]" Placeholder="@L["Inserisci il numero di telefono"]" Mask="@phoneMask" Style="align-items: flex-end;"/>
             </MudItem>
-            <MudItem xs="1" Class="position-relative">
+            <MudItem xs="1" Class="item-button">
                 <MudButton Class="button-remove" Color="Color.Secondary" OnClick="@(() => RemovePhoneItem(phoneItem))" Size="Size.Small" Disabled="ReadOnly">
                     <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Delete"/>
                 </MudButton>

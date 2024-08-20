@@ -47,7 +47,7 @@ namespace IBLTermocasa.Organizations
                 input.OrganizationType, input.MailInfo, input.PhoneInfo, input.Tags, input.IndustryId);
             var items = await _organizationRepository.GetListWithNavigationPropertiesAsync(input.FilterText, input.Code,
                 input.Name, input.OrganizationType, input.MailInfo, input.PhoneInfo, input.Tags, input.IndustryId,
-                input.OrganizationTypePreFiilter, input.Sorting, input.MaxResultCount, input.SkipCount);
+                input.OrganizationTypePreFilter, input.Sorting, input.MaxResultCount, input.SkipCount);
 
             return new PagedResultDto<OrganizationWithNavigationPropertiesDto>
             {

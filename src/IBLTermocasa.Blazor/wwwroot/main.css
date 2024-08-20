@@ -65,10 +65,14 @@
 }
 
 .button-remove{
-    position: absolute;
-    bottom: 20%;
-    left: 0;
+    display: flex;
     min-width: 20px;
+}
+
+.item-button {
+    display: flex;
+    padding-left: 8px !important;
+    align-items: center;
 }
 
 .mud-data-grid-custom .mud-table-toolbar {

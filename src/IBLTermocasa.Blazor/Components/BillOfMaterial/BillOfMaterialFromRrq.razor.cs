@@ -23,7 +23,7 @@ public partial class BillOfMaterialFromRrq
         FullWidth= true,
         MaxWidth=MaxWidth.Medium,
         CloseButton= true,
-        DisableBackdropClick= true,
+        BackdropClick = true,
         NoHeader=false,
         Position=DialogPosition.Custom,
         CloseOnEscapeKey=false
@@ -41,7 +41,7 @@ public partial class BillOfMaterialFromRrq
 
         var dialog = await DialogService.ShowAsync<ConfirmGenerationMudDialog>(L["ConfirmGenerationMudDialogTitle"], parameters,ConfirmGenerationMudDialogOption);
         var confirmationResult = await dialog.Result;
-        if(confirmationResult.Cancelled)
+        if(confirmationResult.Canceled)
         {
             await LoadRequestForQuotations();
             await RequestForQuotationDataGrid.ReloadServerData();

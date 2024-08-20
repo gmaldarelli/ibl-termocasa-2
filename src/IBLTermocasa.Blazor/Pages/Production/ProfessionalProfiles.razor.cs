@@ -170,6 +170,7 @@ namespace IBLTermocasa.Blazor.Pages.Production
         {
             await ProfessionalProfilesAppService.DeleteAsync(input.Id);
             await GetProfessionalProfilesAsync();
+            await ProfessionalProfileMudDataGrid.ReloadServerData();
         }
 
         private async Task OpenNewOrReadOrEditProfessionalProfile(ProfessionalProfileDto input, bool isReadOnly, bool isNew)
@@ -190,18 +191,18 @@ namespace IBLTermocasa.Blazor.Pages.Production
                 });
 
             var result = await dialog.Result;
-            if (!result.Cancelled)
+            if (!result.Canceled)
             {
                 List<ProfessionalProfileDto> _tempList = new List<ProfessionalProfileDto>();
-                ProfessionalProfileList.ForEach(rfq =>
+                ProfessionalProfileList.ForEach(professionalProfileDto =>
                 {
-                    if (rfq.Id == input.Id)
+                    if (professionalProfileDto.Id == input.Id)
                     {
                         _tempList.Add((ProfessionalProfileDto)result.Data);
                     }
                     else
                     {
-                        _tempList.Add(rfq);
+                        _tempList.Add(professionalProfileDto);
                     }
                 });
                 ProfessionalProfileList = _tempList;

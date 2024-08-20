@@ -13,17 +13,17 @@
     {
         <MudGrid>
             <MudItem xs="7">
-                <MudTextField @bind-Value="@mailItem.Email" Placeholder="Email" Validation="@(new EmailAddressAttribute() { ErrorMessage = @L["The email address is invalid"] })"/>
+                <MudTextField @bind-Value="@mailItem.Email" Placeholder="@L["Email"]" Validation="@(new EmailAddressAttribute() { ErrorMessage = @L["The email address is invalid"] })"/>
             </MudItem>
             <MudItem xs="4">
-                <MudSelect T="MailType" @bind-Value="mailItem.Type" Label="@L["Type"]">
+                <MudSelect T="MailType" @bind-Value="mailItem.Type" Placeholder="@L["Type"]">
                     @foreach (var type in Enum.GetValues<MailType>())
                     {
                         <MudSelectItem Value="@type">@L[$"Enum:EmailType.{EnumExtensions.GetDisplayName(type)}"]</MudSelectItem>
                     }
                 </MudSelect>
             </MudItem>
-            <MudItem xs="1" Style="position: relative;">
+            <MudItem xs="1" Class="item-button">
                 <MudButton Class="button-remove" Color="Color.Secondary" OnClick="@(() => RemoveMailItem(mailItem))" Size="Size.Small" Disabled="ReadOnly">
                     <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Delete"/>
                 </MudButton>

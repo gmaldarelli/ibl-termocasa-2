@@ -60,10 +60,10 @@
         </TemplateColumn>
         <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
-                <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top" RootClass="d-table-cell">
                     <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenEditQuestionTemplateModalAsync(context.Item))"/>
                 </MudTooltip>
-                <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top" RootClass="d-table-cell">
                     <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteQuestionTemplateAsync(context.Item)"/>
                 </MudTooltip>
             </CellTemplate>
@@ -74,6 +74,7 @@
     </PagerContent>
 </MudDataGrid>
 <MudThemeProvider/>
+<MudPopoverProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
 

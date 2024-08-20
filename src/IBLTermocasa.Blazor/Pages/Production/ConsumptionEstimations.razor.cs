@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,9 +38,9 @@ namespace IBLTermocasa.Blazor.Pages.Production
         private GetConsumptionEstimationsInput Filter { get; set; }
         private ConsumptionEstimationDto? SelectedConsumptionEstimation;
         Dictionary<PlaceHolderType, string> icons = new();
-        private MudList MudListProductsList { get; set; }
-        private MudListItem _selectedMudListItem;
-        private Dictionary<Guid, MudListItem> _mudListItemReferences = new();
+        private MudList<LookupDto<Guid>> MudListProductsList { get; set; }
+        private MudListItem<LookupDto<Guid>> _selectedMudListItem;
+        private Dictionary<Guid, MudListItem<LookupDto<Guid>>> _mudListItemReferences = new();
         private List<ProductDto> SelectedProducts { get; set; } = new();
         private ProductDto? SelectedProduct { get; set; } 
         private ConsumptionWorkDto SelectedConsumptionWorkDto { get; set; } = new();
@@ -54,7 +55,7 @@ namespace IBLTermocasa.Blazor.Pages.Production
         List<LookupDto<Guid>> SelectedProductListLookUp = new List<LookupDto<Guid>>();
         public MudTreeView<PlaceHolderTreeItemData> ProductMudTreeView { get; set; }
         public HashSet<PlaceHolderTreeItemData> TreeItems { get; set; } = new ();
-        private Dictionary<Guid, MudListItem> _tempMudListItemReferences = new();
+        private Dictionary<Guid, MudListItem<LookupDto<Guid>>> _tempMudListItemReferences = new();
         private int activeTabIndex = 0;
         
         public ConsumptionEstimations()
@@ -299,3 +300,4 @@ namespace IBLTermocasa.Blazor.Pages.Production
         }
     }
 }
+*/

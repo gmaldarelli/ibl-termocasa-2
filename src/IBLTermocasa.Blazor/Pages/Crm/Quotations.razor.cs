@@ -117,84 +117,6 @@ namespace IBLTermocasa.Blazor.Pages.Crm
             NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/quotations/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&Code={HttpUtility.UrlEncode(Filter.Code)}&Name={HttpUtility.UrlEncode(Filter.Name)}&SentDateMin={Filter.SentDateMin?.ToString("O")}&SentDateMax={Filter.SentDateMax?.ToString("O")}&QuotationValidDateMin={Filter.QuotationValidDateMin?.ToString("O")}&QuotationValidDateMax={Filter.QuotationValidDateMax?.ToString("O")}&ConfirmedDateMin={Filter.ConfirmedDateMin?.ToString("O")}&ConfirmedDateMax={Filter.ConfirmedDateMax?.ToString("O")}&Status={Filter.Status}&DepositRequired={Filter.DepositRequired}&DepositRequiredValueMin={Filter.DepositRequiredValueMin}&DepositRequiredValueMax={Filter.DepositRequiredValueMax}", forceLoad: true);
         }*/
 
-        protected virtual async Task OnCodeChangedAsync(string? code)
-        {
-            Filter.Code = code;
-            await SearchAsync();
-        }
-
-        protected virtual async Task OnNameChangedAsync(string? name)
-        {
-            Filter.Name = name;
-            await SearchAsync();
-        }
-
-        protected virtual async Task OnSentDateMinChangedAsync(DateTime? sentDateMin)
-        {
-            Filter.SentDateMin = sentDateMin.HasValue ? sentDateMin.Value.Date : sentDateMin;
-            await SearchAsync();
-        }
-
-        protected virtual async Task OnSentDateMaxChangedAsync(DateTime? sentDateMax)
-        {
-            Filter.SentDateMax = sentDateMax.HasValue ? sentDateMax.Value.Date.AddDays(1).AddSeconds(-1) : sentDateMax;
-            await SearchAsync();
-        }
-
-        protected virtual async Task OnQuotationValidDateMinChangedAsync(DateTime? quotationValidDateMin)
-        {
-            Filter.QuotationValidDateMin = quotationValidDateMin.HasValue
-                ? quotationValidDateMin.Value.Date
-                : quotationValidDateMin;
-            await SearchAsync();
-        }
-
-        protected virtual async Task OnQuotationValidDateMaxChangedAsync(DateTime? quotationValidDateMax)
-        {
-            Filter.QuotationValidDateMax = quotationValidDateMax.HasValue
-                ? quotationValidDateMax.Value.Date.AddDays(1).AddSeconds(-1)
-                : quotationValidDateMax;
-            await SearchAsync();
-        }
-
-        protected virtual async Task OnConfirmedDateMinChangedAsync(DateTime? confirmedDateMin)
-        {
-            Filter.ConfirmedDateMin = confirmedDateMin.HasValue ? confirmedDateMin.Value.Date : confirmedDateMin;
-            await SearchAsync();
-        }
-
-        protected virtual async Task OnConfirmedDateMaxChangedAsync(DateTime? confirmedDateMax)
-        {
-            Filter.ConfirmedDateMax = confirmedDateMax.HasValue
-                ? confirmedDateMax.Value.Date.AddDays(1).AddSeconds(-1)
-                : confirmedDateMax;
-            await SearchAsync();
-        }
-
-        protected virtual async Task OnStatusChangedAsync(QuotationStatus? status)
-        {
-            Filter.Status = status;
-            await SearchAsync();
-        }
-
-        protected virtual async Task OnDepositRequiredChangedAsync(bool? depositRequired)
-        {
-            Filter.DepositRequired = depositRequired;
-            await SearchAsync();
-        }
-
-        protected virtual async Task OnDepositRequiredValueMinChangedAsync(double? depositRequiredValueMin)
-        {
-            Filter.DepositRequiredValueMin = depositRequiredValueMin;
-            await SearchAsync();
-        }
-
-        protected virtual async Task OnDepositRequiredValueMaxChangedAsync(double? depositRequiredValueMax)
-        {
-            Filter.DepositRequiredValueMax = depositRequiredValueMax;
-            await SearchAsync();
-        }
-
         private void OpenEditQuotationPageAsync(QuotationDto input)
         {
             //navigate to the page Quotation
@@ -219,6 +141,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
                 await BillOfMaterialsAppService.UpdateAsync(billOfMaterial.Id, billOfMaterialUpdate);
                 await QuotationsAppService.DeleteAsync(input.Id);
                 await GetQuotationsAsync();
+                await QuotationMudDataGrid.ReloadServerData();
             }
             else
             {

@@ -9,9 +9,11 @@ namespace IBLTermocasa.Catalogs
     public class CatalogDto : FullAuditedEntityDto<Guid>, IHasConcurrencyStamp
     {
         public string Name { get; set; } = null!;
-        public DateTime From { get; set; }
-        public DateTime To { get; set; }
+        public DateTime? From { get; set; }
+        public DateTime? To { get; set; }
         public string? Description { get; set; }
+        
+        public ICollection<CatalogProductDto> Products { get; set; } = new List<CatalogProductDto>();
 
         public string ConcurrencyStamp { get; set; } = null!;
 

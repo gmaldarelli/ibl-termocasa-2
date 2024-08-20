@@ -39,7 +39,10 @@
 <PageHeader Title="@L["Components"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
 
 </PageHeader>
-
+<MudToolBar>
+    <MudSpacer />
+    <MudButton StartIcon="@Icons.Material.Outlined.FileDownload" Size="Size.Small" Variant="Variant.Filled" Color="@Color.Primary" OnClick="DownloadAsExcelAsync">@L["ExportToExcel"]</MudButton>
+</MudToolBar>
 <MudGrid>
     <MudItem xs="12" sm="6">
         @* ************************* Main Info on left side ************************* *@
@@ -63,7 +66,7 @@
                     </PropertyColumn>
                     <TemplateColumn>
                         <EditTemplate>
-                            <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                            <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top" RootClass="d-table-cell">
                                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Filled.DeleteSweep" OnClick="() => DeleteComponentAsync(context.Item)"/>
                             </MudTooltip>
                         </EditTemplate>
@@ -100,7 +103,7 @@
                             <MudSpacer></MudSpacer>
                         </HeaderTemplate>
                         <EditTemplate>
-                            <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                            <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top" RootClass="d-table-cell">
                                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Filled.DeleteSweep" OnClick="() => DeleteComponentItemAsync(context.Item)"/>
                             </MudTooltip>
                         </EditTemplate>
@@ -121,6 +124,7 @@
 </MudGrid>
 
 <MudThemeProvider/>
+<MudPopoverProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider />
 

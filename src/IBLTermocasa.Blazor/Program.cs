@@ -10,10 +10,7 @@ public class Program
     public async static Task Main(string[] args)
     {
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
-        builder.Services.AddMudServices(x =>
-        {
-            x.PopoverOptions.ThrowOnDuplicateProvider = false;
-        });
+        builder.Services.AddMudServices();
         builder.Services.AddMudExtensions();
 
         var application = await builder.AddApplicationAsync<IBLTermocasaBlazorModule>(options =>

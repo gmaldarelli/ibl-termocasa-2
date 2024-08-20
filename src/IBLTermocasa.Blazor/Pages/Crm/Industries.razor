@@ -51,10 +51,10 @@
         <PropertyColumn Property="x => x.Description" Title="@L["Description"]"/>
         <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
-                <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top" RootClass="d-table-cell">
                     <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenEditIndustryModalAsync(context.Item))"/>
                 </MudTooltip>
-                <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top" RootClass="d-table-cell">
                     <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteIndustryAsync(context.Item)"/>
                 </MudTooltip>
             </CellTemplate>
@@ -65,6 +65,7 @@
     </PagerContent>
 </MudDataGrid>
 <MudThemeProvider/>
+<MudPopoverProvider/>
 <MudDialogProvider/>
 
 @* ************************* CREATE MODAL ************************* *@

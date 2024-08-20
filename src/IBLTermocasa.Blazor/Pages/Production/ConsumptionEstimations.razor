@@ -1,5 +1,6 @@
 
 
+@*
 @page "/consumption-estimations"
 
 @attribute [Authorize(IBLTermocasaPermissions.ConsumptionEstimations.Default)]
@@ -28,7 +29,7 @@
 @inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
 @inject NavigationManager NavigationManager
 
-@* ************************* PAGE HEADER ************************* *@
+$1$ ************************* PAGE HEADER ************************* #1#
 <PageHeader Title="@L["ConsumptionEstimations"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
 
 </PageHeader>
@@ -42,7 +43,7 @@
                          Style="box-shadow: 0 2px #cdcdcd;">@L["ProductsList"]</MudText>
             </MudDrawerHeader>
             <MudPaper Style="overflow:hidden; position:relative; height: 100%;">
-                <MudList @ref="MudListProductsList" Clickable="true" Style="overflow-y: auto;" >
+                <MudList @ref="MudListProductsList" Clickable="true" Style="overflow-y: auto;">
                     @foreach (var product in ProductsList)
                     {
                         <MudListItem @ref="_tempMudListItemReferences[product.Id]"
@@ -147,10 +148,10 @@
                                     <PropertyColumn Property="x => x.WorkTime" Title="@L["WorkTime"]" Groupable="false"/>
                                     <TemplateColumn CellClass="d-table-cell justify-end" Groupable="false">
                                         <CellTemplate>
-                                            <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                                            <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top" RootClass="d-table-cell">
                                                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.EditNote" OnClick="() => OnClickEditProfessionaProfile(context.Item)"/>
                                             </MudTooltip>
-                                            <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                                            <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top" RootClass="d-table-cell">
                                                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => OnClickDeleteProfessionaProfile(context.Item)"/>
                                             </MudTooltip>
                                         </CellTemplate>
@@ -165,6 +166,7 @@
     </MudDrawerContainer>
 </MudPaper>
 <MudThemeProvider/>
+<MudPopoverProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider />
 
@@ -183,4 +185,4 @@
     {
         _openEnd = !_openEnd;
     }
-}
+}*@

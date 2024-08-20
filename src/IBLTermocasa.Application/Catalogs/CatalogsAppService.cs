@@ -38,15 +38,15 @@ namespace IBLTermocasa.Catalogs
             _productRepository = productRepository;
         }
 
-        public virtual async Task<PagedResultDto<CatalogWithNavigationPropertiesDto>> GetListAsync(GetCatalogsInput input)
+        public virtual async Task<PagedResultDto<CatalogDto>> GetListAsync(GetCatalogsInput input)
         {
-            var totalCount = await _catalogRepository.GetCountAsync(input.FilterText, input.Name, input.FromMin, input.FromMax, input.ToMin, input.ToMax, input.Description, input.ProductId);
-            var items = await _catalogRepository.GetListWithNavigationPropertiesAsync(input.FilterText, input.Name, input.FromMin, input.FromMax, input.ToMin, input.ToMax, input.Description, input.ProductId, input.Sorting, input.MaxResultCount, input.SkipCount);
+            var totalCount = await _catalogRepository.GetCountAsync(input.FilterText, input.Name, input.FromMin, input.FromMax, input.ToMin, input.ToMax, input.Description);
+            var items = await _catalogRepository.GetListAsync(input.FilterText, input.Name, input.FromMin, input.FromMax, input.ToMin, input.ToMax, input.Description, input.Sorting, input.MaxResultCount, input.SkipCount);
 
-            return new PagedResultDto<CatalogWithNavigationPropertiesDto>
+            return new PagedResultDto<CatalogDto>
             {
                 TotalCount = totalCount,
-                Items = ObjectMapper.Map<List<CatalogWithNavigationProperties>, List<CatalogWithNavigationPropertiesDto>>(items)
+                Items = ObjectMapper.Map<List<Catalog>, List<CatalogDto>>(items)
             };
         }
 
@@ -115,7 +115,7 @@ namespace IBLTermocasa.Catalogs
                 throw new AbpAuthorizationException("Invalid download token: " + input.DownloadToken);
             }
 
-            var catalogs = await _catalogRepository.GetListWithNavigationPropertiesAsync(input.FilterText, input.Name, input.FromMin, input.FromMax, input.ToMin, input.ToMax, input.Description, input.ProductId);
+            var catalogs = await _catalogRepository.GetListCatalogWithProducts(input.FilterText, input.Name, input.FromMin, input.FromMax, input.ToMin, input.ToMax, input.Description);
             var items = catalogs.Select(item => new
             {
                 Name = item.Catalog.Name,
@@ -152,8 +152,8 @@ namespace IBLTermocasa.Catalogs
 
         public virtual async Task<PagedResultDto<CatalogWithNavigationPropertiesDto>> GetListCatalogWithProducts(GetCatalogsInput input)
         {
-            var totalCount = await _catalogRepository.GetCountAsync(input.FilterText, input.Name, input.FromMin, input.FromMax, input.ToMin, input.ToMax, input.Description, input.ProductId);
-            var items = await _catalogRepository.GetListCatalogWithProducts(input.FilterText, input.Name, input.FromMin, input.FromMax, input.ToMin, input.ToMax, input.Description, input.ProductId, input.Sorting, input.MaxResultCount, input.SkipCount);
+            var totalCount = await _catalogRepository.GetCountAsync(input.FilterText, input.Name, input.FromMin, input.FromMax, input.ToMin, input.ToMax, input.Description);
+            var items = await _catalogRepository.GetListCatalogWithProducts(input.FilterText, input.Name, input.FromMin, input.FromMax, input.ToMin, input.ToMax, input.Description, input.Sorting, input.MaxResultCount, input.SkipCount);
 
             return new PagedResultDto<CatalogWithNavigationPropertiesDto>
             {

@@ -12,7 +12,7 @@ namespace IBLTermocasa.Catalogs
     public interface ICatalogsAppService : IApplicationService
     {
 
-        Task<PagedResultDto<CatalogWithNavigationPropertiesDto>> GetListAsync(GetCatalogsInput input);
+        Task<PagedResultDto<CatalogDto>> GetListAsync(GetCatalogsInput input);
 
         Task<CatalogWithNavigationPropertiesDto> GetWithNavigationPropertiesAsync(Guid id);
 

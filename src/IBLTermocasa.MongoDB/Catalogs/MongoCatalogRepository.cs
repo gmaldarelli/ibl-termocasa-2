@@ -44,13 +44,12 @@ namespace IBLTermocasa.Catalogs
             DateTime? toMin = null,
             DateTime? toMax = null,
             string? description = null,
-            Guid? productId = null,
             string? sorting = null,
             int maxResultCount = int.MaxValue,
             int skipCount = 0,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, name, fromMin, fromMax, toMin, toMax, description, productId);
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, name, fromMin, fromMax, toMin, toMax, description);
             var catalogs = await query.OrderBy(string.IsNullOrWhiteSpace(sorting) ? CatalogConsts.GetDefaultSorting(false) : sorting.Split('.').Last())
                 .As<IMongoQueryable<Catalog>>()
                 .PageBy<Catalog, IMongoQueryable<Catalog>>(skipCount, maxResultCount)
@@ -70,35 +69,7 @@ namespace IBLTermocasa.Catalogs
             
             return listCatalogs;
         }
-
-        public virtual async Task<List<CatalogWithNavigationProperties>> GetListWithNavigationPropertiesAsync(
-            string? filterText = null,
-            string? name = null,
-            DateTime? fromMin = null,
-            DateTime? fromMax = null,
-            DateTime? toMin = null,
-            DateTime? toMax = null,
-            string? description = null,
-            Guid? productId = null,
-            string? sorting = null,
-            int maxResultCount = int.MaxValue,
-            int skipCount = 0,
-            CancellationToken cancellationToken = default)
-        {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, name, fromMin, fromMax, toMin, toMax, description, productId);
-            var catalogs = await query.OrderBy(string.IsNullOrWhiteSpace(sorting) ? CatalogConsts.GetDefaultSorting(false) : sorting.Split('.').Last())
-                .As<IMongoQueryable<Catalog>>()
-                .PageBy<Catalog, IMongoQueryable<Catalog>>(skipCount, maxResultCount)
-                .ToListAsync(GetCancellationToken(cancellationToken));
-
-            var dbContext = await GetDbContextAsync(cancellationToken);
-            return catalogs.Select(s => new CatalogWithNavigationProperties
-            {
-                Catalog = s,
-                Products = new List<Product>(),
-
-            }).ToList();
-        }
+        
 
         public virtual async Task<List<Catalog>> GetListAsync(
             string? filterText = null,
@@ -128,10 +99,9 @@ namespace IBLTermocasa.Catalogs
             DateTime? toMin = null,
             DateTime? toMax = null,
             string? description = null,
-            Guid? productId = null,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, name, fromMin, fromMax, toMin, toMax, description, productId);
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, name, fromMin, fromMax, toMin, toMax, description);
             return await query.As<IMongoQueryable<Catalog>>().LongCountAsync(GetCancellationToken(cancellationToken));
         }
 
@@ -143,8 +113,7 @@ namespace IBLTermocasa.Catalogs
             DateTime? fromMax = null,
             DateTime? toMin = null,
             DateTime? toMax = null,
-            string? description = null,
-            Guid? productId = null)
+            string? description = null)
         {
             filterText = filterText?.ToLower();
             return query
@@ -155,8 +124,7 @@ namespace IBLTermocasa.Catalogs
                     .WhereIf(fromMax.HasValue, e => e.From <= fromMax!.Value)
                     .WhereIf(toMin.HasValue, e => e.To >= toMin!.Value)
                     .WhereIf(toMax.HasValue, e => e.To <= toMax!.Value)
-                    .WhereIf(!string.IsNullOrWhiteSpace(description), e => e.Description != null && description != null && e.Description.Contains(description, StringComparison.CurrentCultureIgnoreCase))
-                    .WhereIf(productId != null && productId != Guid.Empty, e => e.Products.Any(x => x.ProductId == productId));
+                    .WhereIf(!string.IsNullOrWhiteSpace(description), e => e.Description != null && description != null && e.Description.Contains(description, StringComparison.CurrentCultureIgnoreCase));
         }
     }
 }

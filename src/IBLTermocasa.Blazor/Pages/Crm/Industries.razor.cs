@@ -137,6 +137,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
         {
             await IndustriesAppService.DeleteAsync(input.Id);
             await GetIndustriesAsync();
+            await IndustryMudDataGrid.ReloadServerData();
         }
 
         private async Task CreateIndustryAsync()
@@ -150,6 +151,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
 
                 await IndustriesAppService.CreateAsync(NewIndustry);
                 await GetIndustriesAsync();
+                await IndustryMudDataGrid.ReloadServerData();
                 await CloseCreateIndustryModalAsync();
             }
             catch (Exception ex)
@@ -174,6 +176,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
 
                 await IndustriesAppService.UpdateAsync(EditingIndustryId, EditingIndustry);
                 await GetIndustriesAsync();
+                await IndustryMudDataGrid.ReloadServerData();
                 await EditIndustryModal.Hide();
             }
             catch (Exception ex)

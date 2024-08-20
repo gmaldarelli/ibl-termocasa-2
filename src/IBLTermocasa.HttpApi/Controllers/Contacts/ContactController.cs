@@ -72,5 +72,12 @@ namespace IBLTermocasa.Controllers.Contacts
         {
             return _contactsAppService.GetDownloadTokenAsync();
         }
+        
+        [HttpGet]
+        [Route("contacts-lookup")]
+        public virtual Task<PagedResultDto<LookupDto<Guid>>> GetContactLookupAsync(LookupRequestDto input)
+        {
+            return _contactsAppService.GetContactLookupAsync(input);
+        }
     }
 }

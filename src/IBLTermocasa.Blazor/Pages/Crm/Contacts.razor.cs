@@ -141,6 +141,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
                 Console.WriteLine("Cancellazione in corso organization id: " + input.Id);
                 await ContactsAppService.DeleteAsync(input.Id);
                 await GetContactsAsync();
+                await ContactMudDataGrid.ReloadServerData();
             }
             else
             {

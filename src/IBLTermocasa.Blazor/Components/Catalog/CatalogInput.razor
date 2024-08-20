@@ -1,0 +1,119 @@
+@inject AbpBlazorMessageLocalizerHelper<IBLTermocasaResource> LH
+@using IBLTermocasa.Localization
+@using IBLTermocasa.ProfessionalProfiles
+@using IBLTermocasa.Shared
+@using IBLTermocasa.Types
+@using MudBlazor
+@using Volo.Abp.AspNetCore.Components.Web
+@using Color = MudBlazor.Color
+@inherits IBLTermocasaComponentBase
+
+<style>
+    .datagrid-question tr.table-primary.table-row-selectable,
+    .datagrid-question tr.table-row-selectable {
+        background: linear-gradient(90deg, rgba(194, 223, 243, 0.5) 40%, rgba(140, 202, 246, 0.3) 60%);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    
+    .mud-dialog-custom {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        padding: 10px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .navbar-open .mud-dialog-custom {
+        left: calc(50% + 264px); /* 264 è stato messo, perchè indica la larghezza della navbar */
+    }
+</style>
+@if (_isLoading)
+{
+<div class="loading-container" style="@(_isLoading ? "display: flex;" : "display: none;")">
+    <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="MudBlazor.Size.Large"/>
+</div>
+}
+else
+{
+    <MudDialog>
+        <DialogContent>
+            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                <MudTabPanel Text="@L["Catalog"]">
+                    <MudGrid>
+                        <MudItem xs="12">
+                            <MudForm ReadOnly="@DisplayReadOnly" @bind-IsValid="@success">
+                                <MudGrid>
+                                    <MudItem xs="12">
+                                        <MudTextField @bind-Value="@InternalCatalog.Name" Label="@L["Name"]" Required="true" RequiredError="@L["CodeIsRequired"]"/>
+                                    </MudItem>
+                                    <MudItem xs="12">
+                                        <MudDatePicker @bind-Date="@InternalCatalog.From" Label="@L["From"]" Required="true" RequiredError="@L["FromIsRequired"]"/>
+                                    </MudItem>
+                                    <MudItem xs="12">
+                                        <MudDatePicker @bind-Date="@InternalCatalog.To" Label="@L["To"]" Required="true" RequiredError="@L["ToIsRequired"]"/>
+                                    </MudItem>
+                                    <MudItem xs="12">
+                                        <MudTextField @bind-Value="@InternalCatalog.Description" Label="@L["Description"]"/>
+                                    </MudItem>
+                                </MudGrid>
+                            </MudForm>
+                        </MudItem>
+                    </MudGrid>
+                </MudTabPanel>
+                <MudTabPanel Text="@L["Products"]">
+                    <MudGrid>
+                        <MudItem xs="12">
+                            <MudForm ReadOnly="@DisplayReadOnly" @bind-IsValid="@success">
+                                <MudGrid>
+                                    <MudItem xs="10">
+                                        <MudAutocomplete T="LookupDto<Guid>"
+                                                         Label="@L["Products"]"
+                                                         ToStringFunc="@(prd => prd?.DisplayName)"
+                                                         @bind-Value="selectedProductLookupDto"
+                                                         ResetValueOnEmptyText="true"
+                                                         MaxItems="null"
+                                                         SearchFunc="@SearchProduct"/>
+                                    </MudItem>
+                                    <MudItem xs="2" Style="display: flex; justify-content: flex-start; align-items: end;">
+                                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Outlined.Add" OnClick="AddProduct"/>
+                                    </MudItem>
+                                    <MudItem xs="12">
+                                        <MudTable Items="@InternalCatalog.Products" Hover="true" Breakpoint="MudBlazor.Breakpoint.Sm">
+                                            <HeaderContent>
+                                                <MudTh>@L["Name"]</MudTh>
+                                                <MudTh></MudTh>
+                                            </HeaderContent>
+                                            <RowTemplate>
+                                                <MudTd DataLabel="Name">@ProductsList.FirstOrDefault(dto => dto.Id == context.ProductId).DisplayName</MudTd>
+                                                <MudTd>
+                                                    <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Outlined.Delete" Class="pa-0"
+                                                                   OnClick="@(() => InternalCatalog.Products.Remove(context))"/>
+                                                </MudTd>
+                                            </RowTemplate>
+                                        </MudTable>
+                                    </MudItem>
+                                </MudGrid>
+                            </MudForm>
+                        </MudItem>
+                    </MudGrid>
+                </MudTabPanel>
+            </MudTabs>
+            <div style="height: 1.5rem;"></div>
+            <MudItem Class="d-flex justify-content-between flex-grow-1 gap-4">
+                <MudItem>
+                    <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="HandleCancel">@L[GetButtonText()]</MudButton>
+                </MudItem>
+                <MudItem>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" OnClick="() => HandleValidSubmit()" Style="@(DisplayReadOnly ? "display: none;" : "display: initial;")">@L["Save"]</MudButton>
+                </MudItem>
+            </MudItem>
+        </DialogContent>
+    </MudDialog>
+}
+
+@code {
+}

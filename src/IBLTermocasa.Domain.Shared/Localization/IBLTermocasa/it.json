@@ -182,9 +182,12 @@
     "Notes": "Note",
     "ImageId": "ID Immagine",
     "Contacts": "Contatti",
+    "NoContacts": "Nessun contatto",
     "MinBirthDate": "Data di Nascita Minima",
     "MaxBirthDate": "Data di Nascita Massima",
     "NewContact": "Nuovo Contatto",
+    "AssociateContact": "Associa Contatto",
+    "AssociatedContacts": "Contatti Associati",
     "Menu:Contacts": "Contatti",
     "Menu:Contact": "Contatto",
     "Enum:OrganizationType.LEAD": "Lead",
@@ -336,6 +339,7 @@
     "ConsumptionMaterial": "Consumo dei Materiali",
     "ConsumptionProfessionalProfile": "Consumo dei Profili Professionali",
     "TheCodeAlreadyExists": "Il codice esiste già!",
+    "TheContactAlreadyExists": "Il contatto esiste già!",
     "TheFieldIsRequired": "Il campo è obbligatorio!",
     "ProductVariables": "Variabili Prodotto",
     "Price": "Prezzo",
@@ -400,5 +404,7 @@
     "Country": "Paese",
     "State": "Stato",
     "Street": "Via",
+    "OtherInformation": "Altre Informazioni",
+    "SocialLink": "Link Social"
   }
 }

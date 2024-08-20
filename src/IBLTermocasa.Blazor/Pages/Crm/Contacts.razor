@@ -55,10 +55,10 @@
         <PropertyColumn Property="x => x.Emails" Title="@L["Emails"]"/>
         <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
-                <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                <MudTooltip Inline="true" Text="@L["Modify"]" Arrow="true" Placement="MudBlazor.Placement.Top" RootClass="d-table-cell">
                     <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.RemoveRedEye" OnClick="@(() => OpenEditContactPageAsync(context.Item))"/>
                 </MudTooltip>
-                <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top">
+                <MudTooltip Inline="true" Text="@L["Remove"]" Arrow="true" Placement="MudBlazor.Placement.Top" RootClass="d-table-cell">
                     <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Remove" OnClick="() => DeleteContactAsync(context.Item)"/>
                 </MudTooltip>
             </CellTemplate>
@@ -69,4 +69,5 @@
     </PagerContent>
 </MudDataGrid>
 <MudThemeProvider/>
+<MudPopoverProvider/>
 <MudDialogProvider/>

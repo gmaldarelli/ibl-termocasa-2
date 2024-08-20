@@ -226,6 +226,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
         {
             await RequestForQuotationsAppService.DeleteAsync(input.Id);
             await GetRequestForQuotationsAsync();
+            await RequestForQuotationMudDataGrid.ReloadServerData();
         }
 
         private async Task OpenReadOrEditRfq(RequestForQuotationDto input, bool isReadOnly)
@@ -251,7 +252,7 @@ namespace IBLTermocasa.Blazor.Pages.Crm
                     });
 
                 var result = await dialog.Result;
-                if (!result.Cancelled)
+                if (!result.Canceled)
                 {
                     List<RequestForQuotationDto> _tempList = new List<RequestForQuotationDto>();
                     RequestForQuotationList.ForEach(rfq =>

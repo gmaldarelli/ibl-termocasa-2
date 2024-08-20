@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Blazorise.Bootstrap5;
@@ -32,15 +33,18 @@ public partial class ModalBillOfMaterialInput
         RequestForQuotationsCollection = (await RequestForQuotationsAppService.GetRequestForQuotationLookupAsync(new LookupRequestDto())).Items.ToList();
     }
     
-    private async Task<IEnumerable<LookupDto<Guid>>> SearchRFQ(string value)
+    private async Task<IEnumerable<LookupDto<Guid>>> SearchRFQ(string value, CancellationToken token)
     {
         if (RequestForQuotationsCollection == null || RequestForQuotationsCollection.Count == 0)
             return new List<LookupDto<Guid>>();
-        
-        return string.IsNullOrEmpty(value)
-            ? RequestForQuotationsCollection.ToList()
-            : RequestForQuotationsCollection
-                .Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+
+        return await Task.Run(() => 
+        {
+            return string.IsNullOrEmpty(value)
+                ? RequestForQuotationsCollection.ToList()
+                : RequestForQuotationsCollection
+                    .Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        }, token);
     }
     
     private async void UpdateValueRequestForQuotation(LookupDto<Guid> arg)

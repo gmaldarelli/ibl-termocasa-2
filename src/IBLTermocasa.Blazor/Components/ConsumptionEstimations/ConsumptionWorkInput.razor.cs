@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using IBLTermocasa.Common;
 using IBLTermocasa.ConsumptionEstimations;
@@ -40,15 +41,23 @@ public partial class ConsumptionWorkInput
         StateHasChanged();
     }
 
-    private Task<IEnumerable<LookupDto<Guid>>> SearchConsumptionProfessional(string value)
+    private async Task<IEnumerable<LookupDto<Guid>>> SearchConsumptionProfessional(string value, CancellationToken token)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            return Task.FromResult<IEnumerable<LookupDto<Guid>>>(ProfessionalProfilesListLookup);
+            return await Task.FromResult<IEnumerable<LookupDto<Guid>>>(ProfessionalProfilesListLookup);
         }
-        var lookupDtos = ProfessionalProfilesListLookup.Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase));
-        return Task.FromResult(lookupDtos);
+
+        var lookupDtos = await Task.Run(() => 
+        {
+            return ProfessionalProfilesListLookup
+                .Where(x => x.DisplayName.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        }, token);
+
+        return lookupDtos;
     }
+
+
 
     private void Cancel(MouseEventArgs obj)
     {

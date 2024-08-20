@@ -6,6 +6,7 @@ using Force.DeepCloner;
 using IBLTermocasa.Contacts;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using MudBlazor;
 using Volo.Abp;
 
 namespace IBLTermocasa.Blazor.Components.Contact;
@@ -31,21 +32,34 @@ public partial class ContactInput
     [Parameter] public EventCallback<ContactDto> OnContactCancel { get; set; }
 
     private bool _isComponentRendered = false;
+    public MudForm MudFormInternalContact;
+    private string[] Errors = [];
+    private object Validations;
+    private bool InternalContactIsValid;
+    private bool _isLoading = true;
+    
+    
     private async Task HandleValidSubmit()
     {
-        if (await ContactValidations.ValidateAll() == false)
+        if (IsNew)
+        {
+            InternalContact.ConcurrencyStamp = Guid.NewGuid().ToString();
+        }
+        MudFormInternalContact.Validate();
+        if(Errors.Length > 0)
         {
             return;
         }
+
         try
         {
-            // copy Contact properties to EditingContact with mapper
             if (IsNew)
             {
-                InternalContact.ConcurrencyStamp = Guid.NewGuid().ToString();
                 NewContact = _mapper.Map<ContactDto, ContactCreateDto>(InternalContact);
                 var result = await ContactsAppService.CreateAsync(NewContact);
                 Contact = _mapper.Map<ContactDto>(result);
+                InternalContact = Contact.DeepClone();
+                //questo non lo so isNew
                 IsNew = false;
             }
             else
@@ -59,12 +73,15 @@ public partial class ContactInput
             {
                 await OnContactSaved.InvokeAsync(Contact);
             }
-            StateHasChanged();
         }
+        
         catch (Exception ex)
         {
+            Console.WriteLine(ex.StackTrace);
             throw new UserFriendlyException(ex.Message);
         }
+        
+        StateHasChanged();
     }
 
     private async Task HandleCancel()
@@ -102,7 +119,7 @@ public partial class ContactInput
                 Console.WriteLine($">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>_contactImageString {_contactImageString}");
             }
         }
-        
+        _isLoading = false;
         StateHasChanged();
     }
 

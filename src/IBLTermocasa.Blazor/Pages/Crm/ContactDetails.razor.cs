@@ -52,12 +52,6 @@ public partial class ContactDetails
 
     public bool IsNew { get; set; } = false;
 
-    protected override void OnAfterRender(bool firstRender)
-    {
-        base.OnAfterRender(firstRender);
-        ContactInputComponent.ChangeViewModeButton.Visibility = Visibility.Invisible;
-    }
-
     private async Task SetPermissionsAsync()
     {
         CanCreateContact = await AuthorizationService

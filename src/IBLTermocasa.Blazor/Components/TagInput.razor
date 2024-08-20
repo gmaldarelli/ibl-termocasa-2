@@ -1,4 +1,5 @@
-﻿@using MudBlazor
+﻿@using System.Threading
+@using MudBlazor
 @using Color = MudBlazor.Color
 
 <MudAutocomplete T="string"
@@ -69,17 +70,31 @@
         StateHasChanged();
     }
 
-    private Task<IEnumerable<string>> OnSearchChanged(string searchText)
+    private async Task<IEnumerable<string>> OnSearchChanged(string searchText, CancellationToken token)
     {
-        // Filtra i risultati in base al testo di ricerca
-        var result = listTagsToSelection.Where(c => c.Contains(searchText, StringComparison.CurrentCultureIgnoreCase)).ToList();
+        if (listTagsToSelection == null || listTagsToSelection.Count == 0)
+            return new List<string>();
 
-        // Mostra il pulsante se il testo di ricerca non è vuoto e non esiste già in multipleSelectionTexts (case-insensitive)
-        showAddButton = !string.IsNullOrWhiteSpace(searchText) &&
-                        !Tags.Any(x => x.Equals(searchText, StringComparison.CurrentCultureIgnoreCase));
+        return await Task.Run(() =>
+        {
+            // Verifica se la ricerca è stata annullata
+            token.ThrowIfCancellationRequested();
 
-        return Task.FromResult(result.AsEnumerable());
+            // Filtra i risultati in base al testo di ricerca
+            var result = string.IsNullOrEmpty(searchText)
+                ? listTagsToSelection
+                : listTagsToSelection
+                    .Where(c => c.Contains(searchText, StringComparison.CurrentCultureIgnoreCase))
+                    .ToList();
+
+            // Mostra il pulsante se il testo di ricerca non è vuoto e non esiste già in Tags (case-insensitive)
+            showAddButton = !string.IsNullOrWhiteSpace(searchText) &&
+                            !Tags.Any(x => x.Equals(searchText, StringComparison.CurrentCultureIgnoreCase));
+
+            return result.AsEnumerable();
+        }, token);
     }
+
 
     private void AddItem()
     {

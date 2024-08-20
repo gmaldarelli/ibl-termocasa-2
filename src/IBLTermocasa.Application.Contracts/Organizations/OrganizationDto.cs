@@ -14,12 +14,12 @@ namespace IBLTermocasa.Organizations
         public OrganizationType OrganizationType { get; set; }
         public Guid? IndustryId { get; set; }
         public List<ContactPropertyDto> ListContacts { get; set; } = new();
-        public MailInfoDto MailInfo { get; set; } = new MailInfoDto();
-        public PhoneInfoDto PhoneInfo { get; set; } = new PhoneInfoDto();
-        public SocialInfoDto SocialInfo { get; set; } = new SocialInfoDto();
-        public AddressDto BillingAddress { get; set; } = new AddressDto();
-        public AddressDto ShippingAddress { get; set; } = new AddressDto();
-        public List<string> Tags { get; set; } = new List<string>();
+        public MailInfoDto MailInfo { get; set; } = new();
+        public PhoneInfoDto PhoneInfo { get; set; } = new();
+        public SocialInfoDto SocialInfo { get; set; } = new();
+        public AddressDto BillingAddress { get; set; } = new();
+        public AddressDto ShippingAddress { get; set; } = new();
+        public List<string> Tags { get; set; } = new();
         public string? Notes { get; set; }
         public string? ImageId { get; set; }
         public SourceType SourceType { get; set; }

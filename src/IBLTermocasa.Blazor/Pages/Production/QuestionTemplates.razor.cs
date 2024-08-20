@@ -158,6 +158,7 @@ namespace IBLTermocasa.Blazor.Pages.Production
         {
             await QuestionTemplatesAppService.DeleteAsync(input.Id);
             await GetQuestionTemplatesAsync();
+            await QuestionTemplateMudDataGrid.ReloadServerData();
         }
 
         private async Task CreateQuestionTemplateAsync()
@@ -171,6 +172,7 @@ namespace IBLTermocasa.Blazor.Pages.Production
 
                 await QuestionTemplatesAppService.CreateAsync(NewQuestionTemplate);
                 await GetQuestionTemplatesAsync();
+                await QuestionTemplateMudDataGrid.ReloadServerData();
                 await CloseCreateQuestionTemplateModalAsync();
             }
             catch (Exception ex)
@@ -195,6 +197,7 @@ namespace IBLTermocasa.Blazor.Pages.Production
 
                 await QuestionTemplatesAppService.UpdateAsync(EditingQuestionTemplateId, EditingQuestionTemplate);
                 await GetQuestionTemplatesAsync();
+                await QuestionTemplateMudDataGrid.ReloadServerData();
                 await EditQuestionTemplateModal.Hide();                
             }
             catch (Exception ex)
