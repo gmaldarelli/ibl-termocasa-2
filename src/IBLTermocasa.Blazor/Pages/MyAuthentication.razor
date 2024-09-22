@@ -15,11 +15,13 @@
     private async Task OnLogInSucceeded(RemoteAuthenticationState obj)
     {
         await WebAssemblyCachedApplicationConfigurationClient.InitializeAsync();
+        StateHasChanged();  
         Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>OnLogInSucceeded");
     }
     private async Task OnLogOutSucceeded(RemoteAuthenticationState obj)
     {
         await WebAssemblyCachedApplicationConfigurationClient.InitializeAsync();
+        StateHasChanged();  
         Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>OnLogInSucceeded");
     }
 }
