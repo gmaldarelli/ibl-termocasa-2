@@ -271,3 +271,4 @@ src/IBLTermocasa.Blazor.Server.Tiered/Logs/*
 # IdentityServer temp files
 tempkey.rsa
 tempkey.jwk
+.env

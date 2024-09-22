@@ -2,10 +2,10 @@ version: '3.8'
 
 services:
   ibltermocasa-blazor:
-    image: ibldockeruser/blzr8523:latest
-    container_name: ibltermocasa-blazor
+    image: ibldockeruser/blzr8523:V1
+    container_name: ibltermocasa-blazorV1
     ports:
-      - "44307:80"
+      - "44308:80"
     depends_on:
       - ibltermocasa-api
     restart: on-failure
@@ -16,10 +16,11 @@ services:
       - abp-network
 
   ibltermocasa-api:
-    image: ibldockeruser/host1235:latest
-    container_name: ibltermocasa-api
+    image: ibldockeruser/host1235:V1
+    container_name: ibltermocasa-apiV1
     hostname: ibltermocasa-api
     environment:
+      - DOTNET_ENVIRONMENT=Staging
       - ASPNETCORE_URLS=https://+:443;http://+:80;
       - Kestrel__Certificates__Default__Path=/root/certificate/localhost.pfx
       - Kestrel__Certificates__Default__Password=c2461192-cc67-40b6-9f59-ce68a2da55f0
@@ -30,7 +31,9 @@ services:
       - AuthServer__Authority=http://ibltermocasa-authserver
       - AuthServer__MetaAddress=https://localhost:44334
       - App__MVCPublicUrl=https://localhost:44306
-      - ConnectionStrings__Default=mongodb+srv://tcp-app-user:TKfQNWDtdLeoQYx5@tpc-db-dev.trgnsi9.mongodb.net/?retryWrites=true&w=majority&appName=tpc-db-dev     
+      - ConnectionStrings__Default=mongodb+srv://tcp-app-user:TKfQNWDtdLeoQYx5@tpc-db-dev.trgnsi9.mongodb.net/?retryWrites=true&w=majority&appName=tpc-db-dev
+      - AbpStudioClient__StudioUrl=http://abp-studio-proxy:38271
+      - AbpStudioClient__IsLinkEnabled=false
     ports:
       - "44354:443"
     restart: on-failure    
@@ -41,16 +44,20 @@ services:
   
   ibltermocasa-authserver:
     image: ibldockeruser/auth7856:latest
-    container_name: ibltermocasa-authserver
+    container_name: ibltermocasa-authserverV1
     environment:
+      - DOTNET_ENVIRONMENT=Staging
       - ASPNETCORE_URLS=https://+:443;http://+:80;
       - App__SelfUrl=https://localhost:44334
       - App__CorsOrigins=http://localhost:44307,https://localhost:44354
       - AuthServer__RequireHttpsMetadata=false
       - AuthServer__Authority=https://localhost:44334
+      - StringEncryption__DefaultPassPhrase=KtGsiVS9FfYFP5cQ
       - Kestrel__Certificates__Default__Path=/root/certificate/localhost.pfx
       - Kestrel__Certificates__Default__Password=c2461192-cc67-40b6-9f59-ce68a2da55f0
       - ConnectionStrings__Default=mongodb+srv://tcp-app-user:TKfQNWDtdLeoQYx5@tpc-db-dev.trgnsi9.mongodb.net/?retryWrites=true&w=majority&appName=tpc-db-dev
+      - AbpStudioClient__StudioUrl=http://abp-studio-proxy:38271
+      - AbpStudioClient__IsLinkEnabled=false
     ports:
       - "44334:443"
     restart: on-failure
@@ -61,5 +68,5 @@ services:
 
 networks:
   abp-network:
-    name: ibltermocasa-network
+    name: ibltermocasa-networkV1
     driver: bridge

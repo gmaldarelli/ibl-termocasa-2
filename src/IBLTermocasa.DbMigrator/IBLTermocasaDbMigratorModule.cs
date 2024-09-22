@@ -8,7 +8,7 @@ namespace IBLTermocasa.DbMigrator;
 
 [DependsOn(
     typeof(AbpAutofacModule),
-    typeof(AbpCachingStackExchangeRedisModule),
+    /*typeof(AbpCachingStackExchangeRedisModule),*/
     typeof(IBLTermocasaMongoDbModule),
     typeof(IBLTermocasaApplicationContractsModule)
 )]
@@ -16,6 +16,6 @@ public class IBLTermocasaDbMigratorModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
-        Configure<AbpDistributedCacheOptions>(options => { options.KeyPrefix = "IBLTermocasa:"; });
+        //Configure<AbpDistributedCacheOptions>(options => { options.KeyPrefix = "IBLTermocasa:"; });
     }
 }

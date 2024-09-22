@@ -60,8 +60,8 @@ namespace IBLTermocasa;
 
 [DependsOn(
     typeof(AbpAutofacModule),
-    typeof(AbpCachingStackExchangeRedisModule),
-    typeof(AbpDistributedLockingModule),
+    /*typeof(AbpCachingStackExchangeRedisModule),
+    typeof(AbpDistributedLockingModule),*/
     typeof(AbpAspNetCoreSerilogModule),
     typeof(AbpAccountPublicWebOpenIddictModule),
     typeof(AbpAccountPublicHttpApiModule),
@@ -187,7 +187,7 @@ public class IBLTermocasaAuthServerModule : AbpModule
             options.KeyPrefix = "IBLTermocasa:";
         });
 
-        var dataProtectionBuilder = context.Services.AddDataProtection().SetApplicationName("IBLTermocasa");
+        /*var dataProtectionBuilder = context.Services.AddDataProtection().SetApplicationName("IBLTermocasa");
         if (!hostingEnvironment.IsDevelopment())
         {
             //var redis = ConnectionMultiplexer.Connect("redis-10768.c282.east-us-mz.azure.redns.redis-cloud.com:10768,password=te5yy0TgtdAInOCPEHkrbiJzWQEIrx4O,abortConnect=False");
@@ -199,7 +199,7 @@ public class IBLTermocasaAuthServerModule : AbpModule
         {
             var connection = ConnectionMultiplexer.Connect(configuration["Redis:Configuration"]!);
             return new RedisDistributedSynchronizationProvider(connection.GetDatabase());
-        });
+        });*/
 
         context.Services.AddCors(options =>
         {

@@ -43,19 +43,19 @@ using Volo.Abp.AspNetCore.SignalR;
 
 namespace IBLTermocasa;
 
+[DependsOn(typeof(ChatSignalRModule))]
 [DependsOn(
     typeof(IBLTermocasaHttpApiModule),
     typeof(AbpAutofacModule),
-    typeof(AbpCachingStackExchangeRedisModule),
-    typeof(AbpDistributedLockingModule),
+    /*typeof(AbpCachingStackExchangeRedisModule),*/
+    /*typeof(AbpDistributedLockingModule),*/
     typeof(AbpAspNetCoreMvcUiMultiTenancyModule),
     typeof(AbpIdentityAspNetCoreModule),
     typeof(IBLTermocasaApplicationModule),
     typeof(IBLTermocasaMongoDbModule),
     typeof(AbpSwashbuckleModule),
     typeof(AbpAspNetCoreSerilogModule)
-    )]
-[DependsOn(typeof(ChatSignalRModule))]
+)]
     [DependsOn(typeof(AbpAspNetCoreSignalRModule))]
     public class IBLTermocasaHttpApiHostModule : AbpModule
 {
@@ -73,13 +73,13 @@ namespace IBLTermocasa;
         ConfigureConventionalControllers();
         ConfigureAuthentication(context, configuration);
         ConfigureSwagger(context, configuration);
-        ConfigureCache(configuration);
+        //ConfigureCache(configuration);
         ConfigureVirtualFileSystem(context);
-        ConfigureDataProtection(context, configuration, hostingEnvironment);
-        ConfigureDistributedLocking(context, configuration);
+        //ConfigureDataProtection(context, configuration, hostingEnvironment);
+        //ConfigureDistributedLocking(context, configuration);
         ConfigureCors(context, configuration);
         ConfigureExternalProviders(context);
-        ConfigureHealthChecks(context);
+        //ConfigureHealthChecks(context);
 
         Configure<PermissionManagementOptions>(options =>
         {
