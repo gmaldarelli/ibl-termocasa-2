@@ -13,14 +13,6 @@ jobs:
           submodules: true
           lfs: false
           
-      - name: Candidate Application Settings
-        run: |
-          echo "APP_SETTTING_TARGET=appsettings.Production.json"
-          mv src/IBLTermocasa.Blazor/wwwroot/${APP_SETTTING_TARGET} src/IBLTermocasa.Blazor/wwwroot/candidate.appsettings.json
-          rm -f src/IBLTermocasa.Blazor/wwwroot/appsettings*.json
-          mv src/IBLTermocasa.Blazor/wwwroot/candidate.appsettings.json src/IBLTermocasa.Blazor/wwwroot/appsettings.json
-          ls -la src/IBLTermocasa.Blazor/wwwroot/appsettings*
-          cat src/IBLTermocasa.Blazor/wwwroot/appsettings.json      
           
       - name: Build And Deploy
         id: builddeploy
