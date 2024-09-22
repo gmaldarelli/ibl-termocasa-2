@@ -4,12 +4,12 @@ using System.Net.Http;
 using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
 using IBLTermocasa.Blazor.Components;
+using IBLTermocasa.Blazor.Navigation;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using IBLTermocasa.Blazor.Components.Layout;
-using IBLTermocasa.Blazor.Navigation;
 using OpenIddict.Abstractions;
 using Volo.Abp.Account.Pro.Admin.Blazor.WebAssembly;
 using Volo.Abp.AspNetCore.Components.Web.LeptonTheme.Components;
@@ -22,19 +22,18 @@ using Volo.Abp.AutoMapper;
 using Volo.Abp.Gdpr.Blazor.Extensions;
 using Volo.Abp.Gdpr.Blazor.WebAssembly;
 using Volo.Abp.Identity.Pro.Blazor.Server.WebAssembly;
-using Volo.Abp.Modularity;
-using Volo.Abp.UI.Navigation;
 using Volo.Abp.LanguageManagement.Blazor.WebAssembly;
+using Volo.Abp.LeptonTheme.Management.Blazor.WebAssembly;
+using Volo.Abp.Modularity;
 using Volo.Abp.OpenIddict.Pro.Blazor.WebAssembly;
 using Volo.Abp.SettingManagement.Blazor.WebAssembly;
 using Volo.Abp.TextTemplateManagement.Blazor.WebAssembly;
-using Volo.Saas.Host.Blazor.WebAssembly;
-using Volo.CmsKit.Pro.Admin.Blazor.WebAssembly;
-
-using Volo.Abp.LeptonTheme.Management.Blazor.WebAssembly;
+using Volo.Abp.UI.Navigation;
 using Volo.Chat.Blazor;
 using Volo.Chat.Blazor.WebAssembly;
+using Volo.CmsKit.Pro.Admin.Blazor.WebAssembly;
 using Volo.FileManagement.Blazor.WebAssembly;
+using Volo.Saas.Host.Blazor.WebAssembly;
 
 namespace IBLTermocasa.Blazor;
 
@@ -112,6 +111,8 @@ namespace IBLTermocasa.Blazor;
         {
             options.AppAssembly = typeof(IBLTermocasaBlazorModule).Assembly;
         });
+        
+
     }
 
     private void ConfigureMenu(ServiceConfigurationContext context)

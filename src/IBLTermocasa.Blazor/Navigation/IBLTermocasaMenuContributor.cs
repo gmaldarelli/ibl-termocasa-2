@@ -34,8 +34,6 @@ public class IBLTermocasaMenuContributor : IMenuContributor
     {
         if (context.Menu.Name == StandardMenus.Main)
         {
-            
-            Thread.Sleep(1000);
             await ConfigureMainMenuAsync(context);
         }
         else if (context.Menu.Name == StandardMenus.User)
